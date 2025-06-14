@@ -516,13 +516,20 @@ export default function ProductResearch() {
                               <Badge variant="outline">{product.apiSource}</Badge>
                             </div>
                           </div>
-                          {product.imageUrl && (
-                            <img 
-                              src={product.imageUrl} 
-                              alt={product.title}
-                              className="w-20 h-20 object-cover rounded ml-4"
-                            />
-                          )}
+                          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded ml-4 flex items-center justify-center">
+                            {product.imageUrl ? (
+                              <img 
+                                src={product.imageUrl} 
+                                alt={product.title}
+                                className="w-20 h-20 object-cover rounded"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                }}
+                              />
+                            ) : null}
+                            <Package className="w-8 h-8 text-gray-400" />
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">

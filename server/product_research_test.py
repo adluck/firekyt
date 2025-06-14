@@ -61,7 +61,7 @@ def generate_sample_products(niche: str, category: str = None, max_results: int 
             'commission_amount': 0,  # Will be calculated
             'product_url': f"https://example-store.com/product/{i+1}",
             'affiliate_url': f"https://affiliate.example.com/link/{i+1}",
-            'image_url': f"https://images.example.com/product-{i+1}.jpg",
+            'image_url': f"https://picsum.photos/300/300?random={i+1}",
             'asin': f"B0{random.randint(10000000, 99999999)}",
             'sku': f"SKU{random.randint(1000, 9999)}",
             'rating': round(random.uniform(3.5, 5.0), 1),
