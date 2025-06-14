@@ -482,6 +482,27 @@ export default function ProductResearch() {
         </TabsContent>
 
         <TabsContent value="results" className="space-y-6">
+          {researchResults?.products && researchResults.products.length > 0 && (
+            <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
+              <CardContent className="p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-amber-600 dark:text-amber-400 text-sm font-semibold">!</span>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-medium text-amber-800 dark:text-amber-200">
+                      Demo Mode - Sample Data
+                    </h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      These are sample products generated for demonstration. To access real product data with images and live pricing, 
+                      provide your Amazon Product Advertising API, Commission Junction, or SerpAPI credentials in the settings.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
@@ -517,25 +538,23 @@ export default function ProductResearch() {
                               <Badge variant="outline">{product.apiSource}</Badge>
                             </div>
                           </div>
-                          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded ml-4 flex items-center justify-center relative">
+                          <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded ml-4 flex items-center justify-center border border-blue-200 dark:border-blue-700">
                             {product.imageUrl ? (
-                              <>
-                                <img 
-                                  src={product.imageUrl} 
-                                  alt={product.title}
-                                  className="w-20 h-20 object-cover rounded"
-                                  onError={(e) => {
-                                    console.log('Image failed to load:', product.imageUrl);
-                                    e.currentTarget.style.display = 'none';
-                                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                  }}
-                                />
-                                <Package className="w-8 h-8 text-gray-400 absolute" style={{display: 'none'}} />
-                              </>
-                            ) : (
-                              <Package className="w-8 h-8 text-gray-400" />
-                            )}
+                              <img 
+                                src={product.imageUrl} 
+                                alt={product.title}
+                                className="w-20 h-20 object-cover rounded"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div className="flex flex-col items-center justify-center text-blue-600 dark:text-blue-300">
+                              <Package className="w-6 h-6 mb-1" />
+                              <span className="text-xs font-medium">Product</span>
+                            </div>
                           </div>
                         </div>
 
