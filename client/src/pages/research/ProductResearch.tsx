@@ -138,18 +138,7 @@ export default function ProductResearch() {
         save_to_database: data.saveToDatabase.toString()
       });
 
-      const response = await fetch(`/api/research-products?${params}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Research failed');
-      }
-
-      return response.json();
+      return apiRequest('GET', `/api/research-products?${params}`);
     },
     onSuccess: (data) => {
       setResearchResults(data);
