@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,12 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && (!isAuthenticated || !user)) {
+      setLocation("/login");
+    }
+  }, [isAuthenticated, isLoading, user, setLocation]);
 
   if (isLoading) {
     return (
@@ -28,7 +34,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated || !user) {
-    setLocation("/login");
     return null;
   }
 

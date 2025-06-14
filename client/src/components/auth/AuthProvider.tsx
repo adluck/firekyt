@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const value = {
-    user: user?.user || null,
+    user: user || null,
     login,
     register,
     logout,
