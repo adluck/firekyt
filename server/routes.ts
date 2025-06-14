@@ -959,6 +959,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comparison Tables routes
+  app.get('/api/comparison-tables', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const tables = await storage.getUserComparisonTables(userId);
+      res.json(tables);
+    } catch (error) {
+      console.error('Error fetching comparison tables:', error);
+      res.status(500).json({ message: 'Failed to fetch comparison tables' });
+    }
+  });
+
+  app.post('/api/comparison-tables', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const tableData = { ...req.body, userId };
+      const table = await storage.createComparisonTable(tableData);
+      res.json(table);
+    } catch (error) {
+      console.error('Error creating comparison table:', error);
+      res.status(500).json({ message: 'Failed to create comparison table' });
+    }
+  });
+
+  app.patch('/api/comparison-tables/:id', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const tableId = parseInt(req.params.id);
+      
+      // Verify ownership
+      const existingTable = await storage.getComparisonTable(tableId);
+      if (!existingTable || existingTable.userId !== userId) {
+        return res.status(404).json({ message: 'Comparison table not found' });
+      }
+
+      const updatedTable = await storage.updateComparisonTable(tableId, req.body);
+      res.json(updatedTable);
+    } catch (error) {
+      console.error('Error updating comparison table:', error);
+      res.status(500).json({ message: 'Failed to update comparison table' });
+    }
+  });
+
+  app.delete('/api/comparison-tables/:id', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const tableId = parseInt(req.params.id);
+      
+      // Verify ownership
+      const existingTable = await storage.getComparisonTable(tableId);
+      if (!existingTable || existingTable.userId !== userId) {
+        return res.status(404).json({ message: 'Comparison table not found' });
+      }
+
+      await storage.deleteComparisonTable(tableId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting comparison table:', error);
+      res.status(500).json({ message: 'Failed to delete comparison table' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -22,6 +22,7 @@ import ContentGenerator from "@/pages/content/ContentGenerator";
 import AdvancedContentGenerator from "@/pages/content/AdvancedContentGenerator";
 import ProductResearch from "@/pages/research/ProductResearch";
 import SeoAnalysis from "@/pages/research/SeoAnalysis";
+import ContentEditor from "@/pages/content/ContentEditor";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
 import Subscribe from "@/pages/subscription/Subscribe";
@@ -84,6 +85,22 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <ContentGenerator />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/content/editor">
+        <ProtectedRoute>
+          <AppLayout>
+            <ContentEditor />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/content/editor/:id">
+        <ProtectedRoute>
+          <AppLayout>
+            <ContentEditor />
           </AppLayout>
         </ProtectedRoute>
       </Route>
