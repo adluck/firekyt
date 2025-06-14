@@ -200,6 +200,76 @@ export const affiliatePrograms = pgTable("affiliate_programs", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Platform integrations table
+export const platformConnections = pgTable("platform_connections", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(), // wordpress, medium, shopify, linkedin, pinterest, instagram
+  platformUserId: text("platform_user_id"),
+  platformUsername: text("platform_username"),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token"),
+  tokenExpiresAt: timestamp("token_expires_at"),
+  webhookUrl: text("webhook_url"),
+  isActive: boolean("is_active").notNull().default(true),
+  connectionData: jsonb("connection_data"), // platform-specific data
+  lastSyncAt: timestamp("last_sync_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Scheduled publications table
+export const scheduledPublications = pgTable("scheduled_publications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  contentId: integer("content_id").notNull().references(() => content.id, { onDelete: "cascade" }),
+  platformConnectionId: integer("platform_connection_id").notNull().references(() => platformConnections.id, { onDelete: "cascade" }),
+  scheduledAt: timestamp("scheduled_at").notNull(),
+  status: text("status").notNull().default("pending"), // pending, published, failed, cancelled
+  platformPostId: text("platform_post_id"),
+  platformUrl: text("platform_url"),
+  publishSettings: jsonb("publish_settings"), // platform-specific publishing options
+  errorMessage: text("error_message"),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Publication history table
+export const publicationHistory = pgTable("publication_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  contentId: integer("content_id").notNull().references(() => content.id, { onDelete: "cascade" }),
+  platformConnectionId: integer("platform_connection_id").notNull().references(() => platformConnections.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(),
+  platformPostId: text("platform_post_id"),
+  platformUrl: text("platform_url"),
+  status: text("status").notNull(), // published, updated, deleted, failed
+  metrics: jsonb("metrics"), // views, likes, shares, comments, etc.
+  publishedAt: timestamp("published_at").notNull(),
+  lastSyncAt: timestamp("last_sync_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Engagement tracking table
+export const engagementMetrics = pgTable("engagement_metrics", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  contentId: integer("content_id").notNull().references(() => content.id, { onDelete: "cascade" }),
+  platformConnectionId: integer("platform_connection_id").notNull().references(() => platformConnections.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(),
+  date: timestamp("date").notNull(),
+  views: integer("views").default(0),
+  likes: integer("likes").default(0),
+  shares: integer("shares").default(0),
+  comments: integer("comments").default(0),
+  clicks: integer("clicks").default(0),
+  impressions: integer("impressions").default(0),
+  reach: integer("reach").default(0),
+  engagementRate: decimal("engagement_rate", { precision: 5, scale: 2 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -265,6 +335,28 @@ export const insertComparisonTableSchema = createInsertSchema(comparisonTables).
   id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+export const insertPlatformConnectionSchema = createInsertSchema(platformConnections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertScheduledPublicationSchema = createInsertSchema(scheduledPublications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPublicationHistorySchema = createInsertSchema(publicationHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEngagementMetricsSchema = createInsertSchema(engagementMetrics).omit({
+  id: true,
+  createdAt: true,
 });
 
 // Product Research System Tables
