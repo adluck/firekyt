@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, serial, integer, boolean, timestamp, jsonb, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -126,6 +126,97 @@ export const insertAffiliateProgramSchema = createInsertSchema(affiliatePrograms
   createdAt: true,
 });
 
+// Product Research System Tables
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Basic product information
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  brand: varchar("brand", { length: 255 }),
+  category: varchar("category", { length: 255 }).notNull(),
+  niche: varchar("niche", { length: 255 }).notNull(),
+  
+  // Pricing and commission data
+  price: decimal("price", { precision: 10, scale: 2 }),
+  originalPrice: decimal("original_price", { precision: 10, scale: 2 }),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).notNull(),
+  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }),
+  
+  // Product links and IDs
+  productUrl: varchar("product_url", { length: 1000 }).notNull(),
+  affiliateUrl: varchar("affiliate_url", { length: 1000 }),
+  imageUrl: varchar("image_url", { length: 1000 }),
+  asin: varchar("asin", { length: 20 }), // Amazon ASIN
+  sku: varchar("sku", { length: 100 }),
+  
+  // Performance metrics
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  reviewCount: integer("review_count"),
+  salesRank: integer("sales_rank"),
+  trendingScore: decimal("trending_score", { precision: 5, scale: 2 }),
+  competitionScore: decimal("competition_score", { precision: 5, scale: 2 }),
+  
+  // Research and scoring data
+  researchScore: decimal("research_score", { precision: 5, scale: 2 }).notNull(),
+  keywords: text("keywords").array(),
+  searchVolume: integer("search_volume"),
+  difficulty: integer("difficulty"), // SEO difficulty score
+  
+  // API source information
+  apiSource: varchar("api_source", { length: 50 }).notNull(), // 'amazon', 'cj', 'serp', etc.
+  externalId: varchar("external_id", { length: 255 }),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  
+  // Metadata
+  tags: text("tags").array(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const productResearchSessions = pgTable("product_research_sessions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Research parameters
+  niche: varchar("niche", { length: 255 }).notNull(),
+  productCategory: varchar("product_category", { length: 255 }),
+  minCommissionRate: decimal("min_commission_rate", { precision: 5, scale: 2 }),
+  minTrendingScore: decimal("min_trending_score", { precision: 5, scale: 2 }),
+  maxResults: integer("max_results").default(50),
+  
+  // Research results
+  totalProductsFound: integer("total_products_found"),
+  productsStored: integer("products_stored"),
+  averageScore: decimal("average_score", { precision: 5, scale: 2 }),
+  topProductId: integer("top_product_id").references(() => products.id),
+  
+  // API usage tracking
+  apiCallsMade: integer("api_calls_made"),
+  apiSources: text("api_sources").array(),
+  researchDuration: integer("research_duration_ms"),
+  
+  // Status and metadata
+  status: varchar("status", { length: 50 }).default("completed"), // pending, completed, failed
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertProductSchema = createInsertSchema(products).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertProductResearchSessionSchema = createInsertSchema(productResearchSessions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -139,6 +230,10 @@ export type Usage = typeof usage.$inferSelect;
 export type InsertUsage = z.infer<typeof insertUsageSchema>;
 export type AffiliateProgram = typeof affiliatePrograms.$inferSelect;
 export type InsertAffiliateProgram = z.infer<typeof insertAffiliateProgramSchema>;
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type ProductResearchSession = typeof productResearchSessions.$inferSelect;
+export type InsertProductResearchSession = z.infer<typeof insertProductResearchSessionSchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {
