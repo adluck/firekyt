@@ -242,7 +242,7 @@ export default function SeoAnalysis() {
                   <div>
                     <p className="text-sm text-muted-foreground">Est. CPC</p>
                     <p className="text-2xl font-bold">
-                      ${analysisResult.cpcEstimate?.toFixed(2) || 'N/A'}
+                      ${analysisResult.cpcEstimate ? parseFloat(analysisResult.cpcEstimate).toFixed(2) : 'N/A'}
                     </p>
                   </div>
                   <DollarSign className="w-8 h-8 text-green-500" />
