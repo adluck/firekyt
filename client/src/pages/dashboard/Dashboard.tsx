@@ -88,15 +88,15 @@ export default function Dashboard() {
                 <Crown className="h-5 w-5 text-primary" />
                 <div>
                   <div className="font-medium">
-                    {user.subscriptionTier.charAt(0).toUpperCase() + user.subscriptionTier.slice(1)} Plan
+                    {(user.subscriptionTier || 'free').charAt(0).toUpperCase() + (user.subscriptionTier || 'free').slice(1)} Plan
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {user.subscriptionStatus === 'active' ? 'Active subscription' : 'Inactive subscription'}
+                    {(user.subscriptionStatus || 'inactive') === 'active' ? 'Active subscription' : 'Inactive subscription'}
                   </div>
                 </div>
               </div>
               
-              {user.subscriptionTier === 'free' && (
+              {(user.subscriptionTier || 'free') === 'free' && (
                 <Link href="/pricing">
                   <Button size="sm" className="btn-gradient">
                     Upgrade

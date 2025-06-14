@@ -90,7 +90,9 @@ export class MemStorage implements IStorage {
     const id = this.currentUserId++;
     const now = new Date();
     const user: User = { 
-      ...insertUser, 
+      ...insertUser,
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null,
       id, 
       createdAt: now, 
       updatedAt: now,
@@ -222,7 +224,12 @@ export class MemStorage implements IStorage {
   // Analytics
   async createAnalytics(insertAnalytics: InsertAnalytics): Promise<Analytics> {
     const id = this.currentAnalyticsId++;
-    const analytics: Analytics = { ...insertAnalytics, id };
+    const analytics: Analytics = { 
+      ...insertAnalytics, 
+      id,
+      contentId: insertAnalytics.contentId || null,
+      metadata: insertAnalytics.metadata || {}
+    };
     this.analytics.set(id, analytics);
     return analytics;
   }
@@ -262,14 +269,19 @@ export class MemStorage implements IStorage {
     );
 
     if (existing) {
-      existing.count = insertUsage.count;
+      existing.count = insertUsage.count || 0;
       this.usage.set(existing.id, existing);
       return existing;
     }
 
     const id = this.currentUsageId++;
     const now = new Date();
-    const usage: Usage = { ...insertUsage, id, createdAt: now };
+    const usage: Usage = { 
+      ...insertUsage, 
+      id, 
+      createdAt: now,
+      count: insertUsage.count || 0
+    };
     this.usage.set(id, usage);
     return usage;
   }
