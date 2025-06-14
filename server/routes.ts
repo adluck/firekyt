@@ -558,6 +558,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         save_to_database: req.query.save_to_database !== 'false'
       });
 
+      console.log('Research request received:', {
+        niche: params.niche,
+        category: params.product_category,
+        userId: req.user?.id
+      });
+
       // Create research session
       const researchSession = await storage.createProductResearchSession({
         userId: req.user!.id,
