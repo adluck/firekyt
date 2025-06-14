@@ -66,7 +66,7 @@ export const seoAnalyses = pgTable("seo_analyses", {
   searchVolume: integer("search_volume"),
   keywordDifficulty: integer("keyword_difficulty"),
   competitionLevel: varchar("competition_level", { length: 20 }),
-  cpcEstimate: decimal("cpc_estimate", { precision: 10, scale: 2 }),
+  cpcEstimate: varchar("cpc_estimate", { length: 20 }),
   topCompetitors: jsonb("top_competitors"),
   suggestedTitles: text("suggested_titles").array(),
   suggestedDescriptions: text("suggested_descriptions").array(),

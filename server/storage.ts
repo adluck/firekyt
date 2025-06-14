@@ -645,6 +645,42 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return session;
   }
+
+  // SEO analysis methods
+  async getSeoAnalysis(id: number): Promise<SeoAnalysis | undefined> {
+    const [analysis] = await db.select().from(seoAnalyses).where(eq(seoAnalyses.id, id));
+    return analysis;
+  }
+
+  async getUserSeoAnalyses(userId: number): Promise<SeoAnalysis[]> {
+    return await db
+      .select()
+      .from(seoAnalyses)
+      .where(eq(seoAnalyses.userId, userId))
+      .orderBy(desc(seoAnalyses.createdAt));
+  }
+
+  async createSeoAnalysis(analysisData: InsertSeoAnalysis): Promise<SeoAnalysis> {
+    const [analysis] = await db.insert(seoAnalyses).values(analysisData).returning();
+    return analysis;
+  }
+
+  async findSeoAnalysisByKeyword(userId: number, keyword: string, region?: string): Promise<SeoAnalysis | undefined> {
+    let conditions = [eq(seoAnalyses.userId, userId), eq(seoAnalyses.keyword, keyword)];
+    
+    if (region) {
+      conditions.push(eq(seoAnalyses.targetRegion, region));
+    }
+    
+    const [analysis] = await db
+      .select()
+      .from(seoAnalyses)
+      .where(and(...conditions))
+      .orderBy(desc(seoAnalyses.createdAt))
+      .limit(1);
+    
+    return analysis;
+  }
 }
 
 export const storage = new DatabaseStorage();

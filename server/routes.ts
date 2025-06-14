@@ -816,6 +816,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SEO Analysis endpoint
+  app.post('/api/analyze-seo', authenticateUser, async (req, res) => {
+    try {
+      const { keyword, target_region = 'US', include_competitors = true, include_suggestions = true } = req.body;
+      const userId = req.user!.id;
+
+      if (!keyword) {
+        return res.status(400).json({ error: 'Keyword is required' });
+      }
+
+      // Check if we have recent analysis for this keyword
+      const existingAnalysis = await storage.findSeoAnalysisByKeyword(userId, keyword, target_region);
+      
+      // Return cached result if less than 24 hours old
+      if (existingAnalysis && existingAnalysis.analysisDate) {
+        const hoursSinceAnalysis = (Date.now() - new Date(existingAnalysis.analysisDate).getTime()) / (1000 * 60 * 60);
+        if (hoursSinceAnalysis < 24) {
+          return res.json({
+            cached: true,
+            analysis: existingAnalysis,
+            message: 'Using cached analysis from the last 24 hours'
+          });
+        }
+      }
+
+      // Track usage for subscription limits
+      await storage.createOrUpdateUsage({
+        userId,
+        feature: 'seo_analysis',
+        count: 1,
+        periodStart: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        periodEnd: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+      });
+
+      // Run SEO analysis using Python engine
+      console.log(`Running SEO analysis for keyword: ${keyword}, region: ${target_region}`);
+      
+      const pythonProcess = spawn('python', [
+        'server/seo_analysis_engine.py',
+        keyword,
+        target_region
+      ]);
+
+      let analysisData = '';
+      let errorData = '';
+
+      pythonProcess.stdout.on('data', (data: Buffer) => {
+        analysisData += data.toString();
+      });
+
+      pythonProcess.stderr.on('data', (data: Buffer) => {
+        errorData += data.toString();
+        console.error('SEO Analysis stderr:', data.toString());
+      });
+
+      pythonProcess.on('close', async (code: number) => {
+        try {
+          if (code !== 0) {
+            console.error('SEO analysis failed with code:', code, 'Error:', errorData);
+            return res.status(500).json({ 
+              error: 'SEO analysis failed',
+              details: errorData 
+            });
+          }
+
+          const analysisResult = JSON.parse(analysisData);
+          
+          // Store analysis in database
+          const seoAnalysisData = {
+            userId,
+            keyword: analysisResult.keyword,
+            targetRegion: analysisResult.target_region || target_region,
+            searchVolume: analysisResult.search_volume,
+            keywordDifficulty: analysisResult.keyword_difficulty,
+            competitionLevel: analysisResult.competition_level,
+            cpcEstimate: analysisResult.cpc_estimate ? analysisResult.cpc_estimate.toString() : null,
+            topCompetitors: analysisResult.top_competitors || [],
+            suggestedTitles: analysisResult.suggested_titles || [],
+            suggestedDescriptions: analysisResult.suggested_descriptions || [],
+            suggestedHeaders: analysisResult.suggested_headers || [],
+            relatedKeywords: analysisResult.related_keywords || [],
+            serpFeatures: analysisResult.serp_features || [],
+            trendsData: analysisResult.trends_data || {},
+            apiSource: analysisResult.api_source || 'python_engine',
+            analysisDate: new Date()
+          };
+
+          const savedAnalysis = await storage.createSeoAnalysis(seoAnalysisData);
+
+          res.json({
+            success: true,
+            analysis: savedAnalysis,
+            cached: false,
+            message: 'SEO analysis completed successfully'
+          });
+
+        } catch (parseError) {
+          console.error('Error parsing SEO analysis result:', parseError);
+          console.error('Raw output:', analysisData);
+          res.status(500).json({ 
+            error: 'Failed to parse SEO analysis result',
+            details: parseError
+          });
+        }
+      });
+
+    } catch (error) {
+      console.error('SEO analysis error:', error);
+      res.status(500).json({ 
+        error: 'SEO analysis failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get user's SEO analyses
+  app.get('/api/seo-analyses', authenticateUser, async (req, res) => {
+    try {
+      const analyses = await storage.getUserSeoAnalyses(req.user!.id);
+      res.json(analyses);
+    } catch (error) {
+      console.error('Error fetching SEO analyses:', error);
+      res.status(500).json({ error: 'Failed to fetch SEO analyses' });
+    }
+  });
+
+  // Get specific SEO analysis
+  app.get('/api/seo-analyses/:id', authenticateUser, async (req, res) => {
+    try {
+      const analysisId = parseInt(req.params.id);
+      const analysis = await storage.getSeoAnalysis(analysisId);
+      
+      if (!analysis || analysis.userId !== req.user!.id) {
+        return res.status(404).json({ error: 'SEO analysis not found' });
+      }
+      
+      res.json(analysis);
+    } catch (error) {
+      console.error('Error fetching SEO analysis:', error);
+      res.status(500).json({ error: 'Failed to fetch SEO analysis' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
