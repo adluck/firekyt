@@ -729,6 +729,121 @@ export class DatabaseStorage implements IStorage {
   async deleteComparisonTable(id: number): Promise<void> {
     await db.delete(comparisonTables).where(eq(comparisonTables.id, id));
   }
+
+  // Advanced Analytics operations
+  async getContentPerformanceByDateRange(userId: number, startDate: Date, endDate: Date): Promise<ContentPerformance[]> {
+    return await db
+      .select()
+      .from(contentPerformance)
+      .where(
+        and(
+          eq(contentPerformance.userId, userId),
+          gte(contentPerformance.date, startDate),
+          lte(contentPerformance.date, endDate)
+        )
+      )
+      .orderBy(desc(contentPerformance.date));
+  }
+
+  async getContentPerformanceById(contentId: number, startDate: Date, endDate: Date): Promise<ContentPerformance[]> {
+    return await db
+      .select()
+      .from(contentPerformance)
+      .where(
+        and(
+          eq(contentPerformance.contentId, contentId),
+          gte(contentPerformance.date, startDate),
+          lte(contentPerformance.date, endDate)
+        )
+      )
+      .orderBy(desc(contentPerformance.date));
+  }
+
+  async getAffiliateClicksByDateRange(userId: number, startDate: Date, endDate: Date): Promise<AffiliateClick[]> {
+    return await db
+      .select()
+      .from(affiliateClicks)
+      .where(
+        and(
+          eq(affiliateClicks.userId, userId),
+          gte(affiliateClicks.createdAt, startDate),
+          lte(affiliateClicks.createdAt, endDate)
+        )
+      )
+      .orderBy(desc(affiliateClicks.createdAt));
+  }
+
+  async getRevenueByDateRange(userId: number, startDate: Date, endDate: Date): Promise<RevenueTracking[]> {
+    return await db
+      .select()
+      .from(revenueTracking)
+      .where(
+        and(
+          eq(revenueTracking.userId, userId),
+          gte(revenueTracking.transactionDate, startDate),
+          lte(revenueTracking.transactionDate, endDate)
+        )
+      )
+      .orderBy(desc(revenueTracking.transactionDate));
+  }
+
+  async getLatestSeoRankings(userId: number): Promise<SeoRanking[]> {
+    return await db
+      .select()
+      .from(seoRankings)
+      .where(eq(seoRankings.userId, userId))
+      .orderBy(desc(seoRankings.date))
+      .limit(100);
+  }
+
+  async getSeoRankingsByKeyword(userId: number, keyword: string, startDate: Date, endDate: Date): Promise<SeoRanking[]> {
+    return await db
+      .select()
+      .from(seoRankings)
+      .where(
+        and(
+          eq(seoRankings.userId, userId),
+          eq(seoRankings.keyword, keyword),
+          gte(seoRankings.date, startDate),
+          lte(seoRankings.date, endDate)
+        )
+      )
+      .orderBy(desc(seoRankings.date));
+  }
+
+  async getSeoRankingsByDateRange(userId: number, startDate: Date, endDate: Date): Promise<SeoRanking[]> {
+    return await db
+      .select()
+      .from(seoRankings)
+      .where(
+        and(
+          eq(seoRankings.userId, userId),
+          gte(seoRankings.date, startDate),
+          lte(seoRankings.date, endDate)
+        )
+      )
+      .orderBy(desc(seoRankings.date));
+  }
+
+  async createContentPerformance(performance: InsertContentPerformance): Promise<ContentPerformance> {
+    const [created] = await db.insert(contentPerformance).values(performance).returning();
+    return created;
+  }
+
+  async createAffiliateClick(click: InsertAffiliateClick): Promise<AffiliateClick> {
+    const [created] = await db.insert(affiliateClicks).values(click).returning();
+    return created;
+  }
+
+  async createSeoRanking(ranking: InsertSeoRanking): Promise<SeoRanking> {
+    const [created] = await db.insert(seoRankings).values(ranking).returning();
+    return created;
+  }
+
+  async createRevenueTracking(revenue: InsertRevenueTracking): Promise<RevenueTracking> {
+    const [created] = await db.insert(revenueTracking).values(revenue).returning();
+    return created;
+  }
 }
 
 export const storage = new DatabaseStorage();

@@ -23,6 +23,7 @@ import AdvancedContentGenerator from "@/pages/content/AdvancedContentGenerator";
 import ProductResearch from "@/pages/research/ProductResearch";
 import SeoAnalysis from "@/pages/research/SeoAnalysis";
 import ContentEditor from "@/pages/content/ContentEditor";
+import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
 import Subscribe from "@/pages/subscription/Subscribe";
