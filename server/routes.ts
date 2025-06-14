@@ -500,12 +500,64 @@ async function generateAIContent(params: {
   seoTitle: string;
   seoDescription: string;
 }> {
-  // This would integrate with OpenAI API
-  // For now, return placeholder content
-  return {
-    title: `${params.topic} - Complete Guide`,
-    content: `This is AI-generated content about ${params.topic} for ${params.targetAudience}. Content would be generated based on the specified parameters including keywords: ${params.keywords.join(', ')}.`,
-    seoTitle: `${params.topic} - Best Practices and Tips`,
-    seoDescription: `Discover everything you need to know about ${params.topic}. Expert insights and recommendations for ${params.targetAudience}.`,
-  };
+  try {
+    const prompt = `
+Create high-quality affiliate content with the following specifications:
+
+Content Type: ${params.contentType}
+Topic: ${params.topic}
+Keywords: ${params.keywords.join(', ')}
+Target Audience: ${params.targetAudience}
+Brand Voice: ${params.brandVoice || 'Professional and engaging'}
+Niche: ${params.niche || 'General'}
+
+Please generate:
+1. A compelling title
+2. Detailed content (minimum 800 words) that naturally incorporates the keywords
+3. An SEO-optimized title (under 60 characters)
+4. An SEO meta description (under 160 characters)
+
+The content should be informative, engaging, and optimized for affiliate conversions while maintaining authenticity and value for readers.
+
+Format the response as JSON with the following structure:
+{
+  "title": "Main article title",
+  "content": "Full article content with proper formatting",
+  "seoTitle": "SEO-optimized title",
+  "seoDescription": "SEO meta description"
+}
+`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    // Try to parse JSON response
+    try {
+      const parsed = JSON.parse(text);
+      return {
+        title: parsed.title || `${params.topic} - Complete Guide`,
+        content: parsed.content || `Comprehensive guide about ${params.topic} for ${params.targetAudience}.`,
+        seoTitle: parsed.seoTitle || `${params.topic} - Best Practices`,
+        seoDescription: parsed.seoDescription || `Learn about ${params.topic}. Expert insights for ${params.targetAudience}.`,
+      };
+    } catch (parseError) {
+      // If JSON parsing fails, extract content manually
+      return {
+        title: `${params.topic} - Complete Guide`,
+        content: text.slice(0, 2000) + '...', // Truncate if too long
+        seoTitle: `${params.topic} - Best Practices and Tips`,
+        seoDescription: `Discover everything you need to know about ${params.topic}. Expert insights and recommendations.`,
+      };
+    }
+  } catch (error) {
+    console.error('Error generating AI content:', error);
+    // Fallback content if AI generation fails
+    return {
+      title: `${params.topic} - Complete Guide`,
+      content: `This comprehensive guide covers everything you need to know about ${params.topic}. Perfect for ${params.targetAudience} looking to understand the key concepts and best practices. Keywords: ${params.keywords.join(', ')}.`,
+      seoTitle: `${params.topic} - Best Practices and Tips`,
+      seoDescription: `Discover everything you need to know about ${params.topic}. Expert insights and recommendations for ${params.targetAudience}.`,
+    };
+  }
 }
