@@ -10,7 +10,8 @@ import {
   Moon,
   LogOut,
   Menu,
-  X
+  X,
+  Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
@@ -36,6 +37,7 @@ const navigation = [
       { name: 'Basic Generator', href: '/content/basic', icon: FileText }
     ]
   },
+  { name: 'Product Research', href: '/research', icon: Search },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
