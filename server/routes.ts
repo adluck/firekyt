@@ -1285,6 +1285,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Platform Connections Management
   app.get("/api/publishing/connections", authenticateToken, async (req, res) => {
     try {
+      // Initialize sample publishing data for first-time users
+      await createSamplePublishingData(req.user!.id);
+      
       const connections = await storage.getUserPlatformConnections(req.user!.id);
       res.json(connections);
     } catch (error: any) {
@@ -1722,4 +1725,172 @@ async function analyzeBestEngagementTimes(platform: string) {
   };
 
   return platformBestTimes[platform as keyof typeof platformBestTimes] || defaultTimes;
+}
+
+// Create sample publishing data for demonstration
+async function createSamplePublishingData(userId: number) {
+  try {
+    // Check if publishing data already exists
+    const existingConnections = await storage.getUserPlatformConnections(userId);
+    if (existingConnections.length > 0) {
+      return; // Data already exists
+    }
+
+    // Create sample platform connections
+    const connections = [
+      {
+        userId,
+        platform: 'wordpress',
+        accessToken: 'wp_sample_token_' + Math.random().toString(36).substr(2, 9),
+        refreshToken: 'wp_refresh_' + Math.random().toString(36).substr(2, 9),
+        platformUserId: 'wp_user_123',
+        platformUsername: 'my-wordpress-blog',
+        connectionData: {
+          blogUrl: 'https://myblog.wordpress.com',
+          apiVersion: 'v2'
+        },
+        tokenExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        isActive: true
+      },
+      {
+        userId,
+        platform: 'medium',
+        accessToken: 'medium_token_' + Math.random().toString(36).substr(2, 9),
+        platformUserId: 'medium_user_456',
+        platformUsername: '@content-creator',
+        connectionData: {
+          publicationId: 'pub_12345'
+        },
+        isActive: true
+      },
+      {
+        userId,
+        platform: 'linkedin',
+        accessToken: 'linkedin_token_' + Math.random().toString(36).substr(2, 9),
+        refreshToken: 'linkedin_refresh_' + Math.random().toString(36).substr(2, 9),
+        platformUserId: 'linkedin_789',
+        platformUsername: 'professional-marketer',
+        connectionData: {
+          profileId: 'prof_789',
+          companyPage: false
+        },
+        tokenExpiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days
+        isActive: true
+      }
+    ];
+
+    const createdConnections = [];
+    for (const connection of connections) {
+      const created = await storage.createPlatformConnection(connection);
+      createdConnections.push(created);
+    }
+
+    // Get user's content for publishing history
+    const userContent = await storage.getUserContent(userId);
+    if (userContent.length === 0) return;
+
+    // Create sample publication history
+    const publicationHistory = [
+      {
+        userId,
+        contentId: userContent[0].id,
+        platformConnectionId: createdConnections[0].id,
+        platform: 'wordpress',
+        platformPostId: 'wp_post_123',
+        platformUrl: 'https://myblog.wordpress.com/2024/06/affiliate-marketing-guide',
+        status: 'published',
+        metrics: {
+          views: 1247,
+          likes: 89,
+          shares: 23,
+          comments: 15
+        },
+        publishedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+        lastSyncAt: new Date(Date.now() - 1 * 60 * 60 * 1000) // 1 hour ago
+      },
+      {
+        userId,
+        contentId: userContent[0].id,
+        platformConnectionId: createdConnections[1].id,
+        platform: 'medium',
+        platformPostId: 'medium_post_456',
+        platformUrl: 'https://medium.com/@content-creator/affiliate-marketing-secrets-789abc',
+        status: 'published',
+        metrics: {
+          views: 892,
+          likes: 67,
+          shares: 34,
+          comments: 12
+        },
+        publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+        lastSyncAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+      }
+    ];
+
+    for (const history of publicationHistory) {
+      await storage.createPublicationHistory(history);
+    }
+
+    // Create sample scheduled publications
+    if (userContent.length > 1) {
+      const scheduledPublications = [
+        {
+          userId,
+          contentId: userContent[1]?.id || userContent[0].id,
+          platformConnectionId: createdConnections[2].id,
+          scheduledAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+          publishSettings: {
+            title: 'Ultimate Guide to Affiliate Marketing Success',
+            excerpt: 'Discover proven strategies to maximize your affiliate income',
+            tags: ['affiliate-marketing', 'digital-marketing', 'passive-income']
+          },
+          status: 'pending'
+        },
+        {
+          userId,
+          contentId: userContent[0].id,
+          platformConnectionId: createdConnections[0].id,
+          scheduledAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+          publishSettings: {
+            title: 'Top 10 Affiliate Products That Convert',
+            excerpt: 'Research-backed product recommendations for maximum conversions'
+          },
+          status: 'pending'
+        }
+      ];
+
+      for (const publication of scheduledPublications) {
+        await storage.createScheduledPublication(publication);
+      }
+    }
+
+    // Create sample engagement metrics over time
+    const engagementMetrics = [];
+    for (let i = 30; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      
+      engagementMetrics.push({
+        userId,
+        contentId: userContent[0].id,
+        platformConnectionId: createdConnections[0].id,
+        platform: 'wordpress',
+        date,
+        metrics: {
+          views: Math.floor(Math.random() * 100) + 50,
+          likes: Math.floor(Math.random() * 20) + 5,
+          shares: Math.floor(Math.random() * 10) + 2,
+          comments: Math.floor(Math.random() * 8) + 1
+        }
+      });
+    }
+
+    for (const metric of engagementMetrics) {
+      await storage.createEngagementMetrics(metric);
+    }
+
+    console.log('Sample publishing data created successfully');
+  } catch (error) {
+    console.error('Error creating sample publishing data:', error);
+  }
 }
