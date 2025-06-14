@@ -51,9 +51,33 @@ export const content = pgTable("content", {
   seoDescription: text("seo_description"),
   targetKeywords: text("target_keywords").array(),
   affiliateLinks: jsonb("affiliate_links"), // Array of affiliate link objects
+  seoAnalysisId: integer("seo_analysis_id").references(() => seoAnalyses.id),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// SEO analysis data
+export const seoAnalyses = pgTable("seo_analyses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  keyword: varchar("keyword", { length: 255 }).notNull(),
+  targetRegion: varchar("target_region", { length: 10 }).default("US"),
+  searchVolume: integer("search_volume"),
+  keywordDifficulty: integer("keyword_difficulty"),
+  competitionLevel: varchar("competition_level", { length: 20 }),
+  cpcEstimate: decimal("cpc_estimate", { precision: 10, scale: 2 }),
+  topCompetitors: jsonb("top_competitors"),
+  suggestedTitles: text("suggested_titles").array(),
+  suggestedDescriptions: text("suggested_descriptions").array(),
+  suggestedHeaders: text("suggested_headers").array(),
+  relatedKeywords: text("related_keywords").array(),
+  serpFeatures: text("serp_features").array(),
+  trendsData: jsonb("trends_data"),
+  apiSource: varchar("api_source", { length: 50 }),
+  analysisDate: timestamp("analysis_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Analytics and performance tracking
@@ -124,6 +148,12 @@ export const insertUsageSchema = createInsertSchema(usage).omit({
 export const insertAffiliateProgramSchema = createInsertSchema(affiliatePrograms).omit({
   id: true,
   createdAt: true,
+});
+
+export const insertSeoAnalysisSchema = createInsertSchema(seoAnalyses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 // Product Research System Tables
@@ -234,6 +264,8 @@ export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type ProductResearchSession = typeof productResearchSessions.$inferSelect;
 export type InsertProductResearchSession = z.infer<typeof insertProductResearchSessionSchema>;
+export type SeoAnalysis = typeof seoAnalyses.$inferSelect;
+export type InsertSeoAnalysis = z.infer<typeof insertSeoAnalysisSchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {

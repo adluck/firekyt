@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
@@ -57,6 +57,12 @@ export interface IStorage {
   getUserResearchSessions(userId: number): Promise<ProductResearchSession[]>;
   createProductResearchSession(session: InsertProductResearchSession): Promise<ProductResearchSession>;
   updateProductResearchSession(id: number, updates: Partial<ProductResearchSession>): Promise<ProductResearchSession>;
+  
+  // SEO analysis operations
+  getSeoAnalysis(id: number): Promise<SeoAnalysis | undefined>;
+  getUserSeoAnalyses(userId: number): Promise<SeoAnalysis[]>;
+  createSeoAnalysis(analysis: InsertSeoAnalysis): Promise<SeoAnalysis>;
+  findSeoAnalysisByKeyword(userId: number, keyword: string, region?: string): Promise<SeoAnalysis | undefined>;
 }
 
 export class MemStorage implements IStorage {
