@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
@@ -70,6 +70,19 @@ export interface IStorage {
   createComparisonTable(table: InsertComparisonTable): Promise<ComparisonTable>;
   updateComparisonTable(id: number, updates: Partial<ComparisonTable>): Promise<ComparisonTable>;
   deleteComparisonTable(id: number): Promise<void>;
+
+  // Advanced Analytics operations
+  getContentPerformanceByDateRange(userId: number, startDate: Date, endDate: Date): Promise<ContentPerformance[]>;
+  getContentPerformanceById(contentId: number, startDate: Date, endDate: Date): Promise<ContentPerformance[]>;
+  getAffiliateClicksByDateRange(userId: number, startDate: Date, endDate: Date): Promise<AffiliateClick[]>;
+  getRevenueByDateRange(userId: number, startDate: Date, endDate: Date): Promise<RevenueTracking[]>;
+  getLatestSeoRankings(userId: number): Promise<SeoRanking[]>;
+  getSeoRankingsByKeyword(userId: number, keyword: string, startDate: Date, endDate: Date): Promise<SeoRanking[]>;
+  getSeoRankingsByDateRange(userId: number, startDate: Date, endDate: Date): Promise<SeoRanking[]>;
+  createContentPerformance(performance: InsertContentPerformance): Promise<ContentPerformance>;
+  createAffiliateClick(click: InsertAffiliateClick): Promise<AffiliateClick>;
+  createSeoRanking(ranking: InsertSeoRanking): Promise<SeoRanking>;
+  createRevenueTracking(revenue: InsertRevenueTracking): Promise<RevenueTracking>;
 }
 
 export class MemStorage implements IStorage {

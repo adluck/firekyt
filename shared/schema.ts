@@ -112,6 +112,71 @@ export const analytics = pgTable("analytics", {
   metadata: jsonb("metadata"), // Additional data like traffic source, device type, etc.
 });
 
+// Content performance tracking
+export const contentPerformance = pgTable("content_performance", {
+  id: serial("id").primaryKey(),
+  contentId: integer("content_id").notNull().references(() => content.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  views: integer("views").default(0),
+  uniqueViews: integer("unique_views").default(0),
+  clicks: integer("clicks").default(0),
+  bounceRate: decimal("bounce_rate", { precision: 5, scale: 2 }),
+  avgTimeOnPage: decimal("avg_time_on_page", { precision: 8, scale: 2 }),
+  conversionRate: decimal("conversion_rate", { precision: 5, scale: 2 }),
+  date: timestamp("date").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Affiliate link tracking
+export const affiliateClicks = pgTable("affiliate_clicks", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  contentId: integer("content_id").references(() => content.id),
+  affiliateUrl: text("affiliate_url").notNull(),
+  productId: integer("product_id").references(() => products.id),
+  clicked: boolean("clicked").default(false),
+  converted: boolean("converted").default(false),
+  commissionEarned: decimal("commission_earned", { precision: 10, scale: 2 }),
+  clickedAt: timestamp("clicked_at"),
+  convertedAt: timestamp("converted_at"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  referrer: text("referrer"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// SEO rankings tracking
+export const seoRankings = pgTable("seo_rankings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  contentId: integer("content_id").references(() => content.id),
+  keyword: text("keyword").notNull(),
+  position: integer("position"),
+  previousPosition: integer("previous_position"),
+  searchEngine: text("search_engine").default("google"),
+  country: text("country").default("US"),
+  device: text("device").default("desktop"), // desktop, mobile
+  url: text("url"),
+  date: timestamp("date").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Revenue and commission tracking
+export const revenueTracking = pgTable("revenue_tracking", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  contentId: integer("content_id").references(() => content.id),
+  affiliateClickId: integer("affiliate_click_id").references(() => affiliateClicks.id),
+  transactionId: text("transaction_id"),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  commission: decimal("commission", { precision: 10, scale: 2 }).notNull(),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }),
+  status: text("status").default("pending"), // pending, confirmed, paid, cancelled
+  transactionDate: timestamp("transaction_date").notNull(),
+  paidDate: timestamp("paid_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Usage tracking for subscription limits
 export const usage = pgTable("usage", {
   id: serial("id").primaryKey(),
@@ -166,6 +231,26 @@ export const insertUsageSchema = createInsertSchema(usage).omit({
 });
 
 export const insertAffiliateProgramSchema = createInsertSchema(affiliatePrograms).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertContentPerformanceSchema = createInsertSchema(contentPerformance).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAffiliateClickSchema = createInsertSchema(affiliateClicks).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSeoRankingSchema = createInsertSchema(seoRankings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertRevenueTrackingSchema = createInsertSchema(revenueTracking).omit({
   id: true,
   createdAt: true,
 });
@@ -294,6 +379,14 @@ export type SeoAnalysis = typeof seoAnalyses.$inferSelect;
 export type InsertSeoAnalysis = z.infer<typeof insertSeoAnalysisSchema>;
 export type ComparisonTable = typeof comparisonTables.$inferSelect;
 export type InsertComparisonTable = z.infer<typeof insertComparisonTableSchema>;
+export type ContentPerformance = typeof contentPerformance.$inferSelect;
+export type InsertContentPerformance = z.infer<typeof insertContentPerformanceSchema>;
+export type AffiliateClick = typeof affiliateClicks.$inferSelect;
+export type InsertAffiliateClick = z.infer<typeof insertAffiliateClickSchema>;
+export type SeoRanking = typeof seoRankings.$inferSelect;
+export type InsertSeoRanking = z.infer<typeof insertSeoRankingSchema>;
+export type RevenueTracking = typeof revenueTracking.$inferSelect;
+export type InsertRevenueTracking = z.infer<typeof insertRevenueTrackingSchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {

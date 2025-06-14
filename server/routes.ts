@@ -767,7 +767,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analytics
+  // Advanced Analytics Dashboard
   app.get("/api/analytics/dashboard", authenticateToken, async (req, res) => {
     try {
       const { period = '30' } = req.query;
@@ -780,19 +780,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sites = await storage.getUserSites(req.user.id);
       const content = await storage.getUserContent(req.user.id);
       const usage = await storage.getUserCurrentUsage(req.user.id);
+      const contentPerformance = await storage.getContentPerformanceByDateRange(req.user.id, startDate, endDate);
+      const affiliateClicks = await storage.getAffiliateClicksByDateRange(req.user.id, startDate, endDate);
+      const revenueData = await storage.getRevenueByDateRange(req.user.id, startDate, endDate);
+      const seoRankings = await storage.getLatestSeoRankings(req.user.id);
 
-      // Calculate metrics
-      const totalRevenue = analytics
-        .filter(a => a.metric === 'revenue')
-        .reduce((sum, a) => sum + parseFloat(a.value), 0);
-      
-      const totalClicks = analytics
-        .filter(a => a.metric === 'clicks')
-        .reduce((sum, a) => sum + parseFloat(a.value), 0);
-      
-      const totalViews = analytics
-        .filter(a => a.metric === 'views')
-        .reduce((sum, a) => sum + parseFloat(a.value), 0);
+      // Calculate comprehensive metrics
+      const totalRevenue = revenueData.reduce((sum, r) => sum + parseFloat(r.commission), 0);
+      const totalClicks = affiliateClicks.reduce((sum, a) => sum + (a.clicked ? 1 : 0), 0);
+      const totalConversions = affiliateClicks.reduce((sum, a) => sum + (a.converted ? 1 : 0), 0);
+      const totalViews = contentPerformance.reduce((sum, c) => sum + c.views, 0);
+      const uniqueViews = contentPerformance.reduce((sum, c) => sum + c.uniqueViews, 0);
+
+      // Revenue trends (last 7 days for comparison)
+      const lastWeekStart = new Date();
+      lastWeekStart.setDate(lastWeekStart.getDate() - 14);
+      const lastWeekEnd = new Date();
+      lastWeekEnd.setDate(lastWeekEnd.getDate() - 7);
+      const lastWeekRevenue = await storage.getRevenueByDateRange(req.user.id, lastWeekStart, lastWeekEnd);
+      const previousRevenue = lastWeekRevenue.reduce((sum, r) => sum + parseFloat(r.commission), 0);
+
+      // Top performing content
+      const topContent = contentPerformance
+        .sort((a, b) => (b.views + b.clicks * 2) - (a.views + a.clicks * 2))
+        .slice(0, 5);
+
+      // SEO performance summary
+      const avgPosition = seoRankings.reduce((sum, s) => sum + (s.position || 999), 0) / (seoRankings.length || 1);
+      const topRankings = seoRankings.filter(s => s.position && s.position <= 10).length;
 
       const dashboardData = {
         overview: {
@@ -800,8 +815,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalContent: content.length,
           totalRevenue,
           totalViews,
+          uniqueViews,
           totalClicks,
-          conversionRate: totalViews > 0 ? (totalClicks / totalViews * 100).toFixed(2) : 0,
+          totalConversions,
+          conversionRate: totalClicks > 0 ? ((totalConversions / totalClicks) * 100).toFixed(2) : 0,
+          clickThroughRate: totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) : 0,
+          avgRevenuePerClick: totalClicks > 0 ? (totalRevenue / totalClicks).toFixed(2) : 0,
+          revenueGrowth: previousRevenue > 0 ? (((totalRevenue - previousRevenue) / previousRevenue) * 100).toFixed(2) : 0,
+        },
+        contentPerformance: {
+          topContent: topContent.map(c => ({
+            contentId: c.contentId,
+            views: c.views,
+            clicks: c.clicks,
+            bounceRate: c.bounceRate,
+            conversionRate: c.conversionRate
+          })),
+          totalPieces: content.length,
+          avgViews: totalViews / (content.length || 1),
+          avgBounceRate: contentPerformance.reduce((sum, c) => sum + parseFloat(c.bounceRate || '0'), 0) / (contentPerformance.length || 1)
+        },
+        seoPerformance: {
+          trackedKeywords: seoRankings.length,
+          avgPosition: avgPosition.toFixed(1),
+          topTenRankings: topRankings,
+          improvements: seoRankings.filter(s => s.previousPosition && s.position && s.position < s.previousPosition).length,
+          declines: seoRankings.filter(s => s.previousPosition && s.position && s.position > s.previousPosition).length
+        },
+        revenue: {
+          total: totalRevenue,
+          pending: revenueData.filter(r => r.status === 'pending').reduce((sum, r) => sum + parseFloat(r.commission), 0),
+          confirmed: revenueData.filter(r => r.status === 'confirmed').reduce((sum, r) => sum + parseFloat(r.commission), 0),
+          paid: revenueData.filter(r => r.status === 'paid').reduce((sum, r) => sum + parseFloat(r.commission), 0),
+          thisMonth: revenueData.filter(r => new Date(r.transactionDate).getMonth() === new Date().getMonth()).reduce((sum, r) => sum + parseFloat(r.commission), 0)
         },
         usage: usage.reduce((acc, u) => {
           acc[u.feature] = u.count;
@@ -811,6 +857,219 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       res.json(dashboardData);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Content Performance Analytics
+  app.get("/api/analytics/content-performance", authenticateToken, async (req, res) => {
+    try {
+      const { period = '30', contentId } = req.query;
+      const days = parseInt(period as string);
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      let performance;
+      if (contentId) {
+        performance = await storage.getContentPerformanceById(parseInt(contentId as string), startDate, endDate);
+      } else {
+        performance = await storage.getContentPerformanceByDateRange(req.user.id, startDate, endDate);
+      }
+
+      // Group by date for charts
+      const dailyData = performance.reduce((acc, p) => {
+        const date = new Date(p.date).toISOString().split('T')[0];
+        if (!acc[date]) {
+          acc[date] = { date, views: 0, clicks: 0, conversions: 0 };
+        }
+        acc[date].views += p.views;
+        acc[date].clicks += p.clicks;
+        if (p.conversionRate) {
+          acc[date].conversions += Math.round((p.views * parseFloat(p.conversionRate)) / 100);
+        }
+        return acc;
+      }, {} as Record<string, any>);
+
+      res.json({
+        daily: Object.values(dailyData),
+        summary: {
+          totalViews: performance.reduce((sum, p) => sum + p.views, 0),
+          totalClicks: performance.reduce((sum, p) => sum + p.clicks, 0),
+          avgBounceRate: performance.reduce((sum, p) => sum + parseFloat(p.bounceRate || '0'), 0) / (performance.length || 1),
+          avgTimeOnPage: performance.reduce((sum, p) => sum + parseFloat(p.avgTimeOnPage || '0'), 0) / (performance.length || 1),
+        }
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Affiliate Link Performance
+  app.get("/api/analytics/affiliate-performance", authenticateToken, async (req, res) => {
+    try {
+      const { period = '30' } = req.query;
+      const days = parseInt(period as string);
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const clicks = await storage.getAffiliateClicksByDateRange(req.user.id, startDate, endDate);
+      const revenue = await storage.getRevenueByDateRange(req.user.id, startDate, endDate);
+
+      // Group by affiliate URL for performance analysis
+      const performanceByUrl = clicks.reduce((acc, click) => {
+        if (!acc[click.affiliateUrl]) {
+          acc[click.affiliateUrl] = {
+            url: click.affiliateUrl,
+            clicks: 0,
+            conversions: 0,
+            revenue: 0
+          };
+        }
+        if (click.clicked) acc[click.affiliateUrl].clicks++;
+        if (click.converted) acc[click.affiliateUrl].conversions++;
+        if (click.commissionEarned) acc[click.affiliateUrl].revenue += parseFloat(click.commissionEarned);
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Daily performance data
+      const dailyPerformance = clicks.reduce((acc, click) => {
+        const date = new Date(click.createdAt).toISOString().split('T')[0];
+        if (!acc[date]) {
+          acc[date] = { date, clicks: 0, conversions: 0, revenue: 0 };
+        }
+        if (click.clicked) acc[date].clicks++;
+        if (click.converted) acc[date].conversions++;
+        if (click.commissionEarned) acc[date].revenue += parseFloat(click.commissionEarned);
+        return acc;
+      }, {} as Record<string, any>);
+
+      res.json({
+        daily: Object.values(dailyPerformance),
+        byUrl: Object.values(performanceByUrl).slice(0, 10), // Top 10 performing URLs
+        summary: {
+          totalClicks: clicks.filter(c => c.clicked).length,
+          totalConversions: clicks.filter(c => c.converted).length,
+          totalRevenue: revenue.reduce((sum, r) => sum + parseFloat(r.commission), 0),
+          conversionRate: clicks.length > 0 ? ((clicks.filter(c => c.converted).length / clicks.filter(c => c.clicked).length) * 100).toFixed(2) : 0
+        }
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // SEO Rankings Analytics
+  app.get("/api/analytics/seo-rankings", authenticateToken, async (req, res) => {
+    try {
+      const { period = '30', keyword } = req.query;
+      const days = parseInt(period as string);
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      let rankings;
+      if (keyword) {
+        rankings = await storage.getSeoRankingsByKeyword(req.user.id, keyword as string, startDate, endDate);
+      } else {
+        rankings = await storage.getSeoRankingsByDateRange(req.user.id, startDate, endDate);
+      }
+
+      // Group by keyword for trend analysis
+      const keywordTrends = rankings.reduce((acc, ranking) => {
+        if (!acc[ranking.keyword]) {
+          acc[ranking.keyword] = {
+            keyword: ranking.keyword,
+            positions: [],
+            currentPosition: ranking.position,
+            bestPosition: ranking.position,
+            worstPosition: ranking.position
+          };
+        }
+        
+        const trend = acc[ranking.keyword];
+        trend.positions.push({
+          date: ranking.date,
+          position: ranking.position,
+          previousPosition: ranking.previousPosition
+        });
+        
+        if (ranking.position && ranking.position < trend.bestPosition) {
+          trend.bestPosition = ranking.position;
+        }
+        if (ranking.position && ranking.position > trend.worstPosition) {
+          trend.worstPosition = ranking.position;
+        }
+        
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Overall ranking distribution
+      const rankingDistribution = {
+        topThree: rankings.filter(r => r.position && r.position <= 3).length,
+        topTen: rankings.filter(r => r.position && r.position <= 10).length,
+        topFifty: rankings.filter(r => r.position && r.position <= 50).length,
+        beyond: rankings.filter(r => r.position && r.position > 50).length
+      };
+
+      res.json({
+        trends: Object.values(keywordTrends),
+        distribution: rankingDistribution,
+        summary: {
+          trackedKeywords: Object.keys(keywordTrends).length,
+          avgPosition: rankings.reduce((sum, r) => sum + (r.position || 999), 0) / (rankings.length || 1),
+          improvements: rankings.filter(r => r.previousPosition && r.position && r.position < r.previousPosition).length,
+          declines: rankings.filter(r => r.previousPosition && r.position && r.position > r.previousPosition).length
+        }
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Revenue Analytics
+  app.get("/api/analytics/revenue", authenticateToken, async (req, res) => {
+    try {
+      const { period = '30' } = req.query;
+      const days = parseInt(period as string);
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const revenue = await storage.getRevenueByDateRange(req.user.id, startDate, endDate);
+
+      // Daily revenue data
+      const dailyRevenue = revenue.reduce((acc, r) => {
+        const date = new Date(r.transactionDate).toISOString().split('T')[0];
+        if (!acc[date]) {
+          acc[date] = { date, amount: 0, commission: 0, transactions: 0 };
+        }
+        acc[date].amount += parseFloat(r.amount);
+        acc[date].commission += parseFloat(r.commission);
+        acc[date].transactions++;
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Revenue by status
+      const statusBreakdown = {
+        pending: revenue.filter(r => r.status === 'pending').reduce((sum, r) => sum + parseFloat(r.commission), 0),
+        confirmed: revenue.filter(r => r.status === 'confirmed').reduce((sum, r) => sum + parseFloat(r.commission), 0),
+        paid: revenue.filter(r => r.status === 'paid').reduce((sum, r) => sum + parseFloat(r.commission), 0),
+        cancelled: revenue.filter(r => r.status === 'cancelled').reduce((sum, r) => sum + parseFloat(r.commission), 0)
+      };
+
+      res.json({
+        daily: Object.values(dailyRevenue),
+        byStatus: statusBreakdown,
+        summary: {
+          totalRevenue: revenue.reduce((sum, r) => sum + parseFloat(r.commission), 0),
+          totalTransactions: revenue.length,
+          avgCommission: revenue.length > 0 ? (revenue.reduce((sum, r) => sum + parseFloat(r.commission), 0) / revenue.length) : 0,
+          avgCommissionRate: revenue.length > 0 ? (revenue.reduce((sum, r) => sum + parseFloat(r.commissionRate || '0'), 0) / revenue.length) : 0
+        }
+      });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
