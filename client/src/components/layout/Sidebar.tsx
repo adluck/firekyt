@@ -37,7 +37,15 @@ const navigation = [
       { name: 'Basic Generator', href: '/content/basic', icon: FileText }
     ]
   },
-  { name: 'Product Research', href: '/research', icon: Search },
+  { 
+    name: 'Research', 
+    href: '/research', 
+    icon: Search,
+    submenu: [
+      { name: 'Product Research', href: '/research', icon: Search },
+      { name: 'SEO Analysis', href: '/research/seo', icon: Search }
+    ]
+  },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

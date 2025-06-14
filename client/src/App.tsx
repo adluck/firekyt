@@ -21,6 +21,7 @@ import SiteDetails from "@/pages/sites/SiteDetails";
 import ContentGenerator from "@/pages/content/ContentGenerator";
 import AdvancedContentGenerator from "@/pages/content/AdvancedContentGenerator";
 import ProductResearch from "@/pages/research/ProductResearch";
+import SeoAnalysis from "@/pages/research/SeoAnalysis";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
 import Subscribe from "@/pages/subscription/Subscribe";
@@ -91,6 +92,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <ProductResearch />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/research/seo">
+        <ProtectedRoute>
+          <AppLayout>
+            <SeoAnalysis />
           </AppLayout>
         </ProtectedRoute>
       </Route>

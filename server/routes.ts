@@ -817,7 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // SEO Analysis endpoint
-  app.post('/api/analyze-seo', authenticateUser, async (req, res) => {
+  app.post('/api/analyze-seo', authenticateToken, async (req, res) => {
     try {
       const { keyword, target_region = 'US', include_competitors = true, include_suggestions = true } = req.body;
       const userId = req.user!.id;
@@ -932,7 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user's SEO analyses
-  app.get('/api/seo-analyses', authenticateUser, async (req, res) => {
+  app.get('/api/seo-analyses', authenticateToken, async (req, res) => {
     try {
       const analyses = await storage.getUserSeoAnalyses(req.user!.id);
       res.json(analyses);
@@ -943,7 +943,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get specific SEO analysis
-  app.get('/api/seo-analyses/:id', authenticateUser, async (req, res) => {
+  app.get('/api/seo-analyses/:id', authenticateToken, async (req, res) => {
     try {
       const analysisId = parseInt(req.params.id);
       const analysis = await storage.getSeoAnalysis(analysisId);
