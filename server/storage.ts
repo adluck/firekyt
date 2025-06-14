@@ -1,4 +1,6 @@
 import { users, sites, content, analytics, usage, affiliatePrograms, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User management
@@ -332,4 +334,200 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database-backed storage implementation
+export class DatabaseStorage implements IStorage {
+  // User management
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async updateUser(id: number, updates: Partial<User>): Promise<User> {
+    const [user] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
+    return user;
+  }
+
+  async updateUserStripeInfo(id: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User> {
+    const [user] = await db.update(users)
+      .set({ 
+        stripeCustomerId,
+        ...(stripeSubscriptionId && { stripeSubscriptionId })
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async updateUserSubscription(id: number, status: string, tier: string, periodStart?: Date, periodEnd?: Date): Promise<User> {
+    const [user] = await db.update(users)
+      .set({ 
+        subscriptionStatus: status,
+        subscriptionTier: tier,
+        ...(periodStart && { currentPeriodStart: periodStart }),
+        ...(periodEnd && { currentPeriodEnd: periodEnd })
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  // Site management
+  async getSite(id: number): Promise<Site | undefined> {
+    const [site] = await db.select().from(sites).where(eq(sites.id, id));
+    return site;
+  }
+
+  async getUserSites(userId: number): Promise<Site[]> {
+    return await db.select().from(sites).where(eq(sites.userId, userId)).orderBy(desc(sites.createdAt));
+  }
+
+  async createSite(siteData: InsertSite): Promise<Site> {
+    const [site] = await db.insert(sites).values(siteData).returning();
+    return site;
+  }
+
+  async updateSite(id: number, updates: Partial<Site>): Promise<Site> {
+    const [site] = await db.update(sites).set(updates).where(eq(sites.id, id)).returning();
+    return site;
+  }
+
+  async deleteSite(id: number): Promise<void> {
+    await db.delete(sites).where(eq(sites.id, id));
+  }
+
+  // Content management
+  async getContent(id: number): Promise<Content | undefined> {
+    const [contentItem] = await db.select().from(content).where(eq(content.id, id));
+    return contentItem;
+  }
+
+  async getSiteContent(siteId: number): Promise<Content[]> {
+    return await db.select().from(content).where(eq(content.siteId, siteId)).orderBy(desc(content.createdAt));
+  }
+
+  async getUserContent(userId: number): Promise<Content[]> {
+    return await db.select().from(content).where(eq(content.userId, userId)).orderBy(desc(content.createdAt));
+  }
+
+  async createContent(contentData: InsertContent): Promise<Content> {
+    const [contentItem] = await db.insert(content).values(contentData).returning();
+    return contentItem;
+  }
+
+  async updateContent(id: number, updates: Partial<Content>): Promise<Content> {
+    const [contentItem] = await db.update(content).set(updates).where(eq(content.id, id)).returning();
+    return contentItem;
+  }
+
+  async deleteContent(id: number): Promise<void> {
+    await db.delete(content).where(eq(content.id, id));
+  }
+
+  // Analytics
+  async createAnalytics(analyticsData: InsertAnalytics): Promise<Analytics> {
+    const [analyticsItem] = await db.insert(analytics).values(analyticsData).returning();
+    return analyticsItem;
+  }
+
+  async getSiteAnalytics(siteId: number, startDate: Date, endDate: Date): Promise<Analytics[]> {
+    return await db.select().from(analytics)
+      .where(and(
+        eq(analytics.siteId, siteId),
+        gte(analytics.date, startDate),
+        lte(analytics.date, endDate)
+      ))
+      .orderBy(desc(analytics.date));
+  }
+
+  async getUserAnalytics(userId: number, startDate: Date, endDate: Date): Promise<Analytics[]> {
+    return await db.select().from(analytics)
+      .where(and(
+        eq(analytics.userId, userId),
+        gte(analytics.date, startDate),
+        lte(analytics.date, endDate)
+      ))
+      .orderBy(desc(analytics.date));
+  }
+
+  // Usage tracking
+  async getUsage(userId: number, feature: string, periodStart: Date, periodEnd: Date): Promise<Usage | undefined> {
+    const [usageItem] = await db.select().from(usage)
+      .where(and(
+        eq(usage.userId, userId),
+        eq(usage.feature, feature),
+        gte(usage.periodStart, periodStart),
+        lte(usage.periodEnd, periodEnd)
+      ));
+    return usageItem;
+  }
+
+  async createOrUpdateUsage(usageData: InsertUsage): Promise<Usage> {
+    const existing = await this.getUsage(
+      usageData.userId, 
+      usageData.feature, 
+      usageData.periodStart, 
+      usageData.periodEnd
+    );
+
+    if (existing) {
+      const [updated] = await db.update(usage)
+        .set({ count: existing.count + usageData.count })
+        .where(eq(usage.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(usage).values(usageData).returning();
+      return created;
+    }
+  }
+
+  async getUserCurrentUsage(userId: number): Promise<Usage[]> {
+    const currentMonth = new Date();
+    currentMonth.setDate(1);
+    currentMonth.setHours(0, 0, 0, 0);
+    
+    return await db.select().from(usage)
+      .where(and(
+        eq(usage.userId, userId),
+        gte(usage.periodStart, currentMonth)
+      ));
+  }
+
+  // Affiliate programs
+  async getUserAffiliatePrograms(userId: number): Promise<AffiliateProgram[]> {
+    return await db.select().from(affiliatePrograms)
+      .where(eq(affiliatePrograms.userId, userId))
+      .orderBy(desc(affiliatePrograms.createdAt));
+  }
+
+  async createAffiliateProgram(programData: InsertAffiliateProgram): Promise<AffiliateProgram> {
+    const [program] = await db.insert(affiliatePrograms).values(programData).returning();
+    return program;
+  }
+
+  async updateAffiliateProgram(id: number, updates: Partial<AffiliateProgram>): Promise<AffiliateProgram> {
+    const [program] = await db.update(affiliatePrograms).set(updates).where(eq(affiliatePrograms.id, id)).returning();
+    return program;
+  }
+
+  async deleteAffiliateProgram(id: number): Promise<void> {
+    await db.delete(affiliatePrograms).where(eq(affiliatePrograms.id, id));
+  }
+}
+
+export const storage = new DatabaseStorage();
