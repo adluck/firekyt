@@ -21,6 +21,11 @@ def generate_sample_products(niche: str, category: str = None, max_results: int 
             {'title': 'Yoga Mat Premium', 'category': 'exercise equipment', 'base_price': 49.99},
             {'title': 'Protein Powder Whey', 'category': 'supplements', 'base_price': 39.99},
             {'title': 'Fitness Tracker Smart', 'category': 'electronics', 'base_price': 149.99},
+            {'title': 'Foam Roller Muscle Recovery', 'category': 'exercise equipment', 'base_price': 24.99},
+            {'title': 'Pre-Workout Energy Supplement', 'category': 'supplements', 'base_price': 29.99},
+            {'title': 'Workout Gloves Weightlifting', 'category': 'accessories', 'base_price': 19.99},
+            {'title': 'Jump Rope Speed Training', 'category': 'exercise equipment', 'base_price': 15.99},
+            {'title': 'Mass Gainer Protein Powder', 'category': 'supplements', 'base_price': 49.99},
         ],
         'tech': [
             {'title': 'Wireless Bluetooth Earbuds', 'category': 'electronics', 'base_price': 79.99},
@@ -28,6 +33,11 @@ def generate_sample_products(niche: str, category: str = None, max_results: int 
             {'title': 'USB-C Fast Charger', 'category': 'accessories', 'base_price': 19.99},
             {'title': 'Laptop Cooling Pad', 'category': 'accessories', 'base_price': 34.99},
             {'title': 'Wireless Mouse Ergonomic', 'category': 'accessories', 'base_price': 39.99},
+            {'title': 'Mechanical Gaming Keyboard', 'category': 'electronics', 'base_price': 89.99},
+            {'title': 'Webcam HD 1080p', 'category': 'electronics', 'base_price': 49.99},
+            {'title': 'Bluetooth Speaker Portable', 'category': 'electronics', 'base_price': 59.99},
+            {'title': 'USB Hub Multi-Port', 'category': 'accessories', 'base_price': 29.99},
+            {'title': 'Phone Case Shockproof', 'category': 'accessories', 'base_price': 14.99},
         ],
         'home': [
             {'title': 'Essential Oil Diffuser', 'category': 'home decor', 'base_price': 45.99},
@@ -35,6 +45,11 @@ def generate_sample_products(niche: str, category: str = None, max_results: int 
             {'title': 'LED Strip Lights', 'category': 'lighting', 'base_price': 22.99},
             {'title': 'Coffee Maker Single Serve', 'category': 'kitchen', 'base_price': 89.99},
             {'title': 'Air Purifier HEPA', 'category': 'appliances', 'base_price': 199.99},
+            {'title': 'Throw Blanket Sherpa', 'category': 'bedding', 'base_price': 34.99},
+            {'title': 'Candle Set Aromatherapy', 'category': 'home decor', 'base_price': 24.99},
+            {'title': 'Bamboo Cutting Board', 'category': 'kitchen', 'base_price': 19.99},
+            {'title': 'Humidifier Cool Mist', 'category': 'appliances', 'base_price': 49.99},
+            {'title': 'Wall Art Abstract Canvas', 'category': 'home decor', 'base_price': 39.99},
         ]
     }
     
