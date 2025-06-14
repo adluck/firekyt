@@ -1,21 +1,39 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { storage } from "./storage";
-import { insertUserSchema, insertSiteSchema, insertContentSchema, SUBSCRIPTION_LIMITS } from "@shared/schema";
+import { insertUserSchema, insertSiteSchema, insertContentSchema, SUBSCRIPTION_LIMITS, type User } from "@shared/schema";
+
+// Extend Express Request type to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User;
+    }
+  }
+}
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-06-20",
+  apiVersion: "2023-10-16",
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-jwt-secret-key";
+
+// Initialize Google Gemini AI
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error('Missing required Gemini API key: GEMINI_API_KEY');
+}
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 // Middleware to verify JWT token
 const authenticateToken = async (req: any, res: any, next: any) => {
