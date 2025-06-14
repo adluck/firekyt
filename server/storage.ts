@@ -42,6 +42,21 @@ export interface IStorage {
   createAffiliateProgram(program: InsertAffiliateProgram): Promise<AffiliateProgram>;
   updateAffiliateProgram(id: number, updates: Partial<AffiliateProgram>): Promise<AffiliateProgram>;
   deleteAffiliateProgram(id: number): Promise<void>;
+
+  // Product research
+  getProduct(id: number): Promise<Product | undefined>;
+  getUserProducts(userId: number, niche?: string, category?: string): Promise<Product[]>;
+  createProduct(product: InsertProduct): Promise<Product>;
+  createProducts(products: InsertProduct[]): Promise<Product[]>;
+  updateProduct(id: number, updates: Partial<Product>): Promise<Product>;
+  deleteProduct(id: number): Promise<void>;
+  searchProducts(userId: number, filters: { niche?: string; category?: string; minScore?: number; limit?: number }): Promise<Product[]>;
+
+  // Product research sessions
+  getProductResearchSession(id: number): Promise<ProductResearchSession | undefined>;
+  getUserResearchSessions(userId: number): Promise<ProductResearchSession[]>;
+  createProductResearchSession(session: InsertProductResearchSession): Promise<ProductResearchSession>;
+  updateProductResearchSession(id: number, updates: Partial<ProductResearchSession>): Promise<ProductResearchSession>;
 }
 
 export class MemStorage implements IStorage {
@@ -527,6 +542,102 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAffiliateProgram(id: number): Promise<void> {
     await db.delete(affiliatePrograms).where(eq(affiliatePrograms.id, id));
+  }
+
+  // Product research methods
+  async getProduct(id: number): Promise<Product | undefined> {
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product;
+  }
+
+  async getUserProducts(userId: number, niche?: string, category?: string): Promise<Product[]> {
+    let conditions = [eq(products.userId, userId)];
+    
+    if (niche) {
+      conditions.push(eq(products.niche, niche));
+    }
+    
+    if (category) {
+      conditions.push(eq(products.category, category));
+    }
+    
+    return await db.select()
+      .from(products)
+      .where(and(...conditions))
+      .orderBy(desc(products.researchScore));
+  }
+
+  async createProduct(productData: InsertProduct): Promise<Product> {
+    const [product] = await db.insert(products).values(productData).returning();
+    return product;
+  }
+
+  async createProducts(productsData: InsertProduct[]): Promise<Product[]> {
+    const createdProducts = await db.insert(products).values(productsData).returning();
+    return createdProducts;
+  }
+
+  async updateProduct(id: number, updates: Partial<Product>): Promise<Product> {
+    const [product] = await db
+      .update(products)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(products.id, id))
+      .returning();
+    return product;
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    await db.delete(products).where(eq(products.id, id));
+  }
+
+  async searchProducts(userId: number, filters: { niche?: string; category?: string; minScore?: number; limit?: number }): Promise<Product[]> {
+    let conditions = [eq(products.userId, userId)];
+    
+    if (filters.niche) {
+      conditions.push(eq(products.niche, filters.niche));
+    }
+    
+    if (filters.category) {
+      conditions.push(eq(products.category, filters.category));
+    }
+    
+    if (filters.minScore) {
+      conditions.push(gte(products.researchScore, filters.minScore.toString()));
+    }
+    
+    return await db.select()
+      .from(products)
+      .where(and(...conditions))
+      .orderBy(desc(products.researchScore))
+      .limit(filters.limit || 50);
+  }
+
+  // Product research session methods
+  async getProductResearchSession(id: number): Promise<ProductResearchSession | undefined> {
+    const [session] = await db.select().from(productResearchSessions).where(eq(productResearchSessions.id, id));
+    return session;
+  }
+
+  async getUserResearchSessions(userId: number): Promise<ProductResearchSession[]> {
+    return await db
+      .select()
+      .from(productResearchSessions)
+      .where(eq(productResearchSessions.userId, userId))
+      .orderBy(desc(productResearchSessions.createdAt));
+  }
+
+  async createProductResearchSession(sessionData: InsertProductResearchSession): Promise<ProductResearchSession> {
+    const [session] = await db.insert(productResearchSessions).values(sessionData).returning();
+    return session;
+  }
+
+  async updateProductResearchSession(id: number, updates: Partial<ProductResearchSession>): Promise<ProductResearchSession> {
+    const [session] = await db
+      .update(productResearchSessions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(productResearchSessions.id, id))
+      .returning();
+    return session;
   }
 }
 

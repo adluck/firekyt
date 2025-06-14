@@ -530,6 +530,238 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Advanced Product Research & Scoring Endpoint
+  app.get("/api/research-products", authenticateToken, async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        niche: z.string().min(1, "Niche is required"),
+        product_category: z.string().optional(),
+        min_commission_rate: z.number().min(0).max(100).optional().default(3.0),
+        min_trending_score: z.number().min(0).max(100).optional().default(50.0),
+        max_results: z.number().min(1).max(100).optional().default(50),
+        target_keywords: z.string().optional(),
+        min_price: z.number().min(0).optional().default(0),
+        max_price: z.number().min(0).optional().default(10000),
+        save_to_database: z.boolean().optional().default(true)
+      });
+
+      const params = requestSchema.parse({
+        niche: req.query.niche as string,
+        product_category: req.query.product_category as string,
+        min_commission_rate: req.query.min_commission_rate ? parseFloat(req.query.min_commission_rate as string) : 3.0,
+        min_trending_score: req.query.min_trending_score ? parseFloat(req.query.min_trending_score as string) : 50.0,
+        max_results: req.query.max_results ? parseInt(req.query.max_results as string) : 50,
+        target_keywords: req.query.target_keywords as string,
+        min_price: req.query.min_price ? parseFloat(req.query.min_price as string) : 0,
+        max_price: req.query.max_price ? parseFloat(req.query.max_price as string) : 10000,
+        save_to_database: req.query.save_to_database !== 'false'
+      });
+
+      // Create research session
+      const researchSession = await storage.createProductResearchSession({
+        userId: req.user!.id,
+        niche: params.niche,
+        productCategory: params.product_category,
+        minCommissionRate: params.min_commission_rate.toString(),
+        minTrendingScore: params.min_trending_score.toString(),
+        maxResults: params.max_results,
+        status: 'pending'
+      });
+
+      try {
+        // Call Python research engine
+        const { spawn } = require('child_process');
+        
+        const pythonProcess = spawn('python3', ['server/product_research_engine.py'], {
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
+
+        const researchParams = {
+          niche: params.niche,
+          product_category: params.product_category,
+          min_commission_rate: params.min_commission_rate,
+          min_trending_score: params.min_trending_score,
+          max_results: params.max_results,
+          target_keywords: params.target_keywords ? params.target_keywords.split(',').map(k => k.trim()) : [],
+          price_range: [params.min_price, params.max_price]
+        };
+
+        pythonProcess.stdin.write(JSON.stringify(researchParams));
+        pythonProcess.stdin.end();
+
+        let pythonOutput = '';
+        let pythonError = '';
+
+        pythonProcess.stdout.on('data', (data: Buffer) => {
+          pythonOutput += data.toString();
+        });
+
+        pythonProcess.stderr.on('data', (data: Buffer) => {
+          pythonError += data.toString();
+        });
+
+        pythonProcess.on('close', async (code: number) => {
+          try {
+            if (code !== 0) {
+              throw new Error(`Python research engine failed: ${pythonError}`);
+            }
+
+            const researchResult = JSON.parse(pythonOutput);
+            const products = researchResult.products || [];
+            const sessionData = researchResult.session_data || {};
+
+            let savedProducts: any[] = [];
+
+            if (params.save_to_database && products.length > 0) {
+              // Convert Python product data to database format
+              const productInserts = products.map((product: any) => ({
+                userId: req.user!.id,
+                title: product.title,
+                description: product.description,
+                brand: product.brand,
+                category: product.category,
+                niche: product.niche,
+                price: product.price?.toString(),
+                originalPrice: product.original_price?.toString(),
+                commissionRate: product.commission_rate?.toString(),
+                commissionAmount: product.commission_amount?.toString(),
+                productUrl: product.product_url,
+                affiliateUrl: product.affiliate_url,
+                imageUrl: product.image_url,
+                asin: product.asin,
+                sku: product.sku,
+                rating: product.rating?.toString(),
+                reviewCount: product.review_count,
+                salesRank: product.sales_rank,
+                trendingScore: product.trending_score?.toString(),
+                competitionScore: product.competition_score?.toString(),
+                researchScore: product.research_score?.toString(),
+                keywords: product.keywords,
+                searchVolume: product.search_volume,
+                difficulty: product.difficulty,
+                apiSource: product.api_source,
+                externalId: product.external_id,
+                tags: product.tags
+              }));
+
+              savedProducts = await storage.createProducts(productInserts);
+            }
+
+            // Update research session with results
+            await storage.updateProductResearchSession(researchSession.id, {
+              totalProductsFound: sessionData.total_products_found || products.length,
+              productsStored: savedProducts.length,
+              averageScore: sessionData.average_score ? sessionData.average_score.toString() : '0',
+              topProductId: savedProducts.length > 0 ? savedProducts[0].id : undefined,
+              apiCallsMade: sessionData.api_calls_made || 0,
+              apiSources: sessionData.api_sources || [],
+              researchDuration: sessionData.research_duration_ms || 0,
+              status: 'completed'
+            });
+
+            res.json({
+              research_session_id: researchSession.id,
+              products: savedProducts.length > 0 ? savedProducts : products,
+              total_found: sessionData.total_products_found || products.length,
+              saved_to_database: params.save_to_database && savedProducts.length > 0,
+              session_data: {
+                ...sessionData,
+                niche_insights: sessionData.niche_insights,
+                average_score: sessionData.average_score,
+                api_sources: sessionData.api_sources,
+                research_duration_ms: sessionData.research_duration_ms
+              }
+            });
+
+          } catch (error) {
+            console.error('Error processing research results:', error);
+            
+            // Update session with error
+            await storage.updateProductResearchSession(researchSession.id, {
+              status: 'failed',
+              errorMessage: error instanceof Error ? error.message : 'Unknown error'
+            });
+
+            res.status(500).json({
+              message: "Product research completed but failed to process results",
+              error: error instanceof Error ? error.message : 'Unknown error',
+              research_session_id: researchSession.id
+            });
+          }
+        });
+
+      } catch (error) {
+        // Update session with error
+        await storage.updateProductResearchSession(researchSession.id, {
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : 'Unknown error'
+        });
+
+        res.status(500).json({
+          message: "Failed to start product research",
+          error: error instanceof Error ? error.message : 'Unknown error',
+          research_session_id: researchSession.id
+        });
+      }
+
+    } catch (error: any) {
+      console.error('Product research error:', error);
+      res.status(400).json({ 
+        message: "Invalid research parameters", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Get user's researched products
+  app.get("/api/products", authenticateToken, async (req, res) => {
+    try {
+      const filters = {
+        niche: req.query.niche as string,
+        category: req.query.category as string,
+        minScore: req.query.min_score ? parseFloat(req.query.min_score as string) : undefined,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : 50
+      };
+
+      const products = await storage.searchProducts(req.user!.id, filters);
+      res.json(products);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get research sessions
+  app.get("/api/research-sessions", authenticateToken, async (req, res) => {
+    try {
+      const sessions = await storage.getUserResearchSessions(req.user!.id);
+      res.json(sessions);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get specific research session details
+  app.get("/api/research-sessions/:id", authenticateToken, async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      const session = await storage.getProductResearchSession(sessionId);
+      
+      if (!session || session.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Research session not found" });
+      }
+
+      // Get products from this session if they exist
+      const products = await storage.getUserProducts(req.user!.id, session.niche, session.productCategory || undefined);
+
+      res.json({
+        ...session,
+        products: products
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Analytics
   app.get("/api/analytics/dashboard", authenticateToken, async (req, res) => {
     try {
