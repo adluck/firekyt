@@ -11,7 +11,9 @@ import {
   LogOut,
   Menu,
   X,
-  Search
+  Search,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
@@ -56,6 +58,7 @@ export function Sidebar({ user, subscription }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
   const handleLogout = async () => {
     await logout();
@@ -63,6 +66,14 @@ export function Sidebar({ user, subscription }: SidebarProps) {
 
   const toggleMobile = () => {
     setIsMobileOpen(!isMobileOpen);
+  };
+
+  const toggleMenu = (menuName: string) => {
+    setExpandedMenus(prev => 
+      prev.includes(menuName) 
+        ? prev.filter(name => name !== menuName)
+        : [...prev, menuName]
+    );
   };
 
   return (
@@ -108,13 +119,32 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                 (item.href !== '/dashboard' && location.startsWith(item.href));
               
               if (item.submenu) {
+                const isExpanded = expandedMenus.includes(item.name);
+                const hasActiveSubmenu = item.submenu.some(subItem => location === subItem.href);
+                
                 return (
                   <div key={item.name} className="space-y-1">
-                    <div className={cn("nav-link font-medium", isActive && "active")}>
-                      <item.icon className="h-5 w-5" />
-                      {item.name}
-                    </div>
-                    <div className="ml-6 space-y-1">
+                    <button 
+                      className={cn(
+                        "nav-link font-medium w-full flex items-center justify-between",
+                        (isActive || hasActiveSubmenu) && "active"
+                      )}
+                      onClick={() => toggleMenu(item.name)}
+                    >
+                      <div className="flex items-center">
+                        <item.icon className="h-5 w-5" />
+                        {item.name}
+                      </div>
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </button>
+                    <div className={cn(
+                      "ml-6 space-y-1 overflow-hidden transition-all duration-200",
+                      isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                    )}>
                       {item.submenu.map((subItem) => {
                         const isSubActive = location === subItem.href;
                         return (
