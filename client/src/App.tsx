@@ -24,6 +24,7 @@ import ProductResearch from "@/pages/research/ProductResearch";
 import SeoAnalysis from "@/pages/research/SeoAnalysis";
 import ContentEditor from "@/pages/content/ContentEditor";
 import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
+import PublishingDashboard from "@/pages/publishing/PublishingDashboard";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
 import Subscribe from "@/pages/subscription/Subscribe";
@@ -118,6 +119,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <SeoAnalysis />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/publishing">
+        <ProtectedRoute>
+          <AppLayout>
+            <PublishingDashboard />
           </AppLayout>
         </ProtectedRoute>
       </Route>
