@@ -126,12 +126,12 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                   <div key={item.name} className="space-y-1">
                     <button 
                       className={cn(
-                        "nav-link font-medium w-full flex items-center justify-between",
+                        "nav-link w-full justify-between",
                         (isActive || hasActiveSubmenu) && "active"
                       )}
                       onClick={() => toggleMenu(item.name)}
                     >
-                      <div className="flex items-center">
+                      <div className="flex items-center gap-3">
                         <item.icon className="h-5 w-5" />
                         {item.name}
                       </div>
@@ -142,7 +142,7 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                       )}
                     </button>
                     <div className={cn(
-                      "ml-6 space-y-1 overflow-hidden transition-all duration-200",
+                      "ml-8 space-y-1 overflow-hidden transition-all duration-200",
                       isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                     )}>
                       {item.submenu.map((subItem) => {
@@ -150,7 +150,10 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                         return (
                           <Link key={subItem.name} href={subItem.href}>
                             <div 
-                              className={cn("nav-link text-sm", isSubActive && "active")}
+                              className={cn(
+                                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                                isSubActive && "bg-sidebar-accent/50 text-sidebar-primary"
+                              )}
                               onClick={() => setIsMobileOpen(false)}
                             >
                               <subItem.icon className="h-4 w-4" />
