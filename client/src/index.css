@@ -77,22 +77,6 @@
 }
 
 /* MintySea UI Component Styles */
-.nav-link {
-  @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-muted/50;
-  text-decoration: none;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  color: inherit;
-}
-
-.nav-link.active {
-  background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%);
-  color: #ea580c;
-  border-right: 2px solid #f97316;
-}
 
 .card-hover:hover {
   transform: translateY(-2px);
