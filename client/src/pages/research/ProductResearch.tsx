@@ -145,8 +145,9 @@ export default function ProductResearch() {
       setIsResearching(false);
       toast({
         title: "Research Complete",
-        description: `Found ${data.total_found} products with average score of ${data.session_data?.average_score || 'N/A'}`
+        description: `Found ${data.products?.length || 0} products with average score of ${data.session_data?.average_score || 'N/A'}`
       });
+      // Force refresh the products list to show new research results
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
       queryClient.invalidateQueries({ queryKey: ['/api/research-sessions'] });
       setActiveTab('results');
@@ -484,23 +485,21 @@ export default function ProductResearch() {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Package className="w-5 h-5 mr-2" />
-                  Researched Products
+                  Research Results
                 </div>
-                <Badge variant="outline">{products.length} products</Badge>
+                <Badge variant="outline">
+                  {researchResults?.products?.length || 0} products
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {productsLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-8 h-8 animate-spin" />
-                </div>
-              ) : products.length === 0 ? (
+              {!researchResults?.products || researchResults.products.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  No products found. Run a research session to discover products.
+                  No research results yet. Run a research session to discover products.
                 </div>
               ) : (
                 <div className="grid gap-4">
-                  {products.map((product: Product) => (
+                  {researchResults.products.map((product: any, index: number) => (
                     <Card key={product.id} className="border-l-4 border-l-blue-500">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start mb-3">
