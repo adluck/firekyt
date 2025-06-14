@@ -43,7 +43,7 @@ interface TableColumn {
   width?: number;
   sortable?: boolean;
   required?: boolean;
-  productField?: keyof Product;
+  productField?: string;
 }
 
 interface TableRow {
@@ -103,12 +103,12 @@ const defaultConfig: ComparisonTableConfig = {
 };
 
 export function ComparisonTableBuilder({
-  config = defaultConfig,
+  config,
   onChange,
   onSave,
   className,
 }: ComparisonTableBuilderProps) {
-  const [currentConfig, setCurrentConfig] = useState<ComparisonTableConfig>(config);
+  const [currentConfig, setCurrentConfig] = useState<ComparisonTableConfig>(config || defaultConfig);
   const [activeTab, setActiveTab] = useState<'columns' | 'products' | 'styling' | 'preview'>('columns');
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
 
@@ -116,6 +116,12 @@ export function ComparisonTableBuilder({
   const { data: products = [] } = useQuery<Product[]>({
     queryKey: ['/api/products'],
   });
+
+  useEffect(() => {
+    if (config) {
+      setCurrentConfig(config);
+    }
+  }, [config]);
 
   useEffect(() => {
     onChange?.(currentConfig);
@@ -425,7 +431,7 @@ export function ComparisonTableBuilder({
                                   <Label>Product Field</Label>
                                   <Select
                                     value={column.productField || ''}
-                                    onValueChange={(value) => updateColumn(column.id, { productField: value as any })}
+                                    onValueChange={(value) => updateColumn(column.id, { productField: value || undefined })}
                                   >
                                     <SelectTrigger>
                                       <SelectValue placeholder="Custom" />
