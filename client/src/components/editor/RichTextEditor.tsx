@@ -66,18 +66,18 @@ export function RichTextEditor({
       Table.configure({
         resizable: true,
         HTMLAttributes: {
-          class: 'border-collapse border border-gray-300 w-full my-4',
+          class: 'border-collapse border border-border w-full my-4',
         },
       }),
       TableRow,
       TableHeader.configure({
         HTMLAttributes: {
-          class: 'border border-gray-300 bg-gray-50 px-4 py-2 font-semibold',
+          class: 'border border-border bg-muted px-4 py-2 font-semibold',
         },
       }),
       TableCell.configure({
         HTMLAttributes: {
-          class: 'border border-gray-300 px-4 py-2',
+          class: 'border border-border px-4 py-2',
         },
       }),
     ],
@@ -127,7 +127,7 @@ export function RichTextEditor({
   return (
     <div className={cn('border rounded-lg overflow-hidden', className)}>
       {editable && (
-        <div className="border-b bg-gray-50 p-2">
+        <div className="border-b bg-muted/50 p-2">
           <div className="flex flex-wrap items-center gap-1">
             {/* Text formatting */}
             <ToolbarButton
@@ -225,7 +225,7 @@ export function RichTextEditor({
 
           {/* Link input */}
           {showLinkInput && (
-            <div className="flex items-center gap-2 mt-2 p-2 bg-white border rounded">
+            <div className="flex items-center gap-2 mt-2 p-2 bg-background border rounded">
               <Input
                 placeholder="Enter URL"
                 value={linkUrl}
@@ -242,7 +242,7 @@ export function RichTextEditor({
 
           {/* Image input */}
           {showImageInput && (
-            <div className="flex items-center gap-2 mt-2 p-2 bg-white border rounded">
+            <div className="flex items-center gap-2 mt-2 p-2 bg-background border rounded">
               <Input
                 placeholder="Enter image URL"
                 value={imageUrl}
@@ -264,9 +264,10 @@ export function RichTextEditor({
         className={cn(
           'prose prose-sm max-w-none p-4 min-h-[200px] focus:outline-none',
           'prose-headings:font-semibold prose-p:my-2 prose-ul:my-2 prose-ol:my-2',
-          'prose-li:my-0 prose-blockquote:border-l-4 prose-blockquote:border-gray-300',
-          'prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-gray-100',
-          'prose-code:px-1 prose-code:rounded'
+          'prose-li:my-0 prose-blockquote:border-l-4 prose-blockquote:border-border',
+          'prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted',
+          'prose-code:px-1 prose-code:rounded',
+          'dark:prose-invert'
         )}
       />
     </div>
