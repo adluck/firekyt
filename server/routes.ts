@@ -572,7 +572,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Call Python research engine
         const { spawn } = require('child_process');
         
-        const pythonProcess = spawn('python3', ['server/product_research_engine.py'], {
+        const pythonProcess = spawn('python3', ['server/product_research_test.py'], {
           stdio: ['pipe', 'pipe', 'pipe']
         });
 
