@@ -106,6 +106,33 @@ export function Sidebar({ user, subscription }: SidebarProps) {
               const isActive = location === item.href || 
                 (item.href !== '/dashboard' && location.startsWith(item.href));
               
+              if (item.submenu) {
+                return (
+                  <div key={item.name} className="space-y-1">
+                    <div className={cn("nav-link font-medium", isActive && "active")}>
+                      <item.icon className="h-5 w-5" />
+                      {item.name}
+                    </div>
+                    <div className="ml-6 space-y-1">
+                      {item.submenu.map((subItem) => {
+                        const isSubActive = location === subItem.href;
+                        return (
+                          <Link key={subItem.name} href={subItem.href}>
+                            <div 
+                              className={cn("nav-link text-sm", isSubActive && "active")}
+                              onClick={() => setIsMobileOpen(false)}
+                            >
+                              <subItem.icon className="h-4 w-4" />
+                              {subItem.name}
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              }
+              
               return (
                 <Link key={item.name} href={item.href}>
                   <div 
