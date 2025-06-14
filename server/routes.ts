@@ -494,7 +494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const defaultSite = await storage.createSite({
             userId: req.user!.id,
             name: `Generated Content Site - ${new Date().toLocaleDateString()}`,
-            url: `https://example-${Date.now()}.com`,
+            domain: `example-${Date.now()}.com`,
             description: "Site for AI-generated content",
             niche: "General"
           });

@@ -27,7 +27,15 @@ interface SidebarProps {
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Sites', href: '/sites', icon: Globe },
-  { name: 'Content', href: '/content', icon: FileText },
+  { 
+    name: 'Content', 
+    href: '/content', 
+    icon: FileText,
+    submenu: [
+      { name: 'AI Generator', href: '/content', icon: FileText },
+      { name: 'Basic Generator', href: '/content/basic', icon: FileText }
+    ]
+  },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

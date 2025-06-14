@@ -19,6 +19,7 @@ import Dashboard from "@/pages/dashboard/Dashboard";
 import Sites from "@/pages/sites/Sites";
 import SiteDetails from "@/pages/sites/SiteDetails";
 import ContentGenerator from "@/pages/content/ContentGenerator";
+import AdvancedContentGenerator from "@/pages/content/AdvancedContentGenerator";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
 import Subscribe from "@/pages/subscription/Subscribe";
@@ -70,6 +71,14 @@ function Router() {
       </Route>
       
       <Route path="/content">
+        <ProtectedRoute>
+          <AppLayout>
+            <AdvancedContentGenerator />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/content/basic">
         <ProtectedRoute>
           <AppLayout>
             <ContentGenerator />
