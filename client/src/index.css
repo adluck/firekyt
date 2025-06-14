@@ -1,0 +1,273 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* MintySea Brand Colors */
+  --primary-gradient: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+  --primary-orange: #f97316;
+  --primary-pink: #ec4899;
+  
+  /* Light theme */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(24.6, 95%, 53.1%);
+  --primary-foreground: hsl(60, 9.1%, 97.8%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Sidebar colors */
+  --sidebar-background: hsl(0, 0%, 98%);
+  --sidebar-foreground: hsl(240, 5.3%, 26.1%);
+  --sidebar-primary: hsl(24.6, 95%, 53.1%);
+  --sidebar-primary-foreground: hsl(60, 9.1%, 97.8%);
+  --sidebar-accent: hsl(60, 4.8%, 95.9%);
+  --sidebar-accent-foreground: hsl(24, 9.8%, 10%);
+  --sidebar-border: hsl(20, 5.9%, 90%);
+  --sidebar-ring: hsl(20, 14.3%, 4.1%);
+}
+
+.dark {
+  /* Dark theme */
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(24.6, 95%, 53.1%);
+  --primary-foreground: hsl(60, 9.1%, 97.8%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  
+  /* Dark sidebar colors */
+  --sidebar-background: hsl(240, 5.9%, 10%);
+  --sidebar-foreground: hsl(240, 4.8%, 95.9%);
+  --sidebar-primary: hsl(24.6, 95%, 53.1%);
+  --sidebar-primary-foreground: hsl(60, 9.1%, 97.8%);
+  --sidebar-accent: hsl(240, 3.7%, 15.9%);
+  --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
+  --sidebar-border: hsl(240, 3.7%, 15.9%);
+  --sidebar-ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  html, body, #root {
+    @apply h-full;
+  }
+}
+
+@layer components {
+  /* MintySea UI Components */
+  .gradient-bg {
+    background: var(--primary-gradient);
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .card-hover:hover {
+    @apply -translate-y-0.5 shadow-lg;
+  }
+  
+  .theme-transition {
+    @apply transition-colors duration-200 ease-in-out;
+  }
+  
+  /* Navigation styles */
+  .nav-link {
+    @apply flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200;
+  }
+  
+  .nav-link:hover {
+    @apply bg-sidebar-accent text-sidebar-accent-foreground;
+  }
+  
+  .nav-link.active {
+    background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%);
+    @apply text-orange-600 dark:text-orange-400;
+    border-right: 2px solid var(--primary-orange);
+  }
+  
+  /* Logo styles */
+  .logo-section {
+    @apply flex items-center gap-3 p-4 border-b border-sidebar-border;
+  }
+  
+  .logo-icon {
+    @apply w-8 h-8 rounded-lg flex items-center justify-center;
+  }
+  
+  .brand-name {
+    @apply text-lg font-semibold text-sidebar-foreground;
+  }
+  
+  /* Dashboard card styles */
+  .dashboard-card {
+    @apply card-hover bg-card border border-border rounded-xl p-6;
+  }
+  
+  .metric-card {
+    @apply dashboard-card;
+  }
+  
+  .metric-value {
+    @apply text-2xl font-bold text-foreground;
+  }
+  
+  .metric-label {
+    @apply text-sm text-muted-foreground;
+  }
+  
+  .metric-trend {
+    @apply flex items-center gap-1 text-xs;
+  }
+  
+  .metric-trend.positive {
+    @apply text-green-600 dark:text-green-400;
+  }
+  
+  .metric-trend.negative {
+    @apply text-red-600 dark:text-red-400;
+  }
+  
+  /* Button styles */
+  .btn-gradient {
+    background: var(--primary-gradient);
+    @apply text-white border-0 hover:opacity-90 transition-opacity;
+  }
+  
+  /* Subscription tier styles */
+  .tier-free {
+    @apply border-gray-200 dark:border-gray-700;
+  }
+  
+  .tier-basic {
+    @apply border-blue-200 dark:border-blue-700;
+  }
+  
+  .tier-pro {
+    @apply border-purple-200 dark:border-purple-700;
+  }
+  
+  .tier-agency {
+    @apply border-orange-200 dark:border-orange-700;
+  }
+  
+  /* Content editor styles */
+  .content-editor {
+    @apply min-h-96 p-4 border border-border rounded-lg bg-background;
+  }
+  
+  /* Analytics chart styles */
+  .chart-container {
+    @apply w-full h-80 bg-card border border-border rounded-lg p-4;
+  }
+  
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .sidebar {
+      @apply fixed inset-y-0 left-0 z-50 w-64 transform -translate-x-full transition-transform duration-300 ease-in-out;
+    }
+    
+    .sidebar.open {
+      @apply translate-x-0;
+    }
+    
+    .main-content {
+      @apply ml-0;
+    }
+  }
+  
+  /* Desktop styles */
+  @media (min-width: 769px) {
+    .sidebar {
+      @apply relative translate-x-0;
+    }
+    
+    .main-content {
+      @apply ml-64;
+    }
+  }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground)) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground));
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--foreground));
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Focus styles for accessibility */
+.focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
