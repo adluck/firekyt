@@ -1,0 +1,623 @@
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users } from "lucide-react";
+import type { Site } from "@shared/schema";
+
+interface ContentGenerationRequest {
+  keyword: string;
+  content_type: 'blog_post' | 'product_comparison' | 'review_article' | 'video_script' | 'social_post' | 'email_campaign';
+  tone_of_voice: string;
+  target_audience: string;
+  additional_context?: string;
+  brand_voice?: string;
+  seo_focus?: boolean;
+  word_count?: number;
+  siteId?: number;
+}
+
+interface ContentGenerationResponse {
+  content_id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  generated_text?: string;
+  title?: string;
+  seo_title?: string;
+  seo_description?: string;
+  meta_tags?: string[];
+  estimated_reading_time?: number;
+  ai_model_used?: string;
+  generation_time_ms?: number;
+  error?: string;
+}
+
+const CONTENT_TYPES = [
+  { value: 'blog_post', label: 'Blog Post', icon: '📝', description: 'Comprehensive articles (800+ words)' },
+  { value: 'product_comparison', label: 'Product Comparison', icon: '⚖️', description: 'Feature comparisons and recommendations' },
+  { value: 'review_article', label: 'Review Article', icon: '⭐', description: 'In-depth product/service reviews' },
+  { value: 'video_script', label: 'Video Script', icon: '🎬', description: 'Engaging video content scripts' },
+  { value: 'social_post', label: 'Social Media Post', icon: '📱', description: 'Short, punchy social content' },
+  { value: 'email_campaign', label: 'Email Campaign', icon: '📧', description: 'Marketing email content' }
+];
+
+const TONE_PRESETS = [
+  'Professional and authoritative',
+  'Friendly and conversational',
+  'Casual and approachable',
+  'Technical and detailed',
+  'Persuasive and sales-focused',
+  'Educational and informative',
+  'Humorous and entertaining',
+  'Serious and formal'
+];
+
+const AUDIENCE_PRESETS = [
+  'Beginners and newcomers',
+  'Intermediate users',
+  'Advanced professionals',
+  'Decision makers and executives',
+  'Budget-conscious consumers',
+  'Premium market segment',
+  'Tech-savvy millennials',
+  'Gen Z digital natives',
+  'Business owners',
+  'Industry professionals'
+];
+
+export default function AdvancedContentGenerator() {
+  const [formData, setFormData] = useState<ContentGenerationRequest>({
+    keyword: '',
+    content_type: 'blog_post',
+    tone_of_voice: 'Professional and authoritative',
+    target_audience: 'Beginners and newcomers',
+    additional_context: '',
+    brand_voice: '',
+    seo_focus: true,
+    word_count: 800,
+    siteId: undefined
+  });
+
+  const [activeContentId, setActiveContentId] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [isPolling, setIsPolling] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState<ContentGenerationResponse | null>(null);
+  const [savedContent, setSavedContent] = useState<any>(null);
+
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch user sites
+  const { data: sites = [] } = useQuery<Site[]>({
+    queryKey: ["/api/sites"],
+  });
+
+  // Generate content mutation
+  const generateMutation = useMutation({
+    mutationFn: async (data: ContentGenerationRequest) => {
+      const response = await apiRequest("POST", "/api/content/generate", data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setActiveContentId(data.content_id);
+      setIsPolling(true);
+      setGenerationProgress(10);
+      toast({
+        title: "Content generation started",
+        description: data.message || "Your request has been queued for processing",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Generation failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Save content mutation
+  const saveMutation = useMutation({
+    mutationFn: async (params: { content_id: string; siteId?: number; title?: string }) => {
+      const response = await apiRequest("POST", "/api/content/save", params);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setSavedContent(data.content);
+      queryClient.invalidateQueries({ queryKey: ["/api/content"] });
+      toast({
+        title: "Content saved successfully",
+        description: "Your generated content has been saved to your site",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Save failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Poll for content status
+  useEffect(() => {
+    if (!isPolling || !activeContentId) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await apiRequest("GET", `/api/content/generate/${activeContentId}`);
+        const result = await response.json();
+
+        setGeneratedContent(result);
+
+        if (result.status === 'processing') {
+          setGenerationProgress(Math.min(generationProgress + 10, 90));
+        } else if (result.status === 'completed') {
+          setGenerationProgress(100);
+          setIsPolling(false);
+          toast({
+            title: "Content generated successfully!",
+            description: `Generated in ${result.generation_time_ms}ms using ${result.ai_model_used}`,
+          });
+        } else if (result.status === 'failed') {
+          setIsPolling(false);
+          setGenerationProgress(0);
+          toast({
+            title: "Generation failed",
+            description: result.error || "Unknown error occurred",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
+  }, [isPolling, activeContentId, generationProgress]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.keyword.trim()) {
+      toast({
+        title: "Keyword required",
+        description: "Please enter a primary keyword for content generation",
+        variant: "destructive",
+      });
+      return;
+    }
+    generateMutation.mutate(formData);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to clipboard",
+      description: "Content has been copied to your clipboard",
+    });
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending': return <Clock className="h-4 w-4" />;
+      case 'processing': return <RefreshCw className="h-4 w-4 animate-spin" />;
+      case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'failed': return <AlertCircle className="h-4 w-4 text-red-500" />;
+      default: return null;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'processing': return 'bg-blue-100 text-blue-800';
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'failed': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center space-x-2">
+        <Sparkles className="h-6 w-6 text-primary" />
+        <h1 className="text-3xl font-bold">AI Content Generator</h1>
+        <Badge variant="secondary">Advanced Engine</Badge>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Content Generation Form */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Wand2 className="h-5 w-5" />
+              <span>Content Specification</span>
+            </CardTitle>
+            <CardDescription>
+              Configure your AI-powered content generation with advanced parameters
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Primary Keyword */}
+              <div className="space-y-2">
+                <Label htmlFor="keyword" className="flex items-center space-x-1">
+                  <Target className="h-4 w-4" />
+                  <span>Primary Keyword *</span>
+                </Label>
+                <Input
+                  id="keyword"
+                  value={formData.keyword}
+                  onChange={(e) => setFormData(prev => ({ ...prev, keyword: e.target.value }))}
+                  placeholder="e.g., best wireless headphones 2024"
+                  required
+                />
+              </div>
+
+              {/* Content Type */}
+              <div className="space-y-2">
+                <Label>Content Type</Label>
+                <Select value={formData.content_type} onValueChange={(value: any) => setFormData(prev => ({ ...prev, content_type: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONTENT_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        <div className="flex items-center space-x-2">
+                          <span>{type.icon}</span>
+                          <div>
+                            <div className="font-medium">{type.label}</div>
+                            <div className="text-xs text-muted-foreground">{type.description}</div>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tone of Voice */}
+              <div className="space-y-2">
+                <Label className="flex items-center space-x-1">
+                  <Megaphone className="h-4 w-4" />
+                  <span>Tone of Voice</span>
+                </Label>
+                <Select value={formData.tone_of_voice} onValueChange={(value) => setFormData(prev => ({ ...prev, tone_of_voice: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TONE_PRESETS.map((tone) => (
+                      <SelectItem key={tone} value={tone}>{tone}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Target Audience */}
+              <div className="space-y-2">
+                <Label className="flex items-center space-x-1">
+                  <Users className="h-4 w-4" />
+                  <span>Target Audience</span>
+                </Label>
+                <Select value={formData.target_audience} onValueChange={(value) => setFormData(prev => ({ ...prev, target_audience: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AUDIENCE_PRESETS.map((audience) => (
+                      <SelectItem key={audience} value={audience}>{audience}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Site Selection */}
+              {sites.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Target Site (Optional)</Label>
+                  <Select value={formData.siteId?.toString() || ""} onValueChange={(value) => setFormData(prev => ({ ...prev, siteId: value ? parseInt(value) : undefined }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a site or leave empty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">No specific site</SelectItem>
+                      {sites.map((site) => (
+                        <SelectItem key={site.id} value={site.id.toString()}>
+                          {site.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Advanced Options */}
+              <div className="space-y-4 p-4 border rounded-lg">
+                <Label className="text-sm font-medium">Advanced Options</Label>
+                
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="seo-focus" className="text-sm">SEO Optimization</Label>
+                  <Switch
+                    id="seo-focus"
+                    checked={formData.seo_focus}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, seo_focus: checked }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="word-count">Target Word Count</Label>
+                  <Input
+                    id="word-count"
+                    type="number"
+                    min="100"
+                    max="3000"
+                    value={formData.word_count || 800}
+                    onChange={(e) => setFormData(prev => ({ ...prev, word_count: parseInt(e.target.value) || 800 }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="brand-voice">Brand Voice (Optional)</Label>
+                  <Input
+                    id="brand-voice"
+                    value={formData.brand_voice || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, brand_voice: e.target.value }))}
+                    placeholder="e.g., Innovative, customer-focused, trustworthy"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="context">Additional Context</Label>
+                  <Textarea
+                    id="context"
+                    value={formData.additional_context || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, additional_context: e.target.value }))}
+                    placeholder="Any specific requirements, competitor mentions, or additional guidelines..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={generateMutation.isPending || isPolling}
+              >
+                {generateMutation.isPending || isPolling ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Content...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Generate AI Content
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Generation Status & Results */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Generation Status</CardTitle>
+            <CardDescription>
+              Real-time status of your content generation request
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isPolling && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Progress</span>
+                  <span className="text-sm text-muted-foreground">{generationProgress}%</span>
+                </div>
+                <Progress value={generationProgress} className="w-full" />
+              </div>
+            )}
+
+            {generatedContent && (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  {getStatusIcon(generatedContent.status)}
+                  <Badge className={getStatusColor(generatedContent.status)}>
+                    {generatedContent.status.toUpperCase()}
+                  </Badge>
+                  {generatedContent.ai_model_used && (
+                    <Badge variant="outline">
+                      {generatedContent.ai_model_used}
+                    </Badge>
+                  )}
+                </div>
+
+                {generatedContent.status === 'completed' && generatedContent.generated_text && (
+                  <div className="space-y-4">
+                    <Tabs defaultValue="content" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="content">Content</TabsTrigger>
+                        <TabsTrigger value="seo">SEO Data</TabsTrigger>
+                        <TabsTrigger value="meta">Metadata</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="content" className="space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium">Generated Title</Label>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyToClipboard(generatedContent.title || '')}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="p-3 bg-muted rounded-md">
+                            <p className="text-sm">{generatedContent.title}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium">Generated Content</Label>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyToClipboard(generatedContent.generated_text || '')}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="p-3 bg-muted rounded-md max-h-96 overflow-y-auto">
+                            <p className="text-sm whitespace-pre-wrap">{generatedContent.generated_text}</p>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="seo" className="space-y-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">SEO Title</Label>
+                          <div className="p-3 bg-muted rounded-md">
+                            <p className="text-sm">{generatedContent.seo_title}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">SEO Description</Label>
+                          <div className="p-3 bg-muted rounded-md">
+                            <p className="text-sm">{generatedContent.seo_description}</p>
+                          </div>
+                        </div>
+
+                        {generatedContent.meta_tags && generatedContent.meta_tags.length > 0 && (
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Meta Tags</Label>
+                            <div className="flex flex-wrap gap-2">
+                              {generatedContent.meta_tags.map((tag, index) => (
+                                <Badge key={index} variant="secondary">{tag}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </TabsContent>
+
+                      <TabsContent value="meta" className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <Label className="font-medium">Content ID</Label>
+                            <p className="text-muted-foreground">{generatedContent.content_id}</p>
+                          </div>
+                          <div>
+                            <Label className="font-medium">AI Model</Label>
+                            <p className="text-muted-foreground">{generatedContent.ai_model_used}</p>
+                          </div>
+                          <div>
+                            <Label className="font-medium">Generation Time</Label>
+                            <p className="text-muted-foreground">{generatedContent.generation_time_ms}ms</p>
+                          </div>
+                          <div>
+                            <Label className="font-medium">Reading Time</Label>
+                            <p className="text-muted-foreground">{generatedContent.estimated_reading_time} min</p>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+
+                    <Separator />
+
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={() => saveMutation.mutate({ 
+                          content_id: generatedContent.content_id,
+                          siteId: formData.siteId,
+                          title: generatedContent.title
+                        })}
+                        disabled={saveMutation.isPending}
+                      >
+                        {saveMutation.isPending ? (
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="mr-2 h-4 w-4" />
+                        )}
+                        Save to Site
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        onClick={() => copyToClipboard(generatedContent.generated_text || '')}
+                      >
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy All
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {generatedContent.status === 'failed' && (
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      {generatedContent.error || 'Content generation failed. Please try again.'}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            )}
+
+            {!generatedContent && !isPolling && (
+              <div className="text-center py-8 text-muted-foreground">
+                <Wand2 className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                <p>Configure your content settings and click "Generate AI Content" to begin</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {savedContent && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-green-600">Content Saved Successfully!</CardTitle>
+            <CardDescription>
+              Your generated content has been saved to your site and is ready for publication.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <Label className="font-medium">Title</Label>
+                <p className="text-muted-foreground">{savedContent.title}</p>
+              </div>
+              <div>
+                <Label className="font-medium">Content Type</Label>
+                <p className="text-muted-foreground">{savedContent.contentType}</p>
+              </div>
+              <div>
+                <Label className="font-medium">Created</Label>
+                <p className="text-muted-foreground">{new Date(savedContent.createdAt).toLocaleString()}</p>
+              </div>
+              <div>
+                <Label className="font-medium">Site ID</Label>
+                <p className="text-muted-foreground">{savedContent.siteId}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

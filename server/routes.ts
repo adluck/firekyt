@@ -7,6 +7,13 @@ import { z } from "zod";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { storage } from "./storage";
 import { insertUserSchema, insertSiteSchema, insertContentSchema, SUBSCRIPTION_LIMITS, type User } from "@shared/schema";
+import { 
+  addToQueue, 
+  getQueueStatus, 
+  getAllQueueItems,
+  type ContentGenerationRequest,
+  type ContentGenerationResponse 
+} from "./ai-engine";
 
 // Extend Express Request type to include user
 declare global {
@@ -372,13 +379,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Advanced AI Content Generation Engine
   app.post("/api/content/generate", authenticateToken, checkSubscriptionLimit('content_generation'), async (req, res) => {
     try {
-      const { siteId, contentType, topic, keywords, targetAudience } = req.body;
+      const requestSchema = z.object({
+        keyword: z.string().min(1, "Keyword is required"),
+        content_type: z.enum(['blog_post', 'product_comparison', 'review_article', 'video_script', 'social_post', 'email_campaign']),
+        tone_of_voice: z.string().min(1, "Tone of voice is required"),
+        target_audience: z.string().min(1, "Target audience is required"),
+        additional_context: z.string().optional(),
+        brand_voice: z.string().optional(),
+        seo_focus: z.boolean().optional().default(true),
+        word_count: z.number().optional(),
+        siteId: z.number().optional()
+      });
+
+      const validatedData = requestSchema.parse(req.body);
       
-      const site = await storage.getSite(siteId);
-      if (!site || site.userId !== req.user.id) {
-        return res.status(404).json({ message: "Site not found" });
+      // If siteId provided, verify ownership
+      if (validatedData.siteId) {
+        const site = await storage.getSite(validatedData.siteId);
+        if (!site || site.userId !== req.user!.id) {
+          return res.status(404).json({ message: "Site not found" });
+        }
       }
 
       // Track usage
@@ -386,37 +409,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       
-      const currentUsage = await storage.getUsage(req.user.id, 'content_generation', monthStart, monthEnd);
+      const currentUsage = await storage.getUsage(req.user!.id, 'content_generation', monthStart, monthEnd);
       await storage.createOrUpdateUsage({
-        userId: req.user.id,
+        userId: req.user!.id,
         feature: 'content_generation',
         count: (currentUsage?.count || 0) + 1,
         periodStart: monthStart,
         periodEnd: monthEnd,
       });
 
-      // Generate content using OpenAI (placeholder for now)
-      const generatedContent = await generateAIContent({
-        contentType,
-        topic,
-        keywords,
-        targetAudience,
-        brandVoice: site.brandVoice,
-        niche: site.niche,
+      // Create content generation request for AI engine
+      const contentRequest: ContentGenerationRequest = {
+        keyword: validatedData.keyword,
+        content_type: validatedData.content_type,
+        tone_of_voice: validatedData.tone_of_voice,
+        target_audience: validatedData.target_audience,
+        additional_context: validatedData.additional_context,
+        brand_voice: validatedData.brand_voice,
+        seo_focus: validatedData.seo_focus,
+        word_count: validatedData.word_count
+      };
+
+      // Add to generation queue
+      const contentId = addToQueue(contentRequest);
+
+      res.status(202).json({
+        content_id: contentId,
+        status: 'pending',
+        message: 'Content generation request queued successfully',
+        estimated_completion: '30-60 seconds'
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Content Generation Queue Management
+  app.get("/api/content/generate/:contentId", authenticateToken, async (req, res) => {
+    try {
+      const { contentId } = req.params;
+      const status = getQueueStatus(contentId);
+      
+      if (!status) {
+        return res.status(404).json({ message: "Content generation request not found" });
+      }
+      
+      res.json(status);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/content/queue", authenticateToken, async (req, res) => {
+    try {
+      const queue = getAllQueueItems();
+      res.json(queue);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Save completed content to database
+  app.post("/api/content/save", authenticateToken, async (req, res) => {
+    try {
+      const saveSchema = z.object({
+        content_id: z.string(),
+        siteId: z.number().optional(),
+        title: z.string().optional(),
+        save_to_database: z.boolean().optional().default(true)
       });
 
-      const content = await storage.createContent({
-        userId: req.user.id,
-        siteId: site.id,
-        title: generatedContent.title,
-        content: generatedContent.content,
-        contentType,
-        seoTitle: generatedContent.seoTitle,
-        seoDescription: generatedContent.seoDescription,
-        targetKeywords: keywords,
-      });
+      const { content_id, siteId, title, save_to_database } = saveSchema.parse(req.body);
+      
+      const contentResult = getQueueStatus(content_id);
+      if (!contentResult || contentResult.status !== 'completed') {
+        return res.status(400).json({ message: "Content not ready or not found" });
+      }
 
-      res.status(201).json(content);
+      if (save_to_database) {
+        let targetSiteId = siteId;
+        
+        // If no siteId provided, create a default site
+        if (!targetSiteId) {
+          const defaultSite = await storage.createSite({
+            userId: req.user!.id,
+            name: `Generated Content Site - ${new Date().toLocaleDateString()}`,
+            url: `https://example-${Date.now()}.com`,
+            description: "Site for AI-generated content",
+            niche: "General"
+          });
+          targetSiteId = defaultSite.id;
+        } else {
+          // Verify site ownership
+          const site = await storage.getSite(targetSiteId);
+          if (!site || site.userId !== req.user!.id) {
+            return res.status(404).json({ message: "Site not found" });
+          }
+        }
+
+        const savedContent = await storage.createContent({
+          userId: req.user!.id,
+          siteId: targetSiteId,
+          title: title || contentResult.title || "Generated Content",
+          content: contentResult.generated_text || "",
+          contentType: "blog_post", // Default type
+          seoTitle: contentResult.seo_title,
+          seoDescription: contentResult.seo_description,
+          targetKeywords: contentResult.meta_tags || []
+        });
+
+        res.status(201).json({
+          content: savedContent,
+          generation_data: contentResult
+        });
+      } else {
+        res.json(contentResult);
+      }
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
