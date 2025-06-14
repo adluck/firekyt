@@ -328,12 +328,12 @@ export default function AdvancedContentGenerator() {
               {sites.length > 0 && (
                 <div className="space-y-2">
                   <Label>Target Site (Optional)</Label>
-                  <Select value={formData.siteId?.toString() || ""} onValueChange={(value) => setFormData(prev => ({ ...prev, siteId: value ? parseInt(value) : undefined }))}>
+                  <Select value={formData.siteId?.toString() || "none"} onValueChange={(value) => setFormData(prev => ({ ...prev, siteId: value === "none" ? undefined : parseInt(value) }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a site or leave empty" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No specific site</SelectItem>
+                      <SelectItem value="none">No specific site</SelectItem>
                       {sites.map((site) => (
                         <SelectItem key={site.id} value={site.id.toString()}>
                           {site.name}

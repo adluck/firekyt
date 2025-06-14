@@ -430,14 +430,14 @@ export function ComparisonTableBuilder({
                                 <div>
                                   <Label>Product Field</Label>
                                   <Select
-                                    value={column.productField || ''}
-                                    onValueChange={(value) => updateColumn(column.id, { productField: value || undefined })}
+                                    value={column.productField || 'custom'}
+                                    onValueChange={(value) => updateColumn(column.id, { productField: value === 'custom' ? undefined : value })}
                                   >
                                     <SelectTrigger>
                                       <SelectValue placeholder="Custom" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="">Custom Field</SelectItem>
+                                      <SelectItem value="custom">Custom Field</SelectItem>
                                       <SelectItem value="title">Product Title</SelectItem>
                                       <SelectItem value="price">Price</SelectItem>
                                       <SelectItem value="rating">Rating</SelectItem>
