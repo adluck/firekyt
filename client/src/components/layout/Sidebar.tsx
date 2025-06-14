@@ -13,7 +13,8 @@ import {
   X,
   Search,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
@@ -49,6 +50,7 @@ const navigation = [
       { name: 'SEO Analysis', href: '/research/seo', icon: Search }
     ]
   },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

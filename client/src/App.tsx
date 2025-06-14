@@ -122,6 +122,14 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
+      <Route path="/analytics">
+        <ProtectedRoute>
+          <AppLayout>
+            <AnalyticsDashboard />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
       <Route path="/billing">
         <ProtectedRoute>
           <AppLayout>
