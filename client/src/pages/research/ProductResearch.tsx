@@ -517,19 +517,25 @@ export default function ProductResearch() {
                               <Badge variant="outline">{product.apiSource}</Badge>
                             </div>
                           </div>
-                          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded ml-4 flex items-center justify-center">
+                          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded ml-4 flex items-center justify-center relative">
                             {product.imageUrl ? (
-                              <img 
-                                src={product.imageUrl} 
-                                alt={product.title}
-                                className="w-20 h-20 object-cover rounded"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                                }}
-                              />
-                            ) : null}
-                            <Package className="w-8 h-8 text-gray-400" />
+                              <>
+                                <img 
+                                  src={product.imageUrl} 
+                                  alt={product.title}
+                                  className="w-20 h-20 object-cover rounded"
+                                  onError={(e) => {
+                                    console.log('Image failed to load:', product.imageUrl);
+                                    e.currentTarget.style.display = 'none';
+                                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                    if (fallback) fallback.style.display = 'flex';
+                                  }}
+                                />
+                                <Package className="w-8 h-8 text-gray-400 absolute" style={{display: 'none'}} />
+                              </>
+                            ) : (
+                              <Package className="w-8 h-8 text-gray-400" />
+                            )}
                           </div>
                         </div>
 
