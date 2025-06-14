@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
+import { spawn } from "child_process";
 import Stripe from "stripe";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -570,8 +571,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Call Python research engine
-        const { spawn } = require('child_process');
-        
         const pythonProcess = spawn('python3', ['server/product_research_test.py'], {
           stdio: ['pipe', 'pipe', 'pipe']
         });
