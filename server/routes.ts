@@ -1280,6 +1280,254 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Publishing & Platform Integration Endpoints
+
+  // Platform Connections Management
+  app.get("/api/publishing/connections", authenticateToken, async (req, res) => {
+    try {
+      const connections = await storage.getUserPlatformConnections(req.user!.id);
+      res.json(connections);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/publishing/connections", authenticateToken, async (req, res) => {
+    try {
+      const { platform, accessToken, refreshToken, platformUserId, platformUsername, connectionData } = req.body;
+      
+      if (!platform || !accessToken) {
+        return res.status(400).json({ message: "Platform and access token are required" });
+      }
+
+      const validPlatforms = ['wordpress', 'medium', 'shopify', 'linkedin', 'pinterest', 'instagram'];
+      if (!validPlatforms.includes(platform)) {
+        return res.status(400).json({ message: "Invalid platform type" });
+      }
+
+      const connection = await storage.createPlatformConnection({
+        userId: req.user!.id,
+        platform,
+        accessToken,
+        refreshToken,
+        platformUserId,
+        platformUsername,
+        connectionData,
+        tokenExpiresAt: connectionData?.expiresAt ? new Date(connectionData.expiresAt) : null,
+        isActive: true,
+      });
+
+      res.status(201).json(connection);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/publishing/connections/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const connection = await storage.updatePlatformConnection(parseInt(id), updates);
+      res.json(connection);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/publishing/connections/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deletePlatformConnection(parseInt(id));
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Content Publishing & Scheduling
+  app.post("/api/publishing/schedule", authenticateToken, async (req, res) => {
+    try {
+      const { contentId, platformConnectionId, scheduledAt, publishSettings } = req.body;
+
+      if (!contentId || !platformConnectionId || !scheduledAt) {
+        return res.status(400).json({ message: "Content ID, platform connection, and scheduled time are required" });
+      }
+
+      const scheduleDate = new Date(scheduledAt);
+      if (scheduleDate <= new Date()) {
+        return res.status(400).json({ message: "Scheduled time must be in the future" });
+      }
+
+      const scheduledPublication = await storage.createScheduledPublication({
+        userId: req.user!.id,
+        contentId: parseInt(contentId),
+        platformConnectionId: parseInt(platformConnectionId),
+        scheduledAt: scheduleDate,
+        publishSettings: publishSettings || {},
+        status: 'pending',
+      });
+
+      res.status(201).json(scheduledPublication);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/publishing/scheduled", authenticateToken, async (req, res) => {
+    try {
+      const publications = await storage.getUserScheduledPublications(req.user!.id);
+      res.json(publications);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/publishing/scheduled/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const publication = await storage.updateScheduledPublication(parseInt(id), updates);
+      res.json(publication);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/publishing/scheduled/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.cancelScheduledPublication(parseInt(id));
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Immediate Publishing
+  app.post("/api/publishing/publish", authenticateToken, async (req, res) => {
+    try {
+      const { contentId, platformConnectionId, publishSettings } = req.body;
+
+      const content = await storage.getContent(parseInt(contentId));
+      const connection = await storage.getPlatformConnection(parseInt(platformConnectionId));
+
+      if (!content || !connection) {
+        return res.status(404).json({ message: "Content or platform connection not found" });
+      }
+
+      // Simulate publishing to platform (real implementation would call platform APIs)
+      const publishResult = await simulatePublishToPlatform(connection.platform, content, connection, publishSettings);
+
+      // Update content status to published
+      await storage.updateContent(parseInt(contentId), { 
+        status: 'published',
+        publishedAt: new Date() 
+      });
+
+      // Create publication history record
+      const historyRecord = await storage.createPublicationHistory({
+        userId: req.user!.id,
+        contentId: parseInt(contentId),
+        platformConnectionId: parseInt(platformConnectionId),
+        platform: connection.platform,
+        platformPostId: publishResult.postId,
+        platformUrl: publishResult.url,
+        status: 'published',
+        publishedAt: new Date(),
+        lastSyncAt: new Date(),
+        metrics: publishResult.initialMetrics || {},
+      });
+
+      res.json({ 
+        success: true, 
+        publicationId: historyRecord.id,
+        platformUrl: publishResult.url,
+        message: `Content successfully published to ${connection.platform}` 
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Publication History
+  app.get("/api/publishing/history", authenticateToken, async (req, res) => {
+    try {
+      const history = await storage.getUserPublicationHistory(req.user!.id);
+      res.json(history);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/publishing/history/content/:contentId", authenticateToken, async (req, res) => {
+    try {
+      const { contentId } = req.params;
+      const history = await storage.getContentPublicationHistory(parseInt(contentId));
+      res.json(history);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Engagement Metrics
+  app.get("/api/publishing/metrics/:contentId", authenticateToken, async (req, res) => {
+    try {
+      const { contentId } = req.params;
+      const { period = '30' } = req.query;
+      const days = parseInt(period as string);
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const metrics = await storage.getContentEngagementMetrics(parseInt(contentId), startDate, endDate);
+      res.json(metrics);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Platform OAuth URLs
+  app.get("/api/publishing/auth/:platform/url", authenticateToken, async (req, res) => {
+    try {
+      const { platform } = req.params;
+      const authUrls = {
+        wordpress: `https://public-api.wordpress.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&response_type=code&scope=global`,
+        medium: `https://medium.com/m/oauth/authorize?client_id=YOUR_CLIENT_ID&scope=basicProfile,publishPost&state=secretString&response_type=code&redirect_uri=YOUR_REDIRECT_URI`,
+        linkedin: `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=r_liteprofile%20w_member_social`,
+        pinterest: `https://www.pinterest.com/oauth/?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&response_type=code&scope=read_public,write_public`,
+        instagram: `https://api.instagram.com/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=user_profile,user_media&response_type=code`
+      };
+
+      const authUrl = authUrls[platform as keyof typeof authUrls];
+      if (!authUrl) {
+        return res.status(400).json({ message: "Unsupported platform" });
+      }
+
+      res.json({ authUrl, platform });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Best engagement times analysis
+  app.get("/api/publishing/best-times/:platformConnectionId", authenticateToken, async (req, res) => {
+    try {
+      const { platformConnectionId } = req.params;
+      const connection = await storage.getPlatformConnection(parseInt(platformConnectionId));
+      
+      if (!connection) {
+        return res.status(404).json({ message: "Platform connection not found" });
+      }
+
+      // Analyze historical engagement data to suggest best posting times
+      const bestTimes = await analyzeBestEngagementTimes(connection.platform);
+      
+      res.json(bestTimes);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
@@ -1369,4 +1617,109 @@ Format the response as JSON with the following structure:
       seoDescription: `Discover everything you need to know about ${params.topic}. Expert insights and recommendations for ${params.targetAudience}.`,
     };
   }
+}
+
+// Publishing helper functions
+async function simulatePublishToPlatform(platform: string, content: any, connection: any, publishSettings: any) {
+  // Simulate platform-specific publishing
+  const baseUrl = getplatformBaseUrl(platform);
+  const postId = `${platform}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  return {
+    postId,
+    url: `${baseUrl}/post/${postId}`,
+    initialMetrics: {
+      views: 0,
+      likes: 0,
+      shares: 0,
+      comments: 0
+    }
+  };
+}
+
+function getplatformBaseUrl(platform: string): string {
+  const urls = {
+    wordpress: 'https://wordpress.com',
+    medium: 'https://medium.com',
+    shopify: 'https://shopify.com/blog',
+    linkedin: 'https://linkedin.com/feed',
+    pinterest: 'https://pinterest.com/pin',
+    instagram: 'https://instagram.com/p'
+  };
+  return urls[platform as keyof typeof urls] || 'https://example.com';
+}
+
+async function analyzeBestEngagementTimes(platform: string) {
+  // Simulate best times analysis based on platform
+  const platformBestTimes = {
+    wordpress: {
+      weekdays: [
+        { day: 'Tuesday', hour: 10, engagement: 85 },
+        { day: 'Wednesday', hour: 14, engagement: 92 },
+        { day: 'Thursday', hour: 11, engagement: 88 }
+      ],
+      weekends: [
+        { day: 'Saturday', hour: 9, engagement: 75 },
+        { day: 'Sunday', hour: 15, engagement: 78 }
+      ]
+    },
+    medium: {
+      weekdays: [
+        { day: 'Monday', hour: 8, engagement: 80 },
+        { day: 'Tuesday', hour: 12, engagement: 87 },
+        { day: 'Thursday', hour: 16, engagement: 85 }
+      ],
+      weekends: [
+        { day: 'Saturday', hour: 10, engagement: 70 },
+        { day: 'Sunday', hour: 14, engagement: 73 }
+      ]
+    },
+    linkedin: {
+      weekdays: [
+        { day: 'Tuesday', hour: 9, engagement: 95 },
+        { day: 'Wednesday', hour: 12, engagement: 92 },
+        { day: 'Thursday', hour: 17, engagement: 88 }
+      ],
+      weekends: [
+        { day: 'Saturday', hour: 11, engagement: 60 },
+        { day: 'Sunday', hour: 16, engagement: 55 }
+      ]
+    },
+    pinterest: {
+      weekdays: [
+        { day: 'Wednesday', hour: 20, engagement: 90 },
+        { day: 'Thursday', hour: 21, engagement: 93 },
+        { day: 'Friday', hour: 15, engagement: 87 }
+      ],
+      weekends: [
+        { day: 'Saturday', hour: 20, engagement: 95 },
+        { day: 'Sunday', hour: 19, engagement: 92 }
+      ]
+    },
+    instagram: {
+      weekdays: [
+        { day: 'Monday', hour: 11, engagement: 85 },
+        { day: 'Wednesday', hour: 14, engagement: 90 },
+        { day: 'Friday', hour: 17, engagement: 88 }
+      ],
+      weekends: [
+        { day: 'Saturday', hour: 13, engagement: 92 },
+        { day: 'Sunday', hour: 14, engagement: 89 }
+      ]
+    }
+  };
+
+  const defaultTimes = {
+    weekdays: [
+      { day: 'Tuesday', hour: 10, engagement: 80 },
+      { day: 'Wednesday', hour: 14, engagement: 85 },
+      { day: 'Thursday', hour: 11, engagement: 82 }
+    ],
+    weekends: [
+      { day: 'Saturday', hour: 10, engagement: 70 },
+      { day: 'Sunday', hour: 15, engagement: 75 }
+    ]
+  };
+
+  return platformBestTimes[platform as keyof typeof platformBestTimes] || defaultTimes;
 }

@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
@@ -83,6 +83,29 @@ export interface IStorage {
   createAffiliateClick(click: InsertAffiliateClick): Promise<AffiliateClick>;
   createSeoRanking(ranking: InsertSeoRanking): Promise<SeoRanking>;
   createRevenueTracking(revenue: InsertRevenueTracking): Promise<RevenueTracking>;
+
+  // Platform Connections operations
+  getPlatformConnection(id: number): Promise<any>;
+  getUserPlatformConnections(userId: number): Promise<any[]>;
+  createPlatformConnection(connection: any): Promise<any>;
+  updatePlatformConnection(id: number, updates: Partial<any>): Promise<any>;
+  deletePlatformConnection(id: number): Promise<void>;
+
+  // Scheduled Publications operations
+  getScheduledPublication(id: number): Promise<any>;
+  getUserScheduledPublications(userId: number): Promise<any[]>;
+  createScheduledPublication(publication: any): Promise<any>;
+  updateScheduledPublication(id: number, updates: Partial<any>): Promise<any>;
+  cancelScheduledPublication(id: number): Promise<void>;
+
+  // Publication History operations
+  getUserPublicationHistory(userId: number): Promise<any[]>;
+  createPublicationHistory(history: any): Promise<any>;
+  getContentPublicationHistory(contentId: number): Promise<any[]>;
+
+  // Engagement Metrics operations
+  createEngagementMetrics(metrics: any): Promise<any>;
+  getContentEngagementMetrics(contentId: number, startDate: Date, endDate: Date): Promise<any[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -843,6 +866,119 @@ export class DatabaseStorage implements IStorage {
   async createRevenueTracking(revenue: InsertRevenueTracking): Promise<RevenueTracking> {
     const [created] = await db.insert(revenueTracking).values(revenue).returning();
     return created;
+  }
+
+  // Platform Connections operations
+  async getPlatformConnection(id: number): Promise<any> {
+    const [connection] = await db.select().from(platformConnections).where(eq(platformConnections.id, id));
+    return connection;
+  }
+
+  async getUserPlatformConnections(userId: number): Promise<any[]> {
+    return await db.select().from(platformConnections)
+      .where(eq(platformConnections.userId, userId))
+      .orderBy(desc(platformConnections.createdAt));
+  }
+
+  async createPlatformConnection(connection: any): Promise<any> {
+    const [created] = await db.insert(platformConnections).values({
+      ...connection,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+    return created;
+  }
+
+  async updatePlatformConnection(id: number, updates: Partial<any>): Promise<any> {
+    const [updated] = await db
+      .update(platformConnections)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(platformConnections.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deletePlatformConnection(id: number): Promise<void> {
+    await db.delete(platformConnections).where(eq(platformConnections.id, id));
+  }
+
+  // Scheduled Publications operations
+  async getScheduledPublication(id: number): Promise<any> {
+    const [publication] = await db.select().from(scheduledPublications).where(eq(scheduledPublications.id, id));
+    return publication;
+  }
+
+  async getUserScheduledPublications(userId: number): Promise<any[]> {
+    return await db.select().from(scheduledPublications)
+      .where(eq(scheduledPublications.userId, userId))
+      .orderBy(scheduledPublications.scheduledAt);
+  }
+
+  async createScheduledPublication(publication: any): Promise<any> {
+    const [created] = await db.insert(scheduledPublications).values({
+      ...publication,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+    return created;
+  }
+
+  async updateScheduledPublication(id: number, updates: Partial<any>): Promise<any> {
+    const [updated] = await db
+      .update(scheduledPublications)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(scheduledPublications.id, id))
+      .returning();
+    return updated;
+  }
+
+  async cancelScheduledPublication(id: number): Promise<void> {
+    await db
+      .update(scheduledPublications)
+      .set({ status: 'cancelled', updatedAt: new Date() })
+      .where(eq(scheduledPublications.id, id));
+  }
+
+  // Publication History operations
+  async getUserPublicationHistory(userId: number): Promise<any[]> {
+    return await db.select().from(publicationHistory)
+      .where(eq(publicationHistory.userId, userId))
+      .orderBy(desc(publicationHistory.publishedAt));
+  }
+
+  async createPublicationHistory(history: any): Promise<any> {
+    const [created] = await db.insert(publicationHistory).values({
+      ...history,
+      createdAt: new Date()
+    }).returning();
+    return created;
+  }
+
+  async getContentPublicationHistory(contentId: number): Promise<any[]> {
+    return await db.select().from(publicationHistory)
+      .where(eq(publicationHistory.contentId, contentId))
+      .orderBy(desc(publicationHistory.publishedAt));
+  }
+
+  // Engagement Metrics operations
+  async createEngagementMetrics(metrics: any): Promise<any> {
+    const [created] = await db.insert(engagementMetrics).values({
+      ...metrics,
+      createdAt: new Date()
+    }).returning();
+    return created;
+  }
+
+  async getContentEngagementMetrics(contentId: number, startDate: Date, endDate: Date): Promise<any[]> {
+    return await db.select().from(engagementMetrics)
+      .where(
+        and(
+          eq(engagementMetrics.contentId, contentId),
+          gte(engagementMetrics.date, startDate),
+          lte(engagementMetrics.date, endDate)
+        )
+      )
+      .orderBy(desc(engagementMetrics.date));
   }
 }
 
