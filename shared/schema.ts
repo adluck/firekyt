@@ -292,6 +292,8 @@ export type ProductResearchSession = typeof productResearchSessions.$inferSelect
 export type InsertProductResearchSession = z.infer<typeof insertProductResearchSessionSchema>;
 export type SeoAnalysis = typeof seoAnalyses.$inferSelect;
 export type InsertSeoAnalysis = z.infer<typeof insertSeoAnalysisSchema>;
+export type ComparisonTable = typeof comparisonTables.$inferSelect;
+export type InsertComparisonTable = z.infer<typeof insertComparisonTableSchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {

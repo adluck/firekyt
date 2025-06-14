@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
@@ -63,6 +63,13 @@ export interface IStorage {
   getUserSeoAnalyses(userId: number): Promise<SeoAnalysis[]>;
   createSeoAnalysis(analysis: InsertSeoAnalysis): Promise<SeoAnalysis>;
   findSeoAnalysisByKeyword(userId: number, keyword: string, region?: string): Promise<SeoAnalysis | undefined>;
+
+  // Comparison table operations
+  getComparisonTable(id: number): Promise<ComparisonTable | undefined>;
+  getUserComparisonTables(userId: number): Promise<ComparisonTable[]>;
+  createComparisonTable(table: InsertComparisonTable): Promise<ComparisonTable>;
+  updateComparisonTable(id: number, updates: Partial<ComparisonTable>): Promise<ComparisonTable>;
+  deleteComparisonTable(id: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -680,6 +687,34 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
     
     return analysis;
+  }
+
+  // Comparison table operations
+  async getComparisonTable(id: number): Promise<ComparisonTable | undefined> {
+    const [table] = await db.select().from(comparisonTables).where(eq(comparisonTables.id, id));
+    return table;
+  }
+
+  async getUserComparisonTables(userId: number): Promise<ComparisonTable[]> {
+    return await db.select().from(comparisonTables).where(eq(comparisonTables.userId, userId));
+  }
+
+  async createComparisonTable(tableData: InsertComparisonTable): Promise<ComparisonTable> {
+    const [table] = await db.insert(comparisonTables).values(tableData).returning();
+    return table;
+  }
+
+  async updateComparisonTable(id: number, updates: Partial<ComparisonTable>): Promise<ComparisonTable> {
+    const [table] = await db
+      .update(comparisonTables)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(comparisonTables.id, id))
+      .returning();
+    return table;
+  }
+
+  async deleteComparisonTable(id: number): Promise<void> {
+    await db.delete(comparisonTables).where(eq(comparisonTables.id, id));
   }
 }
 
