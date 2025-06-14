@@ -138,7 +138,8 @@ export default function ProductResearch() {
         save_to_database: data.saveToDatabase.toString()
       });
 
-      return apiRequest('GET', `/api/research-products?${params}`);
+      const response = await apiRequest('GET', `/api/research-products?${params}`);
+      return await response.json();
     },
     onSuccess: (data) => {
       console.log('Research data received:', data);
