@@ -141,6 +141,7 @@ export default function ProductResearch() {
       return apiRequest('GET', `/api/research-products?${params}`);
     },
     onSuccess: (data) => {
+      console.log('Research data received:', data);
       setResearchResults(data);
       setIsResearching(false);
       toast({
