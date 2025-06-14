@@ -146,24 +146,24 @@ export const SUBSCRIPTION_LIMITS = {
     sites: 1,
     contentPerMonth: 5,
     apiCallsPerMonth: 100,
-    features: ['basic_content_generation'],
+    features: ['content_generation', 'basic_content_generation'],
   },
   basic: {
     sites: 3,
     contentPerMonth: 25,
     apiCallsPerMonth: 1000,
-    features: ['basic_content_generation', 'seo_optimization', 'affiliate_links'],
+    features: ['content_generation', 'basic_content_generation', 'seo_optimization', 'affiliate_links'],
   },
   pro: {
     sites: 10,
     contentPerMonth: 100,
     apiCallsPerMonth: 5000,
-    features: ['advanced_content_generation', 'seo_optimization', 'affiliate_links', 'analytics', 'brand_voice'],
+    features: ['content_generation', 'advanced_content_generation', 'seo_optimization', 'affiliate_links', 'analytics', 'brand_voice'],
   },
   agency: {
     sites: -1, // unlimited
     contentPerMonth: 500,
     apiCallsPerMonth: 25000,
-    features: ['advanced_content_generation', 'seo_optimization', 'affiliate_links', 'analytics', 'brand_voice', 'white_label', 'priority_support'],
+    features: ['content_generation', 'advanced_content_generation', 'seo_optimization', 'affiliate_links', 'analytics', 'brand_voice', 'white_label', 'priority_support'],
   },
 } as const;
