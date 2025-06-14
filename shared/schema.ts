@@ -52,7 +52,27 @@ export const content = pgTable("content", {
   targetKeywords: text("target_keywords").array(),
   affiliateLinks: jsonb("affiliate_links"), // Array of affiliate link objects
   seoAnalysisId: integer("seo_analysis_id").references(() => seoAnalyses.id),
+  // Rich text editor content
+  richContent: jsonb("rich_content"), // Rich text editor content structure
+  comparisonTables: jsonb("comparison_tables"), // Comparison table configurations
   publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Comparison tables for product comparisons
+export const comparisonTables = pgTable("comparison_tables", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  contentId: integer("content_id").references(() => content.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  // Table structure and configuration
+  columns: jsonb("columns").notNull(), // Column definitions with properties, data types, etc.
+  rows: jsonb("rows").notNull(), // Product IDs and custom data
+  styling: jsonb("styling"), // Visual styling options
+  settings: jsonb("settings"), // Display settings, sorting, filtering options
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -151,6 +171,12 @@ export const insertAffiliateProgramSchema = createInsertSchema(affiliatePrograms
 });
 
 export const insertSeoAnalysisSchema = createInsertSchema(seoAnalyses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertComparisonTableSchema = createInsertSchema(comparisonTables).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
