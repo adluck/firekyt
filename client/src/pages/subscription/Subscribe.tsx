@@ -11,10 +11,8 @@ import { useLocation } from "wouter";
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
 
 const SubscribeForm = () => {
   const stripe = useStripe();
@@ -93,6 +91,28 @@ export default function Subscribe() {
   const [location] = useLocation();
   const [clientSecret, setClientSecret] = useState("");
   const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null);
+
+  // Handle missing Stripe configuration
+  if (!stripePromise) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Payment System Unavailable</h3>
+              <p className="text-muted-foreground mb-4">
+                Payment processing is temporarily unavailable. Please contact support for assistance.
+              </p>
+              <Button asChild variant="outline">
+                <a href="/pricing">View Plans</a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(location.split('?')[1]);
