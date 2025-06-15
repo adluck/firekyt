@@ -15,6 +15,18 @@ import {
   type ContentGenerationRequest,
   type ContentGenerationResponse 
 } from "./ai-engine";
+import { performanceMonitor } from "./performance/PerformanceMonitor";
+import { cacheManager } from "./performance/CacheManager";
+import { 
+  rateLimiter, 
+  apiRateLimit, 
+  authRateLimit, 
+  contentGenerationRateLimit,
+  analyticsRateLimit,
+  adminRateLimit 
+} from "./performance/RateLimiter";
+import { databaseOptimizer } from "./performance/DatabaseOptimizer";
+import { queryOptimizer } from "./performance/QueryOptimizer";
 
 // Extend Express Request type to include user
 declare global {
