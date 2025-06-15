@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Brain, Sparkles, Target, CheckCircle, XCircle, Clock,
@@ -39,7 +38,7 @@ interface LinkSuggestion {
 }
 
 export default function LinkInserter() {
-  const [selectedContent, setSelectedContent] = useState<number | null>(null);
+  const [selectedContent, setSelectedContent] = useState<string>('');
   const [keywords, setKeywords] = useState('');
   const [context, setContext] = useState('');
   const [selectedSite, setSelectedSite] = useState<string>('');
@@ -50,39 +49,45 @@ export default function LinkInserter() {
   const queryClient = useQueryClient();
 
   // Fetch user content
-  const { data: content = [], isLoading: contentLoading } = useQuery({
+  const { data: contentData, isLoading: contentLoading } = useQuery({
     queryKey: ['/api/content'],
     queryFn: () => apiRequest('/api/content')
   });
 
   // Fetch user sites
-  const { data: sites = [] } = useQuery({
+  const { data: sitesData } = useQuery({
     queryKey: ['/api/sites'],
     queryFn: () => apiRequest('/api/sites')
   });
 
   // Fetch link suggestions
-  const { data: suggestions = [], isLoading: suggestionsLoading } = useQuery({
+  const { data: suggestionsData, isLoading: suggestionsLoading } = useQuery({
     queryKey: ['/api/links/suggestions'],
     queryFn: () => apiRequest('/api/links/suggestions')
   });
+
+  // Ensure we have arrays to work with
+  const content = Array.isArray(contentData) ? contentData : [];
+  const sites = Array.isArray(sitesData) ? sitesData : [];
+  const suggestions = Array.isArray(suggestionsData) ? suggestionsData : [];
 
   // AI suggestion mutation
   const generateSuggestionsMutation = useMutation({
     mutationFn: (data: any) => apiRequest('/api/links/ai-suggest', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/suggestions'] });
       toast({ 
         title: 'AI Suggestions Generated', 
-        description: `Generated ${data.suggestions.length} intelligent link suggestions`
+        description: `Generated intelligent link suggestions`
       });
       setIsGenerating(false);
     },
     onError: (error: any) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to generate suggestions', variant: 'destructive' });
       setIsGenerating(false);
     }
   });
@@ -91,6 +96,7 @@ export default function LinkInserter() {
   const updateSuggestionMutation = useMutation({
     mutationFn: ({ id, status, userFeedback }: any) => apiRequest(`/api/links/suggestions/${id}`, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, userFeedback })
     }),
     onSuccess: () => {
@@ -103,13 +109,14 @@ export default function LinkInserter() {
   const bulkInsertMutation = useMutation({
     mutationFn: (data: any) => apiRequest('/api/links/bulk-insert', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     }),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/insertions'] });
       toast({ 
         title: 'Links Inserted', 
-        description: `Successfully inserted ${data.insertions.length} links`
+        description: `Successfully inserted links`
       });
     }
   });
@@ -123,7 +130,7 @@ export default function LinkInserter() {
     setIsGenerating(true);
     
     const requestData = {
-      contentId: selectedContent,
+      contentId: parseInt(selectedContent),
       siteId: selectedSite ? parseInt(selectedSite) : null,
       keywords: keywords.split(',').map(k => k.trim()).filter(k => k),
       context: context
@@ -149,14 +156,14 @@ export default function LinkInserter() {
   };
 
   const handleBulkAccept = () => {
-    const acceptedSuggestions = suggestions.filter((s: LinkSuggestion) => s.status === 'pending');
+    const pendingSuggestions = suggestions.filter((s: LinkSuggestion) => s.status === 'pending');
     
-    if (acceptedSuggestions.length === 0) {
+    if (pendingSuggestions.length === 0) {
       toast({ title: 'No suggestions', description: 'No pending suggestions to accept', variant: 'destructive' });
       return;
     }
 
-    const insertions = acceptedSuggestions.map((suggestion: LinkSuggestion) => ({
+    const insertions = pendingSuggestions.map((suggestion: LinkSuggestion) => ({
       linkId: suggestion.suggestedLinkId,
       anchorText: suggestion.suggestedAnchorText,
       position: suggestion.suggestedPosition,
@@ -165,12 +172,11 @@ export default function LinkInserter() {
     }));
 
     bulkInsertMutation.mutate({
-      contentId: selectedContent,
+      contentId: parseInt(selectedContent),
       insertions
     });
 
-    // Update all suggestions to accepted
-    acceptedSuggestions.forEach((suggestion: LinkSuggestion) => {
+    pendingSuggestions.forEach((suggestion: LinkSuggestion) => {
       updateSuggestionMutation.mutate({
         id: suggestion.id,
         status: 'accepted',
@@ -238,10 +244,7 @@ export default function LinkInserter() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="content-select">Select Content</Label>
-                  <Select 
-                    onValueChange={(value) => setSelectedContent(parseInt(value))}
-                    value={selectedContent?.toString() || ""}
-                  >
+                  <Select value={selectedContent} onValueChange={setSelectedContent}>
                     <SelectTrigger>
                       <SelectValue placeholder="Choose content to optimize" />
                     </SelectTrigger>
@@ -253,7 +256,7 @@ export default function LinkInserter() {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="no-content" disabled>
+                        <SelectItem value="none" disabled>
                           No content available
                         </SelectItem>
                       )}
@@ -263,7 +266,7 @@ export default function LinkInserter() {
 
                 <div>
                   <Label htmlFor="site-select">Target Site (Optional)</Label>
-                  <Select onValueChange={setSelectedSite} value={selectedSite}>
+                  <Select value={selectedSite} onValueChange={setSelectedSite}>
                     <SelectTrigger>
                       <SelectValue placeholder="Filter by specific site" />
                     </SelectTrigger>
@@ -411,90 +414,6 @@ export default function LinkInserter() {
                           </Button>
                         </div>
                       </div>
-                      
-                      {suggestion.contextMatch && (
-                        <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded text-sm">
-                          <strong>Context Match:</strong>
-                          {suggestion.contextMatch.keywordMatches && (
-                            <div className="mt-1">
-                              <span className="text-muted-foreground">Keywords: </span>
-                              {suggestion.contextMatch.keywordMatches.join(', ')}
-                            </div>
-                          )}
-                          {suggestion.contextMatch.contextWords && (
-                            <div className="mt-1">
-                              <span className="text-muted-foreground">Context: </span>
-                              {suggestion.contextMatch.contextWords.join(', ')}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {acceptedSuggestions.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  Accepted Suggestions
-                </CardTitle>
-                <CardDescription>
-                  Links that have been approved and inserted
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {acceptedSuggestions.map((suggestion: LinkSuggestion) => (
-                    <div key={suggestion.id} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                      <div>
-                        <h4 className="font-medium text-green-900 dark:text-green-100">
-                          {suggestion.suggestedAnchorText}
-                        </h4>
-                        <p className="text-sm text-green-700 dark:text-green-200">
-                          Confidence: {suggestion.confidence}% • Position: {suggestion.suggestedPosition}
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="text-green-600 border-green-600">
-                        Inserted
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {rejectedSuggestions.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <XCircle className="w-5 h-5 text-red-600" />
-                  Rejected Suggestions
-                </CardTitle>
-                <CardDescription>
-                  Suggestions that were declined
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {rejectedSuggestions.map((suggestion: LinkSuggestion) => (
-                    <div key={suggestion.id} className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950 rounded-lg">
-                      <div>
-                        <h4 className="font-medium text-red-900 dark:text-red-100">
-                          {suggestion.suggestedAnchorText}
-                        </h4>
-                        <p className="text-sm text-red-700 dark:text-red-200">
-                          {suggestion.reasoning}
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="text-red-600 border-red-600">
-                        Rejected
-                      </Badge>
                     </div>
                   ))}
                 </div>
