@@ -7,37 +7,95 @@ import {
   type ContentGenerationResponse 
 } from "./ai-engine";
 
+/**
+ * AI-powered content generation request interface
+ * Defines all parameters needed for intelligent content creation
+ */
 export interface AIContentRequest {
-  keyword: string;
+  keyword: string;                    // Primary SEO keyword to target
   contentType: 'blog_post' | 'product_comparison' | 'review_article' | 'video_script' | 'social_post' | 'email_campaign';
-  toneOfVoice: string;
-  targetAudience: string;
-  additionalContext?: string;
-  brandVoice?: string;
-  seoFocus?: boolean;
-  wordCount?: number;
-}
-
-export interface SEOAnalysisRequest {
-  content: string;
-  targetKeywords: string[];
-  title?: string;
-  metaDescription?: string;
-}
-
-export interface LinkSuggestionRequest {
-  contentId: number;
-  content: string;
-  targetKeywords: string[];
-  context?: string;
+  toneOfVoice: string;               // Writing style (professional, casual, persuasive, etc.)
+  targetAudience: string;            // Audience demographics and interests
+  additionalContext?: string;         // Extra context for content generation
+  brandVoice?: string;               // Brand-specific voice guidelines
+  seoFocus?: boolean;                // Whether to prioritize SEO optimization
+  wordCount?: number;                // Target content length
 }
 
 /**
- * AI Engine Service - Handles all AI-related operations
- * Separated AI logic from routes for better modularity
+ * SEO analysis request interface
+ * Defines parameters for comprehensive content SEO evaluation
+ */
+export interface SEOAnalysisRequest {
+  content: string;              // Content text to analyze
+  targetKeywords: string[];     // Keywords to optimize for
+  title?: string;               // Page/article title
+  metaDescription?: string;     // Meta description
+}
+
+/**
+ * Link suggestion request interface
+ * Defines parameters for intelligent affiliate link placement
+ */
+export interface LinkSuggestionRequest {
+  contentId: number;            // Database ID of the content
+  content: string;              // Content text for analysis
+  targetKeywords: string[];     // Related keywords for link relevance
+  context?: string;             // Additional context for link suggestions
+}
+
+/**
+ * Enterprise AI Engine Service
+ * 
+ * Provides comprehensive AI-powered content generation, SEO analysis, and optimization
+ * services for affiliate marketing platforms. Integrates with Google's Gemini AI model
+ * to deliver high-quality, SEO-optimized content at scale.
+ * 
+ * Core Capabilities:
+ * - Multi-format content generation (blogs, reviews, comparisons, scripts)
+ * - Advanced SEO analysis with keyword optimization
+ * - Intelligent affiliate link suggestions
+ * - Content optimization recommendations
+ * - Meta tag generation and readability analysis
+ * 
+ * Performance Features:
+ * - Asynchronous processing with queue management
+ * - Caching for improved response times
+ * - Error handling with graceful fallbacks
+ * - Rate limiting compliance for API usage
+ * 
+ * Quality Assurance:
+ * - Brand voice consistency enforcement
+ * - Target audience optimization
+ * - SEO best practices integration
+ * - Content length and structure optimization
+ * 
+ * @example
+ * ```typescript
+ * const aiService = new AIEngineService();
+ * 
+ * // Generate SEO-optimized blog post
+ * const blogPost = await aiService.generateContent({
+ *   keyword: "best wireless headphones 2024",
+ *   contentType: "blog_post",
+ *   toneOfVoice: "professional",
+ *   targetAudience: "tech enthusiasts and music lovers",
+ *   seoFocus: true,
+ *   wordCount: 2000
+ * });
+ * 
+ * // Analyze content for SEO optimization
+ * const seoAnalysis = await aiService.analyzeSEO({
+ *   content: "Your content here...",
+ *   targetKeywords: ["wireless headphones", "bluetooth audio", "noise cancelling"]
+ * });
+ * ```
  */
 export class AIEngineService {
+  /** Google Generative AI client instance */
   private genAI: GoogleGenerativeAI;
+  
+  /** Gemini Pro model instance for content generation */
   private model: any;
 
   constructor() {
