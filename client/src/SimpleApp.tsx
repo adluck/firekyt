@@ -1,18 +1,13 @@
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./lib/queryClient";
-
 function SimpleApp() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <div style={{ padding: '20px' }}>
-        <h1>Affiliate Marketing Platform</h1>
-        <p>Application is loading successfully.</p>
-        <div>
-          <button>Login</button>
-          <button>Dashboard</button>
-        </div>
+    <div style={{ padding: '20px', backgroundColor: '#f0f0f0' }}>
+      <h1 style={{ color: '#333' }}>Affiliate Marketing Platform</h1>
+      <p style={{ color: '#666' }}>Application is loading successfully.</p>
+      <div style={{ marginTop: '20px' }}>
+        <button style={{ padding: '10px 20px', marginRight: '10px' }}>Login</button>
+        <button style={{ padding: '10px 20px' }}>Dashboard</button>
       </div>
-    </QueryClientProvider>
+    </div>
   );
 }
 
