@@ -54,6 +54,15 @@ const navigation = [
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },
+  { 
+    name: 'Link Management', 
+    href: '/links', 
+    icon: Link2,
+    submenu: [
+      { name: 'Link Dashboard', href: '/links', icon: Link2 },
+      { name: 'AI Link Inserter', href: '/links/inserter', icon: Brain }
+    ]
+  },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
@@ -154,7 +163,7 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                       {item.submenu.map((subItem) => {
                         const isSubActive = location === subItem.href;
                         return (
-                          <Link key={subItem.name} href={subItem.href}>
+                          <WouterLink key={subItem.name} href={subItem.href}>
                             <div 
                               className={cn(
                                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -165,7 +174,7 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                               <subItem.icon className="h-4 w-4" />
                               {subItem.name}
                             </div>
-                          </Link>
+                          </WouterLink>
                         );
                       })}
                     </div>
@@ -174,7 +183,7 @@ export function Sidebar({ user, subscription }: SidebarProps) {
               }
               
               return (
-                <Link key={item.name} href={item.href}>
+                <WouterLink key={item.name} href={item.href}>
                   <div 
                     className={cn("nav-link", isActive && "active")}
                     onClick={() => setIsMobileOpen(false)}
@@ -182,7 +191,7 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                     <item.icon className="h-5 w-5" />
                     {item.name}
                   </div>
-                </Link>
+                </WouterLink>
               );
             })}
           </nav>

@@ -25,6 +25,8 @@ import SeoAnalysis from "@/pages/research/SeoAnalysis";
 import ContentEditor from "@/pages/content/ContentEditor";
 import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
 import PublishingDashboard from "@/pages/publishing/PublishingDashboard";
+import LinkDashboard from "@/pages/links/LinkDashboard";
+import LinkInserter from "@/pages/links/LinkInserter";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
 import Subscribe from "@/pages/subscription/Subscribe";
@@ -127,6 +129,22 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <PublishingDashboard />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/links">
+        <ProtectedRoute>
+          <AppLayout>
+            <LinkDashboard />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/links/inserter">
+        <ProtectedRoute>
+          <AppLayout>
+            <LinkInserter />
           </AppLayout>
         </ProtectedRoute>
       </Route>
