@@ -51,19 +51,14 @@ export function configureApplicationSecurity(app: express.Application): void {
     app.use(csrfProtectionMiddleware);
   }
   
-  if (isDevelopment) {
-    // More permissive limits for development
-    app.use('/api/auth', securityManager.createRateLimit(15 * 60 * 1000, 50)); // 50 per 15 minutes
-    app.use('/api/content/generate', securityManager.createRateLimit(60 * 60 * 1000, 100)); // 100 per hour
-    app.use('/api/upload', securityManager.createRateLimit(60 * 60 * 1000, 50)); // 50 per hour
-    app.use('/api', securityManager.createRateLimit(15 * 60 * 1000, 1000)); // 1000 per 15 minutes
-  } else {
-    // Stricter limits for production
+  if (!isDevelopment) {
+    // Apply rate limiting only in production
     app.use('/api/auth', securityManager.createRateLimit(15 * 60 * 1000, 5)); // 5 per 15 minutes
     app.use('/api/content/generate', securityManager.createRateLimit(60 * 60 * 1000, 20)); // 20 per hour
     app.use('/api/upload', securityManager.createRateLimit(60 * 60 * 1000, 10)); // 10 per hour
     app.use('/api', securityManager.createRateLimit(15 * 60 * 1000, 100)); // 100 per 15 minutes
   }
+  // No rate limiting in development mode
 
   // CSRF token endpoint
   app.get('/api/csrf-token', (req, res) => {
