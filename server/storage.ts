@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
@@ -106,6 +106,51 @@ export interface IStorage {
   // Engagement Metrics operations
   createEngagementMetrics(metrics: any): Promise<any>;
   getContentEngagementMetrics(contentId: number, startDate: Date, endDate: Date): Promise<any[]>;
+
+  // Link Management operations
+  // Link Categories
+  getUserLinkCategories(userId: number): Promise<LinkCategory[]>;
+  createLinkCategory(category: InsertLinkCategory): Promise<LinkCategory>;
+  updateLinkCategory(id: number, category: Partial<InsertLinkCategory>): Promise<LinkCategory>;
+  deleteLinkCategory(id: number): Promise<void>;
+
+  // Intelligent Links
+  getUserIntelligentLinks(userId: number, siteId?: number): Promise<IntelligentLink[]>;
+  getIntelligentLink(id: number): Promise<IntelligentLink | undefined>;
+  createIntelligentLink(link: InsertIntelligentLink): Promise<IntelligentLink>;
+  updateIntelligentLink(id: number, link: Partial<InsertIntelligentLink>): Promise<IntelligentLink>;
+  deleteIntelligentLink(id: number): Promise<void>;
+
+  // Link Insertions
+  getContentLinkInsertions(contentId: number): Promise<LinkInsertion[]>;
+  createLinkInsertion(insertion: InsertLinkInsertion): Promise<LinkInsertion>;
+  updateLinkInsertion(id: number, insertion: Partial<InsertLinkInsertion>): Promise<LinkInsertion>;
+  deleteLinkInsertion(id: number): Promise<void>;
+
+  // Link Tracking
+  createLinkTracking(tracking: InsertLinkTracking): Promise<LinkTracking>;
+  getLinkTracking(linkId: number, startDate?: Date, endDate?: Date): Promise<LinkTracking[]>;
+  getLinkPerformanceStats(linkId: number): Promise<{
+    totalClicks: number;
+    totalViews: number;
+    totalRevenue: number;
+    clickThroughRate: number;
+  }>;
+
+  // Site Configurations
+  getSiteConfigurations(siteId: number): Promise<SiteConfiguration[]>;
+  createSiteConfiguration(config: InsertSiteConfiguration): Promise<SiteConfiguration>;
+  updateSiteConfiguration(id: number, config: Partial<InsertSiteConfiguration>): Promise<SiteConfiguration>;
+
+  // Site Metrics
+  getSiteMetrics(siteId: number, startDate?: Date, endDate?: Date): Promise<SiteMetrics[]>;
+  createSiteMetrics(metrics: InsertSiteMetrics): Promise<SiteMetrics>;
+  getMultiSiteMetrics(userId: number, startDate?: Date, endDate?: Date): Promise<SiteMetrics[]>;
+
+  // Link Suggestions
+  getUserLinkSuggestions(userId: number, status?: string): Promise<LinkSuggestion[]>;
+  createLinkSuggestion(suggestion: InsertLinkSuggestion): Promise<LinkSuggestion>;
+  updateLinkSuggestion(id: number, suggestion: Partial<InsertLinkSuggestion>): Promise<LinkSuggestion>;
 }
 
 export class MemStorage implements IStorage {
@@ -979,6 +1024,244 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .orderBy(desc(engagementMetrics.date));
+  }
+
+  // Link Management Implementation
+  // Link Categories
+  async getUserLinkCategories(userId: number): Promise<LinkCategory[]> {
+    return await db
+      .select()
+      .from(linkCategories)
+      .where(eq(linkCategories.userId, userId))
+      .orderBy(desc(linkCategories.createdAt));
+  }
+
+  async createLinkCategory(category: InsertLinkCategory): Promise<LinkCategory> {
+    const [created] = await db.insert(linkCategories).values(category).returning();
+    return created;
+  }
+
+  async updateLinkCategory(id: number, category: Partial<InsertLinkCategory>): Promise<LinkCategory> {
+    const [updated] = await db
+      .update(linkCategories)
+      .set({ ...category, updatedAt: new Date() })
+      .where(eq(linkCategories.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteLinkCategory(id: number): Promise<void> {
+    await db.delete(linkCategories).where(eq(linkCategories.id, id));
+  }
+
+  // Intelligent Links
+  async getUserIntelligentLinks(userId: number, siteId?: number): Promise<IntelligentLink[]> {
+    let conditions = [eq(intelligentLinks.userId, userId)];
+    
+    if (siteId) {
+      conditions.push(eq(intelligentLinks.siteId, siteId));
+    }
+
+    return await db
+      .select()
+      .from(intelligentLinks)
+      .where(and(...conditions))
+      .orderBy(desc(intelligentLinks.priority), desc(intelligentLinks.createdAt));
+  }
+
+  async getIntelligentLink(id: number): Promise<IntelligentLink | undefined> {
+    const [link] = await db.select().from(intelligentLinks).where(eq(intelligentLinks.id, id));
+    return link;
+  }
+
+  async createIntelligentLink(link: InsertIntelligentLink): Promise<IntelligentLink> {
+    const [created] = await db.insert(intelligentLinks).values(link).returning();
+    return created;
+  }
+
+  async updateIntelligentLink(id: number, link: Partial<InsertIntelligentLink>): Promise<IntelligentLink> {
+    const [updated] = await db
+      .update(intelligentLinks)
+      .set({ ...link, updatedAt: new Date() })
+      .where(eq(intelligentLinks.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteIntelligentLink(id: number): Promise<void> {
+    await db.delete(intelligentLinks).where(eq(intelligentLinks.id, id));
+  }
+
+  // Link Insertions
+  async getContentLinkInsertions(contentId: number): Promise<LinkInsertion[]> {
+    return await db
+      .select()
+      .from(linkInsertions)
+      .where(eq(linkInsertions.contentId, contentId))
+      .orderBy(desc(linkInsertions.createdAt));
+  }
+
+  async createLinkInsertion(insertion: InsertLinkInsertion): Promise<LinkInsertion> {
+    const [created] = await db.insert(linkInsertions).values(insertion).returning();
+    return created;
+  }
+
+  async updateLinkInsertion(id: number, insertion: Partial<InsertLinkInsertion>): Promise<LinkInsertion> {
+    const [updated] = await db
+      .update(linkInsertions)
+      .set({ ...insertion, updatedAt: new Date() })
+      .where(eq(linkInsertions.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteLinkInsertion(id: number): Promise<void> {
+    await db.delete(linkInsertions).where(eq(linkInsertions.id, id));
+  }
+
+  // Link Tracking
+  async createLinkTracking(tracking: InsertLinkTracking): Promise<LinkTracking> {
+    const [created] = await db.insert(linkTracking).values(tracking).returning();
+    return created;
+  }
+
+  async getLinkTracking(linkId: number, startDate?: Date, endDate?: Date): Promise<LinkTracking[]> {
+    let conditions = [eq(linkTracking.linkId, linkId)];
+    
+    if (startDate) {
+      conditions.push(gte(linkTracking.timestamp, startDate));
+    }
+    
+    if (endDate) {
+      conditions.push(lte(linkTracking.timestamp, endDate));
+    }
+
+    return await db
+      .select()
+      .from(linkTracking)
+      .where(and(...conditions))
+      .orderBy(desc(linkTracking.timestamp));
+  }
+
+  async getLinkPerformanceStats(linkId: number): Promise<{
+    totalClicks: number;
+    totalViews: number;
+    totalRevenue: number;
+    clickThroughRate: number;
+  }> {
+    const stats = await db
+      .select()
+      .from(linkTracking)
+      .where(eq(linkTracking.linkId, linkId));
+
+    const totalClicks = stats.filter(s => s.eventType === 'click').length;
+    const totalViews = stats.filter(s => s.eventType === 'view').length;
+    const totalRevenue = stats
+      .filter(s => s.revenue)
+      .reduce((sum, s) => sum + Number(s.revenue || 0), 0);
+    
+    const clickThroughRate = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
+
+    return {
+      totalClicks,
+      totalViews,
+      totalRevenue,
+      clickThroughRate
+    };
+  }
+
+  // Site Configurations
+  async getSiteConfigurations(siteId: number): Promise<SiteConfiguration[]> {
+    return await db
+      .select()
+      .from(siteConfigurations)
+      .where(eq(siteConfigurations.siteId, siteId))
+      .orderBy(desc(siteConfigurations.createdAt));
+  }
+
+  async createSiteConfiguration(config: InsertSiteConfiguration): Promise<SiteConfiguration> {
+    const [created] = await db.insert(siteConfigurations).values(config).returning();
+    return created;
+  }
+
+  async updateSiteConfiguration(id: number, config: Partial<InsertSiteConfiguration>): Promise<SiteConfiguration> {
+    const [updated] = await db
+      .update(siteConfigurations)
+      .set({ ...config, updatedAt: new Date() })
+      .where(eq(siteConfigurations.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Site Metrics
+  async getSiteMetrics(siteId: number, startDate?: Date, endDate?: Date): Promise<SiteMetrics[]> {
+    let conditions = [eq(siteMetrics.siteId, siteId)];
+    
+    if (startDate) {
+      conditions.push(gte(siteMetrics.date, startDate));
+    }
+    
+    if (endDate) {
+      conditions.push(lte(siteMetrics.date, endDate));
+    }
+
+    return await db
+      .select()
+      .from(siteMetrics)
+      .where(and(...conditions))
+      .orderBy(desc(siteMetrics.date));
+  }
+
+  async createSiteMetrics(metrics: InsertSiteMetrics): Promise<SiteMetrics> {
+    const [created] = await db.insert(siteMetrics).values(metrics).returning();
+    return created;
+  }
+
+  async getMultiSiteMetrics(userId: number, startDate?: Date, endDate?: Date): Promise<SiteMetrics[]> {
+    let conditions = [eq(siteMetrics.userId, userId)];
+    
+    if (startDate) {
+      conditions.push(gte(siteMetrics.date, startDate));
+    }
+    
+    if (endDate) {
+      conditions.push(lte(siteMetrics.date, endDate));
+    }
+
+    return await db
+      .select()
+      .from(siteMetrics)
+      .where(and(...conditions))
+      .orderBy(desc(siteMetrics.date));
+  }
+
+  // Link Suggestions
+  async getUserLinkSuggestions(userId: number, status?: string): Promise<LinkSuggestion[]> {
+    let conditions = [eq(linkSuggestions.userId, userId)];
+    
+    if (status) {
+      conditions.push(eq(linkSuggestions.status, status));
+    }
+
+    return await db
+      .select()
+      .from(linkSuggestions)
+      .where(and(...conditions))
+      .orderBy(desc(linkSuggestions.confidence), desc(linkSuggestions.createdAt));
+  }
+
+  async createLinkSuggestion(suggestion: InsertLinkSuggestion): Promise<LinkSuggestion> {
+    const [created] = await db.insert(linkSuggestions).values(suggestion).returning();
+    return created;
+  }
+
+  async updateLinkSuggestion(id: number, suggestion: Partial<InsertLinkSuggestion>): Promise<LinkSuggestion> {
+    const [updated] = await db
+      .update(linkSuggestions)
+      .set({ ...suggestion, updatedAt: new Date() })
+      .where(eq(linkSuggestions.id, id))
+      .returning();
+    return updated;
   }
 }
 

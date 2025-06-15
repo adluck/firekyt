@@ -1531,6 +1531,439 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== INTELLIGENT LINK MANAGEMENT API ROUTES =====
+
+  // Link Categories Management
+  app.get("/api/links/categories", authenticateToken, async (req, res) => {
+    try {
+      const categories = await storage.getUserLinkCategories(req.user!.id);
+      res.json(categories);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/links/categories", authenticateToken, async (req, res) => {
+    try {
+      const categoryData = {
+        userId: req.user!.id,
+        ...req.body
+      };
+      const category = await storage.createLinkCategory(categoryData);
+      res.status(201).json(category);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/links/categories/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const category = await storage.updateLinkCategory(parseInt(id), req.body);
+      res.json(category);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/links/categories/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteLinkCategory(parseInt(id));
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Intelligent Links Management
+  app.get("/api/links/intelligent", authenticateToken, async (req, res) => {
+    try {
+      const { siteId } = req.query;
+      const links = await storage.getUserIntelligentLinks(
+        req.user!.id, 
+        siteId ? parseInt(siteId as string) : undefined
+      );
+      res.json(links);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/links/intelligent/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const link = await storage.getIntelligentLink(parseInt(id));
+      if (!link) {
+        return res.status(404).json({ message: "Link not found" });
+      }
+      res.json(link);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/links/intelligent", authenticateToken, async (req, res) => {
+    try {
+      const linkData = {
+        userId: req.user!.id,
+        ...req.body
+      };
+      const link = await storage.createIntelligentLink(linkData);
+      res.status(201).json(link);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/links/intelligent/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const link = await storage.updateIntelligentLink(parseInt(id), req.body);
+      res.json(link);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/links/intelligent/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteIntelligentLink(parseInt(id));
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Link Performance & Analytics
+  app.get("/api/links/performance/:linkId", authenticateToken, async (req, res) => {
+    try {
+      const { linkId } = req.params;
+      const stats = await storage.getLinkPerformanceStats(parseInt(linkId));
+      res.json(stats);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/links/tracking/:linkId", authenticateToken, async (req, res) => {
+    try {
+      const { linkId } = req.params;
+      const { startDate, endDate } = req.query;
+      
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+      
+      const tracking = await storage.getLinkTracking(parseInt(linkId), start, end);
+      res.json(tracking);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/links/tracking", authenticateToken, async (req, res) => {
+    try {
+      const trackingData = {
+        userId: req.user!.id,
+        ...req.body
+      };
+      const tracking = await storage.createLinkTracking(trackingData);
+      res.status(201).json(tracking);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Link Insertions Management
+  app.get("/api/links/insertions/content/:contentId", authenticateToken, async (req, res) => {
+    try {
+      const { contentId } = req.params;
+      const insertions = await storage.getContentLinkInsertions(parseInt(contentId));
+      res.json(insertions);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/links/insertions", authenticateToken, async (req, res) => {
+    try {
+      const insertionData = {
+        userId: req.user!.id,
+        ...req.body
+      };
+      const insertion = await storage.createLinkInsertion(insertionData);
+      res.status(201).json(insertion);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/links/insertions/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const insertion = await storage.updateLinkInsertion(parseInt(id), req.body);
+      res.json(insertion);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/links/insertions/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteLinkInsertion(parseInt(id));
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Site Configurations
+  app.get("/api/sites/:siteId/configurations", authenticateToken, async (req, res) => {
+    try {
+      const { siteId } = req.params;
+      const configurations = await storage.getSiteConfigurations(parseInt(siteId));
+      res.json(configurations);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/sites/:siteId/configurations", authenticateToken, async (req, res) => {
+    try {
+      const { siteId } = req.params;
+      const configData = {
+        siteId: parseInt(siteId),
+        ...req.body
+      };
+      const config = await storage.createSiteConfiguration(configData);
+      res.status(201).json(config);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/sites/configurations/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const config = await storage.updateSiteConfiguration(parseInt(id), req.body);
+      res.json(config);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Site Metrics & Multi-Site Analytics
+  app.get("/api/sites/:siteId/metrics", authenticateToken, async (req, res) => {
+    try {
+      const { siteId } = req.params;
+      const { startDate, endDate } = req.query;
+      
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+      
+      const metrics = await storage.getSiteMetrics(parseInt(siteId), start, end);
+      res.json(metrics);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/sites/:siteId/metrics", authenticateToken, async (req, res) => {
+    try {
+      const { siteId } = req.params;
+      const metricsData = {
+        siteId: parseInt(siteId),
+        userId: req.user!.id,
+        ...req.body
+      };
+      const metrics = await storage.createSiteMetrics(metricsData);
+      res.status(201).json(metrics);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/sites/multi-metrics", authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query;
+      
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+      
+      const metrics = await storage.getMultiSiteMetrics(req.user!.id, start, end);
+      res.json(metrics);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // AI-Powered Link Suggestions
+  app.get("/api/links/suggestions", authenticateToken, async (req, res) => {
+    try {
+      const { status } = req.query;
+      const suggestions = await storage.getUserLinkSuggestions(
+        req.user!.id, 
+        status as string
+      );
+      res.json(suggestions);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/links/suggestions", authenticateToken, async (req, res) => {
+    try {
+      const suggestionData = {
+        userId: req.user!.id,
+        ...req.body
+      };
+      const suggestion = await storage.createLinkSuggestion(suggestionData);
+      res.status(201).json(suggestion);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/links/suggestions/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const suggestion = await storage.updateLinkSuggestion(parseInt(id), req.body);
+      res.json(suggestion);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // AI-Powered Link Insertion Engine
+  app.post("/api/links/ai-suggest", authenticateToken, async (req, res) => {
+    try {
+      const { contentId, siteId, keywords, context } = req.body;
+      
+      if (!contentId) {
+        return res.status(400).json({ message: "Content ID is required" });
+      }
+
+      // Get user's intelligent links for matching
+      const userLinks = await storage.getUserIntelligentLinks(req.user!.id, siteId);
+      
+      // AI-powered link suggestion logic
+      const suggestions = await generateAILinkSuggestions({
+        contentId: parseInt(contentId),
+        userLinks,
+        keywords: keywords || [],
+        context: context || '',
+        userId: req.user!.id
+      });
+
+      // Store suggestions in database
+      const createdSuggestions = [];
+      for (const suggestion of suggestions) {
+        const created = await storage.createLinkSuggestion({
+          userId: req.user!.id,
+          contentId: parseInt(contentId),
+          siteId: siteId ? parseInt(siteId) : null,
+          suggestedLinkId: suggestion.linkId,
+          suggestedAnchorText: suggestion.anchorText,
+          suggestedPosition: suggestion.position,
+          confidence: suggestion.confidence,
+          reasoning: suggestion.reasoning,
+          contextMatch: suggestion.contextMatch,
+          status: 'pending'
+        });
+        createdSuggestions.push(created);
+      }
+
+      res.json({
+        success: true,
+        suggestions: createdSuggestions,
+        message: `Generated ${createdSuggestions.length} AI-powered link suggestions`
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Bulk Link Operations
+  app.post("/api/links/bulk-insert", authenticateToken, async (req, res) => {
+    try {
+      const { contentId, insertions } = req.body;
+      
+      if (!contentId || !insertions || !Array.isArray(insertions)) {
+        return res.status(400).json({ message: "Content ID and insertions array are required" });
+      }
+
+      const createdInsertions = [];
+      for (const insertion of insertions) {
+        const created = await storage.createLinkInsertion({
+          userId: req.user!.id,
+          contentId: parseInt(contentId),
+          ...insertion
+        });
+        createdInsertions.push(created);
+      }
+
+      res.json({
+        success: true,
+        insertions: createdInsertions,
+        message: `Successfully inserted ${createdInsertions.length} links`
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Link Performance Dashboard
+  app.get("/api/links/dashboard", authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { siteId, period = '30' } = req.query;
+      
+      // Get user's intelligent links
+      const links = await storage.getUserIntelligentLinks(
+        userId,
+        siteId ? parseInt(siteId as string) : undefined
+      );
+
+      // Calculate aggregate performance metrics
+      const linkStats = await Promise.all(
+        links.map(async (link) => {
+          const stats = await storage.getLinkPerformanceStats(link.id);
+          return {
+            ...link,
+            performance: stats
+          };
+        })
+      );
+
+      // Aggregate dashboard metrics
+      const totalClicks = linkStats.reduce((sum, link) => sum + link.performance.totalClicks, 0);
+      const totalViews = linkStats.reduce((sum, link) => sum + link.performance.totalViews, 0);
+      const totalRevenue = linkStats.reduce((sum, link) => sum + link.performance.totalRevenue, 0);
+      const avgCTR = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
+
+      // Top performing links
+      const topLinks = linkStats
+        .sort((a, b) => b.performance.totalClicks - a.performance.totalClicks)
+        .slice(0, 10);
+
+      res.json({
+        summary: {
+          totalLinks: links.length,
+          totalClicks,
+          totalViews,
+          totalRevenue,
+          avgCTR: Number(avgCTR.toFixed(2))
+        },
+        topLinks,
+        linkStats
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
@@ -1725,6 +2158,98 @@ async function analyzeBestEngagementTimes(platform: string) {
   };
 
   return platformBestTimes[platform as keyof typeof platformBestTimes] || defaultTimes;
+}
+
+// AI-powered link suggestion helper function
+async function generateAILinkSuggestions(params: {
+  contentId: number;
+  userLinks: any[];
+  keywords: string[];
+  context: string;
+  userId: number;
+}): Promise<any[]> {
+  const { userLinks, keywords, context } = params;
+  
+  // AI-powered matching algorithm
+  const suggestions = [];
+  
+  for (const link of userLinks) {
+    if (!link.isActive) continue;
+    
+    let confidence = 0;
+    let reasoning = '';
+    let contextMatch = {};
+    
+    // Keyword matching
+    const linkKeywords = link.keywords || [];
+    const targetKeywords = link.targetKeywords || [];
+    const allLinkKeywords = [...linkKeywords, ...targetKeywords];
+    
+    const keywordMatches = keywords.filter(keyword => 
+      allLinkKeywords.some(linkKeyword => 
+        linkKeyword.toLowerCase().includes(keyword.toLowerCase()) ||
+        keyword.toLowerCase().includes(linkKeyword.toLowerCase())
+      )
+    );
+    
+    if (keywordMatches.length > 0) {
+      confidence += (keywordMatches.length / keywords.length) * 40;
+      contextMatch.keywordMatches = keywordMatches;
+      reasoning += `Matches ${keywordMatches.length} keywords: ${keywordMatches.join(', ')}. `;
+    }
+    
+    // Context matching
+    if (context && link.description) {
+      const contextWords = context.toLowerCase().split(/\s+/);
+      const descriptionWords = link.description.toLowerCase().split(/\s+/);
+      const commonWords = contextWords.filter(word => 
+        word.length > 3 && descriptionWords.includes(word)
+      );
+      
+      if (commonWords.length > 0) {
+        confidence += Math.min(commonWords.length * 5, 25);
+        contextMatch.contextWords = commonWords;
+        reasoning += `Context relevance: ${commonWords.length} matching terms. `;
+      }
+    }
+    
+    // Priority boost
+    confidence += (link.priority / 100) * 15;
+    
+    // Category relevance
+    if (link.categoryId) {
+      confidence += 10;
+      reasoning += 'Categorized link. ';
+    }
+    
+    // Performance boost for high-performing links
+    if (link.affiliateData?.commissionRate) {
+      const commissionRate = parseFloat(link.affiliateData.commissionRate);
+      if (commissionRate > 5) {
+        confidence += 10;
+        reasoning += `High commission rate (${commissionRate}%). `;
+      }
+    }
+    
+    // Only suggest links with reasonable confidence
+    if (confidence >= 25) {
+      suggestions.push({
+        linkId: link.id,
+        anchorText: link.title,
+        position: Math.floor(Math.random() * 500) + 100, // Random position in content
+        confidence: Math.min(confidence, 100),
+        reasoning: reasoning.trim(),
+        contextMatch,
+        originalUrl: link.originalUrl,
+        shortenedUrl: link.shortenedUrl
+      });
+    }
+  }
+  
+  // Sort by confidence and return top suggestions
+  return suggestions
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 5);
 }
 
 // Create sample publishing data for demonstration
