@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,36 +9,50 @@ import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 
-// Check if Stripe is configured
+// Initialize Stripe with the public key
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+if (!stripePublicKey) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+}
+const stripePromise = loadStripe(stripePublicKey);
 
 const SubscribeForm = () => {
+  const stripe = useStripe();
+  const elements = useElements();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
-      if (!stripePublicKey) {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
         toast({
-          title: "Payment unavailable",
-          description: "Payment processing is temporarily unavailable. Please contact support.",
+          title: "Payment Failed",
+          description: error.message,
           variant: "destructive",
         });
-        return;
-      }
-
-      // Simulate payment processing
-      setTimeout(() => {
+      } else {
         toast({
           title: "Subscription Active!",
           description: "Welcome to your new plan. You can now access all features.",
         });
         setLocation("/dashboard");
-      }, 2000);
+      }
     } catch (error) {
       toast({
         title: "Payment failed",
@@ -50,19 +66,18 @@ const SubscribeForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="p-4 border border-border rounded-lg bg-muted/20">
-        <div className="text-center py-8">
-          <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">
-            {stripePublicKey ? "Payment form will load here" : "Payment processing unavailable"}
-          </p>
-        </div>
+      <div className="p-4 border border-border rounded-lg">
+        <PaymentElement 
+          options={{
+            layout: "tabs"
+          }}
+        />
       </div>
       
       <Button 
         type="submit" 
         className="w-full btn-gradient"
-        disabled={!stripePublicKey || isProcessing}
+        disabled={!stripe || isProcessing}
       >
         {isProcessing ? (
           <>
@@ -94,8 +109,42 @@ export default function Subscribe() {
     const params = new URLSearchParams(location.split('?')[1] || '');
     const plan = params.get('plan') || 'pro';
     setSelectedPlan(plan);
-    setIsLoading(false);
-  }, [location]);
+    
+    // Create payment intent
+    fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        plan: plan,
+        amount: plan === 'starter' ? 29 : plan === 'pro' ? 79 : 199
+      }),
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+      } else {
+        toast({
+          title: "Payment setup failed",
+          description: "Unable to initialize payment. Please try again.",
+          variant: "destructive",
+        });
+      }
+    })
+    .catch((error) => {
+      console.error('Payment setup error:', error);
+      toast({
+        title: "Payment setup failed",
+        description: "Unable to initialize payment. Please try again.",
+        variant: "destructive",
+      });
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
+  }, [location, toast]);
 
   const plans = {
     starter: {
@@ -108,7 +157,8 @@ export default function Subscribe() {
         "Basic analytics",
         "Email support",
         "Standard templates"
-      ]
+      ],
+      popular: false
     },
     pro: {
       name: "Professional",
@@ -138,7 +188,8 @@ export default function Subscribe() {
         "Advanced SEO tools",
         "API access",
         "White-label options"
-      ]
+      ],
+      popular: false
     }
   };
 
@@ -220,7 +271,29 @@ export default function Subscribe() {
                 <CardTitle>Payment Details</CardTitle>
               </CardHeader>
               <CardContent>
-                <SubscribeForm />
+                {clientSecret ? (
+                  <Elements 
+                    stripe={stripePromise} 
+                    options={{ 
+                      clientSecret,
+                      appearance: {
+                        theme: 'stripe',
+                        variables: {
+                          colorPrimary: '#f97316',
+                        }
+                      }
+                    }}
+                  >
+                    <SubscribeForm />
+                  </Elements>
+                ) : (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-8 w-8 text-muted-foreground mx-auto mb-4 animate-spin" />
+                    <p className="text-muted-foreground">
+                      Setting up payment form...
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
