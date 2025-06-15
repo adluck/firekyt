@@ -220,20 +220,29 @@ export default function Subscribe() {
                 <CardTitle>Payment Details</CardTitle>
               </CardHeader>
               <CardContent>
-                <Elements 
-                  stripe={stripePromise} 
-                  options={{ 
-                    clientSecret,
-                    appearance: {
-                      theme: 'stripe',
-                      variables: {
-                        colorPrimary: '#f97316',
+                {stripePromise ? (
+                  <Elements 
+                    stripe={stripePromise} 
+                    options={{ 
+                      clientSecret,
+                      appearance: {
+                        theme: 'stripe',
+                        variables: {
+                          colorPrimary: '#f97316',
+                        }
                       }
-                    }
-                  }}
-                >
-                  <SubscribeForm />
-                </Elements>
+                    }}
+                  >
+                    <SubscribeForm />
+                  </Elements>
+                ) : (
+                  <div className="text-center py-8">
+                    <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">
+                      Payment processing is temporarily unavailable.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
