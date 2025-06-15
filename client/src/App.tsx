@@ -44,11 +44,9 @@ function Router() {
       
       {/* Protected routes */}
       <Route path="/">
-        <ProtectedRoute>
-          <AppLayout>
-            <Dashboard />
-          </AppLayout>
-        </ProtectedRoute>
+        <AppLayout>
+          <Dashboard />
+        </AppLayout>
       </Route>
       
       <Route path="/dashboard">
