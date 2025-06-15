@@ -23,6 +23,12 @@ export function rateLimitMiddleware(windowMs: number = 900000, max: number = 100
   const requests = new Map<string, Array<{ timestamp: number; count: number }>>();
   
   return (req: Request, res: Response, next: NextFunction): void => {
+    // Skip rate limiting completely in development
+    if (process.env.NODE_ENV === 'development') {
+      next();
+      return;
+    }
+    
     const key = req.ip || 'unknown';
     const now = Date.now();
     const windowStart = now - windowMs;

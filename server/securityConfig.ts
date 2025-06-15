@@ -207,6 +207,12 @@ export function ipSecurityMiddleware(req: express.Request, res: express.Response
 
 // Bot detection middleware
 export function botDetectionMiddleware(req: express.Request, res: express.Response, next: express.NextFunction): void {
+  // Skip bot detection in development mode
+  if (process.env.NODE_ENV === 'development') {
+    next();
+    return;
+  }
+  
   const userAgent = req.get('User-Agent') || '';
   
   // Common bot patterns
