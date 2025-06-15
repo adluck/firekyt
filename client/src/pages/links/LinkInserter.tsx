@@ -256,7 +256,7 @@ export default function LinkInserter() {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="none" disabled>
+                        <SelectItem value="no-content">
                           No content available
                         </SelectItem>
                       )}
