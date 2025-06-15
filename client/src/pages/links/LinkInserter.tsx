@@ -245,7 +245,7 @@ export default function LinkInserter() {
                     <SelectContent>
                       {content.map((item: ContentItem) => (
                         <SelectItem key={item.id} value={item.id.toString()}>
-                          {item.title}
+                          {item.title || `Content ${item.id}`}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -262,7 +262,7 @@ export default function LinkInserter() {
                       <SelectItem value="">All sites</SelectItem>
                       {sites.map((site: any) => (
                         <SelectItem key={site.id} value={site.id.toString()}>
-                          {site.name}
+                          {site.name || `Site ${site.id}`}
                         </SelectItem>
                       ))}
                     </SelectContent>
