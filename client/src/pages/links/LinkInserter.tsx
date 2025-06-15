@@ -238,16 +238,25 @@ export default function LinkInserter() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="content-select">Select Content</Label>
-                  <Select onValueChange={(value) => setSelectedContent(parseInt(value))}>
+                  <Select 
+                    onValueChange={(value) => setSelectedContent(parseInt(value))}
+                    value={selectedContent?.toString() || ""}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Choose content to optimize" />
                     </SelectTrigger>
                     <SelectContent>
-                      {content.map((item: ContentItem) => (
-                        <SelectItem key={item.id} value={item.id.toString()}>
-                          {item.title || `Content ${item.id}`}
+                      {content.length > 0 ? (
+                        content.map((item: ContentItem) => (
+                          <SelectItem key={item.id} value={item.id.toString()}>
+                            {item.title || `Content ${item.id}`}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-content" disabled>
+                          No content available
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
