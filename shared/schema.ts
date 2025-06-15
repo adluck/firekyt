@@ -270,6 +270,120 @@ export const engagementMetrics = pgTable("engagement_metrics", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Intelligent Link Management Tables
+export const linkCategories = pgTable("link_categories", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  description: text("description"),
+  color: text("color").default("#3b82f6"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const intelligentLinks = pgTable("intelligent_links", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  siteId: integer("site_id").references(() => sites.id, { onDelete: "cascade" }),
+  categoryId: integer("category_id").references(() => linkCategories.id, { onDelete: "set null" }),
+  originalUrl: text("original_url").notNull(),
+  shortenedUrl: text("shortened_url"),
+  title: text("title").notNull(),
+  description: text("description"),
+  keywords: text("keywords").array(),
+  targetKeywords: text("target_keywords").array(),
+  contextRules: jsonb("context_rules"), // Rules for when to insert this link
+  insertionStrategy: text("insertion_strategy").notNull().default("manual"), // manual, automatic, ai-suggested
+  priority: integer("priority").notNull().default(50), // 1-100 priority for insertion
+  isActive: boolean("is_active").notNull().default(true),
+  affiliateData: jsonb("affiliate_data"), // Commission rates, tracking parameters
+  performanceGoals: jsonb("performance_goals"), // CTR targets, conversion goals
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const linkInsertions = pgTable("link_insertions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  contentId: integer("content_id").notNull().references(() => content.id, { onDelete: "cascade" }),
+  linkId: integer("link_id").notNull().references(() => intelligentLinks.id, { onDelete: "cascade" }),
+  siteId: integer("site_id").references(() => sites.id, { onDelete: "cascade" }),
+  insertionType: text("insertion_type").notNull(), // automatic, manual, ai-suggested
+  insertionContext: text("insertion_context"), // paragraph, heading, sidebar, etc.
+  anchorText: text("anchor_text").notNull(),
+  position: integer("position"), // Character position in content
+  isActive: boolean("is_active").notNull().default(true),
+  performanceData: jsonb("performance_data"), // CTR, conversions, revenue
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const linkTracking = pgTable("link_tracking", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  linkId: integer("link_id").notNull().references(() => intelligentLinks.id, { onDelete: "cascade" }),
+  insertionId: integer("insertion_id").references(() => linkInsertions.id, { onDelete: "cascade" }),
+  siteId: integer("site_id").references(() => sites.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull(), // click, view, conversion
+  eventData: jsonb("event_data"), // User agent, referrer, location, etc.
+  revenue: decimal("revenue", { precision: 10, scale: 2 }),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }),
+  sessionId: text("session_id"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  referrer: text("referrer"),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
+// Enhanced Site Management
+export const siteConfigurations = pgTable("site_configurations", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").notNull().references(() => sites.id, { onDelete: "cascade" }),
+  configType: text("config_type").notNull(), // analytics, seo, social, links
+  configuration: jsonb("configuration").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const siteMetrics = pgTable("site_metrics", {
+  id: serial("id").primaryKey(),
+  siteId: integer("site_id").notNull().references(() => sites.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  date: timestamp("date").notNull(),
+  pageViews: integer("page_views").default(0),
+  uniqueVisitors: integer("unique_visitors").default(0),
+  bounceRate: decimal("bounce_rate", { precision: 5, scale: 2 }),
+  avgSessionDuration: integer("avg_session_duration"), // in seconds
+  organicTraffic: integer("organic_traffic").default(0),
+  affiliateClicks: integer("affiliate_clicks").default(0),
+  affiliateRevenue: decimal("affiliate_revenue", { precision: 10, scale: 2 }),
+  linkPerformance: jsonb("link_performance"), // Detailed link metrics
+  topPages: jsonb("top_pages"), // Most viewed pages
+  topSources: jsonb("top_sources"), // Traffic sources
+  conversionData: jsonb("conversion_data"), // Goal completions
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// AI-Powered Link Suggestions
+export const linkSuggestions = pgTable("link_suggestions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  contentId: integer("content_id").references(() => content.id, { onDelete: "cascade" }),
+  siteId: integer("site_id").references(() => sites.id, { onDelete: "cascade" }),
+  suggestedLinkId: integer("suggested_link_id").references(() => intelligentLinks.id, { onDelete: "cascade" }),
+  suggestedAnchorText: text("suggested_anchor_text").notNull(),
+  suggestedPosition: integer("suggested_position"),
+  confidence: decimal("confidence", { precision: 5, scale: 2 }), // AI confidence score
+  reasoning: text("reasoning"), // Why this link was suggested
+  contextMatch: jsonb("context_match"), // Matching keywords/topics
+  status: text("status").notNull().default("pending"), // pending, accepted, rejected
+  userFeedback: text("user_feedback"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -450,6 +564,46 @@ export const insertProductResearchSessionSchema = createInsertSchema(productRese
   updatedAt: true,
 });
 
+// Link Management Insert Schemas
+export const insertLinkCategorySchema = createInsertSchema(linkCategories).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertIntelligentLinkSchema = createInsertSchema(intelligentLinks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLinkInsertionSchema = createInsertSchema(linkInsertions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLinkTrackingSchema = createInsertSchema(linkTracking).omit({
+  id: true,
+});
+
+export const insertSiteConfigurationSchema = createInsertSchema(siteConfigurations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSiteMetricsSchema = createInsertSchema(siteMetrics).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertLinkSuggestionSchema = createInsertSchema(linkSuggestions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -479,6 +633,22 @@ export type SeoRanking = typeof seoRankings.$inferSelect;
 export type InsertSeoRanking = z.infer<typeof insertSeoRankingSchema>;
 export type RevenueTracking = typeof revenueTracking.$inferSelect;
 export type InsertRevenueTracking = z.infer<typeof insertRevenueTrackingSchema>;
+
+// Link Management Types
+export type LinkCategory = typeof linkCategories.$inferSelect;
+export type InsertLinkCategory = z.infer<typeof insertLinkCategorySchema>;
+export type IntelligentLink = typeof intelligentLinks.$inferSelect;
+export type InsertIntelligentLink = z.infer<typeof insertIntelligentLinkSchema>;
+export type LinkInsertion = typeof linkInsertions.$inferSelect;
+export type InsertLinkInsertion = z.infer<typeof insertLinkInsertionSchema>;
+export type LinkTracking = typeof linkTracking.$inferSelect;
+export type InsertLinkTracking = z.infer<typeof insertLinkTrackingSchema>;
+export type SiteConfiguration = typeof siteConfigurations.$inferSelect;
+export type InsertSiteConfiguration = z.infer<typeof insertSiteConfigurationSchema>;
+export type SiteMetrics = typeof siteMetrics.$inferSelect;
+export type InsertSiteMetrics = z.infer<typeof insertSiteMetricsSchema>;
+export type LinkSuggestion = typeof linkSuggestions.$inferSelect;
+export type InsertLinkSuggestion = z.infer<typeof insertLinkSuggestionSchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {
