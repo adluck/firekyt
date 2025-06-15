@@ -15,7 +15,7 @@ import {
   ChevronDown,
   ChevronRight,
   BarChart3,
-  Share2
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
@@ -51,7 +51,7 @@ const navigation = [
       { name: 'SEO Analysis', href: '/research/seo', icon: Search }
     ]
   },
-  { name: 'Publishing', href: '/publishing', icon: Share2 },
+  { name: 'Publishing', href: '/publishing', icon: Send },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
