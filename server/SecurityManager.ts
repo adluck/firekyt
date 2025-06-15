@@ -223,27 +223,52 @@ export class SecurityManager {
 
   // Secure Headers Configuration
   configureSecurityHeaders() {
-    return helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          scriptSrc: ["'self'"],
-          imgSrc: ["'self'", "data:", "https:"],
-          connectSrc: ["'self'", "https://api.stripe.com"],
-          fontSrc: ["'self'"],
-          objectSrc: ["'none'"],
-          mediaSrc: ["'self'"],
-          frameSrc: ["'none'"],
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    if (isDevelopment) {
+      // Very permissive CSP for development to allow Vite HMR and React DevTools
+      return helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "ws:", "wss:", "https://fonts.gstatic.com", "https://api.stripe.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+            workerSrc: ["'self'", "blob:"],
+          },
         },
-      },
-      crossOriginEmbedderPolicy: false,
-      hsts: {
-        maxAge: 31536000,
-        includeSubDomains: true,
-        preload: true
-      }
-    });
+        crossOriginEmbedderPolicy: false,
+        hsts: false // Disable HSTS in development
+      });
+    } else {
+      // Production CSP
+      return helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            scriptSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https://api.stripe.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+          },
+        },
+        crossOriginEmbedderPolicy: false,
+        hsts: {
+          maxAge: 31536000,
+          includeSubDomains: true,
+          preload: true
+        }
+      });
+    }
   }
 
   // Session Security
