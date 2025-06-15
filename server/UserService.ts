@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken';
 import { storage } from './storage';
 import { insertUserSchema, type User } from '@shared/schema';
 import { z } from 'zod';
+import { logger } from './Logger';
+import { AuthenticationError, AuthorizationError, ValidationError, ConflictError, NotFoundError } from './ErrorHandler';
+import { alertingSystem } from './AlertingSystem';
 
 export interface CreateUserRequest {
   username: string;
@@ -32,29 +35,46 @@ export class UserService {
   private readonly JWT_SECRET = process.env.JWT_SECRET || "your-jwt-secret-key";
 
   async createUser(request: CreateUserRequest): Promise<User> {
-    this.validateEmail(request.email);
+    const stopTimer = logger.startTimer('UserService.createUser');
+    const serviceLogger = logger.child({ service: 'UserService', operation: 'createUser' });
     
-    const existingUser = await storage.getUserByEmail(request.email);
-    if (existingUser) {
-      throw new Error('User with this email already exists');
+    try {
+      serviceLogger.info('User creation started', { email: request.email.replace(/(.{2}).*@/, '$1***@') });
+      
+      this.validateEmail(request.email);
+      
+      const existingUser = await storage.getUserByEmail(request.email);
+      if (existingUser) {
+        throw new ConflictError('User with this email already exists', { email: request.email });
+      }
+
+      const hashedPassword = await bcrypt.hash(request.password, 12);
+      
+      const userData = insertUserSchema.parse({
+        username: request.username,
+        email: request.email,
+        password: hashedPassword,
+        firstName: request.firstName || null,
+        lastName: request.lastName || null,
+        role: 'user',
+        tier: 'free',
+        isActive: true,
+        usageCount: 0,
+        usageLimit: this.getTierLimits('free').contentLimit,
+      });
+
+      const user = await storage.createUser(userData);
+      
+      serviceLogger.info('User created successfully', { userId: user.id, tier: user.tier });
+      alertingSystem.recordMetric('user_registrations', 1);
+      
+      return user;
+    } catch (error) {
+      serviceLogger.error('User creation failed', error as Error, { email: request.email });
+      throw error;
+    } finally {
+      stopTimer();
     }
-
-    const hashedPassword = await bcrypt.hash(request.password, 12);
-    
-    const userData = insertUserSchema.parse({
-      username: request.username,
-      email: request.email,
-      password: hashedPassword,
-      firstName: request.firstName || null,
-      lastName: request.lastName || null,
-      role: 'user',
-      tier: 'free',
-      isActive: true,
-      usageCount: 0,
-      usageLimit: this.getTierLimits('free').contentLimit,
-    });
-
-    return await storage.createUser(userData);
   }
 
   async loginUser(request: LoginRequest): Promise<{ user: User; token: string }> {
