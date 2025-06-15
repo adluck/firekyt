@@ -1,4 +1,4 @@
-import { Link, useLocation } from "wouter";
+import { Link as WouterLink, useLocation } from "wouter";
 import { 
   LayoutDashboard, 
   Globe, 
@@ -15,7 +15,9 @@ import {
   ChevronDown,
   ChevronRight,
   BarChart3,
-  Send
+  Send,
+  Link2,
+  Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
