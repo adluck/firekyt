@@ -279,7 +279,9 @@ export async function generateWithMistral(prompt: string): Promise<any> {
 
 export async function generateContent(
   contentId: string,
-  request: ContentGenerationRequest
+  request: ContentGenerationRequest,
+  databaseContentId?: number,
+  updateContentCallback?: (contentId: number, updates: any) => Promise<void>
 ): Promise<ContentGenerationResponse> {
   const startTime = Date.now();
   
@@ -330,6 +332,21 @@ export async function generateContent(
     contentQueue[contentId].response = response;
     contentQueue[contentId].completed_at = new Date();
     
+    // Update database content if callback provided
+    if (updateContentCallback && databaseContentId) {
+      try {
+        await updateContentCallback(databaseContentId, {
+          title: generatedContent.title || `Generated Content - ${request.keyword}`,
+          content: generatedContent.content,
+          seoTitle: generatedContent.seo_title,
+          seoDescription: generatedContent.seo_description,
+          status: 'published'
+        });
+      } catch (dbError) {
+        console.error('Failed to update database content:', dbError);
+      }
+    }
+    
     return response;
     
   } catch (error: any) {
@@ -363,6 +380,30 @@ export function addToQueue(request: ContentGenerationRequest): string {
   // Process asynchronously
   setTimeout(() => {
     generateContent(contentId, request).catch(console.error);
+  }, 0);
+  
+  return contentId;
+}
+
+export function addToQueueWithCallback(
+  request: ContentGenerationRequest,
+  databaseContentId: number,
+  updateCallback: (contentId: number, updates: any) => Promise<void>
+): string {
+  const contentId = `content_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  contentQueue[contentId] = {
+    request,
+    response: {
+      content_id: contentId,
+      status: 'pending'
+    },
+    created_at: new Date()
+  };
+  
+  // Process asynchronously with database callback
+  setTimeout(() => {
+    generateContent(contentId, request, databaseContentId, updateCallback).catch(console.error);
   }, 0);
   
   return contentId;

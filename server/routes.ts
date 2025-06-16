@@ -392,38 +392,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Create AI content request
+      // Create AI content request with correct field names
       const aiRequest = {
         keyword: validatedData.keyword,
-        contentType: validatedData.content_type,
-        toneOfVoice: validatedData.tone_of_voice,
-        targetAudience: validatedData.target_audience,
-        additionalContext: validatedData.additional_context,
-        brandVoice: validatedData.brand_voice,
-        seoFocus: validatedData.seo_focus,
-        wordCount: validatedData.word_count
+        content_type: validatedData.content_type,
+        tone_of_voice: validatedData.tone_of_voice,
+        target_audience: validatedData.target_audience,
+        additional_context: validatedData.additional_context,
+        brand_voice: validatedData.brand_voice,
+        seo_focus: validatedData.seo_focus,
+        word_count: validatedData.word_count
       };
-
-      // Generate content using AI service
-      const aiService = new AIEngineService();
-      const result = await aiService.generateContent(aiRequest);
 
       // Create and save content to database
       const content = await storage.createContent({
         userId: req.user!.id,
         siteId: validatedData.siteId,
         title: `Generated Content - ${validatedData.keyword}`,
-        content: result.status === 'completed' ? 'Generated content will be available here' : 'Content generation in progress',
+        content: 'Content generation in progress',
         contentType: validatedData.content_type,
         status: 'draft',
         targetKeywords: [validatedData.keyword]
       });
 
+      // Generate content using AI service with database callback
+      const { addToQueueWithCallback } = await import("./ai-engine");
+      const generationId = addToQueueWithCallback(
+        aiRequest, 
+        content.id, 
+        async (contentId: number, updates: any) => {
+          await storage.updateContent(contentId, req.user!.id, updates);
+        }
+      );
+
       res.json({
         success: true,
         content: content,
-        generationId: result.contentId,
-        status: result.status
+        generationId: generationId,
+        status: 'queued'
       });
     } catch (error: any) {
       console.error('Content generation error:', error);
