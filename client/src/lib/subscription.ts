@@ -7,13 +7,6 @@ import type {
   User 
 } from "@/types";
 
-// Stripe configuration
-export const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-
-if (!STRIPE_PUBLIC_KEY) {
-  console.warn("VITE_STRIPE_PUBLIC_KEY not found. Stripe functionality will be limited.");
-}
-
 // Subscription tiers and pricing
 export const SUBSCRIPTION_TIERS = {
   free: {
@@ -37,7 +30,7 @@ export const SUBSCRIPTION_TIERS = {
   basic: {
     name: "Basic",
     price: 24,
-    priceId: process.env.STRIPE_PRICE_BASIC || "price_basic",
+    priceId: "price_basic",
     features: [
       "3 affiliate sites",
       "25 AI-generated articles per month",
