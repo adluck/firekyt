@@ -614,6 +614,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/content/:id", authenticateToken, async (req, res) => {
+    try {
+      const contentId = parseInt(req.params.id);
+      const userId = req.user!.id;
+      const updates = req.body;
+
+      // Verify content belongs to user
+      const userContent = await storage.getContent(userId);
+      const content = userContent.find((c: any) => c.id === contentId);
+      
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+
+      // Update the content
+      const updatedContent = await storage.updateContent(contentId, userId, {
+        ...updates,
+        updatedAt: new Date()
+      });
+
+      res.json(updatedContent);
+    } catch (error: any) {
+      console.error('Content update error:', error);
+      res.status(500).json({ message: "Failed to update content" });
+    }
+  });
+
   app.delete("/api/content/:id", authenticateToken, async (req, res) => {
     try {
       const contentId = parseInt(req.params.id);
