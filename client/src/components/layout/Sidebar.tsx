@@ -1,4 +1,4 @@
-import { Link as WouterLink, useLocation, useRouter } from "wouter";
+import { Link as WouterLink, useLocation } from "wouter";
 import { 
   LayoutDashboard, 
   Globe, 
@@ -69,16 +69,15 @@ const navigation = [
 ];
 
 export function Sidebar({ user, subscription }: SidebarProps) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
-  const router = useRouter();
 
   const handleLogout = async () => {
     await logout();
-    router.push('/login');
+    setLocation('/login');
   };
 
   const toggleMobile = () => {
