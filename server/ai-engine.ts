@@ -262,7 +262,16 @@ export async function generateWithGemini(prompt: string): Promise<any> {
     // Try to parse as JSON, fallback to plain text
     try {
       console.log('Raw Gemini response:', text);
-      const parsed = JSON.parse(text);
+      
+      // Remove markdown code block wrapper if present
+      let cleanText = text.trim();
+      if (cleanText.startsWith('```json') && cleanText.endsWith('```')) {
+        cleanText = cleanText.substring(7, cleanText.length - 3).trim();
+      } else if (cleanText.startsWith('```') && cleanText.endsWith('```')) {
+        cleanText = cleanText.substring(3, cleanText.length - 3).trim();
+      }
+      
+      const parsed = JSON.parse(cleanText);
       console.log('Successfully parsed JSON:', parsed);
       return parsed;
     } catch (parseError) {
