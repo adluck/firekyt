@@ -164,7 +164,7 @@ export function getSubscriptionLimits(tier: string): SubscriptionLimits {
 export function canAccessFeature(user: User | null, feature: string): boolean {
   if (!user) return false;
   
-  const limits = getSubscriptionLimits(user.subscriptionTier);
+  const limits = getSubscriptionLimits(user.subscriptionTier ?? 'free');
   return limits.features.includes(feature);
 }
 
