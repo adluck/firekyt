@@ -782,12 +782,12 @@ export default function ProductResearch() {
                               {product.brand && <Badge variant="outline">{product.brand}</Badge>}
                               <Badge 
                                 variant="outline" 
-                                className={product.apiSource === 'SerpAPI' 
+                                className={product.apiSource === 'serpapi_live' 
                                   ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-100" 
                                   : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900 dark:text-amber-100"
                                 }
                               >
-                                {product.apiSource === 'SerpAPI' ? 'Live Data' : 'Sample Data'}
+                                {product.apiSource === 'serpapi_live' ? 'Live Data' : 'Sample Data'}
                               </Badge>
                             </div>
                           </div>
@@ -861,10 +861,10 @@ export default function ProductResearch() {
                                 </a>
                               </Button>
                             )}
-                            {product.productUrl && product.productUrl !== product.affiliateUrl && (
+                            {(product.productUrl || product.affiliateUrl) && (
                               <Button size="sm" variant="outline" asChild>
                                 <a 
-                                  href={product.productUrl} 
+                                  href={product.productUrl || product.affiliateUrl} 
                                   target="_blank" 
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-1"
