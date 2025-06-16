@@ -355,13 +355,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const requestSchema = z.object({
         keyword: z.string().min(1, "Keyword is required"),
-        contentType: z.enum(['blog_post', 'product_comparison', 'review_article', 'video_script', 'social_post', 'email_campaign']),
-        toneOfVoice: z.string().min(1, "Tone of voice is required"),
-        targetAudience: z.string().min(1, "Target audience is required"),
-        additionalContext: z.string().optional(),
-        brandVoice: z.string().optional(),
-        seoFocus: z.boolean().optional().default(true),
-        wordCount: z.number().optional().default(800),
+        content_type: z.enum(['blog_post', 'product_comparison', 'review_article', 'video_script', 'social_post', 'email_campaign']),
+        tone_of_voice: z.string().min(1, "Tone of voice is required"),
+        target_audience: z.string().min(1, "Target audience is required"),
+        additional_context: z.string().optional(),
+        brand_voice: z.string().optional(),
+        seo_focus: z.boolean().optional().default(true),
+        word_count: z.number().optional().default(800),
         siteId: z.number().optional()
       });
 
@@ -378,13 +378,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create AI content request
       const aiRequest = {
         keyword: validatedData.keyword,
-        contentType: validatedData.contentType,
-        toneOfVoice: validatedData.toneOfVoice,
-        targetAudience: validatedData.targetAudience,
-        additionalContext: validatedData.additionalContext,
-        brandVoice: validatedData.brandVoice,
-        seoFocus: validatedData.seoFocus,
-        wordCount: validatedData.wordCount
+        contentType: validatedData.content_type,
+        toneOfVoice: validatedData.tone_of_voice,
+        targetAudience: validatedData.target_audience,
+        additionalContext: validatedData.additional_context,
+        brandVoice: validatedData.brand_voice,
+        seoFocus: validatedData.seo_focus,
+        wordCount: validatedData.word_count
       };
 
       // Generate content using AI service
@@ -397,7 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         siteId: validatedData.siteId,
         title: `Generated Content - ${validatedData.keyword}`,
         content: result.status === 'completed' ? 'Generated content will be available here' : 'Content generation in progress',
-        contentType: validatedData.contentType,
+        contentType: validatedData.content_type,
         status: 'draft',
         targetKeywords: [validatedData.keyword]
       });
