@@ -17,7 +17,8 @@ import {
   BarChart3,
   Send,
   Link2,
-  Brain
+  Brain,
+  FolderOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +43,7 @@ const navigation = [
     submenu: [
       { name: 'AI Generator', href: '/content', icon: FileText },
       { name: 'Basic Generator', href: '/content/basic', icon: FileText },
+      { name: 'Content Manager', href: '/content/manage', icon: FolderOpen },
       { name: 'Rich Editor', href: '/content/editor', icon: FileText }
     ]
   },

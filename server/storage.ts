@@ -27,12 +27,12 @@ export interface IStorage {
   deleteSite(id: number): Promise<void>;
 
   // Content management
-  getContent(id: number): Promise<Content | undefined>;
+  getContent(userId: number): Promise<Content[]>;
   getSiteContent(siteId: number): Promise<Content[]>;
   getUserContent(userId: number): Promise<Content[]>;
   createContent(content: InsertContent): Promise<Content>;
   updateContent(id: number, userId: number, updates: Partial<Content>): Promise<Content>;
-  deleteContent(id: number): Promise<void>;
+  deleteContent(id: number, userId: number): Promise<void>;
 
   // Analytics
   createAnalytics(analytics: InsertAnalytics): Promise<Analytics>;
@@ -338,8 +338,14 @@ export class MemStorage implements IStorage {
   }
 
   // Content management
-  async getContent(id: number): Promise<Content | undefined> {
-    return this.content.get(id);
+  async getContent(userId: number): Promise<Content[]> {
+    const userContent: Content[] = [];
+    for (const content of this.content.values()) {
+      if (content.userId === userId) {
+        userContent.push(content);
+      }
+    }
+    return userContent.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   async getSiteContent(siteId: number): Promise<Content[]> {
