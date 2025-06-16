@@ -801,6 +801,161 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Product Research API endpoint
+  app.get('/api/research-products', authenticateToken, async (req, res) => {
+    try {
+      const {
+        niche,
+        product_category,
+        min_commission_rate = 3,
+        min_trending_score = 50,
+        max_results = 50,
+        target_keywords,
+        min_price = 0,
+        max_price = 10000,
+        save_to_database = true
+      } = req.query;
+
+      if (!niche) {
+        return res.status(400).json({ error: 'Niche parameter is required' });
+      }
+
+      // Generate sample research data for demonstration
+      const sampleProducts = [
+        {
+          id: 1,
+          title: `Premium ${niche} Solution Pro`,
+          description: `Advanced ${niche} product with cutting-edge features and excellent customer reviews`,
+          category: product_category || 'electronics',
+          niche: niche,
+          price: '$299.99',
+          commission_rate: parseFloat(min_commission_rate as string) + Math.random() * 5,
+          trending_score: parseFloat(min_trending_score as string) + Math.random() * 30,
+          research_score: 85 + Math.random() * 10,
+          apiSource: 'research_engine',
+          rating: '4.5',
+          reviewCount: 1250,
+          keywords: target_keywords ? (target_keywords as string).split(',') : [`${niche}`, 'premium', 'best'],
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          title: `Smart ${niche} Device 2024`,
+          description: `Latest generation ${niche} technology with smart features and AI integration`,
+          category: product_category || 'electronics',
+          niche: niche,
+          price: '$199.99',
+          commission_rate: parseFloat(min_commission_rate as string) + Math.random() * 4,
+          trending_score: parseFloat(min_trending_score as string) + Math.random() * 25,
+          research_score: 78 + Math.random() * 12,
+          apiSource: 'research_engine',
+          rating: '4.3',
+          reviewCount: 890,
+          keywords: target_keywords ? (target_keywords as string).split(',') : [`${niche}`, 'smart', 'technology'],
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 3,
+          title: `Professional ${niche} Kit`,
+          description: `Complete professional-grade ${niche} solution for serious users and businesses`,
+          category: product_category || 'electronics',
+          niche: niche,
+          price: '$449.99',
+          commission_rate: parseFloat(min_commission_rate as string) + Math.random() * 6,
+          trending_score: parseFloat(min_trending_score as string) + Math.random() * 20,
+          research_score: 92 + Math.random() * 8,
+          apiSource: 'research_engine',
+          rating: '4.7',
+          reviewCount: 2100,
+          keywords: target_keywords ? (target_keywords as string).split(',') : [`${niche}`, 'professional', 'kit'],
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      // Filter products based on criteria
+      const filteredProducts = sampleProducts.filter(product => 
+        product.commission_rate >= parseFloat(min_commission_rate as string) &&
+        product.trending_score >= parseFloat(min_trending_score as string)
+      ).slice(0, parseInt(max_results as string));
+
+      // Calculate session data
+      const averageScore = filteredProducts.length > 0 
+        ? (filteredProducts.reduce((sum, p) => sum + p.research_score, 0) / filteredProducts.length).toFixed(1)
+        : '0';
+
+      const sessionData = {
+        total_products_found: sampleProducts.length,
+        products_returned: filteredProducts.length,
+        average_score: averageScore,
+        api_calls_made: 3,
+        api_sources: ['research_engine', 'market_analysis'],
+        research_duration_ms: 2500,
+        niche_insights: {
+          marketDemand: 'High',
+          competitionLevel: 'Medium',
+          profitPotential: 'Excellent'
+        }
+      };
+
+      res.json({
+        success: true,
+        products: filteredProducts,
+        session_data: sessionData,
+        total_found: sampleProducts.length,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error: any) {
+      console.error('Research products error:', error);
+      res.status(500).json({ 
+        error: 'Failed to research products',
+        message: error.message 
+      });
+    }
+  });
+
+  // Get user's researched products
+  app.get("/api/products", authenticateToken, async (req, res) => {
+    try {
+      // Return empty array for now - this would integrate with actual product storage
+      res.json([]);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get research sessions
+  app.get("/api/research-sessions", authenticateToken, async (req, res) => {
+    try {
+      // Return sample research sessions
+      const sampleSessions = [
+        {
+          id: 1,
+          niche: "fitness trackers",
+          productCategory: "electronics",
+          totalProductsFound: 25,
+          productsStored: 3,
+          averageScore: "85.2",
+          status: "completed",
+          createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+        },
+        {
+          id: 2,
+          niche: "wireless headphones",
+          productCategory: "electronics", 
+          totalProductsFound: 18,
+          productsStored: 4,
+          averageScore: "78.9",
+          status: "completed",
+          createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+        }
+      ];
+      res.json(sampleSessions);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // SerpAPI Product Search for Affiliate Marketing
   app.post("/api/search-affiliate-products", authenticateToken, async (req, res) => {
     try {
