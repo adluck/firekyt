@@ -827,7 +827,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const serpData: any = await serpResponse.json();
 
           if (serpData.shopping_results && serpData.shopping_results.length > 0) {
-            console.log('SerpAPI sample product structure:', JSON.stringify(serpData.shopping_results[0], null, 2));
             realProducts = serpData.shopping_results.slice(0, maxResultsParam).map((product: any, index: number) => {
               const basePrice = parseFloat(product.price?.replace(/[^0-9.]/g, '') || '100');
               const commissionRate = minCommissionParam + Math.random() * 7;
@@ -837,7 +836,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               // Generate unique affiliate URLs for each product
               const affiliateId = Math.random().toString(36).substring(2, 12);
-              const productLink = product.link || product.product_link || product.url || product.extracted_price?.link || `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+              let productLink = `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+              
+              // Try multiple fields for product URL from SerpAPI response
+              if (product.link && typeof product.link === 'string') {
+                productLink = product.link;
+              } else if (product.product_link && typeof product.product_link === 'string') {
+                productLink = product.product_link;
+              } else if (product.url && typeof product.url === 'string') {
+                productLink = product.url;
+              }
+              
               const affiliateUrl = `${productLink}${productLink.includes('?') ? '&' : '?'}ref=aff_${affiliateId}`;
 
               return {
