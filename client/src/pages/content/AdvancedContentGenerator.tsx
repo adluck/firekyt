@@ -14,9 +14,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail } from "lucide-react";
+import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail, Edit3 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import ContentEditor from "@/components/content/ContentEditor";
 import type { Site } from "@shared/schema";
 
 interface ContentGenerationRequest {
@@ -132,6 +133,7 @@ export default function AdvancedContentGenerator() {
   const [isPolling, setIsPolling] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<ContentGenerationResponse | null>(null);
   const [savedContent, setSavedContent] = useState<any>(null);
+  const [showEditor, setShowEditor] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -167,16 +169,27 @@ export default function AdvancedContentGenerator() {
 
   // Save content mutation
   const saveMutation = useMutation({
-    mutationFn: async (params: { content_id: string; siteId?: number; title?: string }) => {
-      const response = await apiRequest("POST", "/api/content/save", params);
+    mutationFn: async (data: any) => {
+      const payload = {
+        title: data.title,
+        content: data.content,
+        contentType: formData.content_type,
+        siteId: data.siteId || formData.siteId,
+        seoTitle: data.seoTitle,
+        seoDescription: data.seoDescription,
+        targetKeywords: [formData.keyword],
+        status: data.status || "draft"
+      };
+      const response = await apiRequest("POST", "/api/content", payload);
       return response.json();
     },
     onSuccess: (data) => {
-      setSavedContent(data.content);
+      setSavedContent(data);
+      setShowEditor(false);
       queryClient.invalidateQueries({ queryKey: ["/api/content"] });
       toast({
         title: "Content saved successfully",
-        description: "Your generated content has been saved to your site",
+        description: "Your content has been saved to your library",
       });
     },
     onError: (error: any) => {
@@ -268,11 +281,20 @@ export default function AdvancedContentGenerator() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-2">
-        <Sparkles className="h-6 w-6 text-primary" />
-        <h1 className="text-3xl font-bold">AI Content Generator</h1>
-        <Badge variant="secondary">Advanced Engine</Badge>
-      </div>
+      {showEditor && generatedContent ? (
+        <ContentEditor
+          generatedContent={generatedContent}
+          onSave={saveMutation.mutate}
+          onClose={() => setShowEditor(false)}
+          isLoading={saveMutation.isPending}
+        />
+      ) : (
+        <>
+          <div className="flex items-center space-x-2">
+            <Sparkles className="h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-bold">AI Content Generator</h1>
+            <Badge variant="secondary">Advanced Engine</Badge>
+          </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Content Generation Form */}
@@ -616,19 +638,11 @@ export default function AdvancedContentGenerator() {
 
                     <div className="flex space-x-2">
                       <Button
-                        onClick={() => saveMutation.mutate({ 
-                          content_id: generatedContent.content_id,
-                          siteId: formData.siteId,
-                          title: generatedContent.title
-                        })}
-                        disabled={saveMutation.isPending}
+                        onClick={() => setShowEditor(true)}
+                        variant="default"
                       >
-                        {saveMutation.isPending ? (
-                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          <Save className="mr-2 h-4 w-4" />
-                        )}
-                        Save to Site
+                        <Edit3 className="mr-2 h-4 w-4" />
+                        Edit Content
                       </Button>
                       
                       <Button
