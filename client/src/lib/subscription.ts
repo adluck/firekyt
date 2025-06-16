@@ -49,7 +49,7 @@ export const SUBSCRIPTION_TIERS = {
   pro: {
     name: "Pro",
     price: 59,
-    priceId: process.env.STRIPE_PRICE_PRO || "price_pro",
+    priceId: "price_pro",
     features: [
       "10 affiliate sites",
       "100 AI-generated articles per month",
@@ -69,7 +69,7 @@ export const SUBSCRIPTION_TIERS = {
   agency: {
     name: "Agency",
     price: 179,
-    priceId: process.env.STRIPE_PRICE_AGENCY || "price_agency",
+    priceId: "price_agency",
     features: [
       "Unlimited affiliate sites",
       "500 AI-generated articles per month",
@@ -152,7 +152,13 @@ export async function getDashboardData(period: number = 30): Promise<DashboardDa
 // Subscription utility functions
 export function getSubscriptionLimits(tier: string): SubscriptionLimits {
   const subscription = SUBSCRIPTION_TIERS[tier as keyof typeof SUBSCRIPTION_TIERS];
-  return subscription?.limits || SUBSCRIPTION_TIERS.free.limits;
+  const limits = subscription?.limits || SUBSCRIPTION_TIERS.free.limits;
+  return {
+    sites: limits.sites,
+    contentPerMonth: limits.contentPerMonth,
+    apiCallsPerMonth: limits.apiCallsPerMonth,
+    features: [...limits.features]
+  };
 }
 
 export function canAccessFeature(user: User | null, feature: string): boolean {

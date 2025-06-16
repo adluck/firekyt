@@ -29,7 +29,7 @@ import LinkDashboard from "@/pages/links/LinkDashboard";
 import LinkInserter from "@/pages/links/LinkInserter";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
-import Subscribe from "@/pages/subscription/Subscribe";
+import SubscribeSimple from "@/pages/subscription/SubscribeSimple";
 import Settings from "@/pages/settings/Settings";
 import NotFound from "@/pages/not-found";
 
@@ -166,7 +166,7 @@ function Router() {
       <Route path="/subscribe">
         <ProtectedRoute>
           <AppLayout>
-            <Subscribe />
+            <SubscribeSimple />
           </AppLayout>
         </ProtectedRoute>
       </Route>
