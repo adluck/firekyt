@@ -653,6 +653,14 @@ export class DatabaseStorage implements IStorage {
     return contentItem;
   }
 
+  async deleteContentRelatedData(contentId: number): Promise<void> {
+    // Delete related affiliate clicks first to avoid foreign key constraint violations
+    await db.delete(affiliateClicks).where(eq(affiliateClicks.contentId, contentId));
+    
+    // Delete other related data if needed
+    // Add more deletions here as the schema grows
+  }
+
   async deleteContent(id: number, userId: number): Promise<void> {
     await db.delete(content).where(and(eq(content.id, id), eq(content.userId, userId)));
   }

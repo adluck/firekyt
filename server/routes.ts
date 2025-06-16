@@ -654,7 +654,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Content not found" });
       }
 
-      // Delete the content
+      // Delete related records first to handle foreign key constraints
+      await storage.deleteContentRelatedData(contentId);
+      
+      // Then delete the content
       await storage.deleteContent(contentId, userId);
 
       res.json({ message: "Content deleted successfully" });
