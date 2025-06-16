@@ -308,6 +308,7 @@ export default function ProductResearch() {
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="electronics">Electronics</SelectItem>
+                              <SelectItem value="saas">SaaS & Software</SelectItem>
                               <SelectItem value="health">Health & Fitness</SelectItem>
                               <SelectItem value="home">Home & Garden</SelectItem>
                               <SelectItem value="fashion">Fashion</SelectItem>
@@ -847,21 +848,8 @@ export default function ProductResearch() {
                             <div className="text-muted-foreground">Rating</div>
                           </div>
                           <div className="flex gap-2">
-                            {(product.productUrl || product.affiliateUrl) && (
-                              <Button size="sm" variant="outline" asChild>
-                                <a 
-                                  href={product.productUrl || product.affiliateUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-1"
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  <span className="text-xs">View</span>
-                                </a>
-                              </Button>
-                            )}
-                            {product.affiliateUrl && product.productUrl !== product.affiliateUrl && (
-                              <Button size="sm" asChild>
+                            {product.affiliateUrl && (
+                              <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
                                 <a 
                                   href={product.affiliateUrl} 
                                   target="_blank" 
@@ -869,7 +857,20 @@ export default function ProductResearch() {
                                   className="flex items-center gap-1"
                                 >
                                   <DollarSign className="w-3 h-3" />
-                                  <span className="text-xs">Affiliate</span>
+                                  <span className="text-xs font-medium">Earn ${product.commissionAmount}</span>
+                                </a>
+                              </Button>
+                            )}
+                            {product.productUrl && product.productUrl !== product.affiliateUrl && (
+                              <Button size="sm" variant="outline" asChild>
+                                <a 
+                                  href={product.productUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  <span className="text-xs">View Product</span>
                                 </a>
                               </Button>
                             )}

@@ -923,7 +923,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         api_calls_made: serpApiKey ? 1 : 0,
         api_sources: serpApiKey && realProducts.some(p => p.apiSource === 'serpapi') ? ['serpapi'] : ['research_engine'],
         research_duration_ms: 2500,
-        data_source: serpApiKey && realProducts.some(p => p.apiSource === 'serpapi') ? 'live_data' : 'sample_data',
+        data_source: serpApiKey && realProducts.length > 0 && realProducts.some(p => p.apiSource === 'serpapi') ? 'live_data' : 'sample_data',
         niche_insights: {
           marketDemand: 'High',
           competitionLevel: 'Medium',
