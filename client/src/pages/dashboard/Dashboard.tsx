@@ -13,7 +13,9 @@ import {
   Users, 
   MousePointer,
   Plus,
-  Crown
+  Crown,
+  Clock,
+  BarChart3
 } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -43,14 +45,17 @@ export default function Dashboard() {
   }
 
   const overview = dashboardData?.overview || {};
-  const chartData = [
-    { date: "Jan", value: 1200 },
-    { date: "Feb", value: 1900 },
-    { date: "Mar", value: 3000 },
-    { date: "Apr", value: 2780 },
-    { date: "May", value: 3890 },
-    { date: "Jun", value: 4390 },
-  ];
+  const hasActivity = overview.totalSites > 0 || overview.totalContent > 0;
+  
+  // Only show chart data if user has activity
+  const chartData = hasActivity ? [
+    { date: "Jan", value: overview.totalRevenue || 0 },
+    { date: "Feb", value: overview.totalRevenue || 0 },
+    { date: "Mar", value: overview.totalRevenue || 0 },
+    { date: "Apr", value: overview.totalRevenue || 0 },
+    { date: "May", value: overview.totalRevenue || 0 },
+    { date: "Jun", value: overview.totalRevenue || 0 },
+  ] : [];
 
   return (
     <div className="space-y-6">
@@ -163,50 +168,73 @@ export default function Dashboard() {
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>New article published on Tech Reviews</span>
-                <Badge variant="secondary" className="ml-auto">2h ago</Badge>
+            {hasActivity ? (
+              <div className="space-y-4">
+                {/* This would be populated with real user activity */}
+                <div className="text-center py-8 text-muted-foreground">
+                  <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No recent activity</p>
+                  <p className="text-sm">Start creating content to see your activity here</p>
+                </div>
               </div>
-              
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span>AI content generated for Best Laptops</span>
-                <Badge variant="secondary" className="ml-auto">5h ago</Badge>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No activity yet</p>
+                <p className="text-sm">Create your first site or content to get started</p>
               </div>
-              
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <span>New affiliate link added</span>
-                <Badge variant="secondary" className="ml-auto">1d ago</Badge>
-              </div>
-              
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span>Site "Gaming Gear" created</span>
-                <Badge variant="secondary" className="ml-auto">3d ago</Badge>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Performance Chart */}
+      {/* Performance Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AnalyticsChart
-          title="Revenue Trend"
-          data={chartData}
-          dataKey="value"
-          color="var(--primary-orange)"
-        />
-        
-        <AnalyticsChart
-          title="Traffic Overview"
-          data={chartData.map(item => ({ ...item, value: item.value * 10 }))}
-          dataKey="value"
-          color="var(--primary-pink)"
-        />
+        {hasActivity ? (
+          <>
+            <AnalyticsChart
+              title="Revenue Trend"
+              data={chartData}
+              dataKey="value"
+              color="var(--primary-orange)"
+            />
+            
+            <AnalyticsChart
+              title="Traffic Overview"
+              data={chartData.map(item => ({ ...item, value: item.value * 10 }))}
+              dataKey="value"
+              color="var(--primary-pink)"
+            />
+          </>
+        ) : (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">No revenue data yet</p>
+                  <p className="text-sm">Start creating content and adding affiliate links to track your earnings</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Traffic Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">No traffic data yet</p>
+                  <p className="text-sm">Create and publish content to start tracking your site traffic</p>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );
