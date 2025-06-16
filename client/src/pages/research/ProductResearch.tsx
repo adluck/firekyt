@@ -193,7 +193,7 @@ export default function ProductResearch() {
         save_to_database: data.saveToDatabase.toString()
       });
 
-      const response = await apiRequest('GET', `/api/research-products?${params}`);
+      const response = await apiRequest('GET', `/api/public/research-products?${params}`);
       return await response.json();
     },
     onSuccess: (data) => {
@@ -742,9 +742,21 @@ export default function ProductResearch() {
                   <Package className="w-5 h-5 mr-2" />
                   Research Results
                 </div>
-                <Badge variant="outline">
-                  {researchResults?.products?.length || 0} products
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">
+                    {researchResults?.products?.length || 0} products
+                  </Badge>
+                  {researchResults?.session_data?.data_source === 'live_data' && (
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-100">
+                      Live Data
+                    </Badge>
+                  )}
+                  {researchResults?.session_data?.data_source === 'sample_data' && (
+                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900 dark:text-amber-100">
+                      Sample Data
+                    </Badge>
+                  )}
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -767,7 +779,15 @@ export default function ProductResearch() {
                               <Badge variant="outline">{product.niche}</Badge>
                               <Badge variant="outline">{product.category}</Badge>
                               {product.brand && <Badge variant="outline">{product.brand}</Badge>}
-                              <Badge variant="outline">{product.apiSource}</Badge>
+                              <Badge 
+                                variant="outline" 
+                                className={product.apiSource === 'SerpAPI' 
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-100" 
+                                  : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900 dark:text-amber-100"
+                                }
+                              >
+                                {product.apiSource === 'SerpAPI' ? 'Live Data' : 'Sample Data'}
+                              </Badge>
                             </div>
                           </div>
                           <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded ml-4 flex items-center justify-center border border-blue-200 dark:border-blue-700">
