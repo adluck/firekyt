@@ -269,13 +269,13 @@ export class AlertingSystem {
       },
       {
         type: AlertType.MEMORY_USAGE_HIGH,
-        enabled: true,
+        enabled: process.env.NODE_ENV === 'production',
         conditions: [
-          { metric: 'memory_usage', operator: 'gt', threshold: 85, windowMinutes: 5 }
+          { metric: 'memory_usage', operator: 'gt', threshold: 95, windowMinutes: 10 }
         ],
         severity: AlertSeverity.CRITICAL,
-        cooldownMinutes: 5,
-        escalationThresholds: [10, 20],
+        cooldownMinutes: 30,
+        escalationThresholds: [60, 120],
         notificationChannels: [
           { type: 'email', config: { recipients: ['admin@example.com'] }, enabled: true }
         ]

@@ -3,6 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
 import type { User } from "@shared/schema";
 
+interface AuthResponse {
+  user: User;
+}
+
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
@@ -28,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     retry: false,
   });
 
-  const user = authResponse?.user || null;
+  const user = (authResponse as AuthResponse | undefined)?.user || null;
 
   // Login mutation
   const loginMutation = useMutation({
