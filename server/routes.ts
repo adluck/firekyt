@@ -871,7 +871,7 @@ Format your response as a JSON object with the following structure:
 
       // Call Google Gemini AI using the official library
       const genAI = new GoogleGenerativeAI(googleApiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const result = await model.generateContent(aiPrompt);
       const response = await result.response;
