@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users } from "lucide-react";
+import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail } from "lucide-react";
 import type { Site } from "@shared/schema";
 
 interface ContentGenerationRequest {
@@ -44,12 +44,48 @@ interface ContentGenerationResponse {
 }
 
 const CONTENT_TYPES = [
-  { value: 'blog_post', label: 'Blog Post', icon: '📝', description: 'Comprehensive articles (800+ words)' },
-  { value: 'product_comparison', label: 'Product Comparison', icon: '⚖️', description: 'Feature comparisons and recommendations' },
-  { value: 'review_article', label: 'Review Article', icon: '⭐', description: 'In-depth product/service reviews' },
-  { value: 'video_script', label: 'Video Script', icon: '🎬', description: 'Engaging video content scripts' },
-  { value: 'social_post', label: 'Social Media Post', icon: '📱', description: 'Short, punchy social content' },
-  { value: 'email_campaign', label: 'Email Campaign', icon: '📧', description: 'Marketing email content' }
+  { 
+    value: 'blog_post', 
+    label: 'Blog Post', 
+    icon: 'FileText', 
+    description: 'Comprehensive articles (800+ words)',
+    color: 'text-blue-600 dark:text-blue-400'
+  },
+  { 
+    value: 'product_comparison', 
+    label: 'Product Comparison', 
+    icon: 'Scale', 
+    description: 'Feature comparisons and recommendations',
+    color: 'text-green-600 dark:text-green-400'
+  },
+  { 
+    value: 'review_article', 
+    label: 'Review Article', 
+    icon: 'Star', 
+    description: 'In-depth product/service reviews',
+    color: 'text-yellow-600 dark:text-yellow-400'
+  },
+  { 
+    value: 'video_script', 
+    label: 'Video Script', 
+    icon: 'Video', 
+    description: 'Engaging video content scripts',
+    color: 'text-purple-600 dark:text-purple-400'
+  },
+  { 
+    value: 'social_post', 
+    label: 'Social Media Post', 
+    icon: 'MessageSquare', 
+    description: 'Short, punchy social content',
+    color: 'text-pink-600 dark:text-pink-400'
+  },
+  { 
+    value: 'email_campaign', 
+    label: 'Email Campaign', 
+    icon: 'Mail', 
+    description: 'Marketing email content',
+    color: 'text-orange-600 dark:text-orange-400'
+  }
 ];
 
 const TONE_PRESETS = [
@@ -266,20 +302,31 @@ export default function AdvancedContentGenerator() {
               </div>
 
               {/* Content Type */}
-              <div className="space-y-2">
-                <Label>Content Type</Label>
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Content Type</Label>
                 <Select value={formData.content_type} onValueChange={(value: any) => setFormData(prev => ({ ...prev, content_type: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Select content type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-80">
                     {CONTENT_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        <div className="flex items-center space-x-2">
-                          <span>{type.icon}</span>
-                          <div>
-                            <div className="font-medium">{type.label}</div>
-                            <div className="text-xs text-muted-foreground">{type.description}</div>
+                      <SelectItem 
+                        key={type.value} 
+                        value={type.value}
+                        className="py-3 px-4 cursor-pointer hover:bg-accent/50 focus:bg-accent/80"
+                      >
+                        <div className="flex items-center space-x-3 w-full">
+                          <div className={`p-2 rounded-lg bg-accent/20 ${type.color}`}>
+                            {type.icon === 'FileText' && <FileText className="h-4 w-4" />}
+                            {type.icon === 'Scale' && <Scale className="h-4 w-4" />}
+                            {type.icon === 'Star' && <Star className="h-4 w-4" />}
+                            {type.icon === 'Video' && <Video className="h-4 w-4" />}
+                            {type.icon === 'MessageSquare' && <MessageSquare className="h-4 w-4" />}
+                            {type.icon === 'Mail' && <Mail className="h-4 w-4" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-foreground">{type.label}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{type.description}</div>
                           </div>
                         </div>
                       </SelectItem>
