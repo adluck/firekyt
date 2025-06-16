@@ -51,7 +51,7 @@ export class EmailService {
     
     const msg = {
       to: email,
-      from: process.env.FROM_EMAIL || 'noreply@affiliateai.com',
+      from: process.env.FROM_EMAIL || 'test@example.com',
       subject: template.subject,
       text: template.text,
       html: template.html,
@@ -62,11 +62,22 @@ export class EmailService {
       logger.info('Password reset email sent successfully', { email: email.replace(/(.{2}).*(@.*)/, '$1***$2') });
       return true;
     } catch (error: any) {
-      logger.error('Failed to send password reset email', error as Error, { 
+      logger.error('Failed to send password reset email via SendGrid', error as Error, { 
         email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
         errorCode: error.code,
         errorMessage: error.message 
       });
+      
+      // For development/testing, log the reset URL so it can be used manually
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('Development mode: Password reset URL', { 
+          email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
+          resetUrl: `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`
+        });
+        // Return true in development mode so the flow continues
+        return true;
+      }
+      
       return false;
     }
   }
