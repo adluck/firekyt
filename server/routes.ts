@@ -869,33 +869,13 @@ Format your response as a JSON object with the following structure:
   "recommendations": ["recommendation1", "recommendation2", ...]
 }`;
 
-      // Call Google Gemini AI
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${googleApiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: aiPrompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 2048,
-          }
-        })
-      });
+      // Call Google Gemini AI using the official library
+      const genAI = new GoogleGenerativeAI(googleApiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-      if (!response.ok) {
-        throw new Error(`Google API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const result = await model.generateContent(aiPrompt);
+      const response = await result.response;
+      const aiResponse = response.text();
 
       if (!aiResponse) {
         throw new Error('No response from AI service');
