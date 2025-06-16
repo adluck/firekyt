@@ -53,6 +53,7 @@ const navigation = [
     icon: Search,
     submenu: [
       { name: 'Product Research', href: '/research', icon: Search },
+      { name: 'Product Search', href: '/research/products', icon: FolderOpen },
       { name: 'SEO Analysis', href: '/research/seo', icon: Search },
       { name: 'Niche Insights', href: '/research/niche', icon: Brain }
     ]

@@ -801,6 +801,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SerpAPI Product Search for Affiliate Marketing
+  app.post("/api/search-affiliate-products", authenticateToken, async (req, res) => {
+    try {
+      const { query, category } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ error: 'Search query is required' });
+      }
+
+      const serpApiKey = process.env.SERP_API_KEY;
+      if (!serpApiKey) {
+        return res.status(500).json({ error: 'SERP API key not configured' });
+      }
+
+      // Search for products using SerpAPI Google Shopping
+      const shoppingResponse = await fetch(`https://serpapi.com/search.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          q: query,
+          engine: "google_shopping",
+          api_key: serpApiKey,
+          num: 20,
+          location: "United States"
+        })
+      });
+
+      if (!shoppingResponse.ok) {
+        throw new Error(`SerpAPI error: ${shoppingResponse.status}`);
+      }
+
+      const shoppingData = await shoppingResponse.json();
+      
+      // Also search for affiliate programs and reviews
+      const organicResponse = await fetch(`https://serpapi.com/search.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          q: `${query} affiliate program review best`,
+          engine: "google",
+          api_key: serpApiKey,
+          num: 10,
+          location: "United States"
+        })
+      });
+
+      const organicData = await organicResponse.json();
+
+      // Process and structure the results
+      const products = shoppingData.shopping_results?.map((product: any) => ({
+        title: product.title,
+        price: product.extracted_price || product.price,
+        rating: product.rating,
+        reviews: product.reviews,
+        source: product.source,
+        link: product.link,
+        thumbnail: product.thumbnail,
+        delivery: product.delivery,
+        extensions: product.extensions
+      })) || [];
+
+      const affiliateOpportunities = organicData.organic_results?.map((result: any) => ({
+        title: result.title,
+        link: result.link,
+        snippet: result.snippet,
+        position: result.position
+      })) || [];
+
+      // Extract price ranges and average prices for analysis
+      const prices = products
+        .map((p: any) => p.price)
+        .filter((price: any) => price && typeof price === 'number');
+      
+      const priceAnalysis = prices.length > 0 ? {
+        min: Math.min(...prices),
+        max: Math.max(...prices),
+        average: prices.reduce((a: number, b: number) => a + b, 0) / prices.length,
+        count: prices.length
+      } : null;
+
+      res.json({
+        success: true,
+        query,
+        products,
+        affiliateOpportunities,
+        priceAnalysis,
+        totalResults: shoppingData.search_information?.total_results || 0,
+        searchMetadata: {
+          timestamp: new Date().toISOString(),
+          engine: 'serpapi_shopping',
+          location: 'United States'
+        }
+      });
+
+    } catch (error) {
+      console.error('Product search error:', error);
+      res.status(500).json({ 
+        error: 'Failed to search for affiliate products',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Niche & Competitor Analysis endpoint
   app.post('/api/analyze-affiliate-niche', authenticateToken, async (req, res) => {
     try {
