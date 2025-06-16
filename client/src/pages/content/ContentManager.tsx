@@ -68,7 +68,7 @@ export default function ContentManager() {
   const queryClient = useQueryClient();
 
   // Fetch content list
-  const { data: contentList = [], isLoading, error } = useQuery({
+  const { data: contentList = [], isLoading, error } = useQuery<Content[]>({
     queryKey: ["/api/content"],
     refetchOnWindowFocus: false,
   });
