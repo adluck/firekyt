@@ -320,8 +320,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const site = await storage.createSite({
         ...validatedData,
         userId: req.user!.id
-      });
+      } as any);
       res.json(site);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/sites/:id", authenticateToken, async (req, res) => {
+    try {
+      const siteId = parseInt(req.params.id);
+      const site = await storage.getSite(siteId);
+      
+      if (!site || site.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Site not found" });
+      }
+      
+      res.json(site);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/sites/:id", authenticateToken, async (req, res) => {
+    try {
+      const siteId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      // Verify site belongs to user
+      const existingSite = await storage.getSite(siteId);
+      if (!existingSite || existingSite.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Site not found" });
+      }
+      
+      const updatedSite = await storage.updateSite(siteId, updates);
+      res.json(updatedSite);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/sites/:id", authenticateToken, async (req, res) => {
+    try {
+      const siteId = parseInt(req.params.id);
+      
+      // Verify site belongs to user
+      const existingSite = await storage.getSite(siteId);
+      if (!existingSite || existingSite.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Site not found" });
+      }
+      
+      await storage.deleteSite(siteId);
+      res.json({ message: "Site deleted successfully" });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
@@ -343,7 +393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const content = await storage.createContent({
         ...validatedData,
         userId: req.user!.id
-      });
+      } as any);
       res.json(content);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

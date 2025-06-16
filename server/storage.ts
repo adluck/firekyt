@@ -602,7 +602,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(sites).where(eq(sites.userId, userId)).orderBy(desc(sites.createdAt));
   }
 
-  async createSite(siteData: InsertSite): Promise<Site> {
+  async createSite(siteData: any): Promise<Site> {
     const [site] = await db.insert(sites).values(siteData).returning();
     return site;
   }
@@ -629,7 +629,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(content).where(eq(content.userId, userId)).orderBy(desc(content.createdAt));
   }
 
-  async createContent(contentData: InsertContent): Promise<Content> {
+  async createContent(contentData: any): Promise<Content> {
     const [contentItem] = await db.insert(content).values(contentData).returning();
     return contentItem;
   }
