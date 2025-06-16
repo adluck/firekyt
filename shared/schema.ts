@@ -519,6 +519,7 @@ export const products = pgTable("products", {
   
   // Research and scoring data
   researchScore: decimal("research_score", { precision: 5, scale: 2 }).notNull(),
+  researchSessionId: integer("research_session_id"),
   keywords: text("keywords").array(),
   searchVolume: integer("search_volume"),
   difficulty: integer("difficulty"), // SEO difficulty score

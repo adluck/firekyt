@@ -64,6 +64,7 @@ export interface IStorage {
   getUserResearchSessions(userId: number): Promise<ProductResearchSession[]>;
   createProductResearchSession(session: InsertProductResearchSession): Promise<ProductResearchSession>;
   updateProductResearchSession(id: number, updates: Partial<ProductResearchSession>): Promise<ProductResearchSession>;
+  getProductsByResearchSession(sessionId: number): Promise<Product[]>;
   
   // SEO analysis operations
   getSeoAnalysis(id: number): Promise<SeoAnalysis | undefined>;
@@ -857,6 +858,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(productResearchSessions.id, id))
       .returning();
     return session;
+  }
+
+  async getProductsByResearchSession(sessionId: number): Promise<Product[]> {
+    return await db
+      .select()
+      .from(products)
+      .where(eq(products.researchSessionId, sessionId))
+      .orderBy(desc(products.researchScore));
   }
 
   // SEO analysis methods
