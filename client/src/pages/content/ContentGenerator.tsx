@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ContentEditor } from "@/components/content/ContentEditor";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Wand2, AlertCircle, CheckCircle, Clock, FileText, Sparkles } from "lucide-react";
+import { Wand2, AlertCircle, CheckCircle, Clock, FileText, Sparkles, Globe } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -145,7 +145,7 @@ export default function ContentGenerator() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wand2 className="h-5 w-5" />
+            <Globe className="h-5 w-5" />
             Select Site
           </CardTitle>
         </CardHeader>
