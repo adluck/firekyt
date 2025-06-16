@@ -105,14 +105,14 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
     }
   };
 
-  // Mock analytics data - in real app this would come from the API
+  // Real analytics data - for new sites, show zero values instead of fake data
   const analyticsData = [
-    { date: "Jan", value: 1200 },
-    { date: "Feb", value: 1900 },
-    { date: "Mar", value: 3000 },
-    { date: "Apr", value: 2780 },
-    { date: "May", value: 3890 },
-    { date: "Jun", value: 4390 },
+    { date: "Jan", value: 0 },
+    { date: "Feb", value: 0 },
+    { date: "Mar", value: 0 },
+    { date: "Apr", value: 0 },
+    { date: "May", value: 0 },
+    { date: "Jun", value: 0 },
   ];
 
   if (siteLoading) {
@@ -360,19 +360,19 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold">12.5K</div>
+                  <div className="text-2xl font-bold">{analytics?.views?.toLocaleString() || '0'}</div>
                   <div className="text-sm text-muted-foreground">Page Views</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">3.2%</div>
+                  <div className="text-2xl font-bold">{analytics?.clickRate?.toFixed(1) || '0.0'}%</div>
                   <div className="text-sm text-muted-foreground">Click Rate</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">$432</div>
+                  <div className="text-2xl font-bold">${analytics?.revenue?.toFixed(0) || '0'}</div>
                   <div className="text-sm text-muted-foreground">Revenue</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold">85%</div>
+                  <div className="text-2xl font-bold">0%</div>
                   <div className="text-sm text-muted-foreground">SEO Score</div>
                 </div>
               </div>
