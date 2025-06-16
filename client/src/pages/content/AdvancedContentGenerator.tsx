@@ -297,41 +297,41 @@ export default function AdvancedContentGenerator() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Content Generation Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Wand2 className="h-5 w-5" />
-              <span>Content Specification</span>
-            </CardTitle>
-            <CardDescription>
-              Configure your AI-powered content generation with advanced parameters
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Primary Keyword */}
-              <div className="space-y-2">
-                <Label htmlFor="keyword" className="flex items-center space-x-1">
-                  <Target className="h-4 w-4" />
-                  <span>Primary Keyword *</span>
-                </Label>
-                <Input
-                  id="keyword"
-                  value={formData.keyword}
-                  onChange={(e) => setFormData(prev => ({ ...prev, keyword: e.target.value }))}
-                  placeholder="e.g., best wireless headphones 2024"
-                  required
-                />
-              </div>
+            {/* Content Generation Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Wand2 className="h-5 w-5" />
+                  <span>Content Specification</span>
+                </CardTitle>
+                <CardDescription>
+                  Configure your AI-powered content generation with advanced parameters
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Primary Keyword */}
+                  <div className="space-y-2">
+                    <Label htmlFor="keyword" className="flex items-center space-x-1">
+                      <Target className="h-4 w-4" />
+                      <span>Primary Keyword *</span>
+                    </Label>
+                    <Input
+                      id="keyword"
+                      value={formData.keyword}
+                      onChange={(e) => setFormData(prev => ({ ...prev, keyword: e.target.value }))}
+                      placeholder="e.g., best wireless headphones 2024"
+                      required
+                    />
+                  </div>
 
-              {/* Content Type */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">Content Type</Label>
-                <Select value={formData.content_type} onValueChange={(value: any) => setFormData(prev => ({ ...prev, content_type: value }))}>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select content type" />
-                  </SelectTrigger>
+                  {/* Content Type */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Content Type</Label>
+                    <Select value={formData.content_type} onValueChange={(value: any) => setFormData(prev => ({ ...prev, content_type: value }))}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Select content type" />
+                      </SelectTrigger>
                   <SelectContent className="max-h-80">
                     {CONTENT_TYPES.map((type) => (
                       <SelectItem 
@@ -707,7 +707,6 @@ export default function AdvancedContentGenerator() {
           </CardContent>
         </Card>
       )}
-          </div>
         </>
       )}
     </div>

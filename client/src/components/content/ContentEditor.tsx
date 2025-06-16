@@ -20,7 +20,7 @@ interface ContentEditorProps {
   isLoading?: boolean;
 }
 
-export default function ContentEditor({ generatedContent, onSave, onClose, isLoading = false }: ContentEditorProps) {
+export function ContentEditor({ generatedContent, onSave, onClose, isLoading = false }: ContentEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("preview");
   const [editedContent, setEditedContent] = useState({
