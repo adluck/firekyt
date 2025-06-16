@@ -966,9 +966,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
 
-      // Update research session with results if it was created
-      if (researchSession && req.user) {
+      // Save products to database and update research session
+      if (researchSession && req.user && saveToDatabase) {
         try {
+          // Save products to database with research session ID
+          const productsToSave = filteredProducts.map(product => ({
+            userId: req.user.id,
+            title: product.title,
+            description: product.description,
+            category: product.category,
+            niche: product.niche,
+            price: product.price,
+            commissionRate: product.commissionRate,
+            commissionAmount: product.commissionAmount,
+            productUrl: product.productUrl,
+            affiliateUrl: product.affiliateUrl,
+            imageUrl: product.imageUrl,
+            rating: product.rating,
+            reviewCount: product.reviewCount,
+            trendingScore: product.trendingScore,
+            researchScore: product.researchScore,
+            apiSource: product.apiSource,
+            keywords: product.keywords,
+            researchSessionId: researchSession.id, // Link to research session
+            brand: product.brand
+          }));
+
+          if (productsToSave.length > 0) {
+            await storage.createProducts(productsToSave);
+          }
+
+          // Update research session with results
           await storage.updateProductResearchSession(researchSession.id, {
             totalProductsFound: realProducts.length,
             productsStored: filteredProducts.length,
@@ -979,7 +1007,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             status: 'completed'
           });
         } catch (error) {
-          console.error('Error updating research session:', error);
+          console.error('Error saving products or updating research session:', error);
         }
       }
 
