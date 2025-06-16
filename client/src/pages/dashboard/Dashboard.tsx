@@ -79,35 +79,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Subscription Status */}
-      {user && (
-        <Card className="border-l-4 border-l-primary">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Crown className="h-5 w-5 text-primary" />
-                <div>
-                  <div className="font-medium">
-                    {(user.subscriptionTier || 'free').charAt(0).toUpperCase() + (user.subscriptionTier || 'free').slice(1)} Plan
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {(user.subscriptionStatus || 'inactive') === 'active' ? 'Active subscription' : 'Inactive subscription'}
-                  </div>
-                </div>
-              </div>
-              
-              {(user.subscriptionTier || 'free') === 'free' && (
-                <Link href="/pricing">
-                  <Button size="sm" className="btn-gradient">
-                    Upgrade
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <DashboardCard
