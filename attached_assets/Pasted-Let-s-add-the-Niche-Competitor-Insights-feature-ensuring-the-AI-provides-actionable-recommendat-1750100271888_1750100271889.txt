@@ -1,0 +1,38 @@
+Let's add the Niche & Competitor Insights feature, ensuring the AI provides **actionable recommendations** for affiliate marketers.
+
+1.  **Analysis Form:** Within the '**Niche & Competitor Insights**' section on the `/dashboard`, add a form:
+    * An input field for `target_market_or_product` (e.g., 'eco-friendly home goods', 'electric bikes').
+    * A submit button: 'Analyze Niche & Competitors'.
+2.  **`analyze_affiliate_niche` Route:** Create a new POST route `/analyze_affiliate_niche` that:
+    * Receives the `target_market_or_product`.
+    * **AI API Call for Actionable Insights:** Call your AI API (similar to content generation) with a specific prompt designed for affiliate insights.
+        ```python
+        # ... inside the route function ...
+        try:
+            ai_prompt_niche = f"""
+            As an expert market researcher and affiliate strategist, provide a detailed, actionable analysis for an affiliate marketer looking to enter or expand in the niche: '{target_market_or_product}'.
+
+            Your analysis should include:
+            1.  **Niche Viability & Profitability:** Is this a good niche for affiliates? Why or why not? (Consider commission potential, audience pain points, evergreen vs. trending).
+            2.  **Competition Landscape:** Identify 2-3 **hypothetical, but realistic, competitor types or specific site examples** that an affiliate would face. What are their strengths/weaknesses?
+            3.  **Untapped Opportunities/Gaps:** Where are the underserved areas or specific long-tail keywords within this niche that a new affiliate could target for quick wins? Suggest 3-5 specific content ideas (e.g., 'best [product] for beginners', 'sustainable alternatives to [product]').
+            4.  **Monetization Avenues:** Beyond direct sales, suggest other affiliate programs or complementary product categories within this niche.
+            5.  **Audience Insights:** Describe the typical customer in this niche – their demographics, interests, and how to reach them.
+
+            Present this analysis in a clear, structured format with headings and bullet points, making it easy for an affiliate to implement.
+            """
+            response_niche = client.chat.completions.create(
+                model="gpt-4-turbo", # Or your preferred model
+                messages=[
+                    {"role": "system", "content": "You are a specialized AI assistant providing actionable market and competitor insights for affiliate marketers."},
+                    {"role": "user", "content": ai_prompt_niche}
+                ],
+                max_tokens=1500,
+                temperature=0.7
+            )
+            analysis_result = response_niche.choices[0].message.content
+        except Exception as e:
+            analysis_result = f"Error performing analysis: {e}. Please try again."
+        ```
+    * Display the `analysis_result` prominently in the dashboard.
+3.  **User Experience:** Ensure the results are displayed clearly and are easy to read. Add a disclaimer that this AI analysis should inform, but not replace, further human validation.

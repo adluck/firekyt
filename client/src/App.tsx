@@ -24,6 +24,7 @@ import AdvancedContentGenerator from "@/pages/content/AdvancedContentGenerator";
 import ContentManager from "@/pages/content/ContentManager";
 import ProductResearch from "@/pages/research/ProductResearch";
 import SeoAnalysis from "@/pages/research/SeoAnalysis";
+import NicheInsights from "@/pages/research/NicheInsights";
 import ContentEditor from "@/pages/content/ContentEditor";
 import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
 import PublishingDashboard from "@/pages/publishing/PublishingDashboard";
@@ -138,6 +139,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <SeoAnalysis />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/research/niche">
+        <ProtectedRoute>
+          <AppLayout>
+            <NicheInsights />
           </AppLayout>
         </ProtectedRoute>
       </Route>
