@@ -801,8 +801,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Product Research API endpoint
-  app.get('/api/research-products', authenticateToken, async (req, res) => {
+  // Public Product Research API endpoint for SerpAPI integration
+  app.get('/api/public/research-products', async (req, res) => {
     try {
       const nicheParam = req.query.niche as string;
       const categoryParam = req.query.product_category as string || 'electronics';
