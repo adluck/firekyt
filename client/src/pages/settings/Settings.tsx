@@ -19,7 +19,8 @@ import {
   CheckCircle,
   Key,
   Mail,
-  Globe
+  Globe,
+  Crown
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/components/layout/ThemeProvider";
@@ -178,6 +179,33 @@ export default function Settings() {
           Manage your account settings and preferences
         </p>
       </div>
+
+      {/* Subscription Status */}
+      {user && (
+        <Card className="border-l-4 border-l-primary">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Crown className="h-5 w-5 text-primary" />
+                <div>
+                  <div className="font-medium">
+                    {(user.subscriptionTier || 'free').charAt(0).toUpperCase() + (user.subscriptionTier || 'free').slice(1)} Plan
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {(user.subscriptionStatus || 'inactive') === 'active' ? 'Active subscription' : 'Inactive subscription'}
+                  </div>
+                </div>
+              </div>
+              
+              {(user.subscriptionTier || 'free') === 'free' && (
+                <Button size="sm" className="btn-gradient">
+                  Upgrade Plan
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
