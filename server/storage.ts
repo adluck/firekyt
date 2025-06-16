@@ -369,16 +369,21 @@ export class MemStorage implements IStorage {
     return content;
   }
 
-  async updateContent(id: number, updates: Partial<Content>): Promise<Content> {
+  async updateContent(id: number, userId: number, updates: Partial<Content>): Promise<Content> {
     const content = this.content.get(id);
     if (!content) throw new Error("Content not found");
+    if (content.userId !== userId) throw new Error("Access denied");
     
     const updatedContent = { ...content, ...updates, updatedAt: new Date() };
     this.content.set(id, updatedContent);
     return updatedContent;
   }
 
-  async deleteContent(id: number): Promise<void> {
+  async deleteContent(id: number, userId: number): Promise<void> {
+    const content = this.content.get(id);
+    if (!content) throw new Error("Content not found");
+    if (content.userId !== userId) throw new Error("Access denied");
+    
     this.content.delete(id);
   }
 

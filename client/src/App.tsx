@@ -21,6 +21,7 @@ import Sites from "@/pages/sites/Sites";
 import SiteDetails from "@/pages/sites/SiteDetails";
 import ContentGenerator from "@/pages/content/ContentGenerator";
 import AdvancedContentGenerator from "@/pages/content/AdvancedContentGenerator";
+import ContentManager from "@/pages/content/ContentManager";
 import ProductResearch from "@/pages/research/ProductResearch";
 import SeoAnalysis from "@/pages/research/SeoAnalysis";
 import ContentEditor from "@/pages/content/ContentEditor";
@@ -81,6 +82,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <AdvancedContentGenerator />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/content/manage">
+        <ProtectedRoute>
+          <AppLayout>
+            <ContentManager />
           </AppLayout>
         </ProtectedRoute>
       </Route>

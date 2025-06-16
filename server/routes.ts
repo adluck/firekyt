@@ -502,6 +502,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Content Management API
+  app.put("/api/content/:id", authenticateToken, async (req, res) => {
+    try {
+      const contentId = parseInt(req.params.id);
+      const userId = req.user!.id;
+      const updates = req.body;
+
+      // Verify content belongs to user
+      const existingContent = await storage.getContent(userId);
+      const content = existingContent.find(c => c.id === contentId);
+      
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+
+      // Update the content
+      const updatedContent = await storage.updateContent(contentId, userId, {
+        ...updates,
+        updatedAt: new Date()
+      });
+
+      res.json(updatedContent);
+    } catch (error: any) {
+      console.error('Content update error:', error);
+      res.status(500).json({ message: "Failed to update content" });
+    }
+  });
+
+  app.delete("/api/content/:id", authenticateToken, async (req, res) => {
+    try {
+      const contentId = parseInt(req.params.id);
+      const userId = req.user!.id;
+
+      // Verify content belongs to user
+      const existingContent = await storage.getContent(userId);
+      const content = existingContent.find(c => c.id === contentId);
+      
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+
+      // Delete the content
+      await storage.deleteContent(contentId, userId);
+
+      res.json({ message: "Content deleted successfully" });
+    } catch (error: any) {
+      console.error('Content delete error:', error);
+      res.status(500).json({ message: "Failed to delete content" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
