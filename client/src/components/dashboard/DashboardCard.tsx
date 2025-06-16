@@ -44,7 +44,7 @@ export function DashboardCard({
         
         {trend && (
           <div className={cn(
-            "flex items-center gap-1 text-xs mt-2 flex-wrap",
+            "flex items-center gap-1 text-xs mt-2",
             trend.positive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
           )}>
             {trend.positive ? (
@@ -53,7 +53,7 @@ export function DashboardCard({
               <TrendingDown className="h-3 w-3 flex-shrink-0" />
             )}
             <span className="whitespace-nowrap">{trend.value}</span>
-            <span className="text-muted-foreground">from last month</span>
+            <span className="text-muted-foreground whitespace-nowrap">from last month</span>
           </div>
         )}
       </CardContent>
