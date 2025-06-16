@@ -239,7 +239,7 @@ class SeoAnalysisEngine:
         
         # Generate meta descriptions
         descriptions = [
-            f"Discover the best {keyword} options for 2024. Compare features, prices, and expert reviews to make the right choice.",
+            f"Discover the best {keyword} options for 2025. Compare features, prices, and expert reviews to make the right choice.",
             f"Looking for {keyword}? Our comprehensive guide covers everything from basics to advanced tips. Start here.",
             f"Expert {keyword} recommendations with detailed reviews, comparisons, and buying guides. Updated regularly.",
             f"Find the perfect {keyword} solution. Compare top options, read reviews, and get expert advice.",

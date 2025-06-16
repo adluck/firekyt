@@ -125,6 +125,62 @@ export default function ContentManager() {
     },
   });
 
+  // Publish content mutation
+  const publishContentMutation = useMutation({
+    mutationFn: async (contentId: number) => {
+      const response = await apiRequest("PUT", `/api/content/${contentId}`, {
+        status: "published",
+        publishedAt: new Date().toISOString()
+      });
+      if (!response.ok) {
+        throw new Error("Failed to publish content");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/content"] });
+      toast({
+        title: "Content Published",
+        description: "Content has been successfully published",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Publish Failed",
+        description: error.message || "Failed to publish content",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Unpublish content mutation
+  const unpublishContentMutation = useMutation({
+    mutationFn: async (contentId: number) => {
+      const response = await apiRequest("PUT", `/api/content/${contentId}`, {
+        status: "draft",
+        publishedAt: null
+      });
+      if (!response.ok) {
+        throw new Error("Failed to unpublish content");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/content"] });
+      toast({
+        title: "Content Unpublished",
+        description: "Content has been moved back to draft",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Unpublish Failed",
+        description: error.message || "Failed to unpublish content",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Filter content based on search and filters
   const filteredContent = contentList.filter((content: Content) => {
     const matchesSearch = content.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

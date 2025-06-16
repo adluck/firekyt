@@ -120,6 +120,7 @@ CONTENT SPECIFICATIONS:
 - Tone of Voice: ${request.tone_of_voice}
 - Word Count Target: ${wordCount} words
 - Brand Voice: ${request.brand_voice || 'Authentic and trustworthy'}
+- Current Year: 2025 (use this for references to current products, trends, and recommendations)
 
 REQUIREMENTS:
 `;

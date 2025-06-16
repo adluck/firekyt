@@ -2328,7 +2328,7 @@ async function createSamplePublishingData(userId: number) {
         platformConnectionId: createdConnections[0].id,
         platform: 'wordpress',
         platformPostId: 'wp_post_123',
-        platformUrl: 'https://myblog.wordpress.com/2024/06/affiliate-marketing-guide',
+        platformUrl: 'https://myblog.wordpress.com/2025/06/affiliate-marketing-guide',
         status: 'published',
         metrics: {
           views: 1247,
