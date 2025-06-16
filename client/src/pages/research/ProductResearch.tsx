@@ -822,7 +822,7 @@ export default function ProductResearch() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                           <div>
                             <div className="font-medium text-green-600">
                               ${product.price || 'N/A'}
@@ -847,34 +847,35 @@ export default function ProductResearch() {
                             </div>
                             <div className="text-muted-foreground">Rating</div>
                           </div>
-                          <div className="flex gap-2">
-                            {product.affiliateUrl && (
-                              <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
-                                <a 
-                                  href={product.affiliateUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-1"
-                                >
-                                  <DollarSign className="w-3 h-3" />
-                                  <span className="text-xs font-medium">Earn ${product.commissionAmount}</span>
-                                </a>
-                              </Button>
-                            )}
-                            {(product.productUrl || product.affiliateUrl) && (
-                              <Button size="sm" variant="outline" asChild>
-                                <a 
-                                  href={product.productUrl || product.affiliateUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-1"
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  <span className="text-xs">View Product</span>
-                                </a>
-                              </Button>
-                            )}
-                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {product.affiliateUrl && (
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
+                              <a 
+                                href={product.affiliateUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1"
+                              >
+                                <DollarSign className="w-3 h-3" />
+                                <span className="text-xs font-medium">Earn ${product.commissionAmount}</span>
+                              </a>
+                            </Button>
+                          )}
+                          {(product.productUrl || product.affiliateUrl) && (
+                            <Button size="sm" variant="outline" asChild>
+                              <a 
+                                href={product.productUrl || product.affiliateUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span className="text-xs">View Product</span>
+                              </a>
+                            </Button>
+                          )}
                         </div>
 
                         {product.keywords && product.keywords.length > 0 && (
