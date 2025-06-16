@@ -42,7 +42,7 @@ export const sites = pgTable("sites", {
 export const content = pgTable("content", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
-  siteId: integer("site_id").notNull().references(() => sites.id),
+  siteId: integer("site_id").references(() => sites.id),
   title: text("title").notNull(),
   content: text("content").notNull(),
   contentType: text("content_type").notNull(), // blog_post, product_review, comparison, buying_guide

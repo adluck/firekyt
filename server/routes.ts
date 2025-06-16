@@ -394,7 +394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create and save content to database
       const content = await storage.createContent({
         userId: req.user!.id,
-        siteId: validatedData.siteId || null,
+        siteId: validatedData.siteId,
         title: `Generated Content - ${validatedData.keyword}`,
         content: result.status === 'completed' ? 'Generated content will be available here' : 'Content generation in progress',
         contentType: validatedData.contentType,
