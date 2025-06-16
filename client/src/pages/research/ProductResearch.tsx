@@ -537,6 +537,202 @@ export default function ProductResearch() {
           )}
         </TabsContent>
 
+        <TabsContent value="search" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Search className="w-5 h-5 mr-2" />
+                Real-Time Product Search
+              </CardTitle>
+              <CardDescription>
+                Search for affiliate products using live market data from Google Shopping
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2 mb-4">
+                <Input
+                  placeholder="Search for products (e.g., wireless headphones, fitness trackers)"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      setCurrentQuery(searchQuery);
+                    }
+                  }}
+                />
+                <Button 
+                  onClick={() => setCurrentQuery(searchQuery)}
+                  disabled={!searchQuery || searchLoading}
+                >
+                  {searchLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Search className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+
+              {searchError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Search failed: {searchError.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {searchResults && (
+                <div className="space-y-6">
+                  {/* Price Analysis Summary */}
+                  {searchResults.priceAnalysis && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Price Analysis</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-4 gap-4 text-center">
+                          <div>
+                            <div className="text-2xl font-bold text-green-600">
+                              ${searchResults.priceAnalysis.min.toFixed(2)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Min Price</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-blue-600">
+                              ${searchResults.priceAnalysis.average.toFixed(2)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Avg Price</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-red-600">
+                              ${searchResults.priceAnalysis.max.toFixed(2)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Max Price</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-purple-600">
+                              {searchResults.priceAnalysis.count}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Products</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Products Grid */}
+                  {searchResults.products && searchResults.products.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <span>Product Results</span>
+                          <Badge variant="outline">{searchResults.products.length} found</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {searchResults.products.map((product: any, index: number) => (
+                            <Card key={index} className="hover:shadow-md transition-shadow">
+                              <CardContent className="p-4">
+                                <div className="flex flex-col h-full">
+                                  {product.thumbnail && (
+                                    <img 
+                                      src={product.thumbnail} 
+                                      alt={product.title}
+                                      className="w-full h-32 object-cover rounded-md mb-2"
+                                    />
+                                  )}
+                                  <h3 className="font-medium text-sm mb-2 line-clamp-2">
+                                    {product.title}
+                                  </h3>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-lg font-bold text-green-600">
+                                      ${product.price}
+                                    </span>
+                                    {product.rating > 0 && (
+                                      <div className="flex items-center">
+                                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                        <span className="text-sm ml-1">{product.rating}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground mb-2">
+                                    {product.source} • {product.reviews} reviews
+                                  </div>
+                                  {product.delivery && (
+                                    <div className="text-xs text-blue-600 mb-2">
+                                      {product.delivery}
+                                    </div>
+                                  )}
+                                  <div className="mt-auto pt-2">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="w-full"
+                                      onClick={() => window.open(product.link, '_blank')}
+                                    >
+                                      <ExternalLink className="w-3 h-3 mr-1" />
+                                      View Product
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Affiliate Opportunities */}
+                  {searchResults.affiliateOpportunities && searchResults.affiliateOpportunities.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <DollarSign className="w-5 h-5 mr-2" />
+                          Affiliate Opportunities
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {searchResults.affiliateOpportunities.map((opportunity: any, index: number) => (
+                            <div key={index} className="border rounded-lg p-3 hover:bg-muted/50">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-sm mb-1">{opportunity.title}</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">
+                                    {opportunity.snippet}
+                                  </p>
+                                  <Badge variant="secondary" className="text-xs">
+                                    Position #{opportunity.position}
+                                  </Badge>
+                                </div>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => window.open(opportunity.link, '_blank')}
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+
+              {currentQuery && !searchLoading && !searchResults && !searchError && (
+                <div className="text-center py-8">
+                  <div className="text-muted-foreground">No results found for "{currentQuery}"</div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="results" className="space-y-6">
           {researchResults?.products && researchResults.products.length > 0 && (
             <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
