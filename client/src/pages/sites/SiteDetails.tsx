@@ -42,6 +42,21 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
     queryKey: [`/api/content?siteId=${siteId}`],
   });
 
+  // Fetch site analytics
+  const { data: analytics } = useQuery<{
+    views: number;
+    viewsChange: number;
+    clickRate: number;
+    clickRateChange: number;
+    revenue: number;
+    revenueChange: number;
+    contentCount: number;
+    publishedCount: number;
+  }>({
+    queryKey: [`/api/analytics/site/${siteId}`],
+    enabled: !!site,
+  });
+
   // Delete content mutation
   const deleteContentMutation = useMutation({
     mutationFn: async (contentId: number) => {
@@ -172,7 +187,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
             )}
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              Created {formatDate(site.createdAt)}
+              Created {formatDate(site.createdAt.toString())}
             </div>
           </div>
           
@@ -211,26 +226,26 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
         
         <DashboardCard
           title="Monthly Views"
-          value="12.5K"
-          description="+23% from last month"
+          value={analytics?.views ? analytics.views.toLocaleString() : "0"}
+          description={analytics?.viewsChange ? `${analytics.viewsChange > 0 ? '+' : ''}${analytics.viewsChange}% from last month` : "No data yet"}
           icon={TrendingUp}
-          trend={{ value: "+23%", positive: true }}
+          trend={analytics?.viewsChange ? { value: `${analytics.viewsChange > 0 ? '+' : ''}${analytics.viewsChange}%`, positive: analytics.viewsChange > 0 } : undefined}
         />
         
         <DashboardCard
           title="Click Rate"
-          value="3.2%"
+          value={analytics?.clickRate ? `${analytics.clickRate}%` : "0%"}
           description="Affiliate link clicks"
           icon={MousePointer}
-          trend={{ value: "+0.5%", positive: true }}
+          trend={analytics?.clickRateChange ? { value: `${analytics.clickRateChange > 0 ? '+' : ''}${analytics.clickRateChange}%`, positive: analytics.clickRateChange > 0 } : undefined}
         />
         
         <DashboardCard
           title="Revenue"
-          value="$432"
+          value={analytics?.revenue ? `$${analytics.revenue}` : "$0"}
           description="This month"
           icon={DollarSign}
-          trend={{ value: "+12%", positive: true }}
+          trend={analytics?.revenueChange ? { value: `${analytics.revenueChange > 0 ? '+' : ''}${analytics.revenueChange}%`, positive: analytics.revenueChange > 0 } : undefined}
         />
       </div>
 
@@ -278,9 +293,9 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
                         
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span>Type: {item.contentType.replace('_', ' ')}</span>
-                          <span>Created: {formatDate(item.createdAt)}</span>
+                          <span>Created: {formatDate(item.createdAt.toString())}</span>
                           {item.publishedAt && (
-                            <span>Published: {formatDate(item.publishedAt)}</span>
+                            <span>Published: {formatDate(item.publishedAt.toString())}</span>
                           )}
                         </div>
                         

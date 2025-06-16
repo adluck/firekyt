@@ -487,6 +487,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Site-specific analytics
+  app.get("/api/analytics/site/:siteId", authenticateToken, async (req, res) => {
+    try {
+      const siteId = parseInt(req.params.siteId);
+      
+      // Verify site belongs to user
+      const site = await storage.getSite(siteId);
+      if (!site || site.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Site not found" });
+      }
+
+      // Get site content for calculating metrics
+      const content = await storage.getUserContent(req.user!.id);
+      const siteContent = content.filter(c => c.siteId === siteId);
+      
+      // Since this is a new site with no real traffic data yet,
+      // return zero values instead of placeholder data
+      const analytics = {
+        views: 0,
+        viewsChange: 0,
+        clickRate: 0,
+        clickRateChange: 0,
+        revenue: 0,
+        revenueChange: 0,
+        contentCount: siteContent.length,
+        publishedCount: siteContent.filter(c => c.status === 'published').length
+      };
+
+      res.json(analytics);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Analytics dashboard
   app.get("/api/analytics/dashboard", authenticateToken, analyticsRateLimit, async (req, res) => {
     try {
