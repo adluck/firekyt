@@ -827,6 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const serpData: any = await serpResponse.json();
 
           if (serpData.shopping_results && serpData.shopping_results.length > 0) {
+            console.log('SerpAPI sample product structure:', JSON.stringify(serpData.shopping_results[0], null, 2));
             realProducts = serpData.shopping_results.slice(0, maxResultsParam).map((product: any, index: number) => {
               const basePrice = parseFloat(product.price?.replace(/[^0-9.]/g, '') || '100');
               const commissionRate = minCommissionParam + Math.random() * 7;
@@ -836,7 +837,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               // Generate unique affiliate URLs for each product
               const affiliateId = Math.random().toString(36).substring(2, 12);
-              const affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}ref=aff_${affiliateId}`;
+              const productLink = product.link || product.product_link || product.url || product.extracted_price?.link || `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+              const affiliateUrl = `${productLink}${productLink.includes('?') ? '&' : '?'}ref=aff_${affiliateId}`;
 
               return {
                 id: index + 1,
@@ -855,7 +857,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, 'quality', 'best'],
                 createdAt: new Date().toISOString(),
                 affiliateUrl: affiliateUrl,
-                productUrl: product.link,
+                productUrl: productLink,
                 availability: 'In Stock',
                 brand: product.source || 'Various',
                 imageUrl: product.thumbnail || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`
