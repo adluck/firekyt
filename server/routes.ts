@@ -801,8 +801,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public Product Research API endpoint for SerpAPI integration
-  app.get('/api/public/research-products', async (req, res) => {
+  // Product Research API endpoint for SerpAPI integration
+  app.get('/api/research-products', authenticateToken, async (req, res) => {
     try {
       const nicheParam = req.query.niche as string;
       const categoryParam = req.query.product_category as string || 'electronics';
@@ -810,9 +810,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const minTrendingParam = parseFloat(req.query.min_trending_score as string || '50');
       const maxResultsParam = parseInt(req.query.max_results as string || '50');
       const targetKeywordsParam = req.query.target_keywords as string;
+      const saveToDatabase = req.query.save_to_database !== 'false';
 
       if (!nicheParam) {
         return res.status(400).json({ error: 'Niche parameter is required' });
+      }
+
+      // Create research session if user is authenticated
+      let researchSession: any = null;
+      if (req.user && saveToDatabase) {
+        try {
+          researchSession = await storage.createProductResearchSession({
+            userId: req.user.id,
+            niche: nicheParam,
+            productCategory: categoryParam,
+            minCommissionRate: minCommissionParam.toString(),
+            minTrendingScore: minTrendingParam.toString(),
+            maxResults: maxResultsParam,
+            status: 'pending'
+          });
+        } catch (error) {
+          console.log('Could not create research session (user might not be authenticated):', error);
+        }
       }
 
       const serpApiKey = process.env.SERP_API_KEY;
@@ -946,16 +965,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
 
+      // Update research session with results if it was created
+      if (researchSession && req.user) {
+        try {
+          await storage.updateProductResearchSession(researchSession.id, {
+            totalProductsFound: realProducts.length,
+            productsStored: filteredProducts.length,
+            averageScore: averageScore,
+            apiCallsMade: sessionData.api_calls_made,
+            apiSources: sessionData.api_sources,
+            researchDuration: sessionData.research_duration_ms,
+            status: 'completed'
+          });
+        } catch (error) {
+          console.error('Error updating research session:', error);
+        }
+      }
+
       res.json({
         success: true,
         products: filteredProducts,
         session_data: sessionData,
         total_found: realProducts.length,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        research_session_id: researchSession?.id
       });
 
     } catch (error: any) {
       console.error('Research products error:', error);
+      
+      // Update research session with error if it was created
+      if (researchSession && req.user) {
+        try {
+          await storage.updateProductResearchSession(researchSession.id, {
+            status: 'failed',
+            errorMessage: error.message
+          });
+        } catch (updateError) {
+          console.error('Error updating failed research session:', updateError);
+        }
+      }
+      
       res.status(500).json({ 
         error: 'Failed to research products',
         message: error.message 
@@ -976,30 +1026,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get research sessions
   app.get("/api/research-sessions", authenticateToken, async (req, res) => {
     try {
-      // Return sample research sessions
-      const sampleSessions = [
-        {
-          id: 1,
-          niche: "fitness trackers",
-          productCategory: "electronics",
-          totalProductsFound: 25,
-          productsStored: 3,
-          averageScore: "85.2",
-          status: "completed",
-          createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-        },
-        {
-          id: 2,
-          niche: "wireless headphones",
-          productCategory: "electronics", 
-          totalProductsFound: 18,
-          productsStored: 4,
-          averageScore: "78.9",
-          status: "completed",
-          createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
-        }
-      ];
-      res.json(sampleSessions);
+      const sessions = await storage.getUserResearchSessions(req.user!.id);
+      res.json(sessions);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

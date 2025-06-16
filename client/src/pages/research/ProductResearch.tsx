@@ -258,7 +258,7 @@ export default function ProductResearch() {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="research">AI Research</TabsTrigger>
           <TabsTrigger value="search">Product Search</TabsTrigger>
-          <TabsTrigger value="results">Results ({Array.isArray(products) ? products.length : 0})</TabsTrigger>
+          <TabsTrigger value="results">Results ({researchResults?.products?.length || 0})</TabsTrigger>
           <TabsTrigger value="history">History ({Array.isArray(sessions) ? sessions.length : 0})</TabsTrigger>
         </TabsList>
 
