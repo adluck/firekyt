@@ -574,8 +574,18 @@ export default function AdvancedContentGenerator() {
                                 {(() => {
                                   try {
                                     const parsed = JSON.parse(generatedContent.generated_text || '{}');
-                                    return parsed.content || generatedContent.generated_text || '';
+                                    // If it's a JSON structure with content field, use that
+                                    if (parsed.content) {
+                                      return parsed.content;
+                                    }
+                                    // If it's a JSON structure with title and content, format it nicely
+                                    if (parsed.title && parsed.content) {
+                                      return `# ${parsed.title}\n\n${parsed.content}`;
+                                    }
+                                    // Otherwise fall back to the raw text
+                                    return generatedContent.generated_text || '';
                                   } catch {
+                                    // If JSON parsing fails, treat as markdown text
                                     return generatedContent.generated_text || '';
                                   }
                                 })()}
@@ -586,51 +596,119 @@ export default function AdvancedContentGenerator() {
                       </TabsContent>
 
                       <TabsContent value="seo" className="space-y-4">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">SEO Title</Label>
-                          <div className="p-3 bg-muted rounded-md">
-                            <p className="text-sm">{generatedContent.seo_title}</p>
-                          </div>
-                        </div>
+                        {(() => {
+                          try {
+                            const parsed = JSON.parse(generatedContent.generated_text || '{}');
+                            return (
+                              <>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium">SEO Title</Label>
+                                  <div className="p-3 bg-muted rounded-md">
+                                    <p className="text-sm">{parsed.seo_title || generatedContent.seo_title || 'Not available'}</p>
+                                  </div>
+                                </div>
 
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">SEO Description</Label>
-                          <div className="p-3 bg-muted rounded-md">
-                            <p className="text-sm">{generatedContent.seo_description}</p>
-                          </div>
-                        </div>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium">SEO Description</Label>
+                                  <div className="p-3 bg-muted rounded-md">
+                                    <p className="text-sm">{parsed.seo_description || generatedContent.seo_description || 'Not available'}</p>
+                                  </div>
+                                </div>
 
-                        {generatedContent.meta_tags && generatedContent.meta_tags.length > 0 && (
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">Meta Tags</Label>
-                            <div className="flex flex-wrap gap-2">
-                              {generatedContent.meta_tags.map((tag, index) => (
-                                <Badge key={index} variant="secondary">{tag}</Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                                {(parsed.meta_tags || generatedContent.meta_tags) && (
+                                  <div className="space-y-2">
+                                    <Label className="text-sm font-medium">Meta Tags</Label>
+                                    <div className="flex flex-wrap gap-2">
+                                      {(parsed.meta_tags || generatedContent.meta_tags || []).map((tag, index) => (
+                                        <Badge key={index} variant="secondary">{tag}</Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          } catch {
+                            return (
+                              <>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium">SEO Title</Label>
+                                  <div className="p-3 bg-muted rounded-md">
+                                    <p className="text-sm">{generatedContent.seo_title || 'Not available'}</p>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium">SEO Description</Label>
+                                  <div className="p-3 bg-muted rounded-md">
+                                    <p className="text-sm">{generatedContent.seo_description || 'Not available'}</p>
+                                  </div>
+                                </div>
+
+                                {generatedContent.meta_tags && generatedContent.meta_tags.length > 0 && (
+                                  <div className="space-y-2">
+                                    <Label className="text-sm font-medium">Meta Tags</Label>
+                                    <div className="flex flex-wrap gap-2">
+                                      {generatedContent.meta_tags.map((tag, index) => (
+                                        <Badge key={index} variant="secondary">{tag}</Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          }
+                        })()}
                       </TabsContent>
 
                       <TabsContent value="meta" className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <Label className="font-medium">Content ID</Label>
-                            <p className="text-muted-foreground">{generatedContent.content_id}</p>
-                          </div>
-                          <div>
-                            <Label className="font-medium">AI Model</Label>
-                            <p className="text-muted-foreground">{generatedContent.ai_model_used}</p>
-                          </div>
-                          <div>
-                            <Label className="font-medium">Generation Time</Label>
-                            <p className="text-muted-foreground">{generatedContent.generation_time_ms}ms</p>
-                          </div>
-                          <div>
-                            <Label className="font-medium">Reading Time</Label>
-                            <p className="text-muted-foreground">{generatedContent.estimated_reading_time} min</p>
-                          </div>
-                        </div>
+                        {(() => {
+                          try {
+                            const parsed = JSON.parse(generatedContent.generated_text || '{}');
+                            return (
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <Label className="font-medium">Content ID</Label>
+                                  <p className="text-muted-foreground">{generatedContent.content_id}</p>
+                                </div>
+                                <div>
+                                  <Label className="font-medium">AI Model</Label>
+                                  <p className="text-muted-foreground">{generatedContent.ai_model_used}</p>
+                                </div>
+                                <div>
+                                  <Label className="font-medium">Generation Time</Label>
+                                  <p className="text-muted-foreground">{generatedContent.generation_time_ms}ms</p>
+                                </div>
+                                <div>
+                                  <Label className="font-medium">Reading Time</Label>
+                                  <p className="text-muted-foreground">
+                                    {parsed.estimated_reading_time || generatedContent.estimated_reading_time || 'N/A'} min
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          } catch {
+                            return (
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <Label className="font-medium">Content ID</Label>
+                                  <p className="text-muted-foreground">{generatedContent.content_id}</p>
+                                </div>
+                                <div>
+                                  <Label className="font-medium">AI Model</Label>
+                                  <p className="text-muted-foreground">{generatedContent.ai_model_used}</p>
+                                </div>
+                                <div>
+                                  <Label className="font-medium">Generation Time</Label>
+                                  <p className="text-muted-foreground">{generatedContent.generation_time_ms}ms</p>
+                                </div>
+                                <div>
+                                  <Label className="font-medium">Reading Time</Label>
+                                  <p className="text-muted-foreground">{generatedContent.estimated_reading_time} min</p>
+                                </div>
+                              </div>
+                            );
+                          }
+                        })()}
                       </TabsContent>
                     </Tabs>
 
