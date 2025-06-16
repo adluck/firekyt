@@ -51,19 +51,32 @@ const authenticateToken = async (req: any, res: any, next: any) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
+  console.log('Auth Debug - Headers:', {
+    authorization: req.headers['authorization'],
+    hasToken: !!token,
+    tokenLength: token?.length
+  });
+
   if (!token) {
+    console.log('Auth Debug - No token provided');
     return res.status(401).json({ message: 'Access token required' });
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
+    console.log('Auth Debug - Token decoded:', { userId: decoded.userId });
+    
     const user = await storage.getUser(decoded.userId);
     if (!user) {
+      console.log('Auth Debug - User not found for ID:', decoded.userId);
       return res.status(401).json({ message: 'User not found' });
     }
+    
+    console.log('Auth Debug - User authenticated:', { userId: user.id, username: user.username });
     req.user = user;
     next();
-  } catch (err) {
+  } catch (err: any) {
+    console.log('Auth Debug - Token verification failed:', err.message);
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 };

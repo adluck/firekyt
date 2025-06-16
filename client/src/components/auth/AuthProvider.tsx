@@ -62,6 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Logout function
   const logout = async () => {
+    try {
+      await apiRequest("POST", "/api/auth/logout");
+    } catch (error) {
+      // Even if server logout fails, clear local state
+      console.warn("Server logout failed:", error);
+    }
     localStorage.removeItem("authToken");
     setIsAuthenticated(false);
     queryClient.clear();
