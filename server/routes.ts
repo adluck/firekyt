@@ -815,49 +815,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Niche parameter is required' });
       }
 
-      // Generate realistic product data based on niche
-      const generateProduct = (index: number, productType: string, basePrice: number) => {
-        const commissionRate = minCommissionParam + Math.random() * 7;
-        const trendingScore = minTrendingParam + Math.random() * 40;
-        const researchScore = 70 + Math.random() * 25;
-        const price = basePrice + (Math.random() * basePrice * 0.5);
-        const commissionAmount = (price * commissionRate) / 100;
-        const nicheString = nicheParam as string;
-        
-        return {
-          id: index,
-          title: `${productType} ${nicheString} ${2024 - Math.floor(Math.random() * 2)}`,
-          description: `High-quality ${nicheString} product featuring advanced technology and excellent user satisfaction. Perfect for both beginners and professionals looking for reliable ${nicheString} solutions.`,
-          category: categoryParam,
-          niche: nicheString,
-          price: price.toFixed(2),
-          commissionRate: commissionRate.toFixed(1),
-          commissionAmount: commissionAmount.toFixed(2),
-          trendingScore: trendingScore.toFixed(1),
-          researchScore: researchScore.toFixed(1),
-          apiSource: 'research_engine',
-          rating: (4.0 + Math.random() * 1.0).toFixed(1),
-          reviewCount: Math.floor(500 + Math.random() * 2000),
-          keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheString, productType.toLowerCase(), 'quality'],
-          createdAt: new Date().toISOString(),
-          affiliateUrl: `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-          productUrl: `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-          availability: Math.random() > 0.1 ? 'In Stock' : 'Limited Stock',
-          brand: productType === 'Premium' ? 'TechPro' : productType === 'Smart' ? 'InnovateTech' : 'ProSeries',
-          imageUrl: `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(productType)}`
-        };
-      };
+      const serpApiKey = process.env.SERP_API_KEY;
+      let realProducts: any[] = [];
 
-      const sampleProducts = [
-        generateProduct(1, 'Premium', 250),
-        generateProduct(2, 'Smart', 180),
-        generateProduct(3, 'Professional', 400),
-        generateProduct(4, 'Advanced', 320),
-        generateProduct(5, 'Ultimate', 500)
-      ];
+      // Try to fetch real product data from SerpAPI
+      if (serpApiKey) {
+        try {
+          const fetch = (await import('node-fetch')).default;
+          const searchQuery = `${nicheParam} products`;
+          const serpResponse = await fetch(`https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&num=20`);
+          const serpData: any = await serpResponse.json();
+
+          if (serpData.shopping_results && serpData.shopping_results.length > 0) {
+            realProducts = serpData.shopping_results.slice(0, maxResultsParam).map((product: any, index: number) => {
+              const basePrice = parseFloat(product.price?.replace(/[^0-9.]/g, '') || '100');
+              const commissionRate = minCommissionParam + Math.random() * 7;
+              const trendingScore = minTrendingParam + Math.random() * 40;
+              const researchScore = 70 + Math.random() * 25;
+              const commissionAmount = (basePrice * commissionRate) / 100;
+
+              return {
+                id: index + 1,
+                title: product.title || `${nicheParam} Product ${index + 1}`,
+                description: product.snippet || `High-quality ${nicheParam} product with excellent features and customer satisfaction.`,
+                category: categoryParam,
+                niche: nicheParam,
+                price: basePrice.toFixed(2),
+                commissionRate: commissionRate.toFixed(1),
+                commissionAmount: commissionAmount.toFixed(2),
+                trendingScore: trendingScore.toFixed(1),
+                researchScore: researchScore.toFixed(1),
+                apiSource: 'serpapi',
+                rating: product.rating || (4.0 + Math.random() * 1.0).toFixed(1),
+                reviewCount: product.reviews || Math.floor(100 + Math.random() * 1500),
+                keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, 'quality', 'best'],
+                createdAt: new Date().toISOString(),
+                affiliateUrl: product.link || `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+                productUrl: product.link || `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+                availability: 'In Stock',
+                brand: product.source || 'Various',
+                imageUrl: product.thumbnail || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`
+              };
+            });
+          }
+        } catch (error) {
+          console.log('SerpAPI fetch failed, using generated data:', error);
+        }
+      }
+
+      // If no real products found, generate sample data
+      if (realProducts.length === 0) {
+        const generateProduct = (index: number, productType: string, basePrice: number) => {
+          const commissionRate = minCommissionParam + Math.random() * 7;
+          const trendingScore = minTrendingParam + Math.random() * 40;
+          const researchScore = 70 + Math.random() * 25;
+          const price = basePrice + (Math.random() * basePrice * 0.5);
+          const commissionAmount = (price * commissionRate) / 100;
+          
+          return {
+            id: index,
+            title: `${productType} ${nicheParam} ${2024 - Math.floor(Math.random() * 2)}`,
+            description: `High-quality ${nicheParam} product featuring advanced technology and excellent user satisfaction. Perfect for both beginners and professionals looking for reliable ${nicheParam} solutions.`,
+            category: categoryParam,
+            niche: nicheParam,
+            price: price.toFixed(2),
+            commissionRate: commissionRate.toFixed(1),
+            commissionAmount: commissionAmount.toFixed(2),
+            trendingScore: trendingScore.toFixed(1),
+            researchScore: researchScore.toFixed(1),
+            apiSource: 'research_engine',
+            rating: (4.0 + Math.random() * 1.0).toFixed(1),
+            reviewCount: Math.floor(500 + Math.random() * 2000),
+            keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, productType.toLowerCase(), 'quality'],
+            createdAt: new Date().toISOString(),
+            affiliateUrl: `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+            productUrl: `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+            availability: Math.random() > 0.1 ? 'In Stock' : 'Limited Stock',
+            brand: productType === 'Premium' ? 'TechPro' : productType === 'Smart' ? 'InnovateTech' : 'ProSeries',
+            imageUrl: `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(productType)}`
+          };
+        };
+
+        realProducts = [
+          generateProduct(1, 'Premium', 250),
+          generateProduct(2, 'Smart', 180),
+          generateProduct(3, 'Professional', 400),
+          generateProduct(4, 'Advanced', 320),
+          generateProduct(5, 'Ultimate', 500)
+        ];
+      }
 
       // Filter products based on criteria
-      const filteredProducts = sampleProducts.filter(product => 
+      const filteredProducts = realProducts.filter(product => 
         parseFloat(product.commissionRate) >= minCommissionParam &&
         parseFloat(product.trendingScore) >= minTrendingParam
       ).slice(0, maxResultsParam);
@@ -868,12 +917,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         : '0';
 
       const sessionData = {
-        total_products_found: sampleProducts.length,
+        total_products_found: realProducts.length,
         products_returned: filteredProducts.length,
         average_score: averageScore,
-        api_calls_made: 3,
-        api_sources: ['research_engine', 'market_analysis'],
+        api_calls_made: serpApiKey ? 1 : 0,
+        api_sources: serpApiKey && realProducts.some(p => p.apiSource === 'serpapi') ? ['serpapi'] : ['research_engine'],
         research_duration_ms: 2500,
+        data_source: serpApiKey && realProducts.some(p => p.apiSource === 'serpapi') ? 'live_data' : 'sample_data',
         niche_insights: {
           marketDemand: 'High',
           competitionLevel: 'Medium',
@@ -885,7 +935,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         products: filteredProducts,
         session_data: sessionData,
-        total_found: sampleProducts.length,
+        total_found: realProducts.length,
         timestamp: new Date().toISOString()
       });
 
