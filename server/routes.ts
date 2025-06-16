@@ -510,8 +510,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updates = req.body;
 
       // Verify content belongs to user
-      const existingContent = await storage.getContent(userId);
-      const content = existingContent.find((c: any) => c.id === contentId);
+      const userContent = await storage.getContent(userId);
+      const content = userContent.find((c: any) => c.id === contentId);
       
       if (!content) {
         return res.status(404).json({ message: "Content not found" });
@@ -536,8 +536,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
 
       // Verify content belongs to user
-      const existingContent = await storage.getContent(userId);
-      const content = existingContent.find((c: any) => c.id === contentId);
+      const userContent = await storage.getUserContent(userId);
+      const content = userContent.find((c: any) => c.id === contentId);
       
       if (!content) {
         return res.status(404).json({ message: "Content not found" });

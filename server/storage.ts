@@ -617,9 +617,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Content management
-  async getContent(id: number): Promise<Content | undefined> {
-    const [contentItem] = await db.select().from(content).where(eq(content.id, id));
-    return contentItem;
+  async getContent(userId: number): Promise<Content[]> {
+    return await db.select().from(content).where(eq(content.userId, userId)).orderBy(desc(content.createdAt));
   }
 
   async getSiteContent(siteId: number): Promise<Content[]> {
@@ -654,8 +653,8 @@ export class DatabaseStorage implements IStorage {
     return contentItem;
   }
 
-  async deleteContent(id: number): Promise<void> {
-    await db.delete(content).where(eq(content.id, id));
+  async deleteContent(id: number, userId: number): Promise<void> {
+    await db.delete(content).where(and(eq(content.id, id), eq(content.userId, userId)));
   }
 
   // Analytics
