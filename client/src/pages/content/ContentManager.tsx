@@ -130,7 +130,7 @@ export default function ContentManager() {
     mutationFn: async (contentId: number) => {
       const response = await apiRequest("PUT", `/api/content/${contentId}`, {
         status: "published",
-        publishedAt: new Date().toISOString()
+        publishedAt: new Date()
       });
       if (!response.ok) {
         throw new Error("Failed to publish content");

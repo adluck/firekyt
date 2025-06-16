@@ -133,6 +133,7 @@ export default function AdvancedContentGenerator() {
   const [isPolling, setIsPolling] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<ContentGenerationResponse | null>(null);
   const [savedContent, setSavedContent] = useState<any>(null);
+  const [databaseContentId, setDatabaseContentId] = useState<number | null>(null);
   const [showEditor, setShowEditor] = useState(false);
 
   const { toast } = useToast();
@@ -151,6 +152,7 @@ export default function AdvancedContentGenerator() {
     },
     onSuccess: (data) => {
       setActiveContentId(data.generationId);
+      setDatabaseContentId(data.content.id); // Store the database content ID
       setIsPolling(true);
       setGenerationProgress(10);
       toast({
@@ -170,18 +172,32 @@ export default function AdvancedContentGenerator() {
   // Save content mutation
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
-      const payload = {
-        title: data.title,
-        content: data.content,
-        contentType: formData.content_type,
-        siteId: data.siteId || formData.siteId,
-        seoTitle: data.seoTitle,
-        seoDescription: data.seoDescription,
-        targetKeywords: [formData.keyword],
-        status: data.status || "draft"
-      };
-      const response = await apiRequest("POST", "/api/content", payload);
-      return response.json();
+      // If we have generated content, update the existing record instead of creating new one
+      if (generatedContent?.content_id && savedContent?.id) {
+        const payload = {
+          title: data.title,
+          content: data.content,
+          seoTitle: data.seoTitle,
+          seoDescription: data.seoDescription,
+          status: data.status || "draft"
+        };
+        const response = await apiRequest("PUT", `/api/content/${savedContent.id}`, payload);
+        return response.json();
+      } else {
+        // Create new content if no existing record
+        const payload = {
+          title: data.title,
+          content: data.content,
+          contentType: formData.content_type,
+          siteId: data.siteId || formData.siteId,
+          seoTitle: data.seoTitle,
+          seoDescription: data.seoDescription,
+          targetKeywords: [formData.keyword],
+          status: data.status || "draft"
+        };
+        const response = await apiRequest("POST", "/api/content", payload);
+        return response.json();
+      }
     },
     onSuccess: (data) => {
       setSavedContent(data);
