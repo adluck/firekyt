@@ -15,6 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { Site } from "@shared/schema";
 
 interface ContentGenerationRequest {
@@ -529,8 +531,34 @@ export default function AdvancedContentGenerator() {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="p-3 bg-muted rounded-md max-h-96 overflow-y-auto">
-                            <p className="text-sm whitespace-pre-wrap">{generatedContent.generated_text}</p>
+                          <div className="p-4 bg-muted rounded-md max-h-96 overflow-y-auto">
+                            <div className="prose prose-sm max-w-none dark:prose-invert">
+                              <ReactMarkdown 
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                  h1: ({children}) => <h1 className="text-xl font-bold mb-4">{children}</h1>,
+                                  h2: ({children}) => <h2 className="text-lg font-semibold mt-6 mb-3">{children}</h2>,
+                                  h3: ({children}) => <h3 className="text-md font-medium mt-4 mb-2">{children}</h3>,
+                                  p: ({children}) => <p className="mb-3 leading-relaxed">{children}</p>,
+                                  ul: ({children}) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
+                                  ol: ({children}) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
+                                  li: ({children}) => <li className="ml-2">{children}</li>,
+                                  strong: ({children}) => <strong className="font-semibold text-foreground">{children}</strong>,
+                                  a: ({children, href}) => <a href={href} className="text-primary underline hover:text-primary/80">{children}</a>,
+                                  code: ({children}) => <code className="bg-muted px-1 py-0.5 rounded text-sm">{children}</code>,
+                                  blockquote: ({children}) => <blockquote className="border-l-4 border-primary pl-4 italic my-4">{children}</blockquote>
+                                }}
+                              >
+                                {(() => {
+                                  try {
+                                    const parsed = JSON.parse(generatedContent.generated_text || '{}');
+                                    return parsed.content || generatedContent.generated_text || '';
+                                  } catch {
+                                    return generatedContent.generated_text || '';
+                                  }
+                                })()}
+                              </ReactMarkdown>
+                            </div>
                           </div>
                         </div>
                       </TabsContent>

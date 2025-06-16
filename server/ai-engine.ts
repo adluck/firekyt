@@ -208,6 +208,24 @@ ${request.additional_context}`;
 
   prompt += `
 
+FORMATTING REQUIREMENTS:
+- Use proper Markdown formatting for structure and readability
+- Start with an engaging introduction paragraph (2-3 sentences)
+- Use clear heading hierarchy (## for main sections, ### for subsections)
+- Include bullet points or numbered lists where appropriate
+- Add bold text for emphasis on key points
+- Create proper paragraph breaks for readability
+- Include a strong conclusion with call-to-action
+- Add affiliate links naturally within content using [Product Name](affiliate-link) format
+
+CONTENT STRUCTURE FOR BLOG POSTS:
+1. **Introduction** - Hook the reader and preview what they'll learn
+2. **Main Content Sections** - 3-5 well-organized sections with descriptive headings
+3. **Practical Examples** - Include real-world applications or case studies
+4. **Benefits/Features** - Highlight key advantages and value propositions
+5. **Comparison/Alternatives** - If relevant, compare different options
+6. **Conclusion** - Summarize key points and provide clear next steps
+
 TONE AND STYLE:
 Adopt the "${request.tone_of_voice}" voice throughout. This should influence:
 - Word choice and vocabulary level
@@ -219,15 +237,15 @@ Adopt the "${request.tone_of_voice}" voice throughout. This should influence:
 OUTPUT FORMAT:
 Please provide the content in the following JSON structure:
 {
-  "title": "Main content title",
-  "content": "Full content body",
-  "seo_title": "SEO-optimized title (if applicable)",
-  "seo_description": "Meta description (if applicable)",
-  "meta_tags": ["tag1", "tag2", "tag3"],
+  "title": "Engaging, benefit-focused title",
+  "content": "Well-formatted Markdown content with proper structure, headings, and formatting",
+  "seo_title": "SEO-optimized title (under 60 characters)",
+  "seo_description": "Compelling meta description (under 160 characters)",
+  "meta_tags": ["relevant", "keyword", "tags"],
   "estimated_reading_time": number_in_minutes
 }
 
-Generate high-quality, original content that provides genuine value to the target audience while naturally promoting affiliate opportunities.`;
+Generate high-quality, original content that provides genuine value to the target audience while naturally promoting affiliate opportunities through well-structured, professional formatting.`;
 
   return prompt;
 }
