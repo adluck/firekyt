@@ -667,6 +667,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SEO Analysis endpoint
+  app.post('/api/analyze-seo', authenticateToken, async (req, res) => {
+    try {
+      const { keyword, target_region = 'US', include_competitors = true, include_suggestions = true } = req.body;
+      const userId = req.user!.id;
+
+      if (!keyword) {
+        return res.status(400).json({ error: 'Keyword is required' });
+      }
+
+      // For now, return a simplified analysis without external APIs
+      const mockAnalysis = {
+        userId,
+        keyword: keyword,
+        targetRegion: target_region,
+        searchVolume: Math.floor(Math.random() * 10000) + 1000,
+        keywordDifficulty: Math.floor(Math.random() * 100),
+        competitionLevel: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)],
+        cpcEstimate: (Math.random() * 5 + 0.5).toFixed(2),
+        topCompetitors: [
+          'competitor1.com',
+          'competitor2.com',
+          'competitor3.com'
+        ],
+        suggestedTitles: [
+          `Best ${keyword} Guide 2025`,
+          `Complete ${keyword} Review`,
+          `Top ${keyword} Recommendations`
+        ],
+        suggestedDescriptions: [
+          `Discover the best ${keyword} options in 2025. Expert reviews and recommendations.`,
+          `Complete guide to ${keyword}. Find the perfect solution for your needs.`
+        ],
+        suggestedHeaders: [
+          `What is ${keyword}?`,
+          `Best ${keyword} Options`,
+          `How to Choose ${keyword}`
+        ],
+        relatedKeywords: [
+          `best ${keyword}`,
+          `${keyword} review`,
+          `${keyword} guide`,
+          `top ${keyword}`
+        ],
+        serpFeatures: ['People Also Ask', 'Featured Snippet', 'Related Searches'],
+        trendsData: {},
+        apiSource: 'mock_analysis',
+        analysisDate: new Date()
+      };
+
+      res.json({
+        success: true,
+        analysis: mockAnalysis,
+        cached: false,
+        message: 'SEO analysis completed successfully'
+      });
+
+    } catch (error: any) {
+      console.error('SEO analysis error:', error);
+      res.status(500).json({ 
+        error: 'SEO analysis failed',
+        details: error.message
+      });
+    }
+  });
+
+  // Get user's SEO analyses
+  app.get('/api/seo-analyses', authenticateToken, async (req, res) => {
+    try {
+      // Return empty array for now since we don't have storage implementation
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching SEO analyses:', error);
+      res.status(500).json({ error: 'Failed to fetch SEO analyses' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
