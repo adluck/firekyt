@@ -189,6 +189,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User profile management
+  app.put("/api/users/:id", authenticateToken, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Ensure user can only update their own profile
+      if (req.user!.id !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { firstName, lastName, email, username } = req.body;
+      
+      // Basic validation
+      if (!firstName || !lastName || !email || !username) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      const updatedUser = await storage.updateUser(userId, {
+        firstName,
+        lastName,
+        email,
+        username
+      });
+
+      const { password, ...userWithoutPassword } = updatedUser;
+      res.json({ user: userWithoutPassword });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Sites management
   app.get("/api/sites", authenticateToken, async (req, res) => {
     try {
