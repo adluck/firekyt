@@ -1,4 +1,4 @@
-import { Link as WouterLink, useLocation } from "wouter";
+import { Link as WouterLink, useLocation, useRouter } from "wouter";
 import { 
   LayoutDashboard, 
   Globe, 
@@ -74,9 +74,11 @@ export function Sidebar({ user, subscription }: SidebarProps) {
   const { logout } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const router = useRouter();
 
   const handleLogout = async () => {
     await logout();
+    router.push('/login');
   };
 
   const toggleMobile = () => {
