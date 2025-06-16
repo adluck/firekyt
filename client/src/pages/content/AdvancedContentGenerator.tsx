@@ -581,11 +581,14 @@ export default function AdvancedContentGenerator() {
                                       
                                       // If we successfully parsed JSON and have a content field
                                       if (parsed && typeof parsed === 'object' && parsed.content) {
-                                        // Combine title and content for better presentation
-                                        if (parsed.title) {
-                                          return `# ${parsed.title}\n\n${parsed.content}`;
+                                        // Check if content already starts with the title to avoid duplication
+                                        const content = parsed.content;
+                                        const title = parsed.title;
+                                        
+                                        if (title && content && !content.startsWith(`# ${title}`)) {
+                                          return `# ${title}\n\n${content}`;
                                         }
-                                        return parsed.content;
+                                        return content;
                                       }
                                     } catch (error) {
                                       // JSON parsing failed, fall through to show raw text
