@@ -9,6 +9,7 @@ import { emailService } from "./EmailService";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { storage } from "./storage";
 import { insertUserSchema, insertSiteSchema, insertContentSchema, SUBSCRIPTION_LIMITS, type User } from "@shared/schema";
+import { AIEngineService } from "./AIEngineService";
 import { 
   addToQueue, 
   getQueueStatus, 
@@ -346,6 +347,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(content);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Content generation endpoint
+  app.post("/api/content/generate", authenticateToken, async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        keyword: z.string().min(1, "Keyword is required"),
+        contentType: z.enum(['blog_post', 'product_comparison', 'review_article', 'video_script', 'social_post', 'email_campaign']),
+        toneOfVoice: z.string().min(1, "Tone of voice is required"),
+        targetAudience: z.string().min(1, "Target audience is required"),
+        additionalContext: z.string().optional(),
+        brandVoice: z.string().optional(),
+        seoFocus: z.boolean().optional().default(true),
+        wordCount: z.number().optional().default(800),
+        siteId: z.number().optional()
+      });
+
+      const validatedData = requestSchema.parse(req.body);
+      
+      // If siteId provided, verify ownership
+      if (validatedData.siteId) {
+        const site = await storage.getSite(validatedData.siteId);
+        if (!site || site.userId !== req.user!.id) {
+          return res.status(404).json({ message: "Site not found" });
+        }
+      }
+
+      // Create AI content request
+      const aiRequest = {
+        keyword: validatedData.keyword,
+        contentType: validatedData.contentType,
+        toneOfVoice: validatedData.toneOfVoice,
+        targetAudience: validatedData.targetAudience,
+        additionalContext: validatedData.additionalContext,
+        brandVoice: validatedData.brandVoice,
+        seoFocus: validatedData.seoFocus,
+        wordCount: validatedData.wordCount
+      };
+
+      // Generate content using AI service
+      const aiService = new AIEngineService();
+      const result = await aiService.generateContent(aiRequest);
+
+      // Create and save content to database
+      const content = await storage.createContent({
+        userId: req.user!.id,
+        siteId: validatedData.siteId || null,
+        title: `Generated Content - ${validatedData.keyword}`,
+        content: result.status === 'completed' ? 'Generated content will be available here' : 'Content generation in progress',
+        contentType: validatedData.contentType,
+        status: 'draft',
+        targetKeywords: [validatedData.keyword]
+      });
+
+      res.json({
+        success: true,
+        content: content,
+        generationId: result.contentId,
+        status: result.status
+      });
+    } catch (error: any) {
+      console.error('Content generation error:', error);
+      res.status(400).json({ message: error.message || "Content generation failed" });
     }
   });
 
