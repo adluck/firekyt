@@ -234,10 +234,12 @@ Generate high-quality, original content that provides genuine value to the targe
 
 export async function generateWithGemini(prompt: string): Promise<any> {
   try {
+    console.log('Attempting Gemini API call...');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
+    console.log('Gemini API call successful');
     
     // Try to parse as JSON, fallback to plain text
     try {
@@ -253,7 +255,8 @@ export async function generateWithGemini(prompt: string): Promise<any> {
       };
     }
   } catch (error) {
-    throw new Error(`Gemini generation failed: ${error}`);
+    console.error('Gemini API Error:', error);
+    throw new Error(`Gemini generation failed: ${error.message || error}`);
   }
 }
 
