@@ -63,14 +63,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout function
   const logout = async () => {
     try {
+      // Always clear local state first for immediate UI feedback
+      localStorage.removeItem("authToken");
+      setIsAuthenticated(false);
+      queryClient.clear();
+      
+      // Then notify server (doesn't require auth)
       await apiRequest("POST", "/api/auth/logout");
     } catch (error) {
-      // Even if server logout fails, clear local state
-      console.warn("Server logout failed:", error);
+      // Local state already cleared, so logout is still successful
+      console.warn("Server logout notification failed:", error);
     }
-    localStorage.removeItem("authToken");
-    setIsAuthenticated(false);
-    queryClient.clear();
   };
 
   const login = async (email: string, password: string) => {
