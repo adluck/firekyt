@@ -296,7 +296,7 @@ export default function AdvancedContentGenerator() {
             <Badge variant="secondary">Advanced Engine</Badge>
           </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Content Generation Form */}
         <Card>
           <CardHeader>
@@ -675,7 +675,7 @@ export default function AdvancedContentGenerator() {
             )}
           </CardContent>
         </Card>
-      </div>
+          </div>
 
       {savedContent && (
         <Card>
@@ -706,6 +706,9 @@ export default function AdvancedContentGenerator() {
             </div>
           </CardContent>
         </Card>
+      )}
+          </div>
+        </>
       )}
     </div>
   );
