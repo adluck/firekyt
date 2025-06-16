@@ -261,8 +261,12 @@ export async function generateWithGemini(prompt: string): Promise<any> {
     
     // Try to parse as JSON, fallback to plain text
     try {
-      return JSON.parse(text);
-    } catch {
+      console.log('Raw Gemini response:', text);
+      const parsed = JSON.parse(text);
+      console.log('Successfully parsed JSON:', parsed);
+      return parsed;
+    } catch (parseError) {
+      console.log('JSON parsing failed, creating fallback structure:', parseError);
       return {
         title: "Generated Content",
         content: text,
