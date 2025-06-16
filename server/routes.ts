@@ -850,8 +850,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 reviewCount: product.reviews || Math.floor(100 + Math.random() * 1500),
                 keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, 'quality', 'best'],
                 createdAt: new Date().toISOString(),
-                affiliateUrl: product.link || `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-                productUrl: product.link || `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+                affiliateUrl: product.link,
+                productUrl: product.link,
                 availability: 'In Stock',
                 brand: product.source || 'Various',
                 imageUrl: product.thumbnail || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`

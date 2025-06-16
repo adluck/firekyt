@@ -746,16 +746,16 @@ export default function ProductResearch() {
                   <Badge variant="outline">
                     {researchResults?.products?.length || 0} products
                   </Badge>
-                  {researchResults?.session_data?.data_source === 'live_data' && (
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-100">
-                      Live Data
-                    </Badge>
-                  )}
-                  {researchResults?.session_data?.data_source === 'sample_data' && (
-                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900 dark:text-amber-100">
-                      Sample Data
-                    </Badge>
-                  )}
+                  <Badge 
+                    variant="outline" 
+                    className={
+                      researchResults?.session_data?.data_source === 'live_data'
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-100"
+                        : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900 dark:text-amber-100"
+                    }
+                  >
+                    {researchResults?.session_data?.data_source === 'live_data' ? '🔴 Live Data' : '📝 Sample Data'}
+                  </Badge>
                 </div>
               </CardTitle>
             </CardHeader>
@@ -790,23 +790,34 @@ export default function ProductResearch() {
                               </Badge>
                             </div>
                           </div>
-                          <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded ml-4 flex items-center justify-center border border-blue-200 dark:border-blue-700">
+                          <div className="w-20 h-20 rounded ml-4 flex-shrink-0 overflow-hidden border border-blue-200 dark:border-blue-700">
                             {product.imageUrl ? (
                               <img 
                                 src={product.imageUrl} 
                                 alt={product.title}
-                                className="w-20 h-20 object-cover rounded"
+                                className="w-full h-full object-cover"
                                 onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                  if (fallback) fallback.style.display = 'flex';
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `
+                                      <div class="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 flex flex-col items-center justify-center text-blue-600 dark:text-blue-300">
+                                        <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                        </svg>
+                                        <span class="text-xs font-medium">Product</span>
+                                      </div>
+                                    `;
+                                  }
                                 }}
                               />
-                            ) : null}
-                            <div className="flex flex-col items-center justify-center text-blue-600 dark:text-blue-300">
-                              <Package className="w-6 h-6 mb-1" />
-                              <span className="text-xs font-medium">Product</span>
-                            </div>
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 flex flex-col items-center justify-center text-blue-600 dark:text-blue-300">
+                                <Package className="w-6 h-6 mb-1" />
+                                <span className="text-xs font-medium">Product</span>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -836,17 +847,29 @@ export default function ProductResearch() {
                             <div className="text-muted-foreground">Rating</div>
                           </div>
                           <div className="flex gap-2">
-                            {product.productUrl && (
+                            {(product.productUrl || product.affiliateUrl) && (
                               <Button size="sm" variant="outline" asChild>
-                                <a href={product.productUrl} target="_blank" rel="noopener noreferrer">
+                                <a 
+                                  href={product.productUrl || product.affiliateUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1"
+                                >
                                   <ExternalLink className="w-3 h-3" />
+                                  <span className="text-xs">View</span>
                                 </a>
                               </Button>
                             )}
-                            {product.affiliateUrl && (
+                            {product.affiliateUrl && product.productUrl !== product.affiliateUrl && (
                               <Button size="sm" asChild>
-                                <a href={product.affiliateUrl} target="_blank" rel="noopener noreferrer">
+                                <a 
+                                  href={product.affiliateUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1"
+                                >
                                   <DollarSign className="w-3 h-3" />
+                                  <span className="text-xs">Affiliate</span>
                                 </a>
                               </Button>
                             )}
