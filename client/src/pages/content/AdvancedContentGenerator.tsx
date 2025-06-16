@@ -146,7 +146,7 @@ export default function AdvancedContentGenerator() {
       return response.json();
     },
     onSuccess: (data) => {
-      setActiveContentId(data.content_id);
+      setActiveContentId(data.generationId);
       setIsPolling(true);
       setGenerationProgress(10);
       toast({
