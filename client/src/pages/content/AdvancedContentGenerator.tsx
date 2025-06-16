@@ -192,7 +192,7 @@ export default function AdvancedContentGenerator() {
 
     const pollInterval = setInterval(async () => {
       try {
-        const response = await apiRequest("GET", `/api/content/generate/${activeContentId}`);
+        const response = await apiRequest("GET", `/api/content/generation-status/${activeContentId}`);
         const result = await response.json();
 
         setGeneratedContent(result);
