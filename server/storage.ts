@@ -11,6 +11,13 @@ export interface IStorage {
   updateUser(id: number, updates: Partial<User>): Promise<User>;
   updateUserStripeInfo(id: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User>;
   updateUserSubscription(id: number, status: string, tier: string, periodStart?: Date, periodEnd?: Date): Promise<User>;
+  updateUserPassword(id: number, hashedPassword: string): Promise<User>;
+
+  // Password reset token management
+  createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken>;
+  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  markPasswordResetTokenAsUsed(token: string): Promise<void>;
+  deleteExpiredPasswordResetTokens(): Promise<void>;
 
   // Site management
   getSite(id: number): Promise<Site | undefined>;
@@ -160,6 +167,7 @@ export class MemStorage implements IStorage {
   private analytics: Map<number, Analytics>;
   private usage: Map<number, Usage>;
   private affiliatePrograms: Map<number, AffiliateProgram>;
+  private passwordResetTokens: Map<number, PasswordResetToken>;
   
   private currentUserId: number;
   private currentSiteId: number;
@@ -167,6 +175,7 @@ export class MemStorage implements IStorage {
   private currentAnalyticsId: number;
   private currentUsageId: number;
   private currentAffiliateProgramId: number;
+  private currentPasswordResetTokenId: number;
 
   constructor() {
     this.users = new Map();
@@ -175,6 +184,7 @@ export class MemStorage implements IStorage {
     this.analytics = new Map();
     this.usage = new Map();
     this.affiliatePrograms = new Map();
+    this.passwordResetTokens = new Map();
     
     this.currentUserId = 1;
     this.currentSiteId = 1;
@@ -182,6 +192,7 @@ export class MemStorage implements IStorage {
     this.currentAnalyticsId = 1;
     this.currentUsageId = 1;
     this.currentAffiliateProgramId = 1;
+    this.currentPasswordResetTokenId = 1;
   }
 
   // User management
@@ -244,6 +255,45 @@ export class MemStorage implements IStorage {
       currentPeriodStart: periodStart || null,
       currentPeriodEnd: periodEnd || null,
     });
+  }
+
+  async updateUserPassword(id: number, hashedPassword: string): Promise<User> {
+    return this.updateUser(id, { password: hashedPassword });
+  }
+
+  // Password reset token management
+  async createPasswordResetToken(insertToken: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const id = this.currentPasswordResetTokenId++;
+    const now = new Date();
+    const token: PasswordResetToken = { 
+      ...insertToken,
+      id, 
+      createdAt: now,
+      used: false
+    };
+    this.passwordResetTokens.set(id, token);
+    return token;
+  }
+
+  async getPasswordResetToken(tokenValue: string): Promise<PasswordResetToken | undefined> {
+    return Array.from(this.passwordResetTokens.values()).find(token => token.token === tokenValue);
+  }
+
+  async markPasswordResetTokenAsUsed(tokenValue: string): Promise<void> {
+    const token = await this.getPasswordResetToken(tokenValue);
+    if (token) {
+      const updatedToken = { ...token, used: true };
+      this.passwordResetTokens.set(token.id, updatedToken);
+    }
+  }
+
+  async deleteExpiredPasswordResetTokens(): Promise<void> {
+    const now = new Date();
+    for (const [id, token] of this.passwordResetTokens.entries()) {
+      if (token.expiresAt < now || token.used) {
+        this.passwordResetTokens.delete(id);
+      }
+    }
   }
 
   // Site management
@@ -493,6 +543,42 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async updateUserPassword(id: number, hashedPassword: string): Promise<User> {
+    const [user] = await db.update(users)
+      .set({ password: hashedPassword })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  // Password reset token management
+  async createPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const [token] = await db.insert(passwordResetTokens).values(tokenData).returning();
+    return token;
+  }
+
+  async getPasswordResetToken(tokenValue: string): Promise<PasswordResetToken | undefined> {
+    const [token] = await db.select().from(passwordResetTokens).where(eq(passwordResetTokens.token, tokenValue));
+    return token;
+  }
+
+  async markPasswordResetTokenAsUsed(tokenValue: string): Promise<void> {
+    await db.update(passwordResetTokens)
+      .set({ used: true })
+      .where(eq(passwordResetTokens.token, tokenValue));
+  }
+
+  async deleteExpiredPasswordResetTokens(): Promise<void> {
+    const now = new Date();
+    await db.delete(passwordResetTokens)
+      .where(
+        and(
+          lte(passwordResetTokens.expiresAt, now),
+          eq(passwordResetTokens.used, true)
+        )
+      );
   }
 
   // Site management
