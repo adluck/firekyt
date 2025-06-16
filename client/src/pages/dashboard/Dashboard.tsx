@@ -109,17 +109,17 @@ export default function Dashboard() {
       )}
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <DashboardCard
-          title="Total Sites"
+          title="Sites"
           value={overview.totalSites || 0}
-          description="Active affiliate sites"
+          description="Active sites"
           icon={Globe}
           trend={{ value: "+2 this month", positive: true }}
         />
         
         <DashboardCard
-          title="Content Pieces"
+          title="Content"
           value={overview.totalContent || 0}
           description="Published articles"
           icon={FileText}
@@ -127,7 +127,7 @@ export default function Dashboard() {
         />
         
         <DashboardCard
-          title="Total Revenue"
+          title="Revenue"
           value={`$${overview.totalRevenue || 0}`}
           description="Affiliate earnings"
           icon={DollarSign}
