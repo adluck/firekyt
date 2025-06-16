@@ -686,7 +686,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const serpParams = new URLSearchParams({
         engine: 'google',
         q: keyword,
-        google_domain: `google.${target_region.toLowerCase()}`,
+        google_domain: 'google.com',
         gl: target_region,
         hl: 'en',
         api_key: serpApiKey
