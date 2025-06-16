@@ -542,7 +542,7 @@ export default function AdvancedContentGenerator() {
                           </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 flex-1 flex flex-col">
                           <div className="flex items-center justify-between">
                             <Label className="text-sm font-medium">Generated Content</Label>
                             <Button
@@ -553,7 +553,7 @@ export default function AdvancedContentGenerator() {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="p-4 bg-muted rounded-md min-h-[600px] max-h-[800px] overflow-y-auto">
+                          <div className="p-4 bg-muted rounded-md flex-1 overflow-y-auto">
                             <div className="prose prose-sm max-w-none dark:prose-invert">
                               <ReactMarkdown 
                                 remarkPlugins={[remarkGfm]}
