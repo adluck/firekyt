@@ -840,10 +840,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           reviewCount: Math.floor(500 + Math.random() * 2000),
           keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheString, productType.toLowerCase(), 'quality'],
           createdAt: new Date().toISOString(),
-          affiliateUrl: `https://example-affiliate.com/${nicheString.replace(/\s+/g, '-')}-${index}`,
-          productUrl: `https://example-store.com/${nicheString.replace(/\s+/g, '-')}-${index}`,
+          affiliateUrl: `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+          productUrl: `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
           availability: Math.random() > 0.1 ? 'In Stock' : 'Limited Stock',
-          brand: productType === 'Premium' ? 'TechPro' : productType === 'Smart' ? 'InnovateTech' : 'ProSeries'
+          brand: productType === 'Premium' ? 'TechPro' : productType === 'Smart' ? 'InnovateTech' : 'ProSeries',
+          imageUrl: `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(productType)}`
         };
       };
 
