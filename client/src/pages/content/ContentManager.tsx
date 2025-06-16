@@ -200,6 +200,14 @@ export default function ContentManager() {
     deleteContentMutation.mutate(contentId);
   };
 
+  const handlePublish = (contentId: number) => {
+    publishContentMutation.mutate(contentId);
+  };
+
+  const handleUnpublish = (contentId: number) => {
+    unpublishContentMutation.mutate(contentId);
+  };
+
   const handleSaveEdit = (editedContent: any) => {
     if (editingContent) {
       updateContentMutation.mutate({
@@ -438,6 +446,28 @@ export default function ContentManager() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
+                    {content.status === "draft" ? (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => handlePublish(content.id)}
+                        disabled={publishContentMutation.isPending}
+                      >
+                        <Globe className="h-4 w-4 mr-1" />
+                        Publish
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleUnpublish(content.id)}
+                        disabled={unpublishContentMutation.isPending}
+                      >
+                        <Clock className="h-4 w-4 mr-1" />
+                        Unpublish
+                      </Button>
+                    )}
+
                     <Button
                       variant="ghost"
                       size="sm"
