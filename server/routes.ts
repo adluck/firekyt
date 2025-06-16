@@ -1034,6 +1034,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get products from specific research session
+  app.get('/api/research-sessions/:sessionId/products', authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const sessionId = parseInt(req.params.sessionId);
+      if (isNaN(sessionId)) {
+        return res.status(400).json({ error: 'Invalid session ID' });
+      }
+
+      // Get the research session and verify ownership
+      const session = await storage.getProductResearchSession(sessionId);
+      if (!session || session.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Research session not found' });
+      }
+
+      // Get products from this research session
+      const products = await storage.getProductsByResearchSession(sessionId);
+      
+      res.json({
+        products: products,
+        session_data: {
+          id: session.id,
+          niche: session.niche,
+          category: session.productCategory,
+          total_found: session.totalProductsFound,
+          products_stored: session.productsStored,
+          timestamp: session.createdAt,
+          data_source: 'historical_data'
+        }
+      });
+    } catch (error: any) {
+      console.error('Error fetching session products:', error);
+      res.status(500).json({ error: 'Failed to fetch session products' });
+    }
+  });
+
   // SerpAPI Product Search for Affiliate Marketing
   app.post("/api/search-affiliate-products", authenticateToken, async (req, res) => {
     try {

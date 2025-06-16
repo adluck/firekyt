@@ -225,6 +225,34 @@ export default function ProductResearch() {
     researchMutation.mutate(data);
   };
 
+  const loadSessionProducts = async (sessionId: number) => {
+    try {
+      const response = await apiRequest('GET', `/api/research-sessions/${sessionId}/products`);
+      const sessionData = await response.json();
+      
+      // Load products from this session into the results view
+      setResearchResults({
+        products: sessionData.products || [],
+        session_data: {
+          ...sessionData.session_data,
+          data_source: 'historical_data'
+        }
+      });
+      setActiveTab('results');
+      
+      toast({
+        title: "Historical Products Loaded",
+        description: `Loaded ${sessionData.products?.length || 0} products from research session`
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to Load Products",
+        description: "Could not retrieve products from this research session",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getScoreColor = (score: string | undefined) => {
     if (!score) return 'text-gray-500';
     const numScore = parseFloat(score);
@@ -767,7 +795,13 @@ export default function ProductResearch() {
                 </div>
               ) : (
                 <div className="grid gap-4">
-                  {researchResults.products.map((product: any, index: number) => (
+                  {researchResults.products
+                    .sort((a: any, b: any) => {
+                      const aEarning = parseFloat(a.commissionAmount || '0');
+                      const bEarning = parseFloat(b.commissionAmount || '0');
+                      return bEarning - aEarning; // Highest earning first
+                    })
+                    .map((product: any, index: number) => (
                     <Card key={product.id} className="border-l-4 border-l-blue-500">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start mb-3">
@@ -944,7 +978,7 @@ export default function ProductResearch() {
                             {new Date(session.createdAt).toLocaleDateString()}
                           </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div className="grid grid-cols-3 gap-4 text-sm mb-3">
                           <div>
                             <div className="font-medium">{session.totalProductsFound || 0}</div>
                             <div className="text-muted-foreground">Products Found</div>
@@ -958,6 +992,19 @@ export default function ProductResearch() {
                             <div className="text-muted-foreground">Avg Score</div>
                           </div>
                         </div>
+                        {session.status === 'completed' && (session.productsStored || 0) > 0 && (
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => loadSessionProducts(session.id)}
+                              className="text-xs"
+                            >
+                              <Package className="w-3 h-3 mr-1" />
+                              View Products
+                            </Button>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
