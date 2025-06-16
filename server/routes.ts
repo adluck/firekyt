@@ -834,6 +834,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const researchScore = 70 + Math.random() * 25;
               const commissionAmount = (basePrice * commissionRate) / 100;
 
+              // Generate unique affiliate URLs for each product
+              const affiliateId = Math.random().toString(36).substring(2, 12);
+              const affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}ref=aff_${affiliateId}`;
+
               return {
                 id: index + 1,
                 title: product.title || `${nicheParam} Product ${index + 1}`,
@@ -845,12 +849,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 commissionAmount: commissionAmount.toFixed(2),
                 trendingScore: trendingScore.toFixed(1),
                 researchScore: researchScore.toFixed(1),
-                apiSource: 'serpapi',
+                apiSource: 'serpapi_live',
                 rating: product.rating || (4.0 + Math.random() * 1.0).toFixed(1),
                 reviewCount: product.reviews || Math.floor(100 + Math.random() * 1500),
                 keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, 'quality', 'best'],
                 createdAt: new Date().toISOString(),
-                affiliateUrl: product.link,
+                affiliateUrl: affiliateUrl,
                 productUrl: product.link,
                 availability: 'In Stock',
                 brand: product.source || 'Various',
@@ -921,9 +925,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products_returned: filteredProducts.length,
         average_score: averageScore,
         api_calls_made: serpApiKey ? 1 : 0,
-        api_sources: serpApiKey && realProducts.some(p => p.apiSource === 'serpapi') ? ['serpapi'] : ['research_engine'],
+        api_sources: serpApiKey && realProducts.some(p => p.apiSource && p.apiSource.includes('serpapi')) ? ['serpapi'] : ['research_engine'],
         research_duration_ms: 2500,
-        data_source: serpApiKey && realProducts.length > 0 && realProducts.some(p => p.apiSource === 'serpapi') ? 'live_data' : 'sample_data',
+        data_source: serpApiKey && realProducts.length > 0 && realProducts.some(p => p.apiSource && p.apiSource.includes('serpapi')) ? 'live_data' : 'sample_data',
         niche_insights: {
           marketDemand: 'High',
           competitionLevel: 'Medium',
