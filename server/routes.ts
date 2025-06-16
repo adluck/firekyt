@@ -179,6 +179,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ user: userWithoutPassword });
   });
 
+  app.post("/api/auth/logout", authenticateToken, async (req, res) => {
+    // In a JWT-based system, logout is handled client-side by removing the token
+    // However, we can track logout events for security monitoring
+    try {
+      res.json({ message: "Logged out successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Sites management
   app.get("/api/sites", authenticateToken, async (req, res) => {
     try {
