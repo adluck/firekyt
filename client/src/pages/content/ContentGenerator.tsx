@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ContentEditor } from "@/components/content/ContentEditor";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Wand2, AlertCircle, CheckCircle, Clock, FileText } from "lucide-react";
+import { Wand2, AlertCircle, CheckCircle, Clock, FileText, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -254,7 +254,7 @@ export default function ContentGenerator() {
       {sites.length === 0 && (
         <Card className="text-center py-12">
           <CardContent>
-            <Wand2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No sites available</h3>
             <p className="text-muted-foreground mb-4">
               Create a site first to start generating content
