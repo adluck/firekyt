@@ -172,8 +172,8 @@ export default function AdvancedContentGenerator() {
   // Save content mutation
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
-      // If we have generated content, update the existing record instead of creating new one
-      if (generatedContent?.content_id && savedContent?.id) {
+      // If we have a database content ID from AI generation, update the existing record
+      if (databaseContentId) {
         const payload = {
           title: data.title,
           content: data.content,
@@ -181,7 +181,7 @@ export default function AdvancedContentGenerator() {
           seoDescription: data.seoDescription,
           status: data.status || "draft"
         };
-        const response = await apiRequest("PUT", `/api/content/${savedContent.id}`, payload);
+        const response = await apiRequest("PUT", `/api/content/${databaseContentId}`, payload);
         return response.json();
       } else {
         // Create new content if no existing record
@@ -264,6 +264,14 @@ export default function AdvancedContentGenerator() {
       });
       return;
     }
+
+    // Reset state for new generation
+    setGeneratedContent(null);
+    setSavedContent(null);
+    setDatabaseContentId(null);
+    setShowEditor(false);
+    setActiveContentId(null);
+
     generateMutation.mutate(formData);
   };
 
