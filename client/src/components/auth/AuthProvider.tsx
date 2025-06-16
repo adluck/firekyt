@@ -22,11 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
 
   // Get current user
-  const { data: user, isLoading } = useQuery({
+  const { data: authResponse, isLoading } = useQuery({
     queryKey: ["/api/auth/me"],
     enabled: isAuthenticated,
     retry: false,
   });
+
+  const user = authResponse?.user || null;
 
   // Login mutation
   const loginMutation = useMutation({
