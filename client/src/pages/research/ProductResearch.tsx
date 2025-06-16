@@ -90,11 +90,53 @@ interface ResearchSession {
   createdAt: string;
 }
 
+interface SerpProduct {
+  title: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  source: string;
+  link: string;
+  thumbnail: string;
+  delivery: string;
+  extensions: string[];
+}
+
+interface AffiliateOpportunity {
+  title: string;
+  link: string;
+  snippet: string;
+  position: number;
+}
+
+interface PriceAnalysis {
+  min: number;
+  max: number;
+  average: number;
+  count: number;
+}
+
+interface ProductSearchResult {
+  success: boolean;
+  query: string;
+  products: SerpProduct[];
+  affiliateOpportunities: AffiliateOpportunity[];
+  priceAnalysis: PriceAnalysis | null;
+  totalResults: number;
+  searchMetadata: {
+    timestamp: string;
+    engine: string;
+    location: string;
+  };
+}
+
 export default function ProductResearch() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('research');
   const [isResearching, setIsResearching] = useState(false);
   const [researchResults, setResearchResults] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentQuery, setCurrentQuery] = useState("");
 
   const form = useForm<ResearchFormData>({
     resolver: zodResolver(researchFormSchema),
@@ -121,6 +163,19 @@ export default function ProductResearch() {
   const { data: sessions = [], isLoading: sessionsLoading } = useQuery({
     queryKey: ['/api/research-sessions'],
     enabled: activeTab === 'history'
+  });
+
+  // SerpAPI Product Search
+  const { data: searchResults, isLoading: searchLoading, error: searchError } = useQuery<ProductSearchResult>({
+    queryKey: ['/api/search-affiliate-products', currentQuery],
+    queryFn: async () => {
+      const response = await apiRequest('POST', '/api/search-affiliate-products', { 
+        query: currentQuery,
+        category: 'general'
+      });
+      return response.json();
+    },
+    enabled: !!currentQuery,
   });
 
   // Research mutation
@@ -200,10 +255,11 @@ export default function ProductResearch() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="research">New Research</TabsTrigger>
-          <TabsTrigger value="results">Products ({products.length})</TabsTrigger>
-          <TabsTrigger value="history">History ({sessions.length})</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="research">AI Research</TabsTrigger>
+          <TabsTrigger value="search">Product Search</TabsTrigger>
+          <TabsTrigger value="results">Results ({Array.isArray(products) ? products.length : 0})</TabsTrigger>
+          <TabsTrigger value="history">History ({Array.isArray(sessions) ? sessions.length : 0})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="research" className="space-y-6">

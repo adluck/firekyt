@@ -816,16 +816,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Search for products using SerpAPI Google Shopping
-      const shoppingResponse = await fetch(`https://serpapi.com/search.json`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          q: query,
-          engine: "google_shopping",
-          api_key: serpApiKey,
-          num: 20,
-          location: "United States"
-        })
+      const shoppingParams = new URLSearchParams({
+        q: query,
+        engine: "google_shopping",
+        api_key: serpApiKey,
+        num: "20",
+        location: "United States"
+      });
+      
+      const shoppingResponse = await fetch(`https://serpapi.com/search.json?${shoppingParams}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       });
 
       if (!shoppingResponse.ok) {
