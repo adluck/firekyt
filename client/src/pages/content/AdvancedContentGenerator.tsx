@@ -324,9 +324,9 @@ export default function AdvancedContentGenerator() {
                             {type.icon === 'MessageSquare' && <MessageSquare className="h-4 w-4" />}
                             {type.icon === 'Mail' && <Mail className="h-4 w-4" />}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm text-foreground">{type.label}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{type.description}</div>
+                          <div className="flex-1 min-w-0 text-left">
+                            <div className="font-medium text-sm text-foreground text-left">{type.label}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5 leading-relaxed text-left">{type.description}</div>
                           </div>
                         </div>
                       </SelectItem>
