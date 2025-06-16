@@ -271,19 +271,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const sites = await storage.getUserSites(req.user!.id);
       const content = await storage.getUserContent(req.user!.id);
+      const user = req.user!;
+      
+      // Define subscription limits based on user tier
+      const getSubscriptionLimits = (tier: string) => {
+        switch (tier) {
+          case 'pro':
+          case 'admin':
+            return {
+              sites: -1, // unlimited
+              contentPerMonth: -1, // unlimited
+              apiCallsPerMonth: -1, // unlimited
+              features: ['site_creation', 'content_generation', 'ai_optimization', 'analytics', 'export']
+            };
+          case 'basic':
+            return {
+              sites: 10,
+              contentPerMonth: 100,
+              apiCallsPerMonth: 1000,
+              features: ['site_creation', 'content_generation', 'analytics']
+            };
+          default: // free
+            return {
+              sites: 2,
+              contentPerMonth: 10,
+              apiCallsPerMonth: 100,
+              features: ['site_creation', 'content_generation']
+            };
+        }
+      };
+      
+      const limits = getSubscriptionLimits(user.subscriptionTier || 'free');
       
       res.json({
         overview: {
           totalSites: sites.length,
           totalContent: content.length,
           publishedContent: content.filter(c => c.status === 'published').length,
-          draftContent: content.filter(c => c.status === 'draft').length
+          draftContent: content.filter(c => c.status === 'draft').length,
+          totalRevenue: 0,
+          totalViews: 0,
+          totalClicks: 0
         },
+        usage: {
+          sites: sites.length,
+          content_generation: content.length,
+          api_calls: 0
+        },
+        limits,
         recentContent: content.slice(0, 5),
         performance: {
-          totalViews: Math.floor(Math.random() * 10000),
-          totalClicks: Math.floor(Math.random() * 1000),
-          conversionRate: (Math.random() * 5).toFixed(2)
+          totalViews: 0,
+          totalClicks: 0,
+          conversionRate: 0
         }
       });
     } catch (error: any) {
