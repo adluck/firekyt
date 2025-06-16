@@ -384,6 +384,16 @@ export const linkSuggestions = pgTable("link_suggestions", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Password reset tokens
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -649,6 +659,14 @@ export type SiteMetrics = typeof siteMetrics.$inferSelect;
 export type InsertSiteMetrics = z.infer<typeof insertSiteMetricsSchema>;
 export type LinkSuggestion = typeof linkSuggestions.$inferSelect;
 export type InsertLinkSuggestion = z.infer<typeof insertLinkSuggestionSchema>;
+
+// Password reset token types
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTokens).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {

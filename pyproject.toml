@@ -12,6 +12,7 @@ dependencies = [
     "python-amazon-paapi>=5.0.1",
     "requests>=2.32.4",
     "selenium>=4.33.0",
+    "sendgrid>=6.12.4",
     "serpapi>=0.1.5",
     "trafilatura>=2.0.0",
 ]
