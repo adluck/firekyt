@@ -803,6 +803,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Product Research API endpoint for SerpAPI integration
   app.get('/api/research-products', authenticateToken, async (req, res) => {
+    let researchSession: any = null;
+    
     try {
       const nicheParam = req.query.niche as string;
       const categoryParam = req.query.product_category as string || 'electronics';
@@ -817,7 +819,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create research session if user is authenticated
-      let researchSession: any = null;
       if (req.user && saveToDatabase) {
         try {
           researchSession = await storage.createProductResearchSession({

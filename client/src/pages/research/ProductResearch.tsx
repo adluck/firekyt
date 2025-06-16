@@ -193,7 +193,7 @@ export default function ProductResearch() {
         save_to_database: data.saveToDatabase.toString()
       });
 
-      const response = await apiRequest('GET', `/api/public/research-products?${params}`);
+      const response = await apiRequest('GET', `/api/research-products?${params}`);
       return await response.json();
     },
     onSuccess: (data) => {
