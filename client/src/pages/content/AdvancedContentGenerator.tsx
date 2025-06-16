@@ -296,9 +296,9 @@ export default function AdvancedContentGenerator() {
             <Badge variant="secondary">Advanced Engine</Badge>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-[calc(100vh-200px)]">
             {/* Content Generation Form */}
-            <Card>
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Wand2 className="h-5 w-5" />
@@ -484,14 +484,14 @@ export default function AdvancedContentGenerator() {
         </Card>
 
         {/* Generation Status & Results */}
-        <Card>
+        <Card className="lg:col-span-3 flex flex-col">
           <CardHeader>
             <CardTitle>Generation Status</CardTitle>
             <CardDescription>
               Real-time status of your content generation request
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 flex-1 flex flex-col">
             {isPolling && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -517,15 +517,15 @@ export default function AdvancedContentGenerator() {
                 </div>
 
                 {generatedContent.status === 'completed' && generatedContent.generated_text && (
-                  <div className="space-y-4">
-                    <Tabs defaultValue="content" className="w-full">
+                  <div className="space-y-4 flex-1 flex flex-col">
+                    <Tabs defaultValue="content" className="w-full flex-1 flex flex-col">
                       <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="content">Content</TabsTrigger>
                         <TabsTrigger value="seo">SEO Data</TabsTrigger>
                         <TabsTrigger value="meta">Metadata</TabsTrigger>
                       </TabsList>
                       
-                      <TabsContent value="content" className="space-y-4">
+                      <TabsContent value="content" className="space-y-4 flex-1 flex flex-col">
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <Label className="text-sm font-medium">Generated Title</Label>
@@ -553,7 +553,7 @@ export default function AdvancedContentGenerator() {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="p-4 bg-muted rounded-md max-h-96 overflow-y-auto">
+                          <div className="p-4 bg-muted rounded-md min-h-[600px] max-h-[800px] overflow-y-auto">
                             <div className="prose prose-sm max-w-none dark:prose-invert">
                               <ReactMarkdown 
                                 remarkPlugins={[remarkGfm]}
