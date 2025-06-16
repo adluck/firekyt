@@ -265,12 +265,21 @@ export async function generateWithGemini(prompt: string): Promise<any> {
       
       // Remove markdown code block wrapper if present
       let cleanText = text.trim();
-      if (cleanText.startsWith('```json') && cleanText.endsWith('```')) {
-        cleanText = cleanText.substring(7, cleanText.length - 3).trim();
-      } else if (cleanText.startsWith('```') && cleanText.endsWith('```')) {
-        cleanText = cleanText.substring(3, cleanText.length - 3).trim();
+      
+      // Handle ```json ... ``` blocks with potential content after
+      if (cleanText.startsWith('```json')) {
+        const endIndex = cleanText.indexOf('```', 7);
+        if (endIndex !== -1) {
+          cleanText = cleanText.substring(7, endIndex).trim();
+        }
+      } else if (cleanText.startsWith('```')) {
+        const endIndex = cleanText.indexOf('```', 3);
+        if (endIndex !== -1) {
+          cleanText = cleanText.substring(3, endIndex).trim();
+        }
       }
       
+      console.log('Cleaned text for parsing:', cleanText);
       const parsed = JSON.parse(cleanText);
       console.log('Successfully parsed JSON:', parsed);
       return parsed;
