@@ -384,7 +384,8 @@ export async function generateContent(
           content: generatedContent.content,
           seoTitle: generatedContent.seo_title,
           seoDescription: generatedContent.seo_description,
-          status: 'published'
+          // Keep status as draft - let user decide when to publish
+          status: 'draft'
         });
       } catch (dbError) {
         console.error('Failed to update database content:', dbError);
