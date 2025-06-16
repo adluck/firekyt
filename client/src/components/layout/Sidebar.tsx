@@ -20,6 +20,7 @@ import {
   Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
@@ -199,12 +200,14 @@ export function Sidebar({ user, subscription }: SidebarProps) {
 
           {/* User info & controls */}
           <div className="p-4 border-t border-sidebar-border space-y-4">
-            {/* Subscription tier */}
+            {/* User info with subscription badge */}
             {user && (
               <div className="text-xs text-sidebar-foreground/70">
-                <div className="font-medium">{user.firstName || user.username}</div>
-                <div className="capitalize">
-                  {user.subscriptionTier} Plan
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium">{user.firstName || user.username}</span>
+                  <Badge variant="secondary" className="text-xs px-2 py-0.5 capitalize">
+                    {user.subscriptionTier} Plan
+                  </Badge>
                 </div>
               </div>
             )}
