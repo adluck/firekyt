@@ -536,7 +536,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
 
       // Verify content belongs to user
-      const userContent = await storage.getUserContent(userId);
+      const userContent = await storage.getContent(userId);
       const content = userContent.find((c: any) => c.id === contentId);
       
       if (!content) {
