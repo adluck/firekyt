@@ -373,3 +373,5 @@ export function ContentEditor({ generatedContent, onSave, onClose, isLoading = f
     </div>
   );
 }
+
+export default ContentEditor;
