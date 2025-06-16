@@ -350,6 +350,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check content generation status
+  app.get("/api/content/generation-status/:generationId", authenticateToken, async (req, res) => {
+    try {
+      const { generationId } = req.params;
+      const { getQueueStatus } = await import("./ai-engine");
+      
+      const status = getQueueStatus(generationId);
+      if (!status) {
+        return res.status(404).json({ message: "Generation not found" });
+      }
+      
+      res.json(status);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Content generation endpoint
   app.post("/api/content/generate", authenticateToken, async (req, res) => {
     try {
