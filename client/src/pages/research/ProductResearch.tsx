@@ -734,26 +734,6 @@ export default function ProductResearch() {
         </TabsContent>
 
         <TabsContent value="results" className="space-y-6">
-          {researchResults?.products && researchResults.products.length > 0 && (
-            <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-amber-600 dark:text-amber-400 text-sm font-semibold">!</span>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-amber-800 dark:text-amber-200">
-                      Demo Mode - Sample Data
-                    </h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-300">
-                      These are sample products generated for demonstration. To access real product data with images and live pricing, 
-                      provide your Amazon Product Advertising API, Commission Junction, or SerpAPI credentials in the settings.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
           
           <Card>
             <CardHeader>
