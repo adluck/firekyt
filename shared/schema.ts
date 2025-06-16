@@ -405,12 +405,14 @@ export const insertUserSchema = createInsertSchema(users).omit({
 
 export const insertSiteSchema = createInsertSchema(sites).omit({
   id: true,
+  userId: true,
   createdAt: true,
   updatedAt: true,
 });
 
 export const insertContentSchema = createInsertSchema(content).omit({
   id: true,
+  userId: true,
   createdAt: true,
   updatedAt: true,
 });
