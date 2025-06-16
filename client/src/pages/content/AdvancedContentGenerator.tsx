@@ -574,30 +574,26 @@ export default function AdvancedContentGenerator() {
                                 {(() => {
                                   const rawText = generatedContent.generated_text || '';
                                   
-                                  try {
-                                    // Try to parse as JSON first
-                                    const parsed = JSON.parse(rawText);
-                                    console.log('Parsed JSON:', parsed);
-                                    
-                                    // Check if it's a structured JSON with content
-                                    if (parsed && typeof parsed === 'object' && parsed.content) {
-                                      console.log('Found content field:', parsed.content);
-                                      // If we have both title and content, format nicely
-                                      if (parsed.title) {
-                                        return `# ${parsed.title}\n\n${parsed.content}`;
+                                  // First check if the raw text looks like JSON (starts with { and ends with })
+                                  if (rawText.trim().startsWith('{') && rawText.trim().endsWith('}')) {
+                                    try {
+                                      const parsed = JSON.parse(rawText);
+                                      
+                                      // If we successfully parsed JSON and have a content field
+                                      if (parsed && typeof parsed === 'object' && parsed.content) {
+                                        // Combine title and content for better presentation
+                                        if (parsed.title) {
+                                          return `# ${parsed.title}\n\n${parsed.content}`;
+                                        }
+                                        return parsed.content;
                                       }
-                                      // Otherwise just return the content
-                                      return parsed.content;
+                                    } catch (error) {
+                                      // JSON parsing failed, fall through to show raw text
                                     }
-                                    
-                                    console.log('No content field found, showing raw text');
-                                    // If no content field, treat the whole thing as raw text
-                                    return rawText;
-                                  } catch (error) {
-                                    console.log('JSON parsing failed:', error);
-                                    // If JSON parsing fails, treat as markdown text
-                                    return rawText;
                                   }
+                                  
+                                  // If not JSON or parsing failed, show as-is (might be plain markdown)
+                                  return rawText;
                                 })()}
                               </ReactMarkdown>
                             </div>
