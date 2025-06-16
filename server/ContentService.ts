@@ -116,7 +116,7 @@ export class ContentService {
       updateData.publishedAt = new Date();
     }
 
-    return await storage.updateContent(contentId, updateData);
+    return await storage.updateContent(contentId, userId, updateData);
   }
 
   async deleteContent(contentId: number, userId: number): Promise<void> {

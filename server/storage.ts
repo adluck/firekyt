@@ -31,7 +31,7 @@ export interface IStorage {
   getSiteContent(siteId: number): Promise<Content[]>;
   getUserContent(userId: number): Promise<Content[]>;
   createContent(content: InsertContent): Promise<Content>;
-  updateContent(id: number, updates: Partial<Content>): Promise<Content>;
+  updateContent(id: number, userId: number, updates: Partial<Content>): Promise<Content>;
   deleteContent(id: number): Promise<void>;
 
   // Analytics
@@ -624,8 +624,22 @@ export class DatabaseStorage implements IStorage {
     return contentItem;
   }
 
-  async updateContent(id: number, updates: Partial<Content>): Promise<Content> {
-    const [contentItem] = await db.update(content).set(updates).where(eq(content.id, id)).returning();
+  async updateContent(id: number, userId: number, updates: Partial<Content>): Promise<Content> {
+    // Filter out undefined values to prevent "No values to set" error
+    const cleanUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([_, value]) => value !== undefined)
+    );
+    
+    if (Object.keys(cleanUpdates).length === 0) {
+      // Return existing content if no valid updates
+      const [existing] = await db.select().from(content).where(and(eq(content.id, id), eq(content.userId, userId)));
+      return existing;
+    }
+    
+    const [contentItem] = await db.update(content)
+      .set(cleanUpdates)
+      .where(and(eq(content.id, id), eq(content.userId, userId)))
+      .returning();
     return contentItem;
   }
 
