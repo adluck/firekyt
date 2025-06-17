@@ -371,35 +371,37 @@ class AmazonProductResearcher:
         
         return True
 
-class SerpApiResearcher:
-    """SerpAPI integration for search trends and competition analysis"""
+class AIProductResearcher:
+    """AI-powered product research and competition analysis"""
     
     def __init__(self):
-        self.api_key = os.getenv('SERPAPI_API_KEY')
-        if not self.api_key:
-            logger.warning("SerpAPI key not configured")
+        self.ai_engine = None
+        try:
+            from .AIEngineService import AIEngineService
+            self.ai_engine = AIEngineService()
+        except ImportError:
+            logger.warning("AI Engine not available")
     
     async def enrich_product_data(self, products: List[ProductData]) -> List[ProductData]:
-        """Enrich products with search volume and competition data"""
-        if not self.api_key:
+        """Enrich products with AI-powered search volume and competition data"""
+        if not self.ai_engine:
             return products
         
         enriched_products = []
         
         for product in products:
             try:
-                # Get search volume for main keywords
-                search_data = await self._get_search_volume(product.title)
+                # Use AI to estimate search volume and competition
+                search_data = await self._estimate_search_metrics(product.title)
                 if search_data:
                     product.search_volume = search_data.get('search_volume', 0)
                     product.difficulty = search_data.get('difficulty', 50)
                 
-                # Update competition score based on search results
-                competition_data = await self._analyze_competition(product.keywords[:3])
+                # AI-powered competition analysis
+                competition_data = await self._analyze_ai_competition(product.keywords[:3])
                 if competition_data:
-                    # Adjust competition score based on SERP analysis
                     product.competition_score = min(
-                        product.competition_score + competition_data.get('serp_competition', 0),
+                        product.competition_score + competition_data.get('ai_competition', 0),
                         100
                     )
                 
