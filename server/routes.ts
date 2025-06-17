@@ -1252,22 +1252,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Search for products using Lobstr.io API
-      const searchParams = {
-        query: query,
-        limit: 20,
+      const searchParams = new URLSearchParams({
+        q: query,
+        limit: '20',
         country: 'US',
         language: 'en'
-      };
+      });
       
-      console.log('Making Lobstr.io request:', searchParams);
+      console.log('Making Lobstr.io request:', `https://api.lobstr.io/search?${searchParams}`);
       
-      const response = await fetch('https://api.lobstr.io/v1/search/products', {
-        method: 'POST',
+      const response = await fetch(`https://api.lobstr.io/search?${searchParams}`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${lobstrApiKey}`
-        },
-        body: JSON.stringify(searchParams)
+          'X-API-Key': lobstrApiKey,
+          'Accept': 'application/json',
+          'User-Agent': 'FireKyt-Affiliate-Platform'
+        }
       });
 
       console.log('Lobstr.io response status:', response.status);
