@@ -42,7 +42,7 @@ export default function Login() {
             <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
               <Zap className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold">AffiliateAI</span>
+            <span className="text-2xl font-bold">FireKyt</span>
           </div>
           <CardTitle>Welcome back</CardTitle>
           <p className="text-muted-foreground">

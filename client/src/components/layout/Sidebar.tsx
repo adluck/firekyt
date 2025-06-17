@@ -129,7 +129,7 @@ export function Sidebar({ user, subscription }: SidebarProps) {
             <div className="logo-icon gradient-bg">
               <Zap className="h-5 w-5 text-white" />
             </div>
-            <span className="brand-name">AffiliateAI</span>
+            <span className="brand-name">FireKyt</span>
           </div>
 
           {/* Navigation */}
