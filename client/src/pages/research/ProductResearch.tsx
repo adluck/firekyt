@@ -777,7 +777,13 @@ export default function ProductResearch() {
                                       variant="outline" 
                                       size="sm" 
                                       className="w-full"
-                                      onClick={() => window.open(product.link, '_blank')}
+                                      onClick={() => {
+                                        const url = product.productUrl || product.link || product.affiliateUrl;
+                                        if (url) {
+                                          window.open(url, '_blank');
+                                        }
+                                      }}
+                                      disabled={!product.productUrl && !product.link && !product.affiliateUrl}
                                     >
                                       <ExternalLink className="w-3 h-3 mr-1" />
                                       View Product
@@ -982,29 +988,36 @@ export default function ProductResearch() {
 
                         <div className="flex flex-wrap gap-2">
                           {product.affiliateUrl && (
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
-                              <a 
-                                href={product.affiliateUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1"
-                              >
-                                <DollarSign className="w-3 h-3" />
-                                <span className="text-xs font-medium">Earn ${product.commissionAmount}</span>
-                              </a>
+                            <Button 
+                              size="sm" 
+                              className="bg-green-600 hover:bg-green-700"
+                              onClick={() => {
+                                if (product.affiliateUrl) {
+                                  const fullUrl = product.affiliateUrl.startsWith('http') ? product.affiliateUrl : `https://${product.affiliateUrl}`;
+                                  window.open(fullUrl, '_blank', 'noopener,noreferrer');
+                                }
+                              }}
+                            >
+                              <DollarSign className="w-3 h-3 mr-1" />
+                              <span className="text-xs font-medium">Earn ${product.commissionAmount}</span>
                             </Button>
                           )}
                           {(product.productUrl || product.affiliateUrl) && (
-                            <Button size="sm" variant="outline" asChild>
-                              <a 
-                                href={product.productUrl || product.affiliateUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1"
-                              >
-                                <ExternalLink className="w-3 h-3" />
-                                <span className="text-xs">View Product</span>
-                              </a>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                const url = product.productUrl || product.affiliateUrl;
+                                if (url) {
+                                  // Ensure URL has protocol
+                                  const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+                                  window.open(fullUrl, '_blank', 'noopener,noreferrer');
+                                }
+                              }}
+                              className="flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              <span className="text-xs">View Product</span>
                             </Button>
                           )}
                         </div>
