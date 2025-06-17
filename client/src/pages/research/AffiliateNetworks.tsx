@@ -89,7 +89,7 @@ export default function AffiliateNetworks() {
 
     generateLinkMutation.mutate({
       productUrl,
-      networkName: selectedNetwork || undefined,
+      networkName: selectedNetwork && selectedNetwork !== "auto" ? selectedNetwork : undefined,
       customAffiliateId: customAffiliateId || undefined,
       subId: subId || undefined,
     });
@@ -188,9 +188,9 @@ export default function AffiliateNetworks() {
                   <SelectValue placeholder="Auto-detect from URL" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Auto-detect</SelectItem>
+                  <SelectItem value="auto">Auto-detect</SelectItem>
                   {networks.map((network) => (
-                    <SelectItem key={network.name} value={network.name.toLowerCase().replace(/\s+/g, '')}>
+                    <SelectItem key={network.name} value={network.name.toLowerCase().replace(/\s+/g, '').replace(/&/g, '')}>
                       {network.name}
                     </SelectItem>
                   ))}
