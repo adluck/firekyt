@@ -18,6 +18,7 @@ import {
   type ContentGenerationResponse 
 } from "./ai-engine";
 import { performanceMonitor } from "./performance/PerformanceMonitor";
+import { affiliateManager } from "./affiliateNetworks";
 import { cacheManager } from "./performance/CacheManager";
 import { 
   rateLimiter, 
@@ -852,13 +853,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (serpData.shopping_results && serpData.shopping_results.length > 0) {
             realProducts = serpData.shopping_results.slice(0, maxResultsParam).map((product: any, index: number) => {
               const basePrice = parseFloat(product.price?.replace(/[^0-9.]/g, '') || '100');
-              const commissionRate = minCommissionParam + Math.random() * 7;
               const trendingScore = minTrendingParam + Math.random() * 40;
               const researchScore = 70 + Math.random() * 25;
-              const commissionAmount = (basePrice * commissionRate) / 100;
 
-              // Generate unique affiliate URLs for each product
-              const affiliateId = Math.random().toString(36).substring(2, 12);
+              // Extract product URL from SerpAPI response
               let productLink = `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
               
               // Try multiple fields for product URL from SerpAPI response
@@ -870,7 +868,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 productLink = product.url;
               }
               
-              const affiliateUrl = `${productLink}${productLink.includes('?') ? '&' : '?'}ref=aff_${affiliateId}`;
+              // Generate proper affiliate link using affiliate network manager
+              const affiliateLink = affiliateManager.generateAffiliateLink(
+                productLink,
+                undefined, // Auto-detect network
+                undefined, // Use default affiliate ID
+                `firekyt_${Date.now()}_${index}` // Custom sub ID for tracking
+              );
+              
+              // Use detected commission rate and calculate earnings
+              const actualCommissionRate = affiliateLink.commissionRate;
+              const commissionAmount = (basePrice * actualCommissionRate) / 100;
 
               return {
                 id: index + 1,
@@ -879,7 +887,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 category: categoryParam,
                 niche: nicheParam,
                 price: basePrice.toFixed(2),
-                commissionRate: commissionRate.toFixed(1),
+                commissionRate: actualCommissionRate.toFixed(1),
                 commissionAmount: commissionAmount.toFixed(2),
                 trendingScore: trendingScore.toFixed(1),
                 researchScore: researchScore.toFixed(1),
@@ -888,11 +896,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 reviewCount: product.reviews || Math.floor(100 + Math.random() * 1500),
                 keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, 'quality', 'best'],
                 createdAt: new Date().toISOString(),
-                affiliateUrl: affiliateUrl,
+                affiliateUrl: affiliateLink.affiliateUrl,
                 productUrl: productLink,
                 availability: 'In Stock',
-                brand: product.source || 'Various',
-                imageUrl: product.thumbnail || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`
+                brand: product.source || affiliateLink.networkName || 'Various',
+                imageUrl: product.thumbnail || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`,
+                affiliateNetwork: affiliateLink.networkName,
+                trackingId: affiliateLink.trackingId
               };
             });
           }
@@ -904,11 +914,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If no real products found, generate sample data
       if (realProducts.length === 0) {
         const generateProduct = (index: number, productType: string, basePrice: number) => {
-          const commissionRate = minCommissionParam + Math.random() * 7;
           const trendingScore = minTrendingParam + Math.random() * 40;
           const researchScore = 70 + Math.random() * 25;
           const price = basePrice + (Math.random() * basePrice * 0.5);
-          const commissionAmount = (price * commissionRate) / 100;
+          
+          // Generate sample Amazon URL and create affiliate link
+          const productUrl = `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+          const affiliateLink = affiliateManager.generateAffiliateLink(
+            productUrl,
+            'amazon', // Force Amazon for sample data
+            undefined,
+            `sample_${Date.now()}_${index}`
+          );
+          
+          const commissionAmount = (price * affiliateLink.commissionRate) / 100;
           
           return {
             id: index,
@@ -917,7 +936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             category: categoryParam,
             niche: nicheParam,
             price: price.toFixed(2),
-            commissionRate: commissionRate.toFixed(1),
+            commissionRate: affiliateLink.commissionRate.toFixed(1),
             commissionAmount: commissionAmount.toFixed(2),
             trendingScore: trendingScore.toFixed(1),
             researchScore: researchScore.toFixed(1),
@@ -926,11 +945,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             reviewCount: Math.floor(500 + Math.random() * 2000),
             keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, productType.toLowerCase(), 'quality'],
             createdAt: new Date().toISOString(),
-            affiliateUrl: `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
-            productUrl: `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+            affiliateUrl: affiliateLink.affiliateUrl,
+            productUrl: productUrl,
             availability: Math.random() > 0.1 ? 'In Stock' : 'Limited Stock',
             brand: productType === 'Premium' ? 'TechPro' : productType === 'Smart' ? 'InnovateTech' : 'ProSeries',
-            imageUrl: `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(productType)}`
+            imageUrl: `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(productType)}`,
+            affiliateNetwork: affiliateLink.networkName,
+            trackingId: affiliateLink.trackingId
           };
         };
 
