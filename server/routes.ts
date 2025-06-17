@@ -701,11 +701,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Extract real competitors from organic results
       const topCompetitors = serpData.organic_results
-        ? serpData.organic_results.slice(0, 10).map((result: any) => ({
-            domain: new URL(result.link).hostname,
+        ? serpData.organic_results.slice(0, 10).map((result: any, index: number) => ({
+            rank: result.position || (index + 1),
             title: result.title,
-            url: result.link,
-            position: result.position
+            link: result.link,
+            snippet: result.snippet || '',
+            domain: new URL(result.link).hostname
           }))
         : [];
 
@@ -753,8 +754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         keywordDifficulty: keywordDifficulty,
         competitionLevel: keywordDifficulty < 30 ? 'low' : keywordDifficulty < 60 ? 'medium' : 'high',
         cpcEstimate: (Math.random() * 3 + 0.8).toFixed(2),
-        topCompetitors: topCompetitors.slice(0, 3).map((comp: any) => comp.domain),
-        competitorDetails: topCompetitors,
+        topCompetitors: topCompetitors,
         suggestedTitles: suggestedTitles,
         suggestedDescriptions: suggestedDescriptions,
         suggestedHeaders: [
@@ -774,9 +774,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         analysisDate: new Date()
       };
 
+      // Save analysis to database
+      const savedAnalysis = await storage.createSeoAnalysis(analysis);
+
       res.json({
         success: true,
-        analysis: analysis,
+        analysis: savedAnalysis,
         cached: false,
         message: 'SEO analysis completed successfully'
       });
