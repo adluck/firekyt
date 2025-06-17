@@ -314,10 +314,21 @@ export default function AdvancedContentGenerator() {
         />
       ) : (
         <>
-          <div className="flex items-center space-x-2 flex-shrink-0">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-bold">AI Content Generator</h1>
-            <Badge variant="secondary">Advanced Engine</Badge>
+          <div className="flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="h-6 w-6 text-primary" />
+              <h1 className="text-3xl font-bold">AI Content Generator</h1>
+              <Badge variant="secondary">Advanced Engine</Badge>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setShowEditor(true)}
+              className="flex items-center gap-2"
+              disabled={!generatedContent}
+            >
+              <Edit3 className="h-4 w-4" />
+              Content Editor
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 flex-1 min-h-0">
