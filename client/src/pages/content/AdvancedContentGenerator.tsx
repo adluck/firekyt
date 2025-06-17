@@ -304,7 +304,7 @@ export default function AdvancedContentGenerator() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="h-screen flex flex-col p-4 space-y-4">
       {showEditor && generatedContent ? (
         <ContentEditor
           generatedContent={generatedContent}
@@ -314,13 +314,13 @@ export default function AdvancedContentGenerator() {
         />
       ) : (
         <>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             <Sparkles className="h-6 w-6 text-primary" />
             <h1 className="text-3xl font-bold">AI Content Generator</h1>
             <Badge variant="secondary">Advanced Engine</Badge>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[calc(100vh-180px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 flex-1 min-h-0">
             {/* Content Generation Form */}
             <Card className="lg:col-span-2 flex flex-col h-full">
               <CardHeader>
@@ -332,8 +332,8 @@ export default function AdvancedContentGenerator() {
                   Configure your AI-powered content generation with advanced parameters
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto">
-                <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
+              <CardContent className="flex-1 overflow-y-auto p-6">
+                <form onSubmit={handleSubmit} className="space-y-4 h-full flex flex-col">
                   {/* Primary Keyword */}
                   <div className="space-y-2">
                     <Label htmlFor="keyword" className="flex items-center space-x-1">
@@ -577,7 +577,7 @@ export default function AdvancedContentGenerator() {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="p-4 bg-muted rounded-md flex-1 overflow-y-auto min-h-[400px] max-h-[600px]">
+                          <div className="p-4 bg-muted rounded-md flex-1 overflow-y-auto min-h-[500px]">
                             <div className="prose prose-sm max-w-none dark:prose-invert">
                               <ReactMarkdown 
                                 remarkPlugins={[remarkGfm]}
