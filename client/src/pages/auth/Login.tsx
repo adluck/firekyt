@@ -8,7 +8,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Zap, AlertCircle } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "@/components/layout/ThemeProvider";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -42,7 +41,7 @@ export default function Login() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
+              src="/src/assets/firekyt-logo-universal.png"
               alt="FireKyt" 
               className="h-12 w-auto"
             />
