@@ -45,7 +45,7 @@ const researchFormSchema = z.object({
   targetKeywords: z.string().optional(),
   minPrice: z.number().min(0).default(0),
   maxPrice: z.number().min(0).default(10000),
-  saveToDatabase: z.boolean().default(true)
+  saveToDatabase: z.boolean().default(false)
 });
 
 type ResearchFormData = z.infer<typeof researchFormSchema>;
