@@ -1285,14 +1285,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let affiliateUrl = product.link;
         
         // Basic affiliate link generation for major retailers
-        if (product.source?.toLowerCase().includes('amazon')) {
-          affiliateUrl = `https://www.amazon.com/dp/${product.link.split('/dp/')[1]?.split('/')[0]}?tag=firekyt-20`;
-        } else if (product.source?.toLowerCase().includes('walmart')) {
-          affiliateUrl = `${product.link}?wmlspartner=firekyt`;
-        } else if (product.source?.toLowerCase().includes('target')) {
-          affiliateUrl = `${product.link}?ref=firekyt`;
-        } else if (product.source?.toLowerCase().includes('bestbuy')) {
-          affiliateUrl = `${product.link}?irclickid=firekyt`;
+        if (product.source?.toLowerCase().includes('amazon') && product.link) {
+          const dpMatch = product.link.match(/\/dp\/([A-Z0-9]{10})/);
+          if (dpMatch) {
+            affiliateUrl = `https://www.amazon.com/dp/${dpMatch[1]}?tag=firekyt-20`;
+          } else {
+            affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}tag=firekyt-20`;
+          }
+        } else if (product.source?.toLowerCase().includes('walmart') && product.link) {
+          affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}wmlspartner=firekyt`;
+        } else if (product.source?.toLowerCase().includes('target') && product.link) {
+          affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}ref=firekyt`;
+        } else if (product.source?.toLowerCase().includes('bestbuy') && product.link) {
+          affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}irclickid=firekyt`;
         }
         
         return {
