@@ -489,32 +489,47 @@ export function ComparisonTableBuilder({
                   <CardTitle>Available Products</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {products
-                      .filter(product => !selectedProducts.includes(product.id))
-                      .map(product => (
-                        <div
-                          key={product.id}
-                          className="flex items-center justify-between p-2 border rounded hover:bg-gray-50"
-                        >
-                          <div className="flex items-center gap-2">
-                            {product.imageUrl && (
-                              <img src={product.imageUrl} alt="" className="w-8 h-8 object-cover rounded" />
-                            )}
-                            <div>
-                              <div className="font-medium text-sm">{product.title}</div>
-                              <div className="text-xs text-muted-foreground">${product.price}</div>
-                            </div>
-                          </div>
-                          <Button
-                            size="sm"
-                            onClick={() => addProductRow(product.id)}
+                  {products.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground mb-4">No products available</p>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        You need to research and add products first before creating comparison tables.
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => window.location.href = '/research'}
+                      >
+                        Go to Product Research
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {products
+                        .filter(product => !selectedProducts.includes(product.id))
+                        .map(product => (
+                          <div
+                            key={product.id}
+                            className="flex items-center justify-between p-2 border rounded hover:bg-gray-50"
                           >
-                            Add
-                          </Button>
-                        </div>
-                      ))}
-                  </div>
+                            <div className="flex items-center gap-2">
+                              {product.imageUrl && (
+                                <img src={product.imageUrl} alt="" className="w-8 h-8 object-cover rounded" />
+                              )}
+                              <div>
+                                <div className="font-medium text-sm">{product.title}</div>
+                                <div className="text-xs text-muted-foreground">${product.price}</div>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={() => addProductRow(product.id)}
+                            >
+                              Add
+                            </Button>
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
