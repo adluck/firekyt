@@ -973,8 +973,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (researchSession && req.user && saveToDatabase) {
         try {
           // Save products to database with research session ID
+          const userId = req.user.id;
           const productsToSave = filteredProducts.map(product => ({
-            userId: req.user.id,
+            userId: userId,
             title: product.title,
             description: product.description,
             category: product.category,
