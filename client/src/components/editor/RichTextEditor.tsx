@@ -83,18 +83,8 @@ export function RichTextEditor({
     ],
     content,
     editable,
-    onCreate: ({ editor }) => {
-      console.log('Editor created:', editor);
-    },
     onUpdate: ({ editor }) => {
-      console.log('Editor updated:', editor.getHTML());
       onChange?.(editor.getHTML());
-    },
-    onFocus: ({ editor }) => {
-      console.log('Editor focused');
-    },
-    onBlur: ({ editor }) => {
-      console.log('Editor blurred');
     },
   });
 
@@ -132,16 +122,8 @@ export function RichTextEditor({
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        console.log('Toolbar button clicked:', title, 'Editor:', !!editor);
         if (editor && onClick) {
-          try {
-            onClick();
-            console.log('Command executed successfully');
-          } catch (error) {
-            console.error('Command failed:', error);
-          }
-        } else {
-          console.error('Editor not available or onClick missing');
+          onClick();
         }
       }}
       disabled={disabled || !editor}
@@ -153,7 +135,7 @@ export function RichTextEditor({
   );
 
   return (
-    <div className={cn('border rounded-lg overflow-hidden', className)}>
+    <div className={cn('overflow-hidden', className)}>
       {editable && (
         <div className="border-b bg-muted/50 p-2">
           <div className="flex flex-wrap items-center gap-1">

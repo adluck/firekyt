@@ -330,27 +330,7 @@ export default function AdvancedContentGenerator() {
                 <Edit3 className="h-4 w-4" />
                 Content Editor
               </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setShowEditor(true);
-                  setGeneratedContent({
-                    content_id: "test-123",
-                    status: "completed",
-                    generated_text: "# Test Content\n\nThis is a **test** content with *italic* text.\n\n## Subheading\n\n- List item 1\n- List item 2\n\n### Features\n\n1. Bold formatting\n2. Italic formatting\n3. Headers\n4. Lists",
-                    title: "Test Article",
-                    seo_title: "Test SEO Title",
-                    seo_description: "This is a test SEO description",
-                    meta_tags: ["test", "content", "editor"],
-                    ai_model_used: "gemini-pro",
-                    generation_time_ms: 1500
-                  });
-                }}
-                className="flex items-center gap-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                Test Editor
-              </Button>
+
             </div>
           </div>
 
