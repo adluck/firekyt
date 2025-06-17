@@ -126,11 +126,12 @@ export function Sidebar({ user, subscription }: SidebarProps) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="logo-section">
-            <img 
-              src="/src/assets/firekyt-logo-universal.png"
-              alt="FireKyt" 
-              className="h-8 w-auto"
-            />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center">
+                <Zap className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-xl font-bold">FireKyt</span>
+            </div>
           </div>
 
           {/* Navigation */}

@@ -61,12 +61,11 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            <img 
-              src="/src/assets/firekyt-logo-universal.png"
-              alt="FireKyt" 
-              className="h-12 w-auto"
-            />
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold">FireKyt</span>
           </div>
           <CardTitle>Create your account</CardTitle>
           <p className="text-muted-foreground">
