@@ -653,7 +653,7 @@ export default function ProductResearch() {
                 Real-Time Product Search
               </CardTitle>
               <CardDescription>
-                Search for affiliate products using live market data from Google Shopping
+                Search for affiliate products using live market data from Lobstr.io
               </CardDescription>
             </CardHeader>
             <CardContent>

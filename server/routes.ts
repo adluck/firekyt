@@ -1246,96 +1246,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Search query is required' });
       }
 
-      // Try using SERP API with the existing key as fallback for authentic data
-      const serpApiKey = process.env.SERP_API_KEY;
-      if (!serpApiKey) {
-        return res.status(500).json({ error: 'Product search API key not configured' });
+      // Use Lobstr.io API for product search
+      const lobstrApiKey = process.env.LOBSTR_API_KEY;
+      if (!lobstrApiKey) {
+        return res.status(500).json({ error: 'Lobstr API key not configured' });
       }
 
-      // Search for products using Google Shopping API
-      const shoppingParams = new URLSearchParams({
-        q: query,
-        engine: "google_shopping",
-        api_key: serpApiKey,
-        num: "20",
-        location: "United States"
+      // Search for products using Lobstr.io API
+      const searchParams = new URLSearchParams({
+        query: query,
+        limit: '20',
+        country: 'US',
+        format: 'json'
       });
       
-      console.log('Making product search request:', `https://serpapi.com/search.json?${shoppingParams}`);
+      console.log('Making Lobstr.io request:', `https://api.lobstr.io/v1/products/search?${searchParams}`);
       
-      const shoppingResponse = await fetch(`https://serpapi.com/search.json?${shoppingParams}`, {
+      const shoppingResponse = await fetch(`https://api.lobstr.io/v1/products/search?${searchParams}`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Authorization': `Bearer ${lobstrApiKey}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'FireKyt-Affiliate-Platform/1.0'
+        }
       });
 
-      console.log('Product search response status:', shoppingResponse.status);
+      console.log('Lobstr.io response status:', shoppingResponse.status);
 
       if (!shoppingResponse.ok) {
         const errorText = await shoppingResponse.text();
-        console.log('Product search error response:', errorText);
-        throw new Error(`Product search error: ${shoppingResponse.status} - ${errorText}`);
+        console.log('Lobstr.io error response:', errorText);
+        throw new Error(`Lobstr.io error: ${shoppingResponse.status} - ${errorText}`);
       }
 
       const responseData = await shoppingResponse.json();
-      console.log('Product search response data received:', !!responseData.shopping_results);
+      console.log('Lobstr.io response data received:', !!responseData.products);
 
       // Process and structure the results with affiliate link generation
-      const products = responseData.shopping_results?.map((product: any) => {
+      const products = responseData.products?.map((product: any) => {
         // Generate affiliate link based on the source
-        let affiliateUrl = product.link;
+        const productUrl = product.url || product.link || product.product_url;
+        let affiliateUrl = productUrl;
+        const productSource = product.store || product.source || product.merchant || product.retailer;
         
         // Basic affiliate link generation for major retailers
-        if (product.source?.toLowerCase().includes('amazon') && product.link) {
-          const dpMatch = product.link.match(/\/dp\/([A-Z0-9]{10})/);
+        if (productSource?.toLowerCase().includes('amazon') && productUrl) {
+          const dpMatch = productUrl.match(/\/dp\/([A-Z0-9]{10})/);
           if (dpMatch) {
             affiliateUrl = `https://www.amazon.com/dp/${dpMatch[1]}?tag=firekyt-20`;
           } else {
-            affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}tag=firekyt-20`;
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}tag=firekyt-20`;
           }
-        } else if (product.source?.toLowerCase().includes('walmart') && product.link) {
-          affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}wmlspartner=firekyt`;
-        } else if (product.source?.toLowerCase().includes('target') && product.link) {
-          affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}ref=firekyt`;
-        } else if (product.source?.toLowerCase().includes('bestbuy') && product.link) {
-          affiliateUrl = `${product.link}${product.link.includes('?') ? '&' : '?'}irclickid=firekyt`;
+        } else if (productSource?.toLowerCase().includes('walmart') && productUrl) {
+          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}wmlspartner=firekyt`;
+        } else if (productSource?.toLowerCase().includes('target') && productUrl) {
+          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}ref=firekyt`;
+        } else if (productSource?.toLowerCase().includes('bestbuy') && productUrl) {
+          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}irclickid=firekyt`;
         }
         
         return {
-          title: product.title,
-          price: product.extracted_price || product.price,
-          rating: product.rating,
-          reviews: product.reviews,
-          source: product.source,
-          link: product.link,
+          title: product.title || product.name,
+          price: product.price?.value || product.price || product.current_price,
+          rating: product.rating?.average || product.rating || product.stars,
+          reviews: product.rating?.count || product.reviews || product.review_count,
+          source: productSource,
+          link: productUrl,
           affiliateUrl: affiliateUrl,
-          thumbnail: product.thumbnail,
-          delivery: product.delivery,
-          extensions: product.extensions || []
+          thumbnail: product.image?.url || product.thumbnail || product.image || product.photo,
+          delivery: product.shipping?.text || product.delivery || product.shipping,
+          extensions: product.features || product.attributes || product.specifications || []
         };
       }) || [];
 
-      // Generate affiliate opportunities based on organic search
-      const organicParams = new URLSearchParams({
-        q: `${query} affiliate program review`,
-        engine: "google",
-        api_key: serpApiKey,
-        num: "5",
-        location: "United States"
-      });
-      
-      const organicResponse = await fetch(`https://serpapi.com/search.json?${organicParams}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const organicData = organicResponse.ok ? await organicResponse.json() : { organic_results: [] };
-
-      const affiliateOpportunities = organicData.organic_results?.map((result: any) => ({
-        title: result.title,
-        link: result.link,
-        snippet: result.snippet,
-        position: result.position
-      })) || [];
+      // Generate affiliate opportunities based on product sources
+      const affiliateOpportunities = products.slice(0, 5).map((product: any, index: number) => ({
+        title: `${product.source} Affiliate Program`,
+        link: product.affiliateUrl,
+        snippet: `Earn commissions promoting ${product.title} from ${product.source}`,
+        position: index + 1
+      }));
 
       // Extract price ranges and average prices for analysis
       const prices = products
@@ -1355,10 +1345,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products,
         affiliateOpportunities,
         priceAnalysis,
-        totalResults: responseData.search_information?.total_results || products.length,
+        totalResults: responseData.total_results || responseData.count || products.length,
         searchMetadata: {
           timestamp: new Date().toISOString(),
-          engine: 'google_shopping',
+          engine: 'lobstr_api',
           location: 'United States'
         }
       });
