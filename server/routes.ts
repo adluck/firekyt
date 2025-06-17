@@ -1237,7 +1237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // SerpAPI Product Search for Affiliate Marketing
+  // Lobstr.io Product Search for Affiliate Marketing
   app.post("/api/search-affiliate-products", authenticateToken, async (req, res) => {
     try {
       const { query, category } = req.body;
@@ -1246,82 +1246,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Search query is required' });
       }
 
-      const serpApiKey = process.env.SERP_API_KEY;
-      if (!serpApiKey) {
-        return res.status(500).json({ error: 'SERP API key not configured' });
+      const lobstrApiKey = process.env.LOBSTR_API_KEY;
+      if (!lobstrApiKey) {
+        return res.status(500).json({ error: 'Lobstr API key not configured' });
       }
 
-      // Search for products using SerpAPI Google Shopping
-      const shoppingParams = new URLSearchParams({
-        q: query,
-        engine: "google_shopping",
-        api_key: serpApiKey,
-        num: "20",
-        location: "United States"
-      });
+      // Search for products using Lobstr.io API
+      const searchParams = {
+        query: query,
+        limit: 20,
+        country: 'US',
+        language: 'en'
+      };
       
-      console.log('Making SerpAPI request:', `https://serpapi.com/search.json?${shoppingParams}`);
+      console.log('Making Lobstr.io request:', searchParams);
       
-      const shoppingResponse = await fetch(`https://serpapi.com/search.json?${shoppingParams}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await fetch('https://api.lobstr.io/v1/search/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${lobstrApiKey}`
+        },
+        body: JSON.stringify(searchParams)
       });
 
-      console.log('SerpAPI response status:', shoppingResponse.status);
-      console.log('SerpAPI response headers:', Object.fromEntries(shoppingResponse.headers.entries()));
+      console.log('Lobstr.io response status:', response.status);
 
-      if (!shoppingResponse.ok) {
-        const errorText = await shoppingResponse.text();
-        console.log('SerpAPI error response:', errorText);
-        throw new Error(`SerpAPI error: ${shoppingResponse.status} - ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Lobstr.io error response:', errorText);
+        throw new Error(`Lobstr.io error: ${response.status} - ${errorText}`);
       }
 
-      const responseText = await shoppingResponse.text();
-      console.log('SerpAPI raw response:', responseText.substring(0, 500));
-      
-      let shoppingData;
-      try {
-        shoppingData = JSON.parse(responseText);
-      } catch (jsonError) {
-        console.error('JSON parsing failed:', jsonError);
-        throw new Error(`Invalid JSON response from SerpAPI: ${responseText.substring(0, 200)}`);
-      }
-      
-      // Also search for affiliate programs and reviews
-      const organicParams = new URLSearchParams({
-        q: `${query} affiliate program review best`,
-        engine: "google",
-        api_key: serpApiKey,
-        num: "10",
-        location: "United States"
-      });
-      
-      const organicResponse = await fetch(`https://serpapi.com/search.json?${organicParams}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const responseData = await response.json();
+      console.log('Lobstr.io response data:', responseData);
 
-      const organicData = organicResponse.ok ? await organicResponse.json() : { organic_results: [] };
+      // Process and structure the results from Lobstr.io
+      const products = responseData.products?.map((product: any) => ({
+        title: product.name || product.title,
+        price: product.price?.value || product.price,
+        rating: product.rating?.average || product.rating,
+        reviews: product.rating?.count || product.reviews || product.review_count,
+        source: product.store?.name || product.source || product.merchant,
+        link: product.url || product.link || product.product_url,
+        thumbnail: product.image?.url || product.thumbnail || product.image,
+        delivery: product.shipping?.text || product.delivery,
+        extensions: product.features || product.attributes || []
+      })) || [];
 
-      // Process and structure the results
-      const products = shoppingData.shopping_results?.map((product: any) => ({
-        title: product.title,
-        price: product.extracted_price || product.price,
-        rating: product.rating,
-        reviews: product.reviews,
-        source: product.source,
+      // Generate affiliate opportunities based on product sources
+      const affiliateOpportunities = products.slice(0, 5).map((product: any, index: number) => ({
+        title: `${product.source} Affiliate Program`,
         link: product.link,
-        thumbnail: product.thumbnail,
-        delivery: product.delivery,
-        extensions: product.extensions
-      })) || [];
-
-      const affiliateOpportunities = organicData.organic_results?.map((result: any) => ({
-        title: result.title,
-        link: result.link,
-        snippet: result.snippet,
-        position: result.position
-      })) || [];
+        snippet: `Earn commissions promoting ${product.title} from ${product.source}`,
+        position: index + 1
+      }));
 
       // Extract price ranges and average prices for analysis
       const prices = products
@@ -1341,10 +1320,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products,
         affiliateOpportunities,
         priceAnalysis,
-        totalResults: shoppingData.search_information?.total_results || 0,
+        totalResults: responseData.total_results || products.length,
         searchMetadata: {
           timestamp: new Date().toISOString(),
-          engine: 'serpapi_shopping',
+          engine: 'lobstr_api',
           location: 'United States'
         }
       });
