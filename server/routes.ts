@@ -1062,11 +1062,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
+      const price = parseFloat(req.body.price || '0');
+      const commissionRate = 3.0; // Default 3% commission for saved products
+      const commissionAmount = price * (commissionRate / 100);
+      
       const productData = {
         userId: req.user.id,
         title: req.body.title,
         description: req.body.description || req.body.title,
-        price: req.body.price?.toString() || '0',
+        price: price.toString(),
         productUrl: req.body.productUrl,
         imageUrl: req.body.imageUrl,
         rating: req.body.rating?.toString() || '0',
@@ -1074,7 +1078,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         apiSource: req.body.apiSource || 'manual',
         brand: req.body.brand,
         category: req.body.category || 'general',
-        niche: req.body.niche || 'general'
+        niche: req.body.niche || 'general',
+        commissionRate: commissionRate.toString(),
+        commissionAmount: commissionAmount.toFixed(2),
+        researchScore: '75.0' // Default research score for manually saved products
       };
 
       const savedProduct = await storage.createProduct(productData);
