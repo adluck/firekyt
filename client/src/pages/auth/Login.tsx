@@ -42,7 +42,7 @@ export default function Login() {
             <img 
               src="/src/assets/firekyt-logo-universal.png"
               alt="FireKyt" 
-              className="h-12 w-auto"
+              className="h-16 w-auto"
             />
           </div>
           <CardTitle>Welcome back</CardTitle>
