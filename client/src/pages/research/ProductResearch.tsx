@@ -225,6 +225,39 @@ export default function ProductResearch() {
     researchMutation.mutate(data);
   };
 
+  // Individual product save mutation
+  const saveProductMutation = useMutation({
+    mutationFn: async (product: any) => {
+      const response = await apiRequest('POST', '/api/products', {
+        title: product.title,
+        description: product.title, // Use title as description for now
+        price: parseFloat(product.price) || 0,
+        productUrl: product.link,
+        imageUrl: product.thumbnail,
+        rating: product.rating || 0,
+        reviewCount: product.reviews || 0,
+        apiSource: 'serpapi_shopping',
+        source: product.source,
+        brand: product.source, // Use source as brand placeholder
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Product Saved",
+        description: "Product has been added to your library",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Save Failed",
+        description: error.message || "Failed to save product",
+        variant: "destructive"
+      });
+    }
+  });
+
   const loadSessionProducts = async (sessionId: number) => {
     try {
       const response = await apiRequest('GET', `/api/research-sessions/${sessionId}/products`);
@@ -693,7 +726,7 @@ export default function ProductResearch() {
                                       {product.delivery}
                                     </div>
                                   )}
-                                  <div className="mt-auto pt-2">
+                                  <div className="mt-auto pt-2 space-y-2">
                                     <Button 
                                       variant="outline" 
                                       size="sm" 
@@ -702,6 +735,24 @@ export default function ProductResearch() {
                                     >
                                       <ExternalLink className="w-3 h-3 mr-1" />
                                       View Product
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      className="w-full"
+                                      onClick={() => saveProductMutation.mutate(product)}
+                                      disabled={saveProductMutation.isPending}
+                                    >
+                                      {saveProductMutation.isPending ? (
+                                        <>
+                                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                          Saving...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Package className="w-3 h-3 mr-1" />
+                                          Save Product
+                                        </>
+                                      )}
                                     </Button>
                                   </div>
                                 </div>

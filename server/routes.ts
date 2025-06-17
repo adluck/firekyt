@@ -1048,10 +1048,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's researched products
   app.get("/api/products", authenticateToken, async (req, res) => {
     try {
-      // Return empty array for now - this would integrate with actual product storage
-      res.json([]);
+      const products = await storage.getUserProducts(req.user!.id);
+      res.json(products);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Save individual product
+  app.post("/api/products", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const productData = {
+        userId: req.user.id,
+        title: req.body.title,
+        description: req.body.description || req.body.title,
+        price: req.body.price?.toString() || '0',
+        productUrl: req.body.productUrl,
+        imageUrl: req.body.imageUrl,
+        rating: req.body.rating?.toString() || '0',
+        reviewCount: req.body.reviewCount || 0,
+        apiSource: req.body.apiSource || 'manual',
+        brand: req.body.brand,
+        category: req.body.category || 'general',
+        niche: req.body.niche || 'general'
+      };
+
+      const savedProduct = await storage.createProduct(productData);
+      res.json(savedProduct);
+    } catch (error: any) {
+      console.error('Error saving product:', error);
+      res.status(500).json({ error: 'Failed to save product', message: error.message });
     }
   });
 
