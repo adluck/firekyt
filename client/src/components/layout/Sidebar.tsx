@@ -18,7 +18,8 @@ import {
   Send,
   Link2,
   Brain,
-  FolderOpen
+  FolderOpen,
+  Network
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +65,8 @@ const navigation = [
     icon: Link2,
     submenu: [
       { name: 'Link Dashboard', href: '/links', icon: Link2 },
-      { name: 'AI Link Inserter', href: '/links/inserter', icon: Brain }
+      { name: 'AI Link Inserter', href: '/links/inserter', icon: Brain },
+      { name: 'Affiliate Networks', href: '/affiliate-networks', icon: Network }
     ]
   },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
