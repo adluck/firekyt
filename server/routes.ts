@@ -19,169 +19,6 @@ import {
 } from "./ai-engine";
 import { performanceMonitor } from "./performance/PerformanceMonitor";
 import { affiliateManager } from "./affiliateNetworks";
-
-// Real API Product Search - using RapidAPI marketplace for authentic data
-async function searchRealProducts(query: string, limit: number = 20): Promise<any[]> {
-  try {
-    // Try eBay API first if available
-    const ebayResults = await searchEbayAPI(query, limit);
-    if (ebayResults.length > 0) {
-      return ebayResults;
-    }
-    
-    // Try Amazon Product Data API (through RapidAPI)
-    const amazonResults = await searchAmazonAPI(query, limit);
-    if (amazonResults.length > 0) {
-      return amazonResults;
-    }
-    
-    // Try Real-time Product Search API
-    const realtimeResults = await searchRealtimeAPI(query, limit);
-    if (realtimeResults.length > 0) {
-      return realtimeResults;
-    }
-    
-  } catch (error) {
-    console.error('API search failed:', error);
-  }
-  
-  throw new Error('No product search API is currently configured. Please add API keys for eBay, Amazon, or RapidAPI to enable real product search.');
-}
-
-async function searchEbayAPI(query: string, limit: number): Promise<any[]> {
-  const ebayAppId = process.env.EBAY_APP_ID;
-  if (!ebayAppId) return [];
-  
-  try {
-    const searchUrl = 'https://svcs.ebay.com/services/search/FindingService/v1';
-    const params = new URLSearchParams({
-      'OPERATION-NAME': 'findItemsByKeywords',
-      'SERVICE-VERSION': '1.0.0',
-      'SECURITY-APPNAME': ebayAppId,
-      'RESPONSE-DATA-FORMAT': 'JSON',
-      'keywords': query,
-      'paginationInput.entriesPerPage': limit.toString(),
-      'sortOrder': 'BestMatch'
-    });
-
-    const response = await fetch(`${searchUrl}?${params}`);
-    const data = await response.json();
-    
-    if (data.findItemsByKeywordsResponse?.[0]?.searchResult?.[0]?.item) {
-      const items = data.findItemsByKeywordsResponse[0].searchResult[0].item;
-      
-      return items.map((item: any) => ({
-        title: item.title?.[0] || 'Product',
-        price: parseFloat(item.sellingStatus?.[0]?.currentPrice?.[0]?.__value__ || '0'),
-        rating: 4.0 + Math.random() * 1.0,
-        reviews: Math.floor(Math.random() * 500) + 10,
-        source: 'eBay',
-        link: item.viewItemURL?.[0] || '',
-        thumbnail: item.galleryURL?.[0] || '',
-        delivery: item.shippingInfo?.[0]?.shippingType?.[0] === 'Free' ? 'Free shipping' : 'Standard shipping',
-        extensions: [
-          item.condition?.[0]?.conditionDisplayName?.[0] || 'Used',
-          item.topRatedListing?.[0] === 'true' ? 'Top Rated' : 'Standard'
-        ].filter(Boolean)
-      }));
-    }
-  } catch (error) {
-    console.error('eBay API error:', error);
-  }
-  
-  return [];
-}
-
-async function searchAmazonAPI(query: string, limit: number): Promise<any[]> {
-  const rapidApiKey = process.env.RAPIDAPI_KEY;
-  if (!rapidApiKey) return [];
-  
-  try {
-    const response = await fetch(`https://amazon-product-data.p.rapidapi.com/search?query=${encodeURIComponent(query)}&limit=${limit}`, {
-      headers: {
-        'X-RapidAPI-Key': rapidApiKey,
-        'X-RapidAPI-Host': 'amazon-product-data.p.rapidapi.com'
-      }
-    });
-    
-    const data = await response.json();
-    
-    if (data.products && Array.isArray(data.products)) {
-      return data.products.map((item: any) => ({
-        title: item.title || 'Product',
-        price: parseFloat(item.price?.replace(/[^0-9.]/g, '') || '0'),
-        rating: item.rating || 4.0,
-        reviews: item.reviewCount || 0,
-        source: 'Amazon',
-        link: item.url || '',
-        thumbnail: item.image || '',
-        delivery: 'Prime eligible',
-        extensions: item.isPrime ? ['Prime eligible'] : ['Standard shipping']
-      }));
-    }
-  } catch (error) {
-    console.error('Amazon API error:', error);
-  }
-  
-  return [];
-}
-
-async function searchRealtimeAPI(query: string, limit: number): Promise<any[]> {
-  const rapidApiKey = process.env.RAPIDAPI_KEY;
-  if (!rapidApiKey) return [];
-  
-  try {
-    const response = await fetch(`https://real-time-product-search.p.rapidapi.com/search?q=${encodeURIComponent(query)}&limit=${limit}`, {
-      headers: {
-        'X-RapidAPI-Key': rapidApiKey,
-        'X-RapidAPI-Host': 'real-time-product-search.p.rapidapi.com'
-      }
-    });
-    
-    const data = await response.json();
-    
-    if (data.data && Array.isArray(data.data)) {
-      return data.data.map((item: any) => ({
-        title: item.product_title || 'Product',
-        price: parseFloat(item.offer?.price?.replace(/[^0-9.]/g, '') || '0'),
-        rating: item.product_rating || 4.0,
-        reviews: item.product_num_reviews || 0,
-        source: item.source || 'Web',
-        link: item.product_page_url || '',
-        thumbnail: item.product_photo || '',
-        delivery: item.offer?.shipping || 'Standard shipping',
-        extensions: [item.offer?.store_name || 'Online Store']
-      }));
-    }
-  } catch (error) {
-    console.error('Realtime API error:', error);
-  }
-  
-  return [];
-}
-
-function generateAffiliateOpportunities(query: string): any[] {
-  return [
-    {
-      title: `Best ${query} Reviews 2024 - Expert Analysis`,
-      link: 'https://productreviews.com/best-products',
-      snippet: `Professional reviews and comparisons of top ${query} products with detailed buyer guidance.`,
-      position: 1
-    },
-    {
-      title: `${query} Deals & Price Tracking`,
-      link: 'https://pricetracker.com/deals',
-      snippet: `Track prices and find the best deals on ${query} with real-time price alerts.`,
-      position: 2
-    },
-    {
-      title: `${query} Buyer's Guide 2024`,
-      link: 'https://buyingguide.com/products',
-      snippet: `Complete buying guide for ${query} with expert recommendations and comparison charts.`,
-      position: 3
-    }
-  ];
-}
 import { cacheManager } from "./performance/CacheManager";
 import { 
   rateLimiter, 
@@ -1400,7 +1237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Alternative Product Search using multiple data sources
+  // SerpAPI Product Search for Affiliate Marketing
   app.post("/api/search-affiliate-products", authenticateToken, async (req, res) => {
     try {
       const { query, category } = req.body;
@@ -1409,11 +1246,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Search query is required' });
       }
 
-      // Search for products using eBay API or fallback to curated data
-      const products = await searchEbayProducts(query, 20);
+      const serpApiKey = process.env.SERP_API_KEY;
+      if (!serpApiKey) {
+        return res.status(500).json({ error: 'SERP API key not configured' });
+      }
+
+      // Search for products using SerpAPI Google Shopping
+      const shoppingParams = new URLSearchParams({
+        q: query,
+        engine: "google_shopping",
+        api_key: serpApiKey,
+        num: "20",
+        location: "United States"
+      });
       
-      // Generate affiliate opportunities
-      const affiliateOpportunities = generateAffiliateOpportunities(query);
+      console.log('Making SerpAPI request:', `https://serpapi.com/search.json?${shoppingParams}`);
+      
+      const shoppingResponse = await fetch(`https://serpapi.com/search.json?${shoppingParams}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      console.log('SerpAPI response status:', shoppingResponse.status);
+      console.log('SerpAPI response headers:', Object.fromEntries(shoppingResponse.headers.entries()));
+
+      if (!shoppingResponse.ok) {
+        const errorText = await shoppingResponse.text();
+        console.log('SerpAPI error response:', errorText);
+        throw new Error(`SerpAPI error: ${shoppingResponse.status} - ${errorText}`);
+      }
+
+      const responseText = await shoppingResponse.text();
+      console.log('SerpAPI raw response:', responseText.substring(0, 500));
+      
+      let shoppingData;
+      try {
+        shoppingData = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('JSON parsing failed:', jsonError);
+        throw new Error(`Invalid JSON response from SerpAPI: ${responseText.substring(0, 200)}`);
+      }
+      
+      // Also search for affiliate programs and reviews
+      const organicParams = new URLSearchParams({
+        q: `${query} affiliate program review best`,
+        engine: "google",
+        api_key: serpApiKey,
+        num: "10",
+        location: "United States"
+      });
+      
+      const organicResponse = await fetch(`https://serpapi.com/search.json?${organicParams}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const organicData = organicResponse.ok ? await organicResponse.json() : { organic_results: [] };
+
+      // Process and structure the results
+      const products = shoppingData.shopping_results?.map((product: any) => ({
+        title: product.title,
+        price: product.extracted_price || product.price,
+        rating: product.rating,
+        reviews: product.reviews,
+        source: product.source,
+        link: product.link,
+        thumbnail: product.thumbnail,
+        delivery: product.delivery,
+        extensions: product.extensions
+      })) || [];
+
+      const affiliateOpportunities = organicData.organic_results?.map((result: any) => ({
+        title: result.title,
+        link: result.link,
+        snippet: result.snippet,
+        position: result.position
+      })) || [];
 
       // Extract price ranges and average prices for analysis
       const prices = products
@@ -1433,10 +1341,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products,
         affiliateOpportunities,
         priceAnalysis,
-        totalResults: products.length,
+        totalResults: shoppingData.search_information?.total_results || 0,
         searchMetadata: {
           timestamp: new Date().toISOString(),
-          engine: 'multi_source_search',
+          engine: 'serpapi_shopping',
           location: 'United States'
         }
       });
