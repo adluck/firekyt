@@ -522,6 +522,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Affiliate Networks Management
+  app.get("/api/affiliate-networks", authenticateToken, async (req, res) => {
+    try {
+      const networks = affiliateManager.getSupportedNetworks();
+      res.json({
+        networks: networks.map(network => ({
+          name: network.networkName,
+          commissionRate: network.commissionRate,
+          cookieDuration: network.cookieDuration
+        }))
+      });
+    } catch (error) {
+      console.error('Error fetching affiliate networks:', error);
+      res.status(500).json({ error: 'Failed to fetch affiliate networks' });
+    }
+  });
+
+  // Generate Affiliate Link endpoint
+  app.post("/api/affiliate-link", authenticateToken, async (req, res) => {
+    try {
+      const { productUrl, networkName, customAffiliateId, subId } = req.body;
+      
+      if (!productUrl) {
+        return res.status(400).json({ error: 'Product URL is required' });
+      }
+
+      const affiliateLink = affiliateManager.generateAffiliateLink(
+        productUrl,
+        networkName,
+        customAffiliateId,
+        subId
+      );
+
+      res.json({
+        success: true,
+        affiliateLink
+      });
+    } catch (error) {
+      console.error('Error generating affiliate link:', error);
+      res.status(500).json({ error: 'Failed to generate affiliate link' });
+    }
+  });
+
   // Analytics dashboard
   app.get("/api/analytics/dashboard", authenticateToken, analyticsRateLimit, async (req, res) => {
     try {
