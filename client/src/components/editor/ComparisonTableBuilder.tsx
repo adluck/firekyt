@@ -672,15 +672,22 @@ export function ComparisonTableBuilder({
                   )}>
                     {currentConfig.settings.showHeader && (
                       <thead>
-                        <tr className="bg-muted/50 dark:bg-muted">
+                        <tr style={{ backgroundColor: currentConfig.styling.headerBg }}>
                           {currentConfig.columns.map(column => (
                             <th
                               key={column.id}
                               className={cn(
-                                'text-left font-semibold text-foreground',
+                                'text-left font-semibold',
                                 currentConfig.styling.compact ? 'p-2' : 'p-4',
-                                currentConfig.styling.borderStyle !== 'none' && 'border border-gray-300 dark:border-gray-600'
+                                {
+                                  'border border-gray-300 dark:border-gray-600': currentConfig.styling.borderStyle === 'light',
+                                  'border-2 border-gray-400 dark:border-gray-500': currentConfig.styling.borderStyle === 'medium',
+                                  'border-4 border-gray-600 dark:border-gray-400': currentConfig.styling.borderStyle === 'heavy',
+                                }
                               )}
+                              style={{ 
+                                color: currentConfig.styling.headerBg === '#f8f9fa' || currentConfig.styling.headerBg === '#ffffff' ? '#000000' : '#ffffff'
+                              }}
                             >
                               {column.name}
                             </th>
@@ -694,7 +701,7 @@ export function ComparisonTableBuilder({
                         <tr
                           key={row.id}
                           className={cn(
-                            currentConfig.styling.alternateRows && rowIndex % 2 === 1 && 'bg-gray-50'
+                            currentConfig.styling.alternateRows && rowIndex % 2 === 1 && 'bg-gray-50 dark:bg-gray-800'
                           )}
                         >
                           {currentConfig.columns.map(column => (
@@ -702,7 +709,11 @@ export function ComparisonTableBuilder({
                               key={column.id}
                               className={cn(
                                 currentConfig.styling.compact ? 'p-2' : 'p-4',
-                                currentConfig.styling.borderStyle !== 'none' && 'border border-gray-300'
+                                {
+                                  'border border-gray-300 dark:border-gray-600': currentConfig.styling.borderStyle === 'light',
+                                  'border-2 border-gray-400 dark:border-gray-500': currentConfig.styling.borderStyle === 'medium',
+                                  'border-4 border-gray-600 dark:border-gray-400': currentConfig.styling.borderStyle === 'heavy',
+                                }
                               )}
                             >
                               {column.productField ? (
@@ -715,7 +726,11 @@ export function ComparisonTableBuilder({
                           <td className={cn(
                             'text-center',
                             currentConfig.styling.compact ? 'p-2' : 'p-4',
-                            currentConfig.styling.borderStyle !== 'none' && 'border border-gray-300'
+                            {
+                              'border border-gray-300 dark:border-gray-600': currentConfig.styling.borderStyle === 'light',
+                              'border-2 border-gray-400 dark:border-gray-500': currentConfig.styling.borderStyle === 'medium',
+                              'border-4 border-gray-600 dark:border-gray-400': currentConfig.styling.borderStyle === 'heavy',
+                            }
                           )}>
                             <Button
                               variant="ghost"
