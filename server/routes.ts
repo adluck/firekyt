@@ -986,7 +986,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           }
         } catch (error) {
-          console.log('SerpAPI fetch failed, using generated data:', error);
+          console.log('Lobstr.io fetch failed, using generated data:', error);
         }
       }
 
@@ -1058,10 +1058,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         total_products_found: realProducts.length,
         products_returned: filteredProducts.length,
         average_score: averageScore,
-        api_calls_made: serpApiKey ? 1 : 0,
-        api_sources: serpApiKey && realProducts.some(p => p.apiSource && p.apiSource.includes('serpapi')) ? ['serpapi'] : ['research_engine'],
+        api_calls_made: lobstrApiKey ? 1 : 0,
+        api_sources: lobstrApiKey && realProducts.some(p => p.apiSource === 'lobstr_api') ? ['lobstr_api'] : ['research_engine'],
         research_duration_ms: 2500,
-        data_source: serpApiKey && realProducts.length > 0 && realProducts.some(p => p.apiSource && p.apiSource.includes('serpapi')) ? 'live_data' : 'sample_data',
+        data_source: lobstrApiKey && realProducts.length > 0 && realProducts.some(p => p.apiSource === 'lobstr_api') ? 'live_data' : 'sample_data',
         niche_insights: {
           marketDemand: 'High',
           competitionLevel: 'Medium',

@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from amazon_paapi import AmazonApi
-from serpapi import GoogleSearch
+# Removed SerpAPI dependency - using AI-powered analysis instead
 import logging
 
 # Set up logging
@@ -524,7 +524,7 @@ class ProductResearchEngine:
     
     def __init__(self):
         self.amazon_researcher = AmazonProductResearcher()
-        self.serp_researcher = SerpApiResearcher()
+        self.ai_researcher = AIProductResearcher()
         self.scoring_engine = ProductScoringEngine()
     
     async def research_products(self, params: ProductResearchParams) -> Dict[str, Any]:
