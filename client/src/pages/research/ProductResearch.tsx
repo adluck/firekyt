@@ -137,6 +137,7 @@ export default function ProductResearch() {
   const [researchResults, setResearchResults] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentQuery, setCurrentQuery] = useState("");
+  const [savingProducts, setSavingProducts] = useState<Set<string>>(new Set());
 
   const form = useForm<ResearchFormData>({
     resolver: zodResolver(researchFormSchema),
@@ -176,6 +177,12 @@ export default function ProductResearch() {
       return response.json();
     },
     enabled: !!currentQuery,
+    onSuccess: (data) => {
+      // Automatically save search results to research history
+      if (data && currentQuery) {
+        saveSearchToHistory(currentQuery, data);
+      }
+    }
   });
 
   // Research mutation
@@ -228,6 +235,9 @@ export default function ProductResearch() {
   // Individual product save mutation
   const saveProductMutation = useMutation({
     mutationFn: async (product: any) => {
+      const productId = product.title + product.source; // Create unique ID
+      setSavingProducts(prev => new Set(prev).add(productId));
+      
       const response = await apiRequest('POST', '/api/products', {
         title: product.title,
         description: product.title, // Use title as description for now
@@ -241,16 +251,27 @@ export default function ProductResearch() {
         category: 'electronics',
         niche: 'consumer_electronics'
       });
-      return response.json();
+      return { result: response.json(), productId };
     },
-    onSuccess: () => {
+    onSuccess: ({ productId }) => {
+      setSavingProducts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
       toast({
         title: "Product Saved",
         description: "Product has been added to your library",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
     },
-    onError: (error: any) => {
+    onError: (error: any, product) => {
+      const productId = product.title + product.source;
+      setSavingProducts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
       toast({
         title: "Save Failed",
         description: error.message || "Failed to save product",
@@ -284,6 +305,29 @@ export default function ProductResearch() {
         description: "Could not retrieve products from this research session",
         variant: "destructive"
       });
+    }
+  };
+
+  // Save search results to research history
+  const saveSearchToHistory = async (query: string, results: any) => {
+    try {
+      const response = await apiRequest('POST', '/api/research-sessions', {
+        niche: query,
+        productCategory: 'search_results',
+        totalProductsFound: results.products?.length || 0,
+        productsStored: 0,
+        averageScore: '0',
+        status: 'completed',
+        apiCallsMade: 1,
+        apiSources: ['serpapi'],
+        researchDuration: 1000
+      });
+      
+      if (response.ok) {
+        queryClient.invalidateQueries({ queryKey: ['/api/research-sessions'] });
+      }
+    } catch (error) {
+      console.log('Could not save search to history:', error);
     }
   };
 
@@ -741,9 +785,9 @@ export default function ProductResearch() {
                                       size="sm" 
                                       className="w-full"
                                       onClick={() => saveProductMutation.mutate(product)}
-                                      disabled={saveProductMutation.isPending}
+                                      disabled={savingProducts.has(product.title + product.source)}
                                     >
-                                      {saveProductMutation.isPending ? (
+                                      {savingProducts.has(product.title + product.source) ? (
                                         <>
                                           <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                                           Saving...

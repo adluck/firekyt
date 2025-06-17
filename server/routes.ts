@@ -1102,6 +1102,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create new research session
+  app.post("/api/research-sessions", authenticateToken, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const sessionData = {
+        userId: req.user.id,
+        niche: req.body.niche,
+        productCategory: req.body.productCategory,
+        minCommissionRate: req.body.minCommissionRate?.toString(),
+        minTrendingScore: req.body.minTrendingScore?.toString(),
+        maxResults: req.body.maxResults,
+        totalProductsFound: req.body.totalProductsFound,
+        productsStored: req.body.productsStored,
+        averageScore: req.body.averageScore,
+        apiCallsMade: req.body.apiCallsMade,
+        apiSources: req.body.apiSources,
+        researchDuration: req.body.researchDuration,
+        status: req.body.status || 'completed'
+      };
+
+      const session = await storage.createProductResearchSession(sessionData);
+      res.json(session);
+    } catch (error: any) {
+      console.error('Error creating research session:', error);
+      res.status(500).json({ error: 'Failed to create research session', message: error.message });
+    }
+  });
+
   // Get products from specific research session
   app.get('/api/research-sessions/:sessionId/products', authenticateToken, async (req, res) => {
     try {
