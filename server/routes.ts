@@ -889,104 +889,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const lobstrApiKey = process.env.LOBSTR_API_KEY;
+      const zenSerpApiKey = process.env.ZENSERP_API_KEY;
       let realProducts: any[] = [];
 
-      // Try to fetch real product data from Lobstr.io
-      if (lobstrApiKey) {
+      // Try to fetch real product data from ZenSERP
+      if (zenSerpApiKey) {
         try {
           const searchQuery = `${nicheParam} products`;
           
-          // Try multiple Lobstr.io endpoint variations for product research
-          const endpoints = [
-            'https://api.lobstr.io/api/v1/search',
-            'https://lobstr.io/api/v1/search',
-            'https://api.lobstr.io/v1/search',
-            'https://lobstr.io/api/search'
-          ];
+          const zenSerpParams = new URLSearchParams({
+            q: searchQuery,
+            tbm: 'shop',
+            location: 'United States',
+            hl: 'en',
+            gl: 'us',
+            num: maxResultsParam.toString()
+          });
 
-          let lobstrData: any = null;
-          
-          for (const endpoint of endpoints) {
-            try {
-              const lobstrParams = new URLSearchParams({
-                query: searchQuery,
-                limit: maxResultsParam.toString(),
-                country: 'US',
-                format: 'json'
+          console.log(`Product research using ZenSERP: https://app.zenserp.com/api/v2/search?${zenSerpParams}`);
+
+          const zenSerpResponse = await fetch(`https://app.zenserp.com/api/v2/search?${zenSerpParams}`, {
+            method: 'GET',
+            headers: {
+              'apikey': zenSerpApiKey,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (zenSerpResponse.ok) {
+            const zenSerpData = await zenSerpResponse.json();
+            console.log('ZenSERP product research successful');
+
+            if (zenSerpData.shopping_results && zenSerpData.shopping_results.length > 0) {
+              realProducts = zenSerpData.shopping_results.slice(0, maxResultsParam).map((product: any, index: number) => {
+                const basePrice = parseFloat(product.extracted_price?.toString().replace(/[^0-9.]/g, '') || product.price?.toString().replace(/[^0-9.]/g, '') || '100');
+                const trendingScore = minTrendingParam + Math.random() * 40;
+                const researchScore = 70 + Math.random() * 25;
+
+                // Extract product URL from ZenSERP response
+                const productLink = product.link || `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+                
+                // Generate proper affiliate link using affiliate network manager
+                const affiliateLink = affiliateManager.generateAffiliateLink(
+                  productLink,
+                  undefined, // Auto-detect network
+                  undefined, // Use default affiliate ID
+                  `firekyt_${Date.now()}_${index}` // Custom sub ID for tracking
+                );
+                
+                // Use detected commission rate and calculate earnings
+                const actualCommissionRate = affiliateLink.commissionRate;
+                const commissionAmount = (basePrice * actualCommissionRate) / 100;
+
+                return {
+                  id: index + 1,
+                  title: product.title || `${nicheParam} Product ${index + 1}`,
+                  description: product.snippet || `High-quality ${nicheParam} product with excellent features and customer satisfaction.`,
+                  category: categoryParam,
+                  niche: nicheParam,
+                  price: basePrice.toFixed(2),
+                  commissionRate: actualCommissionRate.toFixed(1),
+                  commissionAmount: commissionAmount.toFixed(2),
+                  trendingScore: trendingScore.toFixed(1),
+                  researchScore: researchScore.toFixed(1),
+                  apiSource: 'zenserp',
+                  rating: product.rating || (4.0 + Math.random() * 1.0).toFixed(1),
+                  reviewCount: product.reviews || Math.floor(100 + Math.random() * 1500),
+                  keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, 'quality', 'best'],
+                  createdAt: new Date().toISOString(),
+                  affiliateUrl: affiliateLink.affiliateUrl,
+                  productUrl: productLink,
+                  availability: 'In Stock',
+                  brand: product.source || affiliateLink.networkName || 'Various',
+                  imageUrl: product.thumbnail || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`,
+                  affiliateNetwork: affiliateLink.networkName,
+                  trackingId: affiliateLink.trackingId
+                };
               });
-
-              const lobstrResponse = await fetch(`${endpoint}?${lobstrParams}`, {
-                method: 'GET',
-                headers: { 
-                  'X-API-Key': lobstrApiKey,
-                  'Authorization': `Bearer ${lobstrApiKey}`,
-                  'Accept': 'application/json',
-                  'User-Agent': 'FireKyt-Platform/1.0'
-                }
-              });
-
-              if (lobstrResponse.ok) {
-                lobstrData = await lobstrResponse.json();
-                console.log(`Product research using Lobstr.io endpoint: ${endpoint}`);
-                break;
-              }
-            } catch (endpointError) {
-              console.log(`Lobstr.io endpoint ${endpoint} failed:`, String(endpointError));
             }
           }
-
-          if (lobstrData?.products || lobstrData?.results || lobstrData?.items) {
-            const products = lobstrData.products || lobstrData.results || lobstrData.items;
-            realProducts = products.slice(0, maxResultsParam).map((product: any, index: number) => {
-              const basePrice = parseFloat(product.price?.toString().replace(/[^0-9.]/g, '') || '100');
-              const trendingScore = minTrendingParam + Math.random() * 40;
-              const researchScore = 70 + Math.random() * 25;
-
-              // Extract product URL from Lobstr.io response
-              const productLink = product.url || product.link || product.productUrl || 
-                               `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-              
-              // Generate proper affiliate link using affiliate network manager
-              const affiliateLink = affiliateManager.generateAffiliateLink(
-                productLink,
-                undefined, // Auto-detect network
-                undefined, // Use default affiliate ID
-                `firekyt_${Date.now()}_${index}` // Custom sub ID for tracking
-              );
-              
-              // Use detected commission rate and calculate earnings
-              const actualCommissionRate = affiliateLink.commissionRate;
-              const commissionAmount = (basePrice * actualCommissionRate) / 100;
-
-              return {
-                id: index + 1,
-                title: product.title || product.name || `${nicheParam} Product ${index + 1}`,
-                description: product.description || product.snippet || `High-quality ${nicheParam} product with excellent features and customer satisfaction.`,
-                category: categoryParam,
-                niche: nicheParam,
-                price: basePrice.toFixed(2),
-                commissionRate: actualCommissionRate.toFixed(1),
-                commissionAmount: commissionAmount.toFixed(2),
-                trendingScore: trendingScore.toFixed(1),
-                researchScore: researchScore.toFixed(1),
-                apiSource: 'lobstr_api',
-                rating: product.rating || product.stars || (4.0 + Math.random() * 1.0).toFixed(1),
-                reviewCount: product.reviews || product.reviewCount || Math.floor(100 + Math.random() * 1500),
-                keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, 'quality', 'best'],
-                createdAt: new Date().toISOString(),
-                affiliateUrl: affiliateLink.affiliateUrl,
-                productUrl: productLink,
-                availability: 'In Stock',
-                brand: product.source || affiliateLink.networkName || 'Various',
-                imageUrl: product.thumbnail || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`,
-                affiliateNetwork: affiliateLink.networkName,
-                trackingId: affiliateLink.trackingId
-              };
-            });
-          }
         } catch (error) {
-          console.log('Lobstr.io fetch failed, using generated data:', error);
+          console.log('ZenSERP fetch failed, using generated data:', error);
         }
       }
 
@@ -1058,10 +1041,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         total_products_found: realProducts.length,
         products_returned: filteredProducts.length,
         average_score: averageScore,
-        api_calls_made: lobstrApiKey ? 1 : 0,
-        api_sources: lobstrApiKey && realProducts.some(p => p.apiSource === 'lobstr_api') ? ['lobstr_api'] : ['research_engine'],
+        api_calls_made: zenSerpApiKey ? 1 : 0,
+        api_sources: zenSerpApiKey && realProducts.some(p => p.apiSource === 'zenserp') ? ['zenserp'] : ['research_engine'],
         research_duration_ms: 2500,
-        data_source: lobstrApiKey && realProducts.length > 0 && realProducts.some(p => p.apiSource === 'lobstr_api') ? 'live_data' : 'sample_data',
+        data_source: zenSerpApiKey && realProducts.length > 0 && realProducts.some(p => p.apiSource === 'zenserp') ? 'live_data' : 'sample_data',
         niche_insights: {
           marketDemand: 'High',
           competitionLevel: 'Medium',
@@ -1273,7 +1256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Product Search using Lobstr.io API
+  // AI-Powered Product Search System
   app.post("/api/search-affiliate-products", authenticateToken, async (req, res) => {
     try {
       const { query, category } = req.body;
@@ -1282,71 +1265,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Search query is required' });
       }
 
-      const lobstrApiKey = process.env.LOBSTR_API_KEY;
-      if (!lobstrApiKey) {
-        return res.status(500).json({ error: 'Lobstr API key not configured' });
+      console.log(`Performing ZenSERP product search for: ${query}`);
+
+      const zenSerpApiKey = process.env.ZENSERP_API_KEY;
+      if (!zenSerpApiKey) {
+        return res.status(500).json({ error: 'ZenSERP API key not configured' });
       }
 
-      // Try multiple Lobstr.io endpoint variations
-      const endpoints = [
-        'https://api.lobstr.io/api/v1/search',
-        'https://lobstr.io/api/v1/search',
-        'https://api.lobstr.io/v1/search',
-        'https://lobstr.io/api/search'
-      ];
+      // Search for products using ZenSERP Google Shopping API
+      const zenSerpParams = new URLSearchParams({
+        q: query,
+        tbm: 'shop',
+        location: 'United States',
+        hl: 'en',
+        gl: 'us',
+        num: '20'
+      });
 
-      let responseData = null;
-      let successfulEndpoint = null;
+      console.log(`Making ZenSERP request: https://app.zenserp.com/api/v2/search?${zenSerpParams}`);
 
-      for (const endpoint of endpoints) {
-        try {
-          const lobstrParams = new URLSearchParams({
-            query: query,
-            limit: '20',
-            country: 'US',
-            format: 'json'
-          });
-          
-          console.log(`Trying Lobstr.io endpoint: ${endpoint}?${lobstrParams}`);
-          
-          const lobstrResponse = await fetch(`${endpoint}?${lobstrParams}`, {
-            method: 'GET',
-            headers: { 
-              'X-API-Key': lobstrApiKey,
-              'Authorization': `Bearer ${lobstrApiKey}`,
-              'Accept': 'application/json',
-              'User-Agent': 'FireKyt-Platform/1.0'
-            }
-          });
-
-          console.log(`Endpoint ${endpoint} returned status:`, lobstrResponse.status);
-
-          if (lobstrResponse.ok) {
-            responseData = await lobstrResponse.json();
-            successfulEndpoint = endpoint;
-            console.log('Lobstr.io response successful with endpoint:', endpoint);
-            break;
-          } else {
-            const errorText = await lobstrResponse.text();
-            console.log(`Endpoint ${endpoint} failed:`, errorText);
-          }
-        } catch (endpointError) {
-          console.log(`Endpoint ${endpoint} error:`, String(endpointError));
+      const zenSerpResponse = await fetch(`https://app.zenserp.com/api/v2/search?${zenSerpParams}`, {
+        method: 'GET',
+        headers: {
+          'apikey': zenSerpApiKey,
+          'Content-Type': 'application/json'
         }
+      });
+
+      console.log('ZenSERP response status:', zenSerpResponse.status);
+
+      if (!zenSerpResponse.ok) {
+        const errorText = await zenSerpResponse.text();
+        console.log('ZenSERP error response:', errorText);
+        throw new Error(`ZenSERP error: ${zenSerpResponse.status} - ${errorText}`);
       }
 
-      if (!responseData) {
-        return res.status(503).json({ 
-          error: 'Product search service unavailable. Please check API configuration.',
-          details: 'All Lobstr.io endpoints failed to respond'
-        });
-      }
+      const responseData = await zenSerpResponse.json();
+      console.log('ZenSERP response data received:', !!responseData.shopping_results);
 
-      // Process Lobstr.io response data
-      const products = (responseData.products || responseData.results || responseData.items || []).map((product: any) => {
-        const productUrl = product.url || product.link || product.product_url || product.productUrl;
+      // Process ZenSERP shopping results
+      const products = (responseData.shopping_results || []).map((product: any) => {
+        const productUrl = product.link;
         let affiliateUrl = productUrl;
-        const productSource = product.store || product.source || product.merchant || product.retailer || product.seller;
+        const productSource = product.source;
         
         // Generate affiliate links for major retailers
         if (productSource?.toLowerCase().includes('amazon') && productUrl) {
@@ -1367,16 +1328,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         return {
-          title: product.title || product.name || product.productName,
-          price: product.price?.value || product.price || product.current_price || product.currentPrice,
-          rating: product.rating?.average || product.rating || product.stars || product.averageRating,
-          reviews: product.rating?.count || product.reviews || product.review_count || product.reviewCount,
+          title: product.title,
+          price: product.extracted_price || product.price,
+          rating: product.rating,
+          reviews: product.reviews,
           source: productSource,
           link: productUrl,
           affiliateUrl: affiliateUrl,
-          thumbnail: product.image?.url || product.thumbnail || product.image || product.photo || product.imageUrl,
-          delivery: product.shipping?.text || product.delivery || product.shipping || product.shippingInfo,
-          extensions: product.features || product.attributes || product.specifications || product.specs || []
+          thumbnail: product.thumbnail,
+          delivery: product.delivery,
+          extensions: product.extensions || []
         };
       });
 
@@ -1406,11 +1367,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products,
         affiliateOpportunities,
         priceAnalysis,
-        totalResults: responseData.total_results || responseData.total || responseData.count || products.length,
+        totalResults: responseData.search_information?.total_results || products.length,
         searchMetadata: {
           timestamp: new Date().toISOString(),
-          engine: 'lobstr_api',
-          endpoint: successfulEndpoint,
+          engine: 'zenserp',
           location: 'United States'
         }
       });
