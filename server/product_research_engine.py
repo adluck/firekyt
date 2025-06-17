@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from amazon_paapi import AmazonApi
-# Removed SerpAPI dependency - using AI-powered analysis instead
+from serpapi import GoogleSearch
 import logging
 
 # Set up logging
@@ -371,37 +371,35 @@ class AmazonProductResearcher:
         
         return True
 
-class AIProductResearcher:
-    """AI-powered product research and competition analysis"""
+class SerpApiResearcher:
+    """SerpAPI integration for search trends and competition analysis"""
     
     def __init__(self):
-        self.ai_engine = None
-        try:
-            from .AIEngineService import AIEngineService
-            self.ai_engine = AIEngineService()
-        except ImportError:
-            logger.warning("AI Engine not available")
+        self.api_key = os.getenv('SERPAPI_API_KEY')
+        if not self.api_key:
+            logger.warning("SerpAPI key not configured")
     
     async def enrich_product_data(self, products: List[ProductData]) -> List[ProductData]:
-        """Enrich products with AI-powered search volume and competition data"""
-        if not self.ai_engine:
+        """Enrich products with search volume and competition data"""
+        if not self.api_key:
             return products
         
         enriched_products = []
         
         for product in products:
             try:
-                # Use AI to estimate search volume and competition
-                search_data = await self._estimate_search_metrics(product.title)
+                # Get search volume for main keywords
+                search_data = await self._get_search_volume(product.title)
                 if search_data:
                     product.search_volume = search_data.get('search_volume', 0)
                     product.difficulty = search_data.get('difficulty', 50)
                 
-                # AI-powered competition analysis
-                competition_data = await self._analyze_ai_competition(product.keywords[:3])
+                # Update competition score based on search results
+                competition_data = await self._analyze_competition(product.keywords[:3])
                 if competition_data:
+                    # Adjust competition score based on SERP analysis
                     product.competition_score = min(
-                        product.competition_score + competition_data.get('ai_competition', 0),
+                        product.competition_score + competition_data.get('serp_competition', 0),
                         100
                     )
                 
@@ -524,7 +522,7 @@ class ProductResearchEngine:
     
     def __init__(self):
         self.amazon_researcher = AmazonProductResearcher()
-        self.ai_researcher = AIProductResearcher()
+        self.serp_researcher = SerpApiResearcher()
         self.scoring_engine = ProductScoringEngine()
     
     async def research_products(self, params: ProductResearchParams) -> Dict[str, Any]:
