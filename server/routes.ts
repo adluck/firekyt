@@ -1294,52 +1294,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('ZenSERP response status:', zenSerpResponse.status);
 
+      let products = [];
+
       if (!zenSerpResponse.ok) {
         const errorText = await zenSerpResponse.text();
         console.log('ZenSERP error response:', errorText);
-        throw new Error(`ZenSERP error: ${zenSerpResponse.status} - ${errorText}`);
-      }
-
-      const responseData = await zenSerpResponse.json();
-      console.log('ZenSERP response data received:', !!responseData.shopping_results);
-
-      // Process ZenSERP shopping results
-      const products = (responseData.shopping_results || []).map((product: any) => {
-        const productUrl = product.link;
-        let affiliateUrl = productUrl;
-        const productSource = product.source;
         
-        // Generate affiliate links for major retailers
-        if (productSource?.toLowerCase().includes('amazon') && productUrl) {
-          const dpMatch = productUrl.match(/\/dp\/([A-Z0-9]{10})/);
-          if (dpMatch) {
-            affiliateUrl = `https://www.amazon.com/dp/${dpMatch[1]}?tag=firekyt-20`;
-          } else {
-            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}tag=firekyt-20`;
-          }
-        } else if (productSource?.toLowerCase().includes('walmart') && productUrl) {
-          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}wmlspartner=firekyt`;
-        } else if (productSource?.toLowerCase().includes('target') && productUrl) {
-          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}ref=firekyt`;
-        } else if (productSource?.toLowerCase().includes('bestbuy') && productUrl) {
-          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}irclickid=firekyt`;
-        } else if (productSource?.toLowerCase().includes('ebay') && productUrl) {
-          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid=5338273189&customid=firekyt&toolid=10001`;
+        // Check if it's a credits issue
+        if (errorText.includes('Not enough requests')) {
+          return res.status(402).json({
+            error: 'ZenSERP API credits exhausted',
+            message: 'The ZenSERP API has run out of requests. Please add credits to your ZenSERP account to continue searching for real product data.',
+            details: 'Visit https://app.zenserp.com to manage your account and add search credits.',
+            suggestion: 'Contact your administrator to replenish API credits for authentic product search functionality.'
+          });
+        } else {
+          throw new Error(`ZenSERP error: ${zenSerpResponse.status} - ${errorText}`);
         }
+
+      } else {
+        const responseData = await zenSerpResponse.json();
+        console.log('ZenSERP response data received:', !!responseData.shopping_results);
+
+        // Process ZenSERP shopping results
+        products = (responseData.shopping_results || []).map((product: any) => {
+          const productUrl = product.link;
+          let affiliateUrl = productUrl;
+          const productSource = product.source;
+          
+          // Generate affiliate links for major retailers
+          if (productSource?.toLowerCase().includes('amazon') && productUrl) {
+            const dpMatch = productUrl.match(/\/dp\/([A-Z0-9]{10})/);
+            if (dpMatch) {
+              affiliateUrl = `https://www.amazon.com/dp/${dpMatch[1]}?tag=firekyt-20`;
+            } else {
+              affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}tag=firekyt-20`;
+            }
+          } else if (productSource?.toLowerCase().includes('walmart') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}wmlspartner=firekyt`;
+          } else if (productSource?.toLowerCase().includes('target') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}ref=firekyt`;
+          } else if (productSource?.toLowerCase().includes('bestbuy') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}irclickid=firekyt`;
+          } else if (productSource?.toLowerCase().includes('ebay') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}mkevt=1&mkcid=1&mkrid=711-53200-19255-0&campid=5338273189&customid=firekyt&toolid=10001`;
+          }
+          
+          return {
+            title: product.title,
+            price: product.extracted_price || product.price,
+            rating: product.rating,
+            reviews: product.reviews,
+            source: productSource,
+            link: productUrl,
+            affiliateUrl: affiliateUrl,
+            thumbnail: product.thumbnail,
+            delivery: product.delivery,
+            extensions: product.extensions || []
+          };
+        });
         
-        return {
-          title: product.title,
-          price: product.extracted_price || product.price,
-          rating: product.rating,
-          reviews: product.reviews,
-          source: productSource,
-          link: productUrl,
-          affiliateUrl: affiliateUrl,
-          thumbnail: product.thumbnail,
-          delivery: product.delivery,
-          extensions: product.extensions || []
-        };
-      });
+        // Generate affiliate opportunities based on product sources
+        const affiliateOpportunities = products.slice(0, 5).map((product: any, index: number) => ({
+          title: `${product.source} Affiliate Program`,
+          link: product.affiliateUrl,
+          snippet: `Earn commissions promoting ${product.title} from ${product.source}`,
+          position: index + 1
+        }));
+
+        // Extract price ranges and average prices for analysis
+        const prices = products
+          .map((p: any) => parseFloat(p.price?.toString().replace(/[^0-9.]/g, '') || '0'))
+          .filter((price: number) => price > 0);
+        
+        const priceAnalysis = prices.length > 0 ? {
+          min: Math.min(...prices),
+          max: Math.max(...prices),
+          average: prices.reduce((a: number, b: number) => a + b, 0) / prices.length,
+          count: prices.length
+        } : null;
+
+        res.json({
+          success: true,
+          query,
+          products,
+          affiliateOpportunities,
+          priceAnalysis,
+          totalResults: responseData.search_information?.total_results || products.length,
+          searchMetadata: {
+            timestamp: new Date().toISOString(),
+            engine: 'zenserp',
+            location: 'United States'
+          }
+        });
+        return;
+      }
 
       // Generate affiliate opportunities based on product sources
       const affiliateOpportunities = products.slice(0, 5).map((product: any, index: number) => ({
@@ -1367,10 +1416,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products,
         affiliateOpportunities,
         priceAnalysis,
-        totalResults: responseData.search_information?.total_results || products.length,
+        totalResults: products.length,
         searchMetadata: {
           timestamp: new Date().toISOString(),
-          engine: 'zenserp',
+          engine: 'zenserp_with_fallback',
           location: 'United States'
         }
       });
