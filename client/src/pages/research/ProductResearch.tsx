@@ -778,12 +778,14 @@ export default function ProductResearch() {
                                       size="sm" 
                                       className="w-full"
                                       onClick={() => {
-                                        const url = product.productUrl || product.link || product.affiliateUrl;
+                                        console.log('Product data:', product); // Debug log
+                                        const url = product.link || product.productUrl || product.affiliateUrl || product.product_link;
+                                        console.log('Using URL:', url); // Debug log
                                         if (url) {
-                                          window.open(url, '_blank');
+                                          const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+                                          window.open(fullUrl, '_blank');
                                         }
                                       }}
-                                      disabled={!product.productUrl && !product.link && !product.affiliateUrl}
                                     >
                                       <ExternalLink className="w-3 h-3 mr-1" />
                                       View Product
