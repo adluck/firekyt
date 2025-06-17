@@ -320,9 +320,9 @@ export default function AdvancedContentGenerator() {
             <Badge variant="secondary">Advanced Engine</Badge>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-[calc(100vh-200px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[calc(100vh-180px)]">
             {/* Content Generation Form */}
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 flex flex-col h-full">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Wand2 className="h-5 w-5" />
@@ -332,8 +332,8 @@ export default function AdvancedContentGenerator() {
                   Configure your AI-powered content generation with advanced parameters
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <CardContent className="flex-1 overflow-y-auto">
+                <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
                   {/* Primary Keyword */}
                   <div className="space-y-2">
                     <Label htmlFor="keyword" className="flex items-center space-x-1">
@@ -577,7 +577,7 @@ export default function AdvancedContentGenerator() {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="p-4 bg-muted rounded-md flex-1 overflow-y-auto">
+                          <div className="p-4 bg-muted rounded-md flex-1 overflow-y-auto min-h-[400px] max-h-[600px]">
                             <div className="prose prose-sm max-w-none dark:prose-invert">
                               <ReactMarkdown 
                                 remarkPlugins={[remarkGfm]}
@@ -652,7 +652,7 @@ export default function AdvancedContentGenerator() {
                                   <div className="space-y-2">
                                     <Label className="text-sm font-medium">Meta Tags</Label>
                                     <div className="flex flex-wrap gap-2">
-                                      {(parsed.meta_tags || generatedContent.meta_tags || []).map((tag, index) => (
+                                      {((parsed.meta_tags || generatedContent.meta_tags || []) as string[]).map((tag: string, index: number) => (
                                         <Badge key={index} variant="secondary">{tag}</Badge>
                                       ))}
                                     </div>
