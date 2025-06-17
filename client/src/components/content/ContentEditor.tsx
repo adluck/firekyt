@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Save, Eye, Copy, Wand2, FileText, Clock, CheckCircle, X } from "lucide-react";
+import { Edit, Save, Eye, Copy, Wand2, FileText, Clock, CheckCircle, X, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -107,6 +107,59 @@ export function ContentEditor({ generatedContent, onSave, onClose, isLoading = f
   const getReadingTime = (text: string) => {
     const words = getWordCount(text);
     return Math.ceil(words / 200); // Average reading speed: 200 words per minute
+  };
+
+  const insertTextAtCursor = (textareaRef: HTMLTextAreaElement, insertText: string, wrapText = false) => {
+    const start = textareaRef.selectionStart;
+    const end = textareaRef.selectionEnd;
+    const selectedText = textareaRef.value.substring(start, end);
+    
+    let newText;
+    if (wrapText && selectedText) {
+      newText = insertText + selectedText + insertText;
+    } else {
+      newText = insertText;
+    }
+    
+    const newValue = textareaRef.value.substring(0, start) + newText + textareaRef.value.substring(end);
+    
+    setEditedContent(prev => ({ ...prev, content: newValue }));
+    
+    // Set cursor position after insertion
+    setTimeout(() => {
+      const newCursorPos = start + (wrapText && selectedText ? insertText.length : newText.length);
+      textareaRef.setSelectionRange(newCursorPos, newCursorPos);
+      textareaRef.focus();
+    }, 0);
+  };
+
+  const formatText = (format: string) => {
+    const textarea = document.getElementById('content') as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    switch (format) {
+      case 'bold':
+        insertTextAtCursor(textarea, '**', true);
+        break;
+      case 'italic':
+        insertTextAtCursor(textarea, '*', true);
+        break;
+      case 'h1':
+        insertTextAtCursor(textarea, '# ');
+        break;
+      case 'h2':
+        insertTextAtCursor(textarea, '## ');
+        break;
+      case 'h3':
+        insertTextAtCursor(textarea, '### ');
+        break;
+      case 'ul':
+        insertTextAtCursor(textarea, '- ');
+        break;
+      case 'ol':
+        insertTextAtCursor(textarea, '1. ');
+        break;
+    }
   };
 
   return (
@@ -238,12 +291,117 @@ export function ContentEditor({ generatedContent, onSave, onClose, isLoading = f
               </div>
 
               <div className="space-y-2 flex-1 flex flex-col">
-                <Label htmlFor="content">Content (Markdown supported)</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="content">Content (Markdown supported)</Label>
+                  <div className="flex items-center space-x-1">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('bold')}
+                      title="Bold (**text**)"
+                    >
+                      <Bold className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('italic')}
+                      title="Italic (*text*)"
+                    >
+                      <Italic className="h-4 w-4" />
+                    </Button>
+                    <Separator orientation="vertical" className="h-6" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('h1')}
+                      title="Heading 1 (# text)"
+                    >
+                      <Heading1 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('h2')}
+                      title="Heading 2 (## text)"
+                    >
+                      <Heading2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('h3')}
+                      title="Heading 3 (### text)"
+                    >
+                      <Heading3 className="h-4 w-4" />
+                    </Button>
+                    <Separator orientation="vertical" className="h-6" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('ul')}
+                      title="Bullet List (- text)"
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => formatText('ol')}
+                      title="Numbered List (1. text)"
+                    >
+                      <ListOrdered className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
                 <Textarea
                   id="content"
                   value={editedContent.content}
                   onChange={(e) => setEditedContent(prev => ({ ...prev, content: e.target.value }))}
-                  placeholder="Enter your content here..."
+                  onKeyDown={(e) => {
+                    // Handle keyboard shortcuts
+                    if (e.ctrlKey || e.metaKey) {
+                      switch (e.key) {
+                        case 'b':
+                          e.preventDefault();
+                          formatText('bold');
+                          break;
+                        case 'i':
+                          e.preventDefault();
+                          formatText('italic');
+                          break;
+                        case '1':
+                          e.preventDefault();
+                          formatText('h1');
+                          break;
+                        case '2':
+                          e.preventDefault();
+                          formatText('h2');
+                          break;
+                        case '3':
+                          e.preventDefault();
+                          formatText('h3');
+                          break;
+                      }
+                    }
+                  }}
+                  placeholder="Enter your content here... 
+
+Keyboard shortcuts:
+• Ctrl/Cmd + B = Bold
+• Ctrl/Cmd + I = Italic  
+• Ctrl/Cmd + 1 = H1
+• Ctrl/Cmd + 2 = H2
+• Ctrl/Cmd + 3 = H3
+
+Or use the toolbar buttons above."
                   className="font-mono flex-1 min-h-[400px] resize-none"
                 />
               </div>
