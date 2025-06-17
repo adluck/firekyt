@@ -672,20 +672,20 @@ export function ComparisonTableBuilder({
                   )}>
                     {currentConfig.settings.showHeader && (
                       <thead>
-                        <tr style={{ backgroundColor: currentConfig.styling.headerBg }}>
+                        <tr className="bg-muted/50 dark:bg-muted">
                           {currentConfig.columns.map(column => (
                             <th
                               key={column.id}
                               className={cn(
-                                'text-left font-semibold',
+                                'text-left font-semibold text-foreground',
                                 currentConfig.styling.compact ? 'p-2' : 'p-4',
-                                currentConfig.styling.borderStyle !== 'none' && 'border border-gray-300'
+                                currentConfig.styling.borderStyle !== 'none' && 'border border-gray-300 dark:border-gray-600'
                               )}
                             >
                               {column.name}
                             </th>
                           ))}
-                          <th className="w-16"></th>
+                          <th className="w-16 text-foreground"></th>
                         </tr>
                       </thead>
                     )}
