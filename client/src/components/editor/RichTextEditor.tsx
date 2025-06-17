@@ -83,8 +83,18 @@ export function RichTextEditor({
     ],
     content,
     editable,
+    onCreate: ({ editor }) => {
+      console.log('Editor created:', editor);
+    },
     onUpdate: ({ editor }) => {
+      console.log('Editor updated:', editor.getHTML());
       onChange?.(editor.getHTML());
+    },
+    onFocus: ({ editor }) => {
+      console.log('Editor focused');
+    },
+    onBlur: ({ editor }) => {
+      console.log('Editor blurred');
     },
   });
 
@@ -116,12 +126,25 @@ export function RichTextEditor({
     <Button
       variant={isActive ? 'default' : 'ghost'}
       size="sm"
+      onMouseDown={(e) => {
+        e.preventDefault(); // Prevent focus loss
+      }}
       onClick={(e) => {
         e.preventDefault();
-        console.log('Toolbar button clicked:', title);
-        onClick?.();
+        e.stopPropagation();
+        console.log('Toolbar button clicked:', title, 'Editor:', !!editor);
+        if (editor && onClick) {
+          try {
+            onClick();
+            console.log('Command executed successfully');
+          } catch (error) {
+            console.error('Command failed:', error);
+          }
+        } else {
+          console.error('Editor not available or onClick missing');
+        }
       }}
-      disabled={disabled}
+      disabled={disabled || !editor}
       title={title}
       className={cn('h-8 w-8 p-0', isActive && 'bg-primary text-primary-foreground')}
     >
