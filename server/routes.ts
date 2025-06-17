@@ -1281,8 +1281,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Process and structure the results with affiliate link generation
       const products = responseData.shopping_results?.map((product: any) => {
-        const affiliateNetworks = require('./affiliateNetworks');
-        const affiliateUrl = affiliateNetworks.generateAffiliateLink(product.link, product.source);
+        // Generate affiliate link based on the source
+        let affiliateUrl = product.link;
+        
+        // Basic affiliate link generation for major retailers
+        if (product.source?.toLowerCase().includes('amazon')) {
+          affiliateUrl = `https://www.amazon.com/dp/${product.link.split('/dp/')[1]?.split('/')[0]}?tag=firekyt-20`;
+        } else if (product.source?.toLowerCase().includes('walmart')) {
+          affiliateUrl = `${product.link}?wmlspartner=firekyt`;
+        } else if (product.source?.toLowerCase().includes('target')) {
+          affiliateUrl = `${product.link}?ref=firekyt`;
+        } else if (product.source?.toLowerCase().includes('bestbuy')) {
+          affiliateUrl = `${product.link}?irclickid=firekyt`;
+        }
         
         return {
           title: product.title,
