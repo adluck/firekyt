@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -150,7 +150,7 @@ export default function ProductResearch() {
       targetKeywords: '',
       minPrice: 0,
       maxPrice: 10000,
-      saveToDatabase: true
+      saveToDatabase: false
     }
   });
 
@@ -161,7 +161,7 @@ export default function ProductResearch() {
   });
 
   // Fetch research sessions
-  const { data: sessions = [], isLoading: sessionsLoading } = useQuery({
+  const { data: sessions = [], isLoading: sessionsLoading } = useQuery<ResearchSession[]>({
     queryKey: ['/api/research-sessions'],
     enabled: activeTab === 'history'
   });
@@ -177,13 +177,14 @@ export default function ProductResearch() {
       return response.json();
     },
     enabled: !!currentQuery,
-    onSuccess: (data) => {
-      // Automatically save search results to research history
-      if (data && currentQuery) {
-        saveSearchToHistory(currentQuery, data);
-      }
-    }
   });
+
+  // Save search results to history when data is received
+  useEffect(() => {
+    if (searchResults && currentQuery) {
+      saveSearchToHistory(currentQuery, searchResults);
+    }
+  }, [searchResults, currentQuery]);
 
   // Research mutation
   const researchMutation = useMutation({
@@ -1011,7 +1012,7 @@ export default function ProductResearch() {
                         {product.keywords && product.keywords.length > 0 && (
                           <div className="mt-3 pt-3 border-t">
                             <div className="flex flex-wrap gap-1">
-                              {product.keywords.slice(0, 5).map((keyword, index) => (
+                              {product.keywords.slice(0, 5).map((keyword: string, index: number) => (
                                 <Badge key={index} variant="secondary" className="text-xs">
                                   {keyword}
                                 </Badge>
