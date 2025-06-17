@@ -17,7 +17,6 @@ export default function Login() {
   const { login, isLoading } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const { theme } = useTheme();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

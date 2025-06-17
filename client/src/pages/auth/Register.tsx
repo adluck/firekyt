@@ -8,7 +8,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Zap, AlertCircle } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "@/components/layout/ThemeProvider";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -24,7 +23,6 @@ export default function Register() {
   const { register, isLoading } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const { theme } = useTheme();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
