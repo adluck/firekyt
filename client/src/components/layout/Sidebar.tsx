@@ -127,7 +127,7 @@ export function Sidebar({ user, subscription }: SidebarProps) {
           {/* Logo */}
           <div className="logo-section">
             <img 
-              src="/src/assets/firekyt-logo.png" 
+              src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
               alt="FireKyt" 
               className="h-8 w-auto"
             />

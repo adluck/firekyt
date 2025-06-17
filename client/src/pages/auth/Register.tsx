@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Zap, AlertCircle } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/layout/ThemeProvider";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ export default function Register() {
   const { register, isLoading } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { theme } = useTheme();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -63,7 +65,7 @@ export default function Register() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src="/src/assets/firekyt-logo.png" 
+              src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
               alt="FireKyt" 
               className="h-12 w-auto"
             />
