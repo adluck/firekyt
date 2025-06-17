@@ -232,13 +232,14 @@ export default function ProductResearch() {
         title: product.title,
         description: product.title, // Use title as description for now
         price: parseFloat(product.price) || 0,
-        productUrl: product.link,
+        productUrl: product.link || 'https://example.com/product',
         imageUrl: product.thumbnail,
         rating: product.rating || 0,
         reviewCount: product.reviews || 0,
         apiSource: 'serpapi_shopping',
-        source: product.source,
         brand: product.source, // Use source as brand placeholder
+        category: 'electronics',
+        niche: 'consumer_electronics'
       });
       return response.json();
     },
