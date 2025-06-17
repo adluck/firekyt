@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* TipTap Editor Styles - Remove borders */
+.ProseMirror {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.ProseMirror:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* MintySea UI Template Colors */
 :root {
   --primary-gradient: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
