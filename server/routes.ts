@@ -1127,31 +1127,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         location: "United States"
       });
       
+      console.log('Making SerpAPI request:', `https://serpapi.com/search.json?${shoppingParams}`);
+      
       const shoppingResponse = await fetch(`https://serpapi.com/search.json?${shoppingParams}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
 
+      console.log('SerpAPI response status:', shoppingResponse.status);
+      console.log('SerpAPI response headers:', Object.fromEntries(shoppingResponse.headers.entries()));
+
       if (!shoppingResponse.ok) {
-        throw new Error(`SerpAPI error: ${shoppingResponse.status}`);
+        const errorText = await shoppingResponse.text();
+        console.log('SerpAPI error response:', errorText);
+        throw new Error(`SerpAPI error: ${shoppingResponse.status} - ${errorText}`);
       }
 
-      const shoppingData = await shoppingResponse.json();
+      const responseText = await shoppingResponse.text();
+      console.log('SerpAPI raw response:', responseText.substring(0, 500));
+      
+      let shoppingData;
+      try {
+        shoppingData = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('JSON parsing failed:', jsonError);
+        throw new Error(`Invalid JSON response from SerpAPI: ${responseText.substring(0, 200)}`);
+      }
       
       // Also search for affiliate programs and reviews
-      const organicResponse = await fetch(`https://serpapi.com/search.json`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          q: `${query} affiliate program review best`,
-          engine: "google",
-          api_key: serpApiKey,
-          num: 10,
-          location: "United States"
-        })
+      const organicParams = new URLSearchParams({
+        q: `${query} affiliate program review best`,
+        engine: "google",
+        api_key: serpApiKey,
+        num: "10",
+        location: "United States"
+      });
+      
+      const organicResponse = await fetch(`https://serpapi.com/search.json?${organicParams}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       });
 
-      const organicData = await organicResponse.json();
+      const organicData = organicResponse.ok ? await organicResponse.json() : { organic_results: [] };
 
       // Process and structure the results
       const products = shoppingData.shopping_results?.map((product: any) => ({
