@@ -1237,7 +1237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Product Search using alternative API endpoint
+  // Comprehensive Product Search with Multiple Data Sources
   app.post("/api/search-affiliate-products", authenticateToken, async (req, res) => {
     try {
       const { query, category } = req.body;
@@ -1246,78 +1246,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Search query is required' });
       }
 
-      // Use Lobstr.io API for product search
+      // Primary: Try Lobstr.io API first
       const lobstrApiKey = process.env.LOBSTR_API_KEY;
-      if (!lobstrApiKey) {
-        return res.status(500).json({ error: 'Lobstr API key not configured' });
-      }
+      let responseData = null;
+      let dataSource = 'unknown';
 
-      // Search for products using Lobstr.io API
-      const searchParams = new URLSearchParams({
-        query: query,
-        limit: '20',
-        country: 'US',
-        format: 'json'
-      });
-      
-      console.log('Making Lobstr.io request:', `https://api.lobstr.io/v1/products/search?${searchParams}`);
-      
-      const shoppingResponse = await fetch(`https://api.lobstr.io/v1/products/search?${searchParams}`, {
-        method: 'GET',
-        headers: { 
-          'Authorization': `Bearer ${lobstrApiKey}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'FireKyt-Affiliate-Platform/1.0'
+      if (lobstrApiKey) {
+        try {
+          const lobstrParams = new URLSearchParams({
+            q: query,
+            limit: '20',
+            country: 'US'
+          });
+          
+          console.log('Attempting Lobstr.io request:', `https://api.lobstr.io/products/search?${lobstrParams}`);
+          
+          const lobstrResponse = await fetch(`https://api.lobstr.io/products/search?${lobstrParams}`, {
+            method: 'GET',
+            headers: { 
+              'Authorization': `Bearer ${lobstrApiKey}`,
+              'Accept': 'application/json'
+            }
+          });
+
+          if (lobstrResponse.ok) {
+            responseData = await lobstrResponse.json();
+            dataSource = 'lobstr_api';
+            console.log('Lobstr.io response successful');
+          } else {
+            console.log('Lobstr.io failed with status:', lobstrResponse.status);
+          }
+        } catch (lobstrError) {
+          console.log('Lobstr.io request failed:', String(lobstrError));
         }
-      });
-
-      console.log('Lobstr.io response status:', shoppingResponse.status);
-
-      if (!shoppingResponse.ok) {
-        const errorText = await shoppingResponse.text();
-        console.log('Lobstr.io error response:', errorText);
-        throw new Error(`Lobstr.io error: ${shoppingResponse.status} - ${errorText}`);
       }
 
-      const responseData = await shoppingResponse.json();
-      console.log('Lobstr.io response data received:', !!responseData.products);
+      // Fallback: Use SerpAPI if Lobstr.io fails or unavailable
+      if (!responseData) {
+        const serpApiKey = process.env.SERP_API_KEY;
+        if (!serpApiKey) {
+          return res.status(500).json({ error: 'No product search API keys configured' });
+        }
+
+        const serpParams = new URLSearchParams({
+          q: query,
+          engine: "google_shopping",
+          api_key: serpApiKey,
+          num: "20",
+          location: "United States"
+        });
+        
+        console.log('Using SerpAPI fallback:', `https://serpapi.com/search.json?${serpParams}`);
+        
+        const serpResponse = await fetch(`https://serpapi.com/search.json?${serpParams}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!serpResponse.ok) {
+          const errorText = await serpResponse.text();
+          throw new Error(`Product search failed: ${serpResponse.status} - ${errorText}`);
+        }
+
+        responseData = await serpResponse.json();
+        dataSource = 'google_shopping';
+        console.log('SerpAPI fallback successful');
+      }
 
       // Process and structure the results with affiliate link generation
-      const products = responseData.products?.map((product: any) => {
-        // Generate affiliate link based on the source
-        const productUrl = product.url || product.link || product.product_url;
-        let affiliateUrl = productUrl;
-        const productSource = product.store || product.source || product.merchant || product.retailer;
-        
-        // Basic affiliate link generation for major retailers
-        if (productSource?.toLowerCase().includes('amazon') && productUrl) {
-          const dpMatch = productUrl.match(/\/dp\/([A-Z0-9]{10})/);
-          if (dpMatch) {
-            affiliateUrl = `https://www.amazon.com/dp/${dpMatch[1]}?tag=firekyt-20`;
-          } else {
-            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}tag=firekyt-20`;
+      let products = [];
+      
+      if (dataSource === 'lobstr_api' && responseData.products) {
+        // Process Lobstr.io format
+        products = responseData.products.map((product: any) => {
+          const productUrl = product.url || product.link || product.product_url;
+          let affiliateUrl = productUrl;
+          const productSource = product.store || product.source || product.merchant || product.retailer;
+          
+          // Generate affiliate links for major retailers
+          if (productSource?.toLowerCase().includes('amazon') && productUrl) {
+            const dpMatch = productUrl.match(/\/dp\/([A-Z0-9]{10})/);
+            if (dpMatch) {
+              affiliateUrl = `https://www.amazon.com/dp/${dpMatch[1]}?tag=firekyt-20`;
+            } else {
+              affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}tag=firekyt-20`;
+            }
+          } else if (productSource?.toLowerCase().includes('walmart') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}wmlspartner=firekyt`;
+          } else if (productSource?.toLowerCase().includes('target') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}ref=firekyt`;
+          } else if (productSource?.toLowerCase().includes('bestbuy') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}irclickid=firekyt`;
           }
-        } else if (productSource?.toLowerCase().includes('walmart') && productUrl) {
-          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}wmlspartner=firekyt`;
-        } else if (productSource?.toLowerCase().includes('target') && productUrl) {
-          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}ref=firekyt`;
-        } else if (productSource?.toLowerCase().includes('bestbuy') && productUrl) {
-          affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}irclickid=firekyt`;
-        }
-        
-        return {
-          title: product.title || product.name,
-          price: product.price?.value || product.price || product.current_price,
-          rating: product.rating?.average || product.rating || product.stars,
-          reviews: product.rating?.count || product.reviews || product.review_count,
-          source: productSource,
-          link: productUrl,
-          affiliateUrl: affiliateUrl,
-          thumbnail: product.image?.url || product.thumbnail || product.image || product.photo,
-          delivery: product.shipping?.text || product.delivery || product.shipping,
-          extensions: product.features || product.attributes || product.specifications || []
-        };
-      }) || [];
+          
+          return {
+            title: product.title || product.name,
+            price: product.price?.value || product.price || product.current_price,
+            rating: product.rating?.average || product.rating || product.stars,
+            reviews: product.rating?.count || product.reviews || product.review_count,
+            source: productSource,
+            link: productUrl,
+            affiliateUrl: affiliateUrl,
+            thumbnail: product.image?.url || product.thumbnail || product.image || product.photo,
+            delivery: product.shipping?.text || product.delivery || product.shipping,
+            extensions: product.features || product.attributes || product.specifications || []
+          };
+        });
+      } else if (dataSource === 'google_shopping' && responseData.shopping_results) {
+        // Process SerpAPI Google Shopping format
+        products = responseData.shopping_results.map((product: any) => {
+          const productUrl = product.link;
+          let affiliateUrl = productUrl;
+          const productSource = product.source;
+          
+          // Generate affiliate links for major retailers
+          if (productSource?.toLowerCase().includes('amazon') && productUrl) {
+            const dpMatch = productUrl.match(/\/dp\/([A-Z0-9]{10})/);
+            if (dpMatch) {
+              affiliateUrl = `https://www.amazon.com/dp/${dpMatch[1]}?tag=firekyt-20`;
+            } else {
+              affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}tag=firekyt-20`;
+            }
+          } else if (productSource?.toLowerCase().includes('walmart') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}wmlspartner=firekyt`;
+          } else if (productSource?.toLowerCase().includes('target') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}ref=firekyt`;
+          } else if (productSource?.toLowerCase().includes('bestbuy') && productUrl) {
+            affiliateUrl = `${productUrl}${productUrl.includes('?') ? '&' : '?'}irclickid=firekyt`;
+          }
+          
+          return {
+            title: product.title,
+            price: product.extracted_price || product.price,
+            rating: product.rating,
+            reviews: product.reviews,
+            source: productSource,
+            link: productUrl,
+            affiliateUrl: affiliateUrl,
+            thumbnail: product.thumbnail,
+            delivery: product.delivery,
+            extensions: product.extensions || []
+          };
+        });
+      }
 
       // Generate affiliate opportunities based on product sources
       const affiliateOpportunities = products.slice(0, 5).map((product: any, index: number) => ({
@@ -1345,10 +1416,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products,
         affiliateOpportunities,
         priceAnalysis,
-        totalResults: responseData.total_results || responseData.count || products.length,
+        totalResults: responseData.total_results || responseData.search_information?.total_results || responseData.count || products.length,
         searchMetadata: {
           timestamp: new Date().toISOString(),
-          engine: 'lobstr_api',
+          engine: dataSource,
           location: 'United States'
         }
       });
