@@ -223,18 +223,12 @@ export function UnifiedContentEditor({
       
       // Update keywords state with saved data to reflect in UI
       if (result && result.targetKeywords) {
-        const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : String(result.targetKeywords);
-        console.log('🔍 FRONTEND Setting keywords to:', newKeywords);
-        setKeywords(newKeywords);
+        console.log('🔍 FRONTEND Setting keywords to:', result.targetKeywords);
+        setCurrentKeywords(result.targetKeywords);
         setContentData(prev => ({ 
           ...prev, 
           targetKeywords: result.targetKeywords 
         }));
-        
-        // Force UI update by triggering a state change
-        setTimeout(() => {
-          setKeywords(newKeywords);
-        }, 0);
       } else {
         console.log('🔍 FRONTEND No targetKeywords in result or result is null');
       }
@@ -329,7 +323,7 @@ export function UnifiedContentEditor({
 
     const dataToSave = {
       ...contentData,
-      targetKeywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
+      targetKeywords: currentKeywords || [],
     };
 
     console.log('Saving content with keywords:', dataToSave.targetKeywords);
@@ -344,7 +338,7 @@ export function UnifiedContentEditor({
     const dataToSave = {
       ...contentData,
       status: 'published',
-      targetKeywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
+      targetKeywords: currentKeywords || [],
     };
 
     console.log('Publishing content with keywords:', dataToSave.targetKeywords);
@@ -514,48 +508,11 @@ export function UnifiedContentEditor({
                         </p>
                       </div>
 
-                      <div>
-                        <Label htmlFor="keywords">Target Keywords</Label>
-                        <Input
-                          id="keywords"
-                          value={keywords}
-                          onChange={(e) => setKeywords(e.target.value)}
-                          placeholder="keyword1, keyword2, keyword3..."
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Separate keywords with commas
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                        <Button
-                          type="button"
-                          onClick={saveKeywords}
-                          disabled={!contentId}
-                          size="sm"
-                        >
-                          Save Keywords
-                        </Button>
-                        
-                        {!contentId && (
-                          <p className="text-xs text-muted-foreground">
-                            Save content first to enable keyword updates
-                          </p>
-                        )}
-                      </div>
-
-                      {keywords && (
-                        <div>
-                          <Label>Keywords Preview</Label>
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {keywords.split(',').map((keyword, index) => (
-                              <Badge key={index} variant="secondary">
-                                {keyword.trim()}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                      <SimpleKeywordEditor
+                        contentId={typeof contentId === 'number' ? contentId : null}
+                        currentKeywords={currentKeywords}
+                        onUpdate={handleKeywordsUpdate}
+                      />
                     </div>
                   </TabsContent>
                 )}
