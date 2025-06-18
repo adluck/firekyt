@@ -1,6 +1,8 @@
 import { useParams, useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { UnifiedContentEditor } from '@/components/editor/UnifiedContentEditor';
 import { apiRequest } from '@/lib/queryClient';
+import type { Content } from '@shared/schema';
 
 interface ContentEditorProps {
   id?: string;
@@ -11,18 +13,47 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
   const id = propId || urlId;
   const [, setLocation] = useLocation();
   
-  // Get siteId from URL parameters for initial content
+  // Get siteId from URL parameters for initial content (for new content)
   const urlParams = new URLSearchParams(window.location.search);
   const siteIdFromUrl = urlParams.get('siteId');
   
-  const initialContent = {
-    siteId: siteIdFromUrl ? parseInt(siteIdFromUrl) : 0,
-  };
+  // Fetch existing content if editing
+  const { data: existingContent, isLoading } = useQuery<Content>({
+    queryKey: [`/api/content/${id}`],
+    enabled: !!id && id !== 'undefined',
+  });
 
   const handleSaveSuccess = async (result: any) => {
     if (!id && result?.id) {
       setLocation(`/content/editor/${result.id}`);
     }
+  };
+
+  // Show loading state while fetching content
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Prepare initial content
+  const initialContent = existingContent ? {
+    id: existingContent.id,
+    title: existingContent.title,
+    content: existingContent.content,
+    contentType: existingContent.contentType,
+    status: existingContent.status,
+    seoTitle: existingContent.seoTitle,
+    seoDescription: existingContent.seoDescription,
+    targetKeywords: existingContent.targetKeywords,
+    siteId: existingContent.siteId || 0,
+    richContent: existingContent.richContent,
+    comparisonTables: existingContent.comparisonTables,
+    affiliateLinks: existingContent.affiliateLinks,
+  } : {
+    siteId: siteIdFromUrl ? parseInt(siteIdFromUrl) : 0,
   };
 
   return (
