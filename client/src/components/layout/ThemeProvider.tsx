@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type Theme = "dark" | "light";
 
@@ -12,11 +12,15 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    // Get theme from localStorage or default to light
+  const [theme, setTheme] = useState<Theme>("light");
+
+  // Initialize theme from localStorage after component mounts
+  useEffect(() => {
     const stored = localStorage.getItem("theme");
-    return (stored as Theme) || "light";
-  });
+    if (stored && (stored === "light" || stored === "dark")) {
+      setTheme(stored as Theme);
+    }
+  }, []);
 
   useEffect(() => {
     // Apply theme using MintySea UI template's data-theme attribute approach
