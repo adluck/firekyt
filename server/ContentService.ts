@@ -98,6 +98,8 @@ export class ContentService {
   }
 
   async updateContent(contentId: number, userId: number, request: UpdateContentRequest): Promise<Content> {
+    console.log('🔍 ContentService.updateContent - Received request.targetKeywords:', JSON.stringify(request.targetKeywords));
+    
     const existingContent = await this.getContentById(contentId, userId);
     if (!existingContent) {
       throw new Error('Content not found or access denied');
@@ -107,6 +109,8 @@ export class ContentService {
       ...request,
       updatedAt: new Date()
     };
+    
+    console.log('🔍 ContentService.updateContent - updateData.targetKeywords:', JSON.stringify(updateData.targetKeywords));
 
     if (request.content) {
       updateData.wordCount = this.calculateWordCount(request.content);
