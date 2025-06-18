@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail, Edit3 } from "lucide-react";
+import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail, Edit3, X } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ContentEditor from "@/components/content/ContentEditor";
@@ -140,6 +140,17 @@ export default function AdvancedContentGenerator() {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Auto-dismiss success modal after 5 seconds
+  useEffect(() => {
+    if (savedContent) {
+      const timer = setTimeout(() => {
+        setSavedContent(null);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [savedContent]);
 
   // Fetch user sites
   const { data: sites = [] } = useQuery<Site[]>({
@@ -813,7 +824,15 @@ export default function AdvancedContentGenerator() {
 
       {savedContent && (
         <Card>
-          <CardHeader>
+          <CardHeader className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSavedContent(null)}
+              className="absolute top-2 right-2 h-6 w-6 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
             <CardTitle className="text-green-600">Content Saved Successfully!</CardTitle>
             <CardDescription>
               Your generated content has been saved to your site and is ready for publication.
@@ -837,6 +856,14 @@ export default function AdvancedContentGenerator() {
                 <Label className="font-medium">Site ID</Label>
                 <p className="text-muted-foreground">{savedContent.siteId}</p>
               </div>
+            </div>
+            <div className="mt-4 flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setSavedContent(null)}>
+                Close
+              </Button>
+              <Button onClick={() => window.location.href = '/content'}>
+                View All Content
+              </Button>
             </div>
           </CardContent>
         </Card>
