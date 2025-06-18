@@ -141,8 +141,8 @@ export function UnifiedContentEditor({
 
   // Load existing content data
   useEffect(() => {
-    if (existingContent) {
-      const contentWithKeywords = existingContent as any;
+    if (initialContent) {
+      const contentWithKeywords = initialContent as any;
       
       // Parse content based on format
       let parsedContent = contentWithKeywords.content || '';
@@ -160,37 +160,43 @@ export function UnifiedContentEditor({
               } else if (jsonContent.generated_text && typeof jsonContent.generated_text === 'string') {
                 parsedContent = jsonContent.generated_text;
               } else {
-                // If it's JSON but doesn't have expected fields, use the raw string
-                parsedContent = contentWithKeywords.content;
+                // If it's JSON but doesn't have expected fields, keep the original
+                parsedContent = parsedContent;
               }
             }
           } catch {
             // If JSON parsing fails, use the content as-is
-            parsedContent = contentWithKeywords.content;
+            parsedContent = parsedContent;
           }
         }
-        // If not JSON, use content as-is (could be markdown or HTML)
+        // If not JSON, content is already set correctly
+      }
+      
+      // Ensure we don't lose content during processing
+      if (!parsedContent && contentWithKeywords.content) {
+        parsedContent = contentWithKeywords.content;
       }
       
       // Log for debugging (remove in production)
       console.log('Content loading debug:', {
-        originalContent: contentWithKeywords.content?.substring(0, 100),
-        parsedContent: parsedContent?.substring(0, 100),
-        contentType: typeof contentWithKeywords.content,
+        hasOriginalContent: !!contentWithKeywords.content,
+        originalLength: contentWithKeywords.content?.length || 0,
+        hasParsedContent: !!parsedContent,
+        parsedLength: parsedContent?.length || 0,
         isJSON: contentWithKeywords.content?.trim().startsWith('{')
       });
       
       setContentData(prevData => ({
         ...prevData,
-        ...existingContent,
-        content: parsedContent || '',
+        ...(initialContent || {}),
+        content: parsedContent,
         targetKeywords: contentWithKeywords.targetKeywords || [],
         comparisonTables: contentWithKeywords.comparisonTables || null,
       }));
       setKeywords((contentWithKeywords.targetKeywords || []).join(', '));
       setComparisonTableConfig(contentWithKeywords.comparisonTables || null);
     }
-  }, [existingContent]);
+  }, [initialContent]);
 
   // Default save mutation
   const defaultSaveMutation = useMutation({

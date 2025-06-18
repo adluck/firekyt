@@ -275,17 +275,26 @@ export default function ContentManager() {
         enableSEO={true}
         enablePreview={true}
         requiredFields={['title', 'content']}
-        initialContent={{
-          id: editingContent.id,
-          title: editingContent.title,
-          content: editingContent.content,
-          contentType: editingContent.contentType,
-          status: editingContent.status,
-          seoTitle: editingContent.seoTitle,
-          seoDescription: editingContent.seoDescription,
-          targetKeywords: editingContent.targetKeywords,
-          siteId: 1, // Default site ID - will be properly handled by the editor
-        }}
+        initialContent={(() => {
+          console.log('ContentManager: editingContent debug:', {
+            hasContent: !!editingContent.content,
+            contentLength: editingContent.content?.length || 0,
+            contentPreview: editingContent.content?.substring(0, 100),
+            contentKeys: Object.keys(editingContent)
+          });
+          
+          return {
+            id: editingContent.id,
+            title: editingContent.title,
+            content: editingContent.content,
+            contentType: editingContent.contentType,
+            status: editingContent.status,
+            seoTitle: editingContent.seoTitle,
+            seoDescription: editingContent.seoDescription,
+            targetKeywords: editingContent.targetKeywords,
+            siteId: 1, // Default site ID - will be properly handled by the editor
+          };
+        })()}
         onSave={async (data) => {
           return new Promise((resolve, reject) => {
             handleSaveEdit(data);
