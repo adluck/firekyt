@@ -1146,7 +1146,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         niche: req.body.niche || 'general',
         commissionRate: commissionRate.toString(),
         commissionAmount: commissionAmount.toFixed(2),
-        researchScore: '75.0' // Default research score for manually saved products
+        researchScore: '75.0', // Default research score for manually saved products
+        researchSessionId: req.body.researchSessionId || null
       };
 
       const savedProduct = await storage.createProduct(productData);

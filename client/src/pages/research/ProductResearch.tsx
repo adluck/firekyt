@@ -316,13 +316,42 @@ export default function ProductResearch() {
         niche: query,
         productCategory: 'search_results',
         totalProductsFound: results.products?.length || 0,
-        productsStored: 0,
+        productsStored: results.products?.length || 0,
         averageScore: '0',
         status: 'completed',
         apiCallsMade: 1,
         apiSources: ['serpapi'],
         researchDuration: 1000
       });
+      
+      const session = await response.json();
+      
+      // Save all products from search results to this session
+      if (results.products && results.products.length > 0) {
+        const productsToSave = results.products.map((product: any) => ({
+          title: product.title || 'Untitled Product',
+          description: product.title || 'No description',
+          price: parseFloat(product.price) || 0,
+          productUrl: product.link || '',
+          imageUrl: product.thumbnail || '',
+          rating: product.rating || 0,
+          reviewCount: product.reviews || 0,
+          apiSource: 'serpapi_shopping',
+          brand: product.source || 'Unknown',
+          category: 'electronics',
+          niche: query,
+          researchSessionId: session.id
+        }));
+        
+        // Save products individually to link them to the session
+        for (const productData of productsToSave) {
+          try {
+            await apiRequest('POST', '/api/products', productData);
+          } catch (error) {
+            console.error('Failed to save product:', error);
+          }
+        }
+      }
       
       if (response.ok) {
         queryClient.invalidateQueries({ queryKey: ['/api/research-sessions'] });
