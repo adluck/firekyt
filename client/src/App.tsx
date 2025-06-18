@@ -71,11 +71,11 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      <Route path="/sites/:id">
+      <Route path="/sites/:siteId">
         {(params) => (
           <ProtectedRoute>
             <AppLayout>
-              <SiteDetails siteId={params.id} />
+              <SiteDetails siteId={params.siteId} />
             </AppLayout>
           </ProtectedRoute>
         )}
