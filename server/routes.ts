@@ -713,7 +713,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (updates.status !== undefined) cleanUpdates.status = String(updates.status);
       if (updates.seoTitle !== undefined) cleanUpdates.seoTitle = updates.seoTitle ? String(updates.seoTitle) : null;
       if (updates.seoDescription !== undefined) cleanUpdates.seoDescription = updates.seoDescription ? String(updates.seoDescription) : null;
-      if (updates.targetKeywords !== undefined) cleanUpdates.targetKeywords = Array.isArray(updates.targetKeywords) ? updates.targetKeywords : null;
+      if (updates.targetKeywords !== undefined) {
+        console.log('🔍 PATCH Processing targetKeywords:', JSON.stringify(updates.targetKeywords));
+        if (Array.isArray(updates.targetKeywords)) {
+          cleanUpdates.targetKeywords = updates.targetKeywords.filter(k => k && k.trim());
+          console.log('🔍 PATCH Array processed to:', JSON.stringify(cleanUpdates.targetKeywords));
+        } else if (updates.targetKeywords === null) {
+          cleanUpdates.targetKeywords = null;
+          console.log('🔍 PATCH Set to null');
+        } else if (typeof updates.targetKeywords === 'string') {
+          cleanUpdates.targetKeywords = [updates.targetKeywords.trim()].filter(k => k);
+          console.log('🔍 PATCH String converted to array:', JSON.stringify(cleanUpdates.targetKeywords));
+        } else {
+          console.log('🔍 PATCH Invalid format, setting to null');
+          cleanUpdates.targetKeywords = null;
+        }
+      }
       if (updates.affiliateLinks !== undefined) cleanUpdates.affiliateLinks = updates.affiliateLinks;
       if (updates.richContent !== undefined) cleanUpdates.richContent = updates.richContent;
       if (updates.comparisonTables !== undefined) cleanUpdates.comparisonTables = updates.comparisonTables;

@@ -193,8 +193,9 @@ export function UnifiedContentEditor({
     }
   }, [initialContent]);
 
-  // Handle keyword updates from KeywordManager
+  // Handle keyword updates from KeywordManager - ensure non-interference with SimpleKeywordEditor
   const handleKeywordsUpdate = (newKeywords: string[]) => {
+    console.log('🔍 UNIFIED handleKeywordsUpdate called with:', newKeywords);
     setCurrentKeywords(newKeywords);
     setContentData(prev => ({ 
       ...prev, 
