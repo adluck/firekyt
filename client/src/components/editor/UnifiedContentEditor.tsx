@@ -193,13 +193,54 @@ export function UnifiedContentEditor({
     }
   }, [initialContent]);
 
+  // Dedicated keyword save mutation
+  const keywordSaveMutation = useMutation({
+    mutationFn: async (newKeywords: string) => {
+      if (!contentId) throw new Error('Content ID required for keyword updates');
+      
+      const keywordArray = newKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+      console.log('🔍 KEYWORDS Saving keywords:', JSON.stringify(keywordArray));
+      
+      const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
+        targetKeywords: keywordArray
+      });
+      return await response.json();
+    },
+    onSuccess: (result) => {
+      console.log('🔍 KEYWORDS Success response:', JSON.stringify(result));
+      
+      if (result && result.targetKeywords) {
+        const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : String(result.targetKeywords);
+        console.log('🔍 KEYWORDS Setting UI to:', newKeywords);
+        setKeywords(newKeywords);
+        setContentData(prev => ({ 
+          ...prev, 
+          targetKeywords: result.targetKeywords 
+        }));
+        
+        toast({
+          title: 'Keywords saved',
+          description: 'SEO keywords updated successfully',
+        });
+        
+        queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Keywords save failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
   // Default save mutation
   const defaultSaveMutation = useMutation({
     mutationFn: async (data: ContentData) => {
       if (onSave) {
         await onSave(data);
-        // After custom onSave, return the updated data for UI state management
-        return { ...data, targetKeywords: data.targetKeywords };
+        return { success: true };
       }
       
       // Default API save behavior
@@ -517,6 +558,23 @@ export function UnifiedContentEditor({
                         <p className="text-xs text-muted-foreground mt-1">
                           Separate keywords with commas
                         </p>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <Button
+                          type="button"
+                          onClick={() => keywordSaveMutation.mutate(keywords)}
+                          disabled={keywordSaveMutation.isPending || !contentId}
+                          size="sm"
+                        >
+                          {keywordSaveMutation.isPending ? 'Saving...' : 'Save Keywords'}
+                        </Button>
+                        
+                        {!contentId && (
+                          <p className="text-xs text-muted-foreground">
+                            Save content first to enable keyword updates
+                          </p>
+                        )}
                       </div>
 
                       {keywords && (
