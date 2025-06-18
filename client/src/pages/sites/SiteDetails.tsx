@@ -50,17 +50,22 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
     queryKey: [`/api/analytics/site/${siteId}`],
   });
 
-  // Filter content by site and status
-  const siteContent = content.filter(c => c.siteId === parseInt(siteId));
-  const publishedContent = siteContent.filter(c => c.status === 'published');
-  const draftContent = siteContent.filter(c => c.status === 'draft');
+  // Filter content by site and status with safe checks
+  const siteIdNum = parseInt(siteId);
+  const allContent = Array.isArray(content) ? content : [];
+  const siteContent = allContent.filter(c => {
+    console.log('Content item:', c, 'siteId:', c?.siteId, 'comparing to:', siteIdNum);
+    return c && c.siteId === siteIdNum;
+  });
+  const publishedContent = siteContent.filter(c => c?.status === 'published');
+  const draftContent = siteContent.filter(c => c?.status === 'draft');
 
   // Debug content filtering
-  console.log('Site ID:', siteId, 'parsed:', parseInt(siteId));
-  console.log('All content:', content);
-  console.log('Site content:', siteContent);
-  console.log('Published content:', publishedContent);
-  console.log('Draft content:', draftContent);
+  console.log('Site ID:', siteId, 'parsed:', siteIdNum);
+  console.log('All content length:', allContent.length);
+  console.log('Site content length:', siteContent.length);
+  console.log('Published content length:', publishedContent.length);
+  console.log('Draft content length:', draftContent.length);
 
   // Delete content mutation
   const deleteContentMutation = useMutation({
