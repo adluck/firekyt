@@ -100,18 +100,18 @@ export function ComparisonTableRenderer({ config, className }: ComparisonTableRe
   const getBorderClass = () => {
     switch (config.styling.borderStyle) {
       case 'none': return '';
-      case 'light': return 'border border-gray-200';
-      case 'medium': return 'border-2 border-gray-300';
-      case 'heavy': return 'border-4 border-gray-400';
-      default: return 'border border-gray-200';
+      case 'light': return 'border border-gray-200 dark:border-gray-700';
+      case 'medium': return 'border-2 border-gray-300 dark:border-gray-600';
+      case 'heavy': return 'border-4 border-gray-400 dark:border-gray-500';
+      default: return 'border border-gray-200 dark:border-gray-700';
     }
   };
 
   if (!config.rows.length) {
     return (
-      <div className={cn('border rounded-lg p-8 text-center', className)}>
-        <p className="text-muted-foreground">No products added to comparison table</p>
-        <p className="text-sm text-muted-foreground mt-2">
+      <div className={cn('border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center', className)}>
+        <p className="text-muted-foreground dark:text-gray-400">No products added to comparison table</p>
+        <p className="text-sm text-muted-foreground dark:text-gray-500 mt-2">
           Add products in the Tables tab to see the comparison
         </p>
       </div>
@@ -123,12 +123,12 @@ export function ComparisonTableRenderer({ config, className }: ComparisonTableRe
       <table className={cn('w-full', getBorderClass())}>
         {config.settings.showHeader && (
           <thead>
-            <tr style={{ backgroundColor: config.styling.headerBg }}>
+            <tr className="bg-gray-50 dark:bg-gray-800">
               {config.columns.map((column) => (
                 <th
                   key={column.id}
                   className={cn(
-                    'px-4 py-3 text-left font-semibold',
+                    'px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700',
                     config.styling.compact ? 'px-2 py-2' : 'px-4 py-3'
                   )}
                 >
@@ -143,15 +143,15 @@ export function ComparisonTableRenderer({ config, className }: ComparisonTableRe
             <tr
               key={row.id}
               className={cn(
-                config.styling.alternateRows && rowIndex % 2 === 1 && 'bg-gray-50',
-                'border-t'
+                config.styling.alternateRows && rowIndex % 2 === 1 && 'bg-gray-50 dark:bg-gray-800/50',
+                'border-t border-gray-200 dark:border-gray-700'
               )}
             >
               {config.columns.map((column) => (
                 <td
                   key={`${row.id}-${column.id}`}
                   className={cn(
-                    'px-4 py-3 align-top',
+                    'px-4 py-3 align-top text-gray-900 dark:text-gray-100',
                     config.styling.compact ? 'px-2 py-2' : 'px-4 py-3'
                   )}
                 >
