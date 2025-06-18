@@ -660,21 +660,27 @@ export class DatabaseStorage implements IStorage {
       .returning();
       
     console.log('🔍 DATABASE Result from database:', JSON.stringify(contentItem.targetKeywords));
+    console.log('🔍 DATABASE targetKeywords type:', typeof contentItem.targetKeywords);
     
     // Ensure targetKeywords is returned as a proper JavaScript array
     if (contentItem.targetKeywords && typeof contentItem.targetKeywords === 'string') {
       try {
         // Parse PostgreSQL array string format to JavaScript array
-        const arrayString = contentItem.targetKeywords.replace(/^{/, '[').replace(/}$/, ']').replace(/"/g, '"');
-        contentItem.targetKeywords = JSON.parse(arrayString);
-      } catch {
+        const arrayString = (contentItem.targetKeywords as string).replace(/^{/, '[').replace(/}$/, ']').replace(/"/g, '"');
+        (contentItem as any).targetKeywords = JSON.parse(arrayString);
+        console.log('🔍 DATABASE After JSON parse:', JSON.stringify((contentItem as any).targetKeywords));
+      } catch (error) {
+        console.log('🔍 DATABASE JSON parse failed, using fallback:', error);
         // If parsing fails, split by comma as fallback
-        contentItem.targetKeywords = contentItem.targetKeywords
+        (contentItem as any).targetKeywords = (contentItem.targetKeywords as string)
           .replace(/[{}]/g, '')
           .split(',')
-          .map(keyword => keyword.replace(/"/g, '').trim())
-          .filter(keyword => keyword.length > 0);
+          .map((keyword: string) => keyword.replace(/"/g, '').trim())
+          .filter((keyword: string) => keyword.length > 0);
+        console.log('🔍 DATABASE After fallback parse:', JSON.stringify((contentItem as any).targetKeywords));
       }
+    } else if (Array.isArray(contentItem.targetKeywords)) {
+      console.log('🔍 DATABASE Already an array:', JSON.stringify(contentItem.targetKeywords));
     }
     
     return contentItem;
