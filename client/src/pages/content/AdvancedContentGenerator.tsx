@@ -17,7 +17,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail, Edit3, X } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import ContentEditor from "@/components/content/ContentEditor";
+import { UnifiedContentEditor } from "@/components/editor/UnifiedContentEditor";
 import { SiteSelectionDialog } from "@/components/content/SiteSelectionDialog";
 import type { Site } from "@shared/schema";
 
@@ -319,11 +319,65 @@ export default function AdvancedContentGenerator() {
   return (
     <div className="h-screen flex flex-col p-4 space-y-4">
       {showEditor && generatedContent ? (
-        <ContentEditor
-          generatedContent={generatedContent}
-          onSave={saveMutation.mutate}
+        <UnifiedContentEditor
+          mode="create"
+          showHeader={true}
+          showSidebar={true}
+          enableTables={true}
+          enableSEO={true}
+          enablePreview={true}
+          requiredFields={['title', 'content']}
+          initialContent={{
+            title: (() => {
+              try {
+                const parsed = JSON.parse(generatedContent.generated_text || '{}');
+                return parsed.title || generatedContent.title || '';
+              } catch {
+                return generatedContent.title || '';
+              }
+            })(),
+            content: (() => {
+              try {
+                const parsed = JSON.parse(generatedContent.generated_text || '{}');
+                return parsed.content || generatedContent.generated_text || '';
+              } catch {
+                return generatedContent.generated_text || '';
+              }
+            })(),
+            seoTitle: (() => {
+              try {
+                const parsed = JSON.parse(generatedContent.generated_text || '{}');
+                return parsed.seo_title || generatedContent.seo_title || '';
+              } catch {
+                return generatedContent.seo_title || '';
+              }
+            })(),
+            seoDescription: (() => {
+              try {
+                const parsed = JSON.parse(generatedContent.generated_text || '{}');
+                return parsed.seo_description || generatedContent.seo_description || '';
+              } catch {
+                return generatedContent.seo_description || '';
+              }
+            })(),
+            targetKeywords: (() => {
+              try {
+                const parsed = JSON.parse(generatedContent.generated_text || '{}');
+                return parsed.meta_tags || generatedContent.meta_tags || [];
+              } catch {
+                return generatedContent.meta_tags || [];
+              }
+            })(),
+          }}
+          onSave={async (data) => {
+            const contentToSave = {
+              ...data,
+              originalGenerationId: generatedContent.content_id,
+            };
+            saveMutation.mutate(contentToSave);
+          }}
           onClose={() => setShowEditor(false)}
-          isLoading={saveMutation.isPending}
+          isSaving={saveMutation.isPending}
         />
       ) : (
         <>
