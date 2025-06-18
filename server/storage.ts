@@ -632,17 +632,17 @@ export class DatabaseStorage implements IStorage {
     
     console.log('🔍 DATABASE updateContent - cleanUpdates before processing:', JSON.stringify(cleanUpdates));
     
-    // Ensure targetKeywords is properly handled as an array
-    if (cleanUpdates.targetKeywords) {
-      console.log('🔍 DATABASE targetKeywords before conversion:', JSON.stringify(cleanUpdates.targetKeywords));
-      // Ensure it's an array for PostgreSQL
+    // Ensure targetKeywords is properly handled as a PostgreSQL array
+    if (cleanUpdates.targetKeywords !== undefined) {
       if (Array.isArray(cleanUpdates.targetKeywords)) {
-        // Already an array, keep as-is
-        console.log('🔍 DATABASE targetKeywords is array, keeping as-is');
+        // Ensure it's a proper array for PostgreSQL - remove any null/undefined values
+        cleanUpdates.targetKeywords = cleanUpdates.targetKeywords.filter(keyword => keyword != null && keyword !== '');
+      } else if (cleanUpdates.targetKeywords === null) {
+        // Keep null as-is for clearing keywords
+        cleanUpdates.targetKeywords = null;
       } else {
-        // Convert to array if it's not
+        // Convert single value to array
         cleanUpdates.targetKeywords = [cleanUpdates.targetKeywords];
-        console.log('🔍 DATABASE targetKeywords converted to array:', JSON.stringify(cleanUpdates.targetKeywords));
       }
     }
     
