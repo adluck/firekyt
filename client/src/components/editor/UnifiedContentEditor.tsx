@@ -196,6 +196,7 @@ export function UnifiedContentEditor({
   // Dedicated keyword save mutation
   const keywordSaveMutation = useMutation({
     mutationFn: async (newKeywords: string) => {
+      console.log('🔍 KEYWORDS Starting save mutation...');
       if (!contentId) throw new Error('Content ID required for keyword updates');
       
       const keywordArray = newKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
@@ -204,19 +205,31 @@ export function UnifiedContentEditor({
       const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
         targetKeywords: keywordArray
       });
-      return await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('🔍 KEYWORDS Raw response from API:', JSON.stringify(result));
+      return result;
     },
     onSuccess: (result) => {
-      console.log('🔍 KEYWORDS Success response:', JSON.stringify(result));
+      console.log('🔍 KEYWORDS onSuccess called with:', JSON.stringify(result));
+      console.log('🔍 KEYWORDS result.targetKeywords:', JSON.stringify(result?.targetKeywords));
       
       if (result && result.targetKeywords) {
         const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : String(result.targetKeywords);
-        console.log('🔍 KEYWORDS Setting UI to:', newKeywords);
+        console.log('🔍 KEYWORDS Converting to UI format:', newKeywords);
+        
+        // Force immediate UI update
         setKeywords(newKeywords);
         setContentData(prev => ({ 
           ...prev, 
           targetKeywords: result.targetKeywords 
         }));
+        
+        console.log('🔍 KEYWORDS UI state updated');
         
         toast({
           title: 'Keywords saved',
@@ -224,9 +237,12 @@ export function UnifiedContentEditor({
         });
         
         queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      } else {
+        console.log('🔍 KEYWORDS No targetKeywords in result:', result);
       }
     },
     onError: (error: any) => {
+      console.log('🔍 KEYWORDS Error occurred:', error);
       toast({
         title: 'Keywords save failed',
         description: error.message,
