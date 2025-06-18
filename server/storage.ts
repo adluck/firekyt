@@ -630,16 +630,36 @@ export class DatabaseStorage implements IStorage {
       Object.entries(updates).filter(([_, value]) => value !== undefined)
     );
     
+    console.log('🔍 DATABASE updateContent - cleanUpdates before processing:', JSON.stringify(cleanUpdates));
+    
+    // Ensure targetKeywords is properly handled as an array
+    if (cleanUpdates.targetKeywords) {
+      console.log('🔍 DATABASE targetKeywords before conversion:', JSON.stringify(cleanUpdates.targetKeywords));
+      // Ensure it's an array for PostgreSQL
+      if (Array.isArray(cleanUpdates.targetKeywords)) {
+        // Already an array, keep as-is
+        console.log('🔍 DATABASE targetKeywords is array, keeping as-is');
+      } else {
+        // Convert to array if it's not
+        cleanUpdates.targetKeywords = [cleanUpdates.targetKeywords];
+        console.log('🔍 DATABASE targetKeywords converted to array:', JSON.stringify(cleanUpdates.targetKeywords));
+      }
+    }
+    
     if (Object.keys(cleanUpdates).length === 0) {
       // Return existing content if no valid updates
       const [existing] = await db.select().from(content).where(and(eq(content.id, id), eq(content.userId, userId)));
       return existing;
     }
     
+    console.log('🔍 DATABASE Final cleanUpdates being sent to database:', JSON.stringify(cleanUpdates));
+    
     const [contentItem] = await db.update(content)
       .set(cleanUpdates)
       .where(and(eq(content.id, id), eq(content.userId, userId)))
       .returning();
+      
+    console.log('🔍 DATABASE Result from database:', JSON.stringify(contentItem.targetKeywords));
     return contentItem;
   }
 
