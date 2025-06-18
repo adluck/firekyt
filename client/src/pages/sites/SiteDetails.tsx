@@ -288,7 +288,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
                         </div>
                         
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                          {item.content.substring(0, 150)}...
+                          {item.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                         </p>
                         
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
