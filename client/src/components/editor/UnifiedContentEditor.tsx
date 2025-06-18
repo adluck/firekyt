@@ -121,7 +121,6 @@ export function UnifiedContentEditor({
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [keywords, setKeywords] = useState<string>('');
-  const formRef = useRef<any>(null);
 
   // Fetch existing content if editing
   const { data: existingContent, isLoading: contentLoading } = useQuery({
@@ -226,11 +225,18 @@ export function UnifiedContentEditor({
           : String(result.targetKeywords);
         
         console.log('🔍 KEYWORDS Updating UI to:', newKeywordsString);
-        setKeywords(newKeywordsString);
-        setContentData(prev => ({ 
-          ...prev, 
-          targetKeywords: result.targetKeywords 
-        }));
+        console.log('🔍 KEYWORDS Current keywords state before update:', keywords);
+        
+        // Force multiple state updates to ensure UI refresh
+        setKeywords(''); // Clear first
+        setTimeout(() => {
+          setKeywords(newKeywordsString);
+          setContentData(prev => ({ 
+            ...prev, 
+            targetKeywords: result.targetKeywords 
+          }));
+          console.log('🔍 KEYWORDS UI state updated to:', newKeywordsString);
+        }, 10);
       }
       
       toast({
