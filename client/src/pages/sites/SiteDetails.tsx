@@ -53,19 +53,9 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
   // Filter content by site and status with safe checks
   const siteIdNum = parseInt(siteId);
   const allContent = Array.isArray(content) ? content : [];
-  const siteContent = allContent.filter(c => {
-    console.log('Content item:', c, 'siteId:', c?.siteId, 'comparing to:', siteIdNum);
-    return c && c.siteId === siteIdNum;
-  });
+  const siteContent = allContent.filter(c => c && c.siteId === siteIdNum);
   const publishedContent = siteContent.filter(c => c?.status === 'published');
   const draftContent = siteContent.filter(c => c?.status === 'draft');
-
-  // Debug content filtering
-  console.log('Site ID:', siteId, 'parsed:', siteIdNum);
-  console.log('All content length:', allContent.length);
-  console.log('Site content length:', siteContent.length);
-  console.log('Published content length:', publishedContent.length);
-  console.log('Draft content length:', draftContent.length);
 
   // Delete content mutation
   const deleteContentMutation = useMutation({
@@ -86,14 +76,14 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
     },
   });
 
-  // Mock analytics data for charts
+  // Analytics data for charts
   const analyticsData = [
-    { name: 'Jan', value: 400 },
-    { name: 'Feb', value: 300 },
-    { name: 'Mar', value: 600 },
-    { name: 'Apr', value: 800 },
-    { name: 'May', value: 500 },
-    { name: 'Jun', value: 900 },
+    { date: 'Jan', value: 400 },
+    { date: 'Feb', value: 300 },
+    { date: 'Mar', value: 600 },
+    { date: 'Apr', value: 800 },
+    { date: 'May', value: 500 },
+    { date: 'Jun', value: 900 },
   ];
 
   if (siteLoading) {
@@ -160,25 +150,25 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
           title="Total Content"
           value={siteContent.length.toString()}
           icon={FileText}
-          trend={{ value: 0, isPositive: true }}
+          trend={{ value: "0", positive: true }}
         />
         <DashboardCard
           title="Published"
           value={publishedContent.length.toString()}
           icon={TrendingUp}
-          trend={{ value: 0, isPositive: true }}
+          trend={{ value: "0", positive: true }}
         />
         <DashboardCard
           title="Drafts"
           value={draftContent.length.toString()}
           icon={Edit}
-          trend={{ value: 0, isPositive: true }}
+          trend={{ value: "0", positive: true }}
         />
         <DashboardCard
           title="Monthly Views"
-          value={analytics?.views?.toString() || "0"}
+          value="0"
           icon={MousePointer}
-          trend={{ value: analytics?.viewsChange || 0, isPositive: (analytics?.viewsChange || 0) >= 0 }}
+          trend={{ value: "0", positive: true }}
         />
       </div>
 
@@ -342,7 +332,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
             
             <AnalyticsChart
               title="Revenue Trend"
-              data={analyticsData.map(item => ({ ...item, value: item.value * 0.1 }))}
+              data={analyticsData.map(item => ({ date: item.date, value: item.value * 0.1 }))}
               dataKey="value"
               color="var(--primary-pink)"
             />
@@ -355,15 +345,15 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">{analytics?.clickRate || '0%'}</div>
+                  <div className="text-2xl font-bold text-primary">0%</div>
                   <div className="text-sm text-muted-foreground">Click Rate</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">${analytics?.revenue || '0.00'}</div>
+                  <div className="text-2xl font-bold text-primary">$0.00</div>
                   <div className="text-sm text-muted-foreground">Revenue</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">{analytics?.conversions || '0'}</div>
+                  <div className="text-2xl font-bold text-primary">0</div>
                   <div className="text-sm text-muted-foreground">Conversions</div>
                 </div>
               </div>
