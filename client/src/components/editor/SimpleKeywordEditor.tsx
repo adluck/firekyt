@@ -98,6 +98,7 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
         <Label htmlFor="keyword-input">Target Keywords (comma-separated)</Label>
         <div className="flex gap-2 mt-1">
           <Input
+            key={`input-${updateCounter}-${savedKeywords.length}`}
             id="keyword-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
