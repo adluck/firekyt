@@ -52,19 +52,11 @@ export function RichTextEditor({
 
   // Convert markdown to HTML if needed
   const processedContent = useMemo(() => {
-    console.log('RichTextEditor content processing:', {
-      content,
-      contentType: typeof content,
-      contentLength: content ? content.length : 0
-    });
-    
     if (!content) return '';
     
     // If content looks like markdown, convert it to HTML
     if (isMarkdown(content)) {
-      const converted = markdownToHtml(content);
-      console.log('Converted markdown to HTML:', { original: content.substring(0, 100), converted: converted.substring(0, 100) });
-      return converted;
+      return markdownToHtml(content);
     }
     
     return content;

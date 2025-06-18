@@ -177,14 +177,7 @@ export function UnifiedContentEditor({
         parsedContent = contentWithKeywords.content;
       }
       
-      // Log for debugging (remove in production)
-      console.log('Content loading debug:', {
-        hasOriginalContent: !!contentWithKeywords.content,
-        originalLength: contentWithKeywords.content?.length || 0,
-        hasParsedContent: !!parsedContent,
-        parsedLength: parsedContent?.length || 0,
-        isJSON: contentWithKeywords.content?.trim().startsWith('{')
-      });
+
       
       setContentData(prevData => ({
         ...prevData,
