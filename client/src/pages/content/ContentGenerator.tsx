@@ -311,6 +311,17 @@ export default function ContentGenerator() {
           </CardContent>
         </Card>
       )}
+
+      {/* Site Selection Dialog */}
+      <SiteSelectionDialog
+        open={showSiteDialog}
+        onOpenChange={setShowSiteDialog}
+        sites={sites}
+        onSave={saveContentMutation.mutate}
+        isLoading={saveContentMutation.isPending}
+        title="Save Generated Content"
+        description="Choose a site to save this generated content to, or save without a specific site."
+      />
     </div>
   );
 }
