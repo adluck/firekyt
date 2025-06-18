@@ -38,8 +38,13 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
       return { result: await response.json(), keywords };
     },
     onSuccess: ({ result, keywords }) => {
+      console.log('🔍 SimpleKeywordEditor: Save success, updating UI with keywords:', keywords);
       setSavedKeywords(keywords);
       onUpdate(keywords);
+      
+      // Force a re-render by updating the input to reflect saved state
+      setInput(keywords.join(', '));
+      
       toast({
         title: 'Keywords saved',
         description: 'SEO keywords updated successfully',
