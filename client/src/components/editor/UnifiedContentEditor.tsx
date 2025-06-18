@@ -121,7 +121,9 @@ export function UnifiedContentEditor({
   
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
-  const [currentKeywords, setCurrentKeywords] = useState<string[]>([]);
+  
+  // Use contentData.targetKeywords as the single source of truth for keywords
+  const currentKeywords = contentData.targetKeywords || [];
 
   // Fetch existing content if editing
   const { data: existingContent, isLoading: contentLoading } = useQuery({
@@ -188,18 +190,16 @@ export function UnifiedContentEditor({
         targetKeywords: contentWithKeywords.targetKeywords || [],
         comparisonTables: contentWithKeywords.comparisonTables || null,
       }));
-      setCurrentKeywords(contentWithKeywords.targetKeywords || []);
       setComparisonTableConfig(contentWithKeywords.comparisonTables || null);
     }
   }, [initialContent]);
 
-  // Handle keyword updates from KeywordManager - ensure non-interference with SimpleKeywordEditor
+  // Handle keyword updates from KeywordManager - single source of truth
   const handleKeywordsUpdate = (newKeywords: string[]) => {
     console.log('🔍 UNIFIED handleKeywordsUpdate called with:', newKeywords);
     console.log('🔍 UNIFIED Current keywords before update:', currentKeywords);
     
-    // Force immediate state updates to reflect in UI
-    setCurrentKeywords([...newKeywords]);
+    // Update only the contentData - currentKeywords will automatically reflect this change
     setContentData(prev => ({ 
       ...prev, 
       targetKeywords: [...newKeywords] 
@@ -230,7 +230,6 @@ export function UnifiedContentEditor({
       // Update keywords state with saved data to reflect in UI
       if (result && result.targetKeywords) {
         console.log('🔍 FRONTEND Setting keywords to:', result.targetKeywords);
-        setCurrentKeywords(result.targetKeywords);
         setContentData(prev => ({ 
           ...prev, 
           targetKeywords: result.targetKeywords 
