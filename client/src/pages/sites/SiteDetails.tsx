@@ -1,3 +1,4 @@
+import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,267 +40,160 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
     queryKey: [`/api/sites/${siteId}`],
   });
 
-  // Fetch site content
-  const { data: contentData, isLoading: contentLoading, error: contentError } = useQuery<Content[]>({
-    queryKey: [`/api/content?siteId=${siteId}`],
-    queryFn: async () => {
-      const response = await apiRequest('GET', `/api/content?siteId=${siteId}`);
-      const data = await response.json();
-      console.log('Content API response:', data);
-      console.log('Content length:', data?.length);
-      console.log('Content array:', Array.isArray(data));
-      return data as Content[];
-    },
-    enabled: !!siteId,
+  // Fetch content for this site
+  const { data: content = [], isLoading: contentLoading } = useQuery<Content[]>({
+    queryKey: [`/api/content`],
   });
 
-  const content = contentData || [];
-
-  // Debug content state
-  console.log('Current content state:', content);
-  console.log('Content loading:', contentLoading);
-  console.log('Content error:', contentError);
-
-  // Fetch site analytics
-  const { data: analytics } = useQuery<{
-    views: number;
-    viewsChange: number;
-    clickRate: number;
-    clickRateChange: number;
-    revenue: number;
-    revenueChange: number;
-    contentCount: number;
-    publishedCount: number;
-  }>({
+  // Fetch analytics for this site
+  const { data: analytics } = useQuery({
     queryKey: [`/api/analytics/site/${siteId}`],
-    enabled: !!site,
   });
+
+  // Filter content by site and status
+  const siteContent = content.filter(c => c.siteId === parseInt(siteId));
+  const publishedContent = siteContent.filter(c => c.status === 'published');
+  const draftContent = siteContent.filter(c => c.status === 'draft');
 
   // Delete content mutation
   const deleteContentMutation = useMutation({
-    mutationFn: async (contentId: number) => {
-      await apiRequest("DELETE", `/api/content/${contentId}`);
-    },
+    mutationFn: (contentId: number) => apiRequest("DELETE", `/api/content/${contentId}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/content?siteId=${siteId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/content`] });
       toast({
         title: "Content deleted",
-        description: "The content has been deleted successfully.",
+        description: "Content has been successfully deleted.",
       });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast({
-        title: "Failed to delete content",
-        description: error.message,
+        title: "Error",
+        description: "Failed to delete content. Please try again.",
         variant: "destructive",
       });
     },
   });
 
-  const handleDeleteContent = (contentId: number, title: string) => {
-    if (window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
-      deleteContentMutation.mutate(contentId);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-    }
-  };
-
-  // Real analytics data - for new sites, show zero values instead of fake data
+  // Mock analytics data for charts
   const analyticsData = [
-    { date: "Jan", value: 0 },
-    { date: "Feb", value: 0 },
-    { date: "Mar", value: 0 },
-    { date: "Apr", value: 0 },
-    { date: "May", value: 0 },
-    { date: "Jun", value: 0 },
+    { name: 'Jan', value: 400 },
+    { name: 'Feb', value: 300 },
+    { name: 'Mar', value: 600 },
+    { name: 'Apr', value: 800 },
+    { name: 'May', value: 500 },
+    { name: 'Jun', value: 900 },
   ];
 
   if (siteLoading) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/3 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-32 bg-muted rounded"></div>
-            ))}
-          </div>
-        </div>
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (!site) {
     return (
-      <Card className="text-center py-12">
-        <CardContent>
-          <h3 className="text-lg font-semibold mb-2">Site not found</h3>
-          <p className="text-muted-foreground mb-4">
-            The site you're looking for doesn't exist or you don't have access to it.
-          </p>
-          <Link href="/sites">
-            <Button>Back to Sites</Button>
-          </Link>
-        </CardContent>
-      </Card>
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Site not found</h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">The site you're looking for doesn't exist.</p>
+        <Button onClick={() => setLocation('/sites')} className="mt-4">
+          Back to Sites
+        </Button>
+      </div>
     );
   }
 
-  const publishedContent = content.filter(c => c.status === 'published');
-  const draftContent = content.filter(c => c.status === 'draft');
-  
-  // Debug content statuses
-  console.log('Content statuses:', content.map(c => ({ id: c.id, title: c.title, status: c.status })));
-  console.log('Published content count:', publishedContent.length);
-  console.log('Draft content count:', draftContent.length);
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold">{site.name}</h1>
-            {site.domain && (
-              <a 
-                href={`https://${site.domain}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            )}
-          </div>
-          
-          {site.description && (
-            <p className="text-muted-foreground max-w-2xl">{site.description}</p>
-          )}
-          
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+      {/* Site Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{site.name}</h1>
+          <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
             {site.domain && (
               <div className="flex items-center gap-1">
-                <Globe className="h-3 w-3" />
-                {site.domain}
-              </div>
-            )}
-            {site.niche && (
-              <div className="flex items-center gap-1">
-                <Tag className="h-3 w-3" />
-                {site.niche}
+                <Globe className="h-4 w-4" />
+                <a href={site.domain} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                  {site.domain}
+                </a>
+                <ExternalLink className="h-3 w-3" />
               </div>
             )}
             <div className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              Created {formatDate(site.createdAt.toString())}
+              <Calendar className="h-4 w-4" />
+              Created {format(new Date(site.createdAt), 'MMM d, yyyy')}
             </div>
           </div>
-          
-          {site.targetKeywords && site.targetKeywords.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {site.targetKeywords.map((keyword) => (
-                <Badge key={keyword} variant="secondary" className="text-xs">
-                  {keyword}
-                </Badge>
-              ))}
-            </div>
+          {site.description && (
+            <p className="text-gray-600 dark:text-gray-400 mt-2">{site.description}</p>
           )}
         </div>
         
-        <div className="flex gap-2">
-          <Link href={`/content?siteId=${site.id}`}>
-            <Button className="btn-gradient">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Content
-            </Button>
-          </Link>
-          <Button variant="outline" size="icon">
-            <Edit className="h-4 w-4" />
+        <div className="flex items-center gap-3">
+          <Button onClick={() => setLocation(`/content/generator?siteId=${siteId}`)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Content
+          </Button>
+          <Button variant="outline" onClick={() => setLocation(`/sites/${siteId}/settings`)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit Site
           </Button>
         </div>
       </div>
 
-      {/* Overview Cards */}
+      {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <DashboardCard
-          title="Total Articles"
-          value={content.length}
-          description={`${publishedContent.length} published`}
+          title="Total Content"
+          value={siteContent.length.toString()}
           icon={FileText}
+          trend={{ value: 0, isPositive: true }}
         />
-        
+        <DashboardCard
+          title="Published"
+          value={publishedContent.length.toString()}
+          icon={TrendingUp}
+          trend={{ value: 0, isPositive: true }}
+        />
+        <DashboardCard
+          title="Drafts"
+          value={draftContent.length.toString()}
+          icon={Edit}
+          trend={{ value: 0, isPositive: true }}
+        />
         <DashboardCard
           title="Monthly Views"
-          value={analytics?.views ? analytics.views.toLocaleString() : "0"}
-          description={analytics?.viewsChange ? `${analytics.viewsChange > 0 ? '+' : ''}${analytics.viewsChange}% from last month` : "No data yet"}
-          icon={TrendingUp}
-          trend={analytics?.viewsChange ? { value: `${analytics.viewsChange > 0 ? '+' : ''}${analytics.viewsChange}%`, positive: analytics.viewsChange > 0 } : undefined}
-        />
-        
-        <DashboardCard
-          title="Click Rate"
-          value={analytics?.clickRate ? `${analytics.clickRate}%` : "0%"}
-          description="Affiliate link clicks"
+          value={analytics?.views?.toString() || "0"}
           icon={MousePointer}
-          trend={analytics?.clickRateChange ? { value: `${analytics.clickRateChange > 0 ? '+' : ''}${analytics.clickRateChange}%`, positive: analytics.clickRateChange > 0 } : undefined}
-        />
-        
-        <DashboardCard
-          title="Revenue"
-          value={analytics?.revenue ? `$${analytics.revenue}` : "$0"}
-          description="This month"
-          icon={DollarSign}
-          trend={analytics?.revenueChange ? { value: `${analytics.revenueChange > 0 ? '+' : ''}${analytics.revenueChange}%`, positive: analytics.revenueChange > 0 } : undefined}
+          trend={{ value: analytics?.viewsChange || 0, isPositive: (analytics?.viewsChange || 0) >= 0 }}
         />
       </div>
 
+      {/* Main Content Tabs */}
       <Tabs defaultValue="content" className="space-y-6">
         <TabsList>
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="content" className="space-y-6">
           {contentLoading ? (
-            <div className="text-center py-12">Loading content...</div>
-          ) : content.length === 0 ? (
-            <Card className="text-center py-12">
-              <CardContent>
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No content yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Start creating AI-powered content for this site
-                </p>
-                <Link href={`/content?siteId=${site.id}`}>
-                  <Button className="btn-gradient">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create First Article
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+            </div>
+          ) : siteContent.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No content yet</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Start creating content for your site to see it here.</p>
+              <Button onClick={() => setLocation(`/content/generator?siteId=${siteId}`)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Content
+              </Button>
+            </div>
           ) : (
-            <>
+            <div className="space-y-6">
               {/* Published Content */}
               {publishedContent.length > 0 && (
                 <div className="space-y-4">
@@ -311,7 +205,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                               <h4 className="font-semibold">{item.title}</h4>
-                              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                              <Badge variant="default" className="bg-green-100 text-green-800">
                                 Published
                               </Badge>
                             </div>
@@ -321,7 +215,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
-                                {format(new Date(item.publishedAt || item.createdAt), 'MMM d, yyyy')}
+                                {format(new Date(item.createdAt), 'MMM d, yyyy')}
                               </span>
                               <span className="flex items-center gap-1">
                                 <Tag className="h-4 w-4" />
@@ -337,11 +231,13 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 ml-4">
-                            <Button variant="outline" size="sm" asChild>
-                              <Link href={`/content/${item.id}`}>
-                                <Edit className="h-4 w-4 mr-1" />
-                                Edit
-                              </Link>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setLocation(`/content/editor/${item.id}`)}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edit
                             </Button>
                             <Button
                               variant="outline"
@@ -396,11 +292,13 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 ml-4">
-                            <Button variant="outline" size="sm" asChild>
-                              <Link href={`/content/${item.id}`}>
-                                <Edit className="h-4 w-4 mr-1" />
-                                Edit
-                              </Link>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setLocation(`/content/editor/${item.id}`)}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edit
                             </Button>
                             <Button
                               variant="outline"
@@ -417,7 +315,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
                   ))}
                 </div>
               )}
-            </>
+            </div>
           )}
         </TabsContent>
         
@@ -443,58 +341,18 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
               <CardTitle>Performance Metrics</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold">{analytics?.views?.toLocaleString() || '0'}</div>
-                  <div className="text-sm text-muted-foreground">Page Views</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">{analytics?.clickRate?.toFixed(1) || '0.0'}%</div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">{analytics?.clickRate || '0%'}</div>
                   <div className="text-sm text-muted-foreground">Click Rate</div>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold">${analytics?.revenue?.toFixed(0) || '0'}</div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">${analytics?.revenue || '0.00'}</div>
                   <div className="text-sm text-muted-foreground">Revenue</div>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold">0%</div>
-                  <div className="text-sm text-muted-foreground">SEO Score</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="settings" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Site Settings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Brand Voice</label>
-                  <p className="text-sm text-muted-foreground">
-                    {site.brandVoice || 'Not set'}
-                  </p>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">Primary Keywords</label>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {site.targetKeywords?.map((keyword) => (
-                      <Badge key={keyword} variant="secondary">
-                        {keyword}
-                      </Badge>
-                    )) || <p className="text-sm text-muted-foreground">No keywords set</p>}
-                  </div>
-                </div>
-                
-                <div className="pt-4">
-                  <Button variant="outline">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Site Settings
-                  </Button>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">{analytics?.conversions || '0'}</div>
+                  <div className="text-sm text-muted-foreground">Conversions</div>
                 </div>
               </div>
             </CardContent>
