@@ -24,25 +24,30 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     if (currentKeywords && Array.isArray(currentKeywords)) {
       const validKeywords = currentKeywords.filter(k => k && k.trim());
       setSavedKeywords(validKeywords);
-      setInput(validKeywords.join(', '));
+      // Only set input if it's empty (avoid overwriting user input)
+      if (!input.trim()) {
+        setInput(validKeywords.join(', '));
+      }
     }
-  }, [currentKeywords]);
+  }, [currentKeywords, input]);
 
-  // Force refresh keywords display and clear input field
-  const forceRefreshKeywords = useCallback((keywords: string[]) => {
-    console.log('🔍 SimpleKeywordEditor: Force refreshing keywords display:', keywords);
+  // Handle successful save with proper state management
+  const handleSaveSuccess = useCallback((keywords: string[]) => {
+    console.log('🔍 SimpleKeywordEditor: Handling save success:', keywords);
     
-    // Update saved keywords display
-    setSavedKeywords(() => [...keywords]);
-    onUpdate([...keywords]);
+    // Update keywords display immediately
+    setSavedKeywords([...keywords]);
     
-    // Clear input field after successful save
+    // Clear input field
     setInput('');
     
-    // Force component re-render
+    // Trigger parent update
+    onUpdate([...keywords]);
+    
+    // Force re-render with counter
     setUpdateCounter(prev => prev + 1);
     
-    console.log('🔍 SimpleKeywordEditor: Input field cleared, keywords updated');
+    console.log('🔍 SimpleKeywordEditor: Save success handled - input cleared, keywords updated');
   }, [onUpdate]);
 
   const saveMutation = useMutation({
@@ -56,10 +61,10 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
       return { result: await response.json(), keywords };
     },
     onSuccess: ({ result, keywords }) => {
-      console.log('🔍 SimpleKeywordEditor: Save success, forcing keywords refresh:', keywords);
+      console.log('🔍 SimpleKeywordEditor: Save success, handling success:', keywords);
       
-      // Force complete refresh of keywords display
-      forceRefreshKeywords(keywords);
+      // Handle successful save with proper state management
+      handleSaveSuccess(keywords);
       
       toast({
         title: 'Keywords saved',
