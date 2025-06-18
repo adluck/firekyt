@@ -18,6 +18,7 @@ import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ContentEditor from "@/components/content/ContentEditor";
+import { SiteSelectionDialog } from "@/components/content/SiteSelectionDialog";
 import type { Site } from "@shared/schema";
 
 interface ContentGenerationRequest {
@@ -135,6 +136,7 @@ export default function AdvancedContentGenerator() {
   const [savedContent, setSavedContent] = useState<any>(null);
   const [databaseContentId, setDatabaseContentId] = useState<number | null>(null);
   const [showEditor, setShowEditor] = useState(false);
+  const [showSiteDialog, setShowSiteDialog] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -171,30 +173,29 @@ export default function AdvancedContentGenerator() {
 
   // Save content mutation
   const saveMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (siteId: number | null) => {
+      if (!generatedContent) {
+        throw new Error("No content to save");
+      }
+
+      // Create payload from generated content
+      const payload = {
+        title: generatedContent.title || `Generated Content - ${formData.keyword}`,
+        content: generatedContent.generated_text || '',
+        contentType: formData.content_type,
+        siteId: siteId,
+        seoTitle: generatedContent.seo_title,
+        seoDescription: generatedContent.seo_description,
+        targetKeywords: [formData.keyword],
+        status: "draft"
+      };
+
       // If we have a database content ID from AI generation, update the existing record
       if (databaseContentId) {
-        const payload = {
-          title: data.title,
-          content: data.content,
-          seoTitle: data.seoTitle,
-          seoDescription: data.seoDescription,
-          status: data.status || "draft"
-        };
         const response = await apiRequest("PUT", `/api/content/${databaseContentId}`, payload);
         return response.json();
       } else {
         // Create new content if no existing record
-        const payload = {
-          title: data.title,
-          content: data.content,
-          contentType: formData.content_type,
-          siteId: data.siteId || formData.siteId,
-          seoTitle: data.seoTitle,
-          seoDescription: data.seoDescription,
-          targetKeywords: [formData.keyword],
-          status: data.status || "draft"
-        };
         const response = await apiRequest("POST", "/api/content", payload);
         return response.json();
       }
@@ -202,6 +203,7 @@ export default function AdvancedContentGenerator() {
     onSuccess: (data) => {
       setSavedContent(data);
       setShowEditor(false);
+      setShowSiteDialog(false);
       queryClient.invalidateQueries({ queryKey: ["/api/content"] });
       toast({
         title: "Content saved successfully",
@@ -330,7 +332,14 @@ export default function AdvancedContentGenerator() {
                 <Edit3 className="h-4 w-4" />
                 Content Editor
               </Button>
-
+              <Button
+                onClick={() => setShowSiteDialog(true)}
+                className="flex items-center gap-2"
+                disabled={!generatedContent || generatedContent.status !== 'completed'}
+              >
+                <Save className="h-4 w-4" />
+                Save Content
+              </Button>
             </div>
           </div>
 
@@ -834,6 +843,17 @@ export default function AdvancedContentGenerator() {
       )}
         </>
       )}
+
+      {/* Site Selection Dialog */}
+      <SiteSelectionDialog
+        open={showSiteDialog}
+        onOpenChange={setShowSiteDialog}
+        sites={sites}
+        onSave={saveMutation.mutate}
+        isLoading={saveMutation.isPending}
+        title="Save Generated Content"
+        description="Choose a site to save this AI-generated content to, or save without a specific site."
+      />
     </div>
   );
 }
