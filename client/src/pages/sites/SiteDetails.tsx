@@ -166,6 +166,11 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
 
   const publishedContent = content.filter(c => c.status === 'published');
   const draftContent = content.filter(c => c.status === 'draft');
+  
+  // Debug content statuses
+  console.log('Content statuses:', content.map(c => ({ id: c.id, title: c.title, status: c.status })));
+  console.log('Published content count:', publishedContent.length);
+  console.log('Draft content count:', draftContent.length);
 
   return (
     <div className="space-y-6">
@@ -304,6 +309,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
             </Card>
           ) : (
             <div className="space-y-4">
+              <h3 className="text-lg font-bold">All Content (Debug):</h3>
               {content.map((item) => (
                 <Card key={item.id} className="card-hover">
                   <CardContent className="p-6">
