@@ -72,12 +72,16 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
+  // Get siteId from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const siteIdFromUrl = urlParams.get('siteId');
+  
   const [contentData, setContentData] = useState<ContentData>({
     title: '',
     content: '',
     contentType: 'blog_post',
     status: 'draft',
-    siteId: 0,
+    siteId: siteIdFromUrl ? parseInt(siteIdFromUrl) : 0,
   });
   
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
@@ -95,12 +99,12 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
     queryKey: ['/api/sites'],
   });
 
-  // Set default siteId when sites are loaded
+  // Set default siteId when sites are loaded (only if no siteId from URL)
   useEffect(() => {
-    if (sites.length > 0 && contentData.siteId === 0) {
+    if (sites.length > 0 && contentData.siteId === 0 && !siteIdFromUrl) {
       setContentData(prev => ({ ...prev, siteId: sites[0].id }));
     }
-  }, [sites, contentData.siteId]);
+  }, [sites, contentData.siteId, siteIdFromUrl]);
 
   // Load existing content data
   useEffect(() => {
