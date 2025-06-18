@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-
+import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ComparisonTableBuilder } from '@/components/editor/ComparisonTableBuilder';
 import { apiRequest } from '@/lib/queryClient';
 import {
@@ -182,6 +182,13 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
     setContentData(prev => ({ ...prev, ...updates }));
   };
 
+  const handleRichContentChange = (content: string) => {
+    updateContentData({ 
+      content,
+      richContent: content, // Store rich content structure
+    });
+  };
+
   const handleTableConfigChange = (config: any) => {
     setComparisonTableConfig(config);
     updateContentData({
@@ -317,17 +324,29 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="content">Content</Label>
-                    <Textarea
-                      id="content"
-                      value={contentData.content}
-                      onChange={(e) => updateContentData({ content: e.target.value })}
+                  {/* Conditional editor based on whether editing existing content */}
+                  {id ? (
+                    // Simple text editor for existing content
+                    <div>
+                      <Label htmlFor="content">Content</Label>
+                      <Textarea
+                        id="content"
+                        value={contentData.content}
+                        onChange={(e) => updateContentData({ content: e.target.value })}
+                        placeholder="Edit your content..."
+                        className="min-h-[500px] resize-y"
+                        rows={20}
+                      />
+                    </div>
+                  ) : (
+                    // Rich text editor for new content
+                    <RichTextEditor
+                      content={contentData.content}
+                      onChange={handleRichContentChange}
                       placeholder="Start writing your content..."
-                      className="min-h-[500px] resize-y"
-                      rows={20}
+                      className="min-h-[500px]"
                     />
-                  </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="tables" className="p-6">
