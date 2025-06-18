@@ -326,6 +326,9 @@ export function UnifiedContentEditor({
       targetKeywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
     };
 
+    console.log('Publishing content with keywords:', dataToSave.targetKeywords);
+    console.log('Full data being published:', dataToSave);
+
     defaultSaveMutation.mutate(dataToSave);
   };
 
