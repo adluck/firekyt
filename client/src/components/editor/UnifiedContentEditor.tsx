@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ComparisonTableBuilder } from '@/components/editor/ComparisonTableBuilder';
-import { SimpleKeywordEditor } from '@/components/editor/SimpleKeywordEditor';
+import { KeywordModal } from '@/components/editor/KeywordModal';
 import { apiRequest } from '@/lib/queryClient';
 import {
   Save,
@@ -513,11 +513,27 @@ export function UnifiedContentEditor({
                         </p>
                       </div>
 
-                      <SimpleKeywordEditor
-                        contentId={typeof contentId === 'number' ? contentId : null}
-                        currentKeywords={currentKeywords}
-                        onUpdate={handleKeywordsUpdate}
-                      />
+                      <div className="space-y-2">
+                        <Label>SEO Keywords</Label>
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-wrap gap-1">
+                            {currentKeywords && currentKeywords.length > 0 ? (
+                              currentKeywords.map((keyword, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {keyword}
+                                </Badge>
+                              ))
+                            ) : (
+                              <span className="text-sm text-muted-foreground">No keywords added</span>
+                            )}
+                          </div>
+                          <KeywordModal
+                            contentId={typeof contentId === 'number' ? contentId : null}
+                            currentKeywords={currentKeywords}
+                            onUpdate={handleKeywordsUpdate}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </TabsContent>
                 )}
