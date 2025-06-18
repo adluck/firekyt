@@ -645,11 +645,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Content not found" });
       }
 
+      // Clean and validate the update data
+      const cleanUpdates: any = {};
+      
+      // Only include valid fields and ensure proper types
+      if (updates.title !== undefined) cleanUpdates.title = String(updates.title);
+      if (updates.content !== undefined) cleanUpdates.content = String(updates.content);
+      if (updates.contentType !== undefined) cleanUpdates.contentType = String(updates.contentType);
+      if (updates.status !== undefined) cleanUpdates.status = String(updates.status);
+      if (updates.seoTitle !== undefined) cleanUpdates.seoTitle = updates.seoTitle ? String(updates.seoTitle) : null;
+      if (updates.seoDescription !== undefined) cleanUpdates.seoDescription = updates.seoDescription ? String(updates.seoDescription) : null;
+      if (updates.targetKeywords !== undefined) cleanUpdates.targetKeywords = Array.isArray(updates.targetKeywords) ? updates.targetKeywords : null;
+      if (updates.affiliateLinks !== undefined) cleanUpdates.affiliateLinks = updates.affiliateLinks;
+      if (updates.richContent !== undefined) cleanUpdates.richContent = updates.richContent;
+      if (updates.comparisonTables !== undefined) cleanUpdates.comparisonTables = updates.comparisonTables;
+      if (updates.publishedAt !== undefined) cleanUpdates.publishedAt = updates.publishedAt ? new Date(updates.publishedAt) : null;
+      
+      // Handle siteId conversion - ensure it's an integer or null
+      if (updates.siteId !== undefined) {
+        if (updates.siteId === null || updates.siteId === '') {
+          cleanUpdates.siteId = null;
+        } else {
+          const siteIdInt = parseInt(String(updates.siteId));
+          cleanUpdates.siteId = isNaN(siteIdInt) ? null : siteIdInt;
+        }
+      }
+
+      // Always update the timestamp
+      cleanUpdates.updatedAt = new Date();
+
       // Update the content
-      const updatedContent = await storage.updateContent(contentId, userId, {
-        ...updates,
-        updatedAt: new Date()
-      });
+      const updatedContent = await storage.updateContent(contentId, userId, cleanUpdates);
 
       res.json(updatedContent);
     } catch (error: any) {
@@ -672,11 +698,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Content not found" });
       }
 
+      // Clean and validate the update data
+      const cleanUpdates: any = {};
+      
+      // Only include valid fields and ensure proper types
+      if (updates.title !== undefined) cleanUpdates.title = String(updates.title);
+      if (updates.content !== undefined) cleanUpdates.content = String(updates.content);
+      if (updates.contentType !== undefined) cleanUpdates.contentType = String(updates.contentType);
+      if (updates.status !== undefined) cleanUpdates.status = String(updates.status);
+      if (updates.seoTitle !== undefined) cleanUpdates.seoTitle = updates.seoTitle ? String(updates.seoTitle) : null;
+      if (updates.seoDescription !== undefined) cleanUpdates.seoDescription = updates.seoDescription ? String(updates.seoDescription) : null;
+      if (updates.targetKeywords !== undefined) cleanUpdates.targetKeywords = Array.isArray(updates.targetKeywords) ? updates.targetKeywords : null;
+      if (updates.affiliateLinks !== undefined) cleanUpdates.affiliateLinks = updates.affiliateLinks;
+      if (updates.richContent !== undefined) cleanUpdates.richContent = updates.richContent;
+      if (updates.comparisonTables !== undefined) cleanUpdates.comparisonTables = updates.comparisonTables;
+      if (updates.publishedAt !== undefined) cleanUpdates.publishedAt = updates.publishedAt ? new Date(updates.publishedAt) : null;
+      
+      // Handle siteId conversion - ensure it's an integer or null
+      if (updates.siteId !== undefined) {
+        if (updates.siteId === null || updates.siteId === '') {
+          cleanUpdates.siteId = null;
+        } else {
+          const siteIdInt = parseInt(String(updates.siteId));
+          cleanUpdates.siteId = isNaN(siteIdInt) ? null : siteIdInt;
+        }
+      }
+
+      // Always update the timestamp
+      cleanUpdates.updatedAt = new Date();
+
       // Update the content
-      const updatedContent = await storage.updateContent(contentId, userId, {
-        ...updates,
-        updatedAt: new Date()
-      });
+      const updatedContent = await storage.updateContent(contentId, userId, cleanUpdates);
 
       res.json(updatedContent);
     } catch (error: any) {
