@@ -62,13 +62,32 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      if (!contentId) throw new Error('Content ID required');
+      console.log('🔍 SimpleKeywordEditor: Starting save mutation');
+      console.log('🔍 ContentId:', contentId);
+      console.log('🔍 Current input:', input);
+      
+      if (!contentId) {
+        console.error('🔍 ERROR: No content ID available');
+        throw new Error('Content ID required');
+      }
       
       const keywords = input.split(',').map(k => k.trim()).filter(k => k.length > 0);
+      console.log('🔍 Parsed keywords:', keywords);
+      
+      if (keywords.length === 0) {
+        console.warn('🔍 WARNING: No valid keywords to save');
+        throw new Error('Please enter at least one keyword');
+      }
+      
+      console.log('🔍 Making API request to:', `/api/content/${contentId}`);
       const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
         targetKeywords: keywords
       });
-      return { result: await response.json(), keywords };
+      
+      const result = await response.json();
+      console.log('🔍 API response:', result);
+      
+      return { result, keywords };
     },
     onSuccess: ({ result, keywords }) => {
       console.log('🔍 SimpleKeywordEditor: Save success, handling success:', keywords);
