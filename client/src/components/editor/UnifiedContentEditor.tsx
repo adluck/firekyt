@@ -25,6 +25,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
 import type { Site } from '@shared/schema';
 
 interface ContentData {
@@ -526,7 +527,11 @@ export function UnifiedContentEditor({
 
                       <div 
                         className="prose max-w-none"
-                        dangerouslySetInnerHTML={{ __html: contentData.content }}
+                        dangerouslySetInnerHTML={{ 
+                          __html: contentData.content && isMarkdown(contentData.content) 
+                            ? markdownToHtml(contentData.content) 
+                            : contentData.content || '' 
+                        }}
                       />
 
                       {comparisonTableConfig && (
