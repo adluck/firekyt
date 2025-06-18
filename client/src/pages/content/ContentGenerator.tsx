@@ -6,11 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ContentEditor } from "@/components/content/ContentEditor";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Wand2, AlertCircle, CheckCircle, Clock, FileText, Sparkles, Globe } from "lucide-react";
+import { Wand2, AlertCircle, CheckCircle, Clock, FileText, Sparkles, Globe, Save } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useLocation } from "wouter";
+import { SiteSelectionDialog } from "@/components/content/SiteSelectionDialog";
 import type { Site, Content } from "@shared/schema";
 
 export default function ContentGenerator() {
@@ -21,6 +22,7 @@ export default function ContentGenerator() {
   const [selectedSiteId, setSelectedSiteId] = useState<string>(initialSiteId || "");
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showSiteDialog, setShowSiteDialog] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -36,12 +38,11 @@ export default function ContentGenerator() {
     queryKey: ["/api/content"],
   });
 
-  // Generate content mutation
+  // Generate content mutation (without auto-save)
   const generateContentMutation = useMutation({
     mutationFn: async (params: any) => {
       setIsGenerating(true);
-      const response = await apiRequest("POST", "/api/content/generate", {
-        siteId: parseInt(selectedSiteId),
+      const response = await apiRequest("POST", "/api/content/generate-preview", {
         ...params
       });
       return response.json();
@@ -49,10 +50,9 @@ export default function ContentGenerator() {
     onSuccess: (data) => {
       setGeneratedContent(data);
       setIsGenerating(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/content"] });
       toast({
         title: "Content generated!",
-        description: "Your AI-powered content has been created successfully.",
+        description: "Your AI-powered content is ready to save.",
       });
     },
     onError: (error: any) => {
@@ -65,17 +65,29 @@ export default function ContentGenerator() {
     },
   });
 
-  // Save content mutation
+  // Save content mutation with site selection
   const saveContentMutation = useMutation({
-    mutationFn: async (contentData: any) => {
-      const response = await apiRequest("POST", "/api/content", {
-        ...contentData,
-        siteId: parseInt(selectedSiteId),
-        userId: undefined, // Will be set by backend
-      });
+    mutationFn: async (siteId: number | null) => {
+      if (!generatedContent) {
+        throw new Error("No content to save");
+      }
+
+      const payload = {
+        title: generatedContent.title || "Generated Content",
+        content: generatedContent.content || generatedContent.generated_text || '',
+        contentType: generatedContent.contentType || 'blog_post',
+        siteId: siteId,
+        seoTitle: generatedContent.seoTitle,
+        seoDescription: generatedContent.seoDescription,
+        targetKeywords: generatedContent.targetKeywords || [],
+        status: "draft"
+      };
+
+      const response = await apiRequest("POST", "/api/content", payload);
       return response.json();
     },
     onSuccess: () => {
+      setShowSiteDialog(false);
       queryClient.invalidateQueries({ queryKey: ["/api/content"] });
       setGeneratedContent(null);
       toast({
@@ -92,21 +104,16 @@ export default function ContentGenerator() {
     },
   });
 
-  const handleGenerate = (params: any) => {
-    if (!selectedSiteId) {
+  const handleSaveClick = () => {
+    if (!generatedContent) {
       toast({
-        title: "Select a site",
-        description: "Please select a site before generating content.",
+        title: "No content to save",
+        description: "Please generate content first.",
         variant: "destructive",
       });
       return;
     }
-    
-    generateContentMutation.mutate(params);
-  };
-
-  const handleSave = (contentData: any) => {
-    saveContentMutation.mutate(contentData);
+    setShowSiteDialog(true);
   };
 
   const selectedSite = sites.find(site => site.id === parseInt(selectedSiteId));
@@ -207,15 +214,54 @@ export default function ContentGenerator() {
         </Alert>
       )}
 
-      {/* Content Editor */}
+      {/* Basic Content Generation */}
       {selectedSiteId && canGenerateContent && (
-        <ContentEditor
-          initialContent={generatedContent}
-          onGenerate={handleGenerate}
-          onSave={handleSave}
-          isGenerating={isGenerating}
-          isSaving={saveContentMutation.isPending}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Wand2 className="h-5 w-5" />
+              Quick Content Generation
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => generateContentMutation.mutate({ type: 'blog_post' })}
+                disabled={isGenerating}
+                className="flex-1"
+              >
+                {isGenerating ? 'Generating...' : 'Generate Blog Post'}
+              </Button>
+              <Button 
+                onClick={() => generateContentMutation.mutate({ type: 'product_review' })}
+                disabled={isGenerating}
+                variant="outline"
+                className="flex-1"
+              >
+                {isGenerating ? 'Generating...' : 'Generate Review'}
+              </Button>
+            </div>
+
+            {generatedContent && (
+              <div className="mt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Generated Content</h3>
+                  <Button onClick={handleSaveClick} disabled={saveContentMutation.isPending}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {saveContentMutation.isPending ? 'Saving...' : 'Save Content'}
+                  </Button>
+                </div>
+                
+                <div className="border rounded-lg p-4 bg-muted/50">
+                  <h4 className="font-medium mb-2">{generatedContent.title || 'Generated Content'}</h4>
+                  <div className="text-sm text-muted-foreground max-h-40 overflow-y-auto">
+                    {generatedContent.content || generatedContent.generated_text || 'Content preview will appear here...'}
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* Recent Content */}

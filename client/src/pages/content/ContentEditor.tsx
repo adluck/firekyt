@@ -76,10 +76,6 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
   const urlParams = new URLSearchParams(window.location.search);
   const siteIdFromUrl = urlParams.get('siteId');
   
-  // Debug URL parameters
-  console.log('URL search:', window.location.search);
-  console.log('siteIdFromUrl:', siteIdFromUrl);
-  
   const [contentData, setContentData] = useState<ContentData>({
     title: '',
     content: '',
