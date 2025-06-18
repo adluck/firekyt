@@ -1305,16 +1305,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Process and structure the results
       const products = shoppingData.shopping_results?.map((product: any) => ({
-        title: product.title,
-        price: product.extracted_price || product.price,
-        rating: product.rating,
-        reviews: product.reviews,
-        source: product.source,
-        link: product.link,
-        thumbnail: product.thumbnail,
-        delivery: product.delivery,
-        extensions: product.extensions
+        title: product.title || 'Untitled Product',
+        price: product.extracted_price || product.price || 0,
+        rating: product.rating || 0,
+        reviews: product.reviews || 0,
+        source: product.source || 'Unknown',
+        link: product.link || product.product_link || '',
+        thumbnail: product.thumbnail || '',
+        delivery: product.delivery || '',
+        extensions: product.extensions || []
       })) || [];
+
+      console.log('Processed products sample:', products.slice(0, 2));
 
       const affiliateOpportunities = organicData.organic_results?.map((result: any) => ({
         title: result.title,

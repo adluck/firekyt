@@ -778,14 +778,18 @@ export default function ProductResearch() {
                                       size="sm" 
                                       className="w-full"
                                       onClick={() => {
-                                        console.log('Product data:', product); // Debug log
-                                        const url = product.link || product.productUrl || product.affiliateUrl || product.product_link;
-                                        console.log('Using URL:', url); // Debug log
-                                        if (url) {
+                                        console.log('Product data:', product);
+                                        const url = product?.link;
+                                        console.log('Using URL:', url);
+                                        if (url && url.trim()) {
                                           const fullUrl = url.startsWith('http') ? url : `https://${url}`;
-                                          window.open(fullUrl, '_blank');
+                                          console.log('Opening URL:', fullUrl);
+                                          window.open(fullUrl, '_blank', 'noopener,noreferrer');
+                                        } else {
+                                          console.log('No valid URL found for product');
                                         }
                                       }}
+                                      disabled={!product?.link}
                                     >
                                       <ExternalLink className="w-3 h-3 mr-1" />
                                       View Product
