@@ -28,23 +28,21 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     }
   }, [currentKeywords]);
 
-  // Force refresh keywords display with immediate state updates
+  // Force refresh keywords display and clear input field
   const forceRefreshKeywords = useCallback((keywords: string[]) => {
     console.log('🔍 SimpleKeywordEditor: Force refreshing keywords display:', keywords);
     
-    // Use functional state updates to ensure React processes changes
+    // Update saved keywords display
     setSavedKeywords(() => [...keywords]);
-    setInput(() => keywords.join(', '));
-    setUpdateCounter(prev => prev + 1);
     onUpdate([...keywords]);
     
-    // Additional timeout to ensure complete re-render
-    setTimeout(() => {
-      setSavedKeywords(prevKeywords => {
-        console.log('🔍 Previous keywords:', prevKeywords, 'New keywords:', keywords);
-        return [...keywords];
-      });
-    }, 50);
+    // Clear input field after successful save
+    setInput('');
+    
+    // Force component re-render
+    setUpdateCounter(prev => prev + 1);
+    
+    console.log('🔍 SimpleKeywordEditor: Input field cleared, keywords updated');
   }, [onUpdate]);
 
   const saveMutation = useMutation({
