@@ -194,6 +194,10 @@ export function UnifiedContentEditor({
 
   // Simple keyword save function
   const saveKeywords = async () => {
+    alert('Save keywords function called!'); // Visual debug
+    console.log('🔍 KEYWORDS Function started, contentId:', contentId);
+    console.log('🔍 KEYWORDS Current keywords:', keywords);
+    
     if (!contentId) {
       toast({
         title: 'Error',
@@ -207,8 +211,14 @@ export function UnifiedContentEditor({
       const keywordArray = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
       console.log('🔍 KEYWORDS Saving keywords:', JSON.stringify(keywordArray));
       
-      const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
-        targetKeywords: keywordArray
+      const response = await fetch(`/api/content/${contentId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          targetKeywords: keywordArray
+        })
       });
       
       if (!response.ok) {
@@ -225,18 +235,15 @@ export function UnifiedContentEditor({
           : String(result.targetKeywords);
         
         console.log('🔍 KEYWORDS Updating UI to:', newKeywordsString);
-        console.log('🔍 KEYWORDS Current keywords state before update:', keywords);
         
-        // Force multiple state updates to ensure UI refresh
-        setKeywords(''); // Clear first
-        setTimeout(() => {
-          setKeywords(newKeywordsString);
-          setContentData(prev => ({ 
-            ...prev, 
-            targetKeywords: result.targetKeywords 
-          }));
-          console.log('🔍 KEYWORDS UI state updated to:', newKeywordsString);
-        }, 10);
+        // Force immediate state update
+        setKeywords(newKeywordsString);
+        setContentData(prev => ({ 
+          ...prev, 
+          targetKeywords: result.targetKeywords 
+        }));
+        
+        console.log('🔍 KEYWORDS UI state updated to:', newKeywordsString);
       }
       
       toast({
@@ -248,7 +255,8 @@ export function UnifiedContentEditor({
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
       
     } catch (error: any) {
-      console.log('🔍 KEYWORDS Error:', error);
+      console.error('🔍 KEYWORDS Error:', error);
+      alert('Error: ' + error.message); // Visual debug
       toast({
         title: 'Keywords save failed',
         description: error.message,
