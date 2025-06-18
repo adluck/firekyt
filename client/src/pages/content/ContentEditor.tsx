@@ -421,7 +421,7 @@ export default function ContentEditor() {
               <div>
                 <Label htmlFor="site">Site</Label>
                 <Select
-                  value={contentData.siteId.toString()}
+                  value={contentData.siteId?.toString() || ""}
                   onValueChange={(value) => updateContentData({ siteId: parseInt(value) })}
                 >
                   <SelectTrigger>
