@@ -68,23 +68,29 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
         throw new Error('Content ID required');
       }
       
-      const keywords = input.split(',').map(k => k.trim()).filter(k => k.length > 0);
-      console.log('🔍 Parsed keywords:', keywords);
+      const newKeywords = input.split(',').map(k => k.trim()).filter(k => k.length > 0);
+      console.log('🔍 Parsed new keywords:', newKeywords);
       
-      if (keywords.length === 0) {
+      if (newKeywords.length === 0) {
         console.warn('🔍 WARNING: No valid keywords to save');
         throw new Error('Please enter at least one keyword');
       }
       
+      // Combine existing keywords with new ones, removing duplicates
+      const existingKeywords = savedKeywords || [];
+      const combined = [...existingKeywords, ...newKeywords];
+      const allKeywords = Array.from(new Set(combined));
+      console.log('🔍 Combined keywords (existing + new):', allKeywords);
+      
       console.log('🔍 Making API request to:', `/api/content/${contentId}`);
       const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
-        targetKeywords: keywords
+        targetKeywords: allKeywords
       });
       
       const result = await response.json();
       console.log('🔍 API response:', result);
       
-      return { result, keywords };
+      return { result, keywords: allKeywords };
     },
     onSuccess: ({ result, keywords }) => {
       console.log('🔍 SimpleKeywordEditor: Save success, handling success:', keywords);
