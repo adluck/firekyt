@@ -27,6 +27,12 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
   useEffect(() => {
     console.log('🔍 SimpleKeywordEditor mounted with keywords:', currentKeywords);
   }, []); // Empty dependency array - only run on mount
+  
+  // Debug effect to track when currentKeywords changes
+  useEffect(() => {
+    console.log('🔍 SimpleKeywordEditor: currentKeywords changed to:', currentKeywords);
+    console.log('🔍 SimpleKeywordEditor: savedKeywords is now:', savedKeywords);
+  }, [currentKeywords, savedKeywords]);
 
   // Handle successful save with immediate UI refresh
   const handleSaveSuccess = useCallback((keywords: string[]) => {
@@ -81,28 +87,31 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
       
       const result = await response.json();
       console.log('🔍 API response:', result);
+      console.log('🔍 API response targetKeywords:', result.targetKeywords);
       
       return { result, keywords: allKeywords };
     },
     onSuccess: ({ result, keywords }) => {
       console.log('🔍 SimpleKeywordEditor: Save success, handling success:', keywords);
-      console.log('🔍 Result targetKeywords:', result?.targetKeywords);
+      console.log('🔍 Result structure:', JSON.stringify(result, null, 2));
       
-      // Use the actual response from the database for accuracy
-      const actualKeywords = result?.targetKeywords || keywords;
+      // The API returns the full content object, so result.targetKeywords should contain the saved keywords
+      const actualKeywords = result.targetKeywords || keywords;
       console.log('🔍 Using actual keywords from response:', actualKeywords);
       
-      // Handle successful save with proper state management
-      handleSaveSuccess(actualKeywords);
+      // Clear input immediately
+      setInput('');
+      
+      // Update parent immediately - this should trigger immediate re-render
+      onUpdate(actualKeywords);
+      
+      // Force query refetch to ensure data consistency
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
       
       toast({
         title: 'Keywords saved',
         description: 'SEO keywords updated successfully',
       });
-      
-      // Force refresh of content data
-      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
-      queryClient.refetchQueries({ queryKey: ['/api/content'] });
     },
     onError: (error: any) => {
       toast({
