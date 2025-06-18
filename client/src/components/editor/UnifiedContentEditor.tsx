@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ComparisonTableBuilder } from '@/components/editor/ComparisonTableBuilder';
+import { ComparisonTableRenderer } from '@/components/editor/ComparisonTableRenderer';
 import { KeywordModal } from '@/components/editor/KeywordModal';
 import { apiRequest } from '@/lib/queryClient';
 import {
@@ -568,14 +569,7 @@ export function UnifiedContentEditor({
                       {comparisonTableConfig && (
                         <div className="mt-8">
                           <h2 className="text-xl font-semibold mb-4">Product Comparison</h2>
-                          <div className="border rounded-lg p-4">
-                            <p className="text-muted-foreground">
-                              Comparison table: {comparisonTableConfig.name}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {comparisonTableConfig.columns?.length || 0} columns, {comparisonTableConfig.rows?.length || 0} products
-                            </p>
-                          </div>
+                          <ComparisonTableRenderer config={comparisonTableConfig} />
                         </div>
                       )}
 
