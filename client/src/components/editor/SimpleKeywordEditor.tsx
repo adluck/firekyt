@@ -24,12 +24,9 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     if (currentKeywords && Array.isArray(currentKeywords)) {
       const validKeywords = currentKeywords.filter(k => k && k.trim());
       setSavedKeywords(validKeywords);
-      // Only set input if it's empty (avoid overwriting user input)
-      if (!input.trim()) {
-        setInput(validKeywords.join(', '));
-      }
+      // Don't auto-populate input field - let user manually enter keywords
     }
-  }, [currentKeywords, input]);
+  }, [currentKeywords]);
 
   // Handle successful save with immediate UI refresh
   const handleSaveSuccess = useCallback((keywords: string[]) => {
