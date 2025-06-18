@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,6 +121,7 @@ export function UnifiedContentEditor({
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [keywords, setKeywords] = useState<string>('');
+  const formRef = useRef<any>(null);
 
   // Fetch existing content if editing
   const { data: existingContent, isLoading: contentLoading } = useQuery({
@@ -214,13 +215,18 @@ export function UnifiedContentEditor({
       
       // Update keywords state with saved data to reflect in UI
       if (result && result.targetKeywords) {
-        const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : '';
+        const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : String(result.targetKeywords);
         console.log('🔍 FRONTEND Setting keywords to:', newKeywords);
         setKeywords(newKeywords);
         setContentData(prev => ({ 
           ...prev, 
           targetKeywords: result.targetKeywords 
         }));
+        
+        // Force UI update by triggering a state change
+        setTimeout(() => {
+          setKeywords(newKeywords);
+        }, 0);
       } else {
         console.log('🔍 FRONTEND No targetKeywords in result or result is null');
       }
