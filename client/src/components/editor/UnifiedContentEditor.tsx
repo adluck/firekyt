@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ComparisonTableBuilder } from '@/components/editor/ComparisonTableBuilder';
+import { KeywordManager } from '@/components/editor/KeywordManager';
 import { apiRequest } from '@/lib/queryClient';
 import {
   Save,
@@ -120,7 +121,7 @@ export function UnifiedContentEditor({
   
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
-  const [keywords, setKeywords] = useState<string>('');
+  const [currentKeywords, setCurrentKeywords] = useState<string[]>([]);
 
   // Fetch existing content if editing
   const { data: existingContent, isLoading: contentLoading } = useQuery({
@@ -187,80 +188,18 @@ export function UnifiedContentEditor({
         targetKeywords: contentWithKeywords.targetKeywords || [],
         comparisonTables: contentWithKeywords.comparisonTables || null,
       }));
-      setKeywords((contentWithKeywords.targetKeywords || []).join(', '));
+      setCurrentKeywords(contentWithKeywords.targetKeywords || []);
       setComparisonTableConfig(contentWithKeywords.comparisonTables || null);
     }
   }, [initialContent]);
 
-  // Simple keyword save function using mutation for proper auth
-  const keywordSaveMutation = useMutation({
-    mutationFn: async (keywordArray: string[]) => {
-      const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
-        targetKeywords: keywordArray
-      });
-      return response.json();
-    },
-    onSuccess: (result) => {
-      console.log('🔍 KEYWORDS Response received:', JSON.stringify(result));
-      
-      // Update local state immediately
-      if (result && result.targetKeywords) {
-        const newKeywordsArray = Array.isArray(result.targetKeywords) 
-          ? result.targetKeywords 
-          : [result.targetKeywords];
-        const newKeywordsString = newKeywordsArray.join(', ');
-        
-        console.log('🔍 KEYWORDS Updating UI to array:', newKeywordsArray);
-        console.log('🔍 KEYWORDS Updating UI to string:', newKeywordsString);
-        
-        // Force both state updates simultaneously
-        setKeywords(newKeywordsString);
-        setContentData(prev => ({ 
-          ...prev, 
-          targetKeywords: newKeywordsArray 
-        }));
-        
-        // Force re-render by updating a dummy state
-        setActiveTab(prev => prev);
-        
-        console.log('🔍 KEYWORDS Both states updated - string:', newKeywordsString, 'array:', newKeywordsArray);
-      }
-      
-      toast({
-        title: 'Keywords saved',
-        description: 'SEO keywords updated successfully',
-      });
-      
-      // Force refresh of content list
-      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
-    },
-    onError: (error: any) => {
-      console.error('🔍 KEYWORDS Error:', error);
-      toast({
-        title: 'Keywords save failed',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  });
-
-  const saveKeywords = async () => {
-    console.log('🔍 KEYWORDS Function started, contentId:', contentId);
-    console.log('🔍 KEYWORDS Current keywords:', keywords);
-    
-    if (!contentId) {
-      toast({
-        title: 'Error',
-        description: 'Content ID required for keyword updates',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const keywordArray = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
-    console.log('🔍 KEYWORDS Saving keywords:', JSON.stringify(keywordArray));
-    
-    keywordSaveMutation.mutate(keywordArray);
+  // Handle keyword updates from KeywordManager
+  const handleKeywordsUpdate = (newKeywords: string[]) => {
+    setCurrentKeywords(newKeywords);
+    setContentData(prev => ({ 
+      ...prev, 
+      targetKeywords: newKeywords 
+    }));
   };
 
   // Default save mutation
