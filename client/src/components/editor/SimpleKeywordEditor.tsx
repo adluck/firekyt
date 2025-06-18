@@ -21,29 +21,37 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Track if we just updated keywords to prevent override
+  const [justUpdated, setJustUpdated] = useState(false);
+  
   useEffect(() => {
-    if (currentKeywords && Array.isArray(currentKeywords)) {
+    // Only sync from parent if we haven't just updated keywords ourselves
+    if (currentKeywords && Array.isArray(currentKeywords) && !justUpdated) {
       const validKeywords = currentKeywords.filter(k => k && k.trim());
+      console.log('🔍 Syncing from parent (not after update):', validKeywords);
       setSavedKeywords(validKeywords);
-      // Don't auto-populate input field - let user manually enter keywords
     }
-  }, [currentKeywords]);
+    // Reset the flag after a brief delay
+    if (justUpdated) {
+      const timer = setTimeout(() => setJustUpdated(false), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [currentKeywords, justUpdated]);
 
   // Handle successful save with immediate UI refresh
   const handleSaveSuccess = useCallback((keywords: string[]) => {
     console.log('🔍 SimpleKeywordEditor: Handling save success:', keywords);
     
+    // Set flag to prevent useEffect override
+    setJustUpdated(true);
+    
     // Force immediate state updates
-    setSavedKeywords(() => {
-      console.log('🔍 Setting saved keywords to:', keywords);
-      return [...keywords];
-    });
+    setSavedKeywords([...keywords]);
+    console.log('🔍 Setting saved keywords to:', keywords);
     
     // Clear input field immediately
-    setInput(() => {
-      console.log('🔍 Clearing input field');
-      return '';
-    });
+    setInput('');
+    console.log('🔍 Clearing input field');
     
     // Update parent component
     onUpdate([...keywords]);
