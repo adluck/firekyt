@@ -197,7 +197,8 @@ export function UnifiedContentEditor({
     mutationFn: async (data: ContentData) => {
       if (onSave) {
         await onSave(data);
-        return { success: true };
+        // After custom onSave, return the updated data for UI state management
+        return { ...data, targetKeywords: data.targetKeywords };
       }
       
       // Default API save behavior
