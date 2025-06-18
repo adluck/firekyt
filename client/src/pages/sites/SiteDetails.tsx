@@ -39,7 +39,11 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
 
   // Fetch site content
   const { data: content = [], isLoading: contentLoading } = useQuery<Content[]>({
-    queryKey: [`/api/content?siteId=${siteId}`],
+    queryKey: ['/api/content', { siteId }],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/content?siteId=${siteId}`);
+      return response.json();
+    },
   });
 
   // Fetch site analytics

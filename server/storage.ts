@@ -617,18 +617,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(sites).where(eq(sites.id, id));
   }
 
-  // Content management
-  async getContent(userId: number): Promise<Content[]> {
-    return await db.select().from(content).where(eq(content.userId, userId)).orderBy(desc(content.createdAt));
-  }
-
-  async getSiteContent(siteId: number): Promise<Content[]> {
-    return await db.select().from(content).where(eq(content.siteId, siteId)).orderBy(desc(content.createdAt));
-  }
-
-  async getUserContent(userId: number): Promise<Content[]> {
-    return await db.select().from(content).where(eq(content.userId, userId)).orderBy(desc(content.createdAt));
-  }
+  // Content management methods are implemented below in their proper location
 
   async createContent(contentData: any): Promise<Content> {
     const [contentItem] = await db.insert(content).values(contentData).returning();
@@ -672,6 +661,8 @@ export class DatabaseStorage implements IStorage {
   async deleteContent(id: number, userId: number): Promise<void> {
     await db.delete(content).where(and(eq(content.id, id), eq(content.userId, userId)));
   }
+
+
 
   // Analytics
   async createAnalytics(analyticsData: InsertAnalytics): Promise<Analytics> {
