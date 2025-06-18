@@ -532,7 +532,7 @@ export function UnifiedContentEditor({
                             )}
                           </div>
                           <KeywordModal
-                            contentId={typeof contentId === 'number' ? contentId : null}
+                            contentId={contentId ? (typeof contentId === 'string' ? parseInt(contentId) : contentId) : null}
                             currentKeywords={currentKeywords}
                             onUpdate={handleKeywordsUpdate}
                           />
