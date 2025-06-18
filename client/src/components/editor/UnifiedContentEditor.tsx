@@ -196,11 +196,16 @@ export function UnifiedContentEditor({
   // Handle keyword updates from KeywordManager - ensure non-interference with SimpleKeywordEditor
   const handleKeywordsUpdate = (newKeywords: string[]) => {
     console.log('🔍 UNIFIED handleKeywordsUpdate called with:', newKeywords);
-    setCurrentKeywords(newKeywords);
+    console.log('🔍 UNIFIED Current keywords before update:', currentKeywords);
+    
+    // Force immediate state updates to reflect in UI
+    setCurrentKeywords([...newKeywords]);
     setContentData(prev => ({ 
       ...prev, 
-      targetKeywords: newKeywords 
+      targetKeywords: [...newKeywords] 
     }));
+    
+    console.log('🔍 UNIFIED Keywords updated, should trigger re-render');
   };
 
   // Default save mutation

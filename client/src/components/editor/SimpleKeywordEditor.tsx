@@ -95,16 +95,23 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     },
     onSuccess: ({ result, keywords }) => {
       console.log('🔍 SimpleKeywordEditor: Save success, handling success:', keywords);
+      console.log('🔍 Result targetKeywords:', result?.targetKeywords);
+      
+      // Use the actual response from the database for accuracy
+      const actualKeywords = result?.targetKeywords || keywords;
+      console.log('🔍 Using actual keywords from response:', actualKeywords);
       
       // Handle successful save with proper state management
-      handleSaveSuccess(keywords);
+      handleSaveSuccess(actualKeywords);
       
       toast({
         title: 'Keywords saved',
         description: 'SEO keywords updated successfully',
       });
       
+      // Force refresh of content data
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      queryClient.refetchQueries({ queryKey: ['/api/content'] });
     },
     onError: (error: any) => {
       toast({
@@ -135,16 +142,23 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     },
     onSuccess: ({ result, keywords }) => {
       console.log('🔍 SimpleKeywordEditor: Delete success, handling success:', keywords);
+      console.log('🔍 Delete result targetKeywords:', result?.targetKeywords);
+      
+      // Use the actual response from the database for accuracy
+      const actualKeywords = result?.targetKeywords || keywords;
+      console.log('🔍 Using actual keywords from delete response:', actualKeywords);
       
       // Handle successful deletion with proper state management
-      handleSaveSuccess(keywords);
+      handleSaveSuccess(actualKeywords);
       
       toast({
         title: 'Keyword deleted',
         description: 'SEO keyword removed successfully',
       });
       
+      // Force refresh of content data
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      queryClient.refetchQueries({ queryKey: ['/api/content'] });
     },
     onError: (error: any) => {
       toast({
