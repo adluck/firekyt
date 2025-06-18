@@ -115,10 +115,11 @@ export default function ContentEditor() {
   // Save content mutation
   const saveMutation = useMutation({
     mutationFn: async (data: ContentData) => {
-      // Use the contentData.id if it exists (for updates) or create new content
-      const contentId = data.id || id;
-      const url = contentId ? `/api/content/${contentId}` : '/api/content';
-      const method = contentId ? 'PATCH' : 'POST';
+      // For new content, id will be undefined, so we use POST to /api/content
+      // For existing content, we use PATCH to /api/content/:id
+      const isUpdate = id && id !== 'undefined';
+      const url = isUpdate ? `/api/content/${id}` : '/api/content';
+      const method = isUpdate ? 'PATCH' : 'POST';
       return apiRequest(method, url, data);
     },
     onSuccess: async (response) => {
