@@ -193,13 +193,19 @@ export function UnifiedContentEditor({
     }
   }, [initialContent]);
 
-  // Dedicated keyword save mutation
-  const keywordSaveMutation = useMutation({
-    mutationFn: async (newKeywords: string) => {
-      console.log('🔍 KEYWORDS Starting save mutation...');
-      if (!contentId) throw new Error('Content ID required for keyword updates');
-      
-      const keywordArray = newKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+  // Simple keyword save function
+  const saveKeywords = async () => {
+    if (!contentId) {
+      toast({
+        title: 'Error',
+        description: 'Content ID required for keyword updates',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const keywordArray = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
       console.log('🔍 KEYWORDS Saving keywords:', JSON.stringify(keywordArray));
       
       const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
@@ -211,45 +217,39 @@ export function UnifiedContentEditor({
       }
       
       const result = await response.json();
-      console.log('🔍 KEYWORDS Raw response from API:', JSON.stringify(result));
-      return result;
-    },
-    onSuccess: (result) => {
-      console.log('🔍 KEYWORDS onSuccess called with:', JSON.stringify(result));
-      console.log('🔍 KEYWORDS result.targetKeywords:', JSON.stringify(result?.targetKeywords));
+      console.log('🔍 KEYWORDS Response received:', JSON.stringify(result));
       
+      // Update local state immediately
       if (result && result.targetKeywords) {
-        const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : String(result.targetKeywords);
-        console.log('🔍 KEYWORDS Converting to UI format:', newKeywords);
+        const newKeywordsString = Array.isArray(result.targetKeywords) 
+          ? result.targetKeywords.join(', ') 
+          : String(result.targetKeywords);
         
-        // Force immediate UI update
-        setKeywords(newKeywords);
+        console.log('🔍 KEYWORDS Updating UI to:', newKeywordsString);
+        setKeywords(newKeywordsString);
         setContentData(prev => ({ 
           ...prev, 
           targetKeywords: result.targetKeywords 
         }));
-        
-        console.log('🔍 KEYWORDS UI state updated');
-        
-        toast({
-          title: 'Keywords saved',
-          description: 'SEO keywords updated successfully',
-        });
-        
-        queryClient.invalidateQueries({ queryKey: ['/api/content'] });
-      } else {
-        console.log('🔍 KEYWORDS No targetKeywords in result:', result);
       }
-    },
-    onError: (error: any) => {
-      console.log('🔍 KEYWORDS Error occurred:', error);
+      
+      toast({
+        title: 'Keywords saved',
+        description: 'SEO keywords updated successfully',
+      });
+      
+      // Force refresh of content list
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      
+    } catch (error: any) {
+      console.log('🔍 KEYWORDS Error:', error);
       toast({
         title: 'Keywords save failed',
         description: error.message,
         variant: 'destructive',
       });
-    },
-  });
+    }
+  };
 
   // Default save mutation
   const defaultSaveMutation = useMutation({
@@ -579,11 +579,11 @@ export function UnifiedContentEditor({
                       <div className="flex items-center gap-4">
                         <Button
                           type="button"
-                          onClick={() => keywordSaveMutation.mutate(keywords)}
-                          disabled={keywordSaveMutation.isPending || !contentId}
+                          onClick={saveKeywords}
+                          disabled={!contentId}
                           size="sm"
                         >
-                          {keywordSaveMutation.isPending ? 'Saving...' : 'Save Keywords'}
+                          Save Keywords
                         </Button>
                         
                         {!contentId && (
