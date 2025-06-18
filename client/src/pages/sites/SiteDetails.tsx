@@ -55,6 +55,13 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
   const publishedContent = siteContent.filter(c => c.status === 'published');
   const draftContent = siteContent.filter(c => c.status === 'draft');
 
+  // Debug content filtering
+  console.log('Site ID:', siteId, 'parsed:', parseInt(siteId));
+  console.log('All content:', content);
+  console.log('Site content:', siteContent);
+  console.log('Published content:', publishedContent);
+  console.log('Draft content:', draftContent);
+
   // Delete content mutation
   const deleteContentMutation = useMutation({
     mutationFn: (contentId: number) => apiRequest("DELETE", `/api/content/${contentId}`),
