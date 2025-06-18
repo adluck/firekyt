@@ -192,40 +192,15 @@ export function UnifiedContentEditor({
     }
   }, [initialContent]);
 
-  // Simple keyword save function
-  const saveKeywords = async () => {
-    alert('Save keywords function called!'); // Visual debug
-    console.log('🔍 KEYWORDS Function started, contentId:', contentId);
-    console.log('🔍 KEYWORDS Current keywords:', keywords);
-    
-    if (!contentId) {
-      toast({
-        title: 'Error',
-        description: 'Content ID required for keyword updates',
-        variant: 'destructive',
+  // Simple keyword save function using mutation for proper auth
+  const keywordSaveMutation = useMutation({
+    mutationFn: async (keywordArray: string[]) => {
+      const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
+        targetKeywords: keywordArray
       });
-      return;
-    }
-
-    try {
-      const keywordArray = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
-      console.log('🔍 KEYWORDS Saving keywords:', JSON.stringify(keywordArray));
-      
-      const response = await fetch(`/api/content/${contentId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          targetKeywords: keywordArray
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
+      return response.json();
+    },
+    onSuccess: (result) => {
       console.log('🔍 KEYWORDS Response received:', JSON.stringify(result));
       
       // Update local state immediately
@@ -253,16 +228,34 @@ export function UnifiedContentEditor({
       
       // Force refresh of content list
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
-      
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       console.error('🔍 KEYWORDS Error:', error);
-      alert('Error: ' + error.message); // Visual debug
       toast({
         title: 'Keywords save failed',
         description: error.message,
         variant: 'destructive',
       });
     }
+  });
+
+  const saveKeywords = async () => {
+    console.log('🔍 KEYWORDS Function started, contentId:', contentId);
+    console.log('🔍 KEYWORDS Current keywords:', keywords);
+    
+    if (!contentId) {
+      toast({
+        title: 'Error',
+        description: 'Content ID required for keyword updates',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const keywordArray = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    console.log('🔍 KEYWORDS Saving keywords:', JSON.stringify(keywordArray));
+    
+    keywordSaveMutation.mutate(keywordArray);
   };
 
   // Default save mutation
