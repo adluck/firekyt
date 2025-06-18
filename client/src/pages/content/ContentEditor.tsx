@@ -90,6 +90,13 @@ export default function ContentEditor() {
     queryKey: ['/api/sites'],
   });
 
+  // Set default siteId when sites are loaded
+  useEffect(() => {
+    if (sites.length > 0 && contentData.siteId === 0) {
+      setContentData(prev => ({ ...prev, siteId: sites[0].id }));
+    }
+  }, [sites, contentData.siteId]);
+
   // Load existing content data
   useEffect(() => {
     if (existingContent) {
@@ -108,8 +115,10 @@ export default function ContentEditor() {
   // Save content mutation
   const saveMutation = useMutation({
     mutationFn: async (data: ContentData) => {
-      const url = id ? `/api/content/${id}` : '/api/content';
-      const method = id ? 'PATCH' : 'POST';
+      // Use the contentData.id if it exists (for updates) or create new content
+      const contentId = data.id || id;
+      const url = contentId ? `/api/content/${contentId}` : '/api/content';
+      const method = contentId ? 'PATCH' : 'POST';
       return apiRequest(method, url, data);
     },
     onSuccess: async (response) => {
