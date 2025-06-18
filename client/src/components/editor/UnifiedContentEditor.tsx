@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ComparisonTableBuilder } from '@/components/editor/ComparisonTableBuilder';
-import { KeywordManager } from '@/components/editor/KeywordManager';
+import { SimpleKeywordEditor } from '@/components/editor/SimpleKeywordEditor';
 import { apiRequest } from '@/lib/queryClient';
 import {
   Save,
@@ -568,8 +568,8 @@ export function UnifiedContentEditor({
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span>Type: {contentTypes.find(t => t.value === contentData.contentType)?.label}</span>
                           <span>Status: {statusOptions.find(s => s.value === contentData.status)?.label}</span>
-                          {contentData.targetKeywords && contentData.targetKeywords.length > 0 && (
-                            <span>Keywords: {contentData.targetKeywords.length}</span>
+                          {currentKeywords && currentKeywords.length > 0 && (
+                            <span>Keywords: {currentKeywords.length}</span>
                           )}
                         </div>
                       </div>
@@ -593,6 +593,19 @@ export function UnifiedContentEditor({
                             <p className="text-sm text-muted-foreground">
                               {comparisonTableConfig.columns?.length || 0} columns, {comparisonTableConfig.rows?.length || 0} products
                             </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentKeywords && currentKeywords.length > 0 && (
+                        <div className="mt-8">
+                          <h2 className="text-xl font-semibold mb-4">SEO Keywords</h2>
+                          <div className="flex flex-wrap gap-2">
+                            {currentKeywords.map((keyword, index) => (
+                              <Badge key={`preview-${keyword}-${index}`} variant="outline">
+                                {keyword}
+                              </Badge>
+                            ))}
                           </div>
                         </div>
                       )}
