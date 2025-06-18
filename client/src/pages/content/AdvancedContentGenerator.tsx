@@ -374,7 +374,12 @@ export default function AdvancedContentGenerator() {
               ...data,
               originalGenerationId: generatedContent.content_id,
             };
-            saveMutation.mutate(contentToSave);
+            return new Promise((resolve, reject) => {
+              saveMutation.mutate(contentToSave, {
+                onSuccess: resolve,
+                onError: reject
+              });
+            });
           }}
           onClose={() => setShowEditor(false)}
           isSaving={saveMutation.isPending}

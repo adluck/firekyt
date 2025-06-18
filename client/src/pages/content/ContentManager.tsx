@@ -41,7 +41,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ContentEditor from "@/components/content/ContentEditor";
+import { UnifiedContentEditor } from "@/components/editor/UnifiedContentEditor";
 
 interface Content {
   id: number;
@@ -266,20 +266,37 @@ export default function ContentManager() {
 
   if (isEditorOpen && editingContent) {
     return (
-      <ContentEditor
-        generatedContent={{
+      <UnifiedContentEditor
+        mode="edit"
+        contentId={editingContent.id}
+        showHeader={true}
+        showSidebar={true}
+        enableTables={true}
+        enableSEO={true}
+        enablePreview={true}
+        requiredFields={['title', 'content']}
+        initialContent={{
+          id: editingContent.id,
           title: editingContent.title,
-          generated_text: editingContent.content,
-          seo_title: editingContent.seoTitle,
-          seo_description: editingContent.seoDescription,
-          content_id: editingContent.id.toString(),
+          content: editingContent.content,
+          contentType: editingContent.contentType,
+          status: editingContent.status,
+          seoTitle: editingContent.seoTitle,
+          seoDescription: editingContent.seoDescription,
+          targetKeywords: editingContent.targetKeywords,
+          siteId: 1, // Default site ID - will be properly handled by the editor
         }}
-        onSave={handleSaveEdit}
+        onSave={async (data) => {
+          return new Promise((resolve, reject) => {
+            handleSaveEdit(data);
+            resolve();
+          });
+        }}
         onClose={() => {
           setIsEditorOpen(false);
           setEditingContent(null);
         }}
-        isLoading={updateContentMutation.isPending}
+        isSaving={updateContentMutation.isPending}
       />
     );
   }
