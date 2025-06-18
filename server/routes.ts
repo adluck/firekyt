@@ -1511,6 +1511,50 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // Content Management API - Get user content
+  app.get("/api/content", authenticateToken, async (req, res) => {
+    try {
+      const { siteId } = req.query;
+      let content;
+      
+      if (siteId) {
+        const site = await storage.getSite(parseInt(siteId as string));
+        if (!site || site.userId !== req.user!.id) {
+          return res.status(404).json({ message: "Site not found" });
+        }
+        content = await storage.getSiteContent(site.id);
+      } else {
+        content = await storage.getUserContent(req.user!.id);
+      }
+      
+      res.json(content);
+    } catch (error: any) {
+      console.error('Content retrieval error:', error);
+      res.status(500).json({ message: "Failed to retrieve content" });
+    }
+  });
+
+  // Get single content item
+  app.get("/api/content/:id", authenticateToken, async (req, res) => {
+    try {
+      const contentId = parseInt(req.params.id);
+      const userId = req.user!.id;
+
+      // Get user's content and find the specific item
+      const userContent = await storage.getUserContent(userId);
+      const content = userContent.find((c: any) => c.id === contentId);
+      
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+
+      res.json(content);
+    } catch (error: any) {
+      console.error('Content retrieval error:', error);
+      res.status(500).json({ message: "Failed to retrieve content" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
