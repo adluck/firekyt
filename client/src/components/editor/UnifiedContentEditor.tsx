@@ -204,47 +204,34 @@ export function UnifiedContentEditor({
       const isUpdate = contentId && mode === 'edit';
       const url = saveEndpoint || (isUpdate ? `/api/content/${contentId}` : '/api/content');
       const method = customSaveMethod || (isUpdate ? 'PATCH' : 'POST');
-      return apiRequest(method, url, data);
+      const response = await apiRequest(method, url, data);
+      return await response.json();
     },
-    onSuccess: async (response) => {
-      console.log('🔍 FRONTEND onSuccess called with response:', response);
-      try {
-        let result;
-        if (response && typeof response === 'object' && 'json' in response) {
-          console.log('🔍 FRONTEND Response has json method, parsing...');
-          result = await response.json();
-        } else {
-          console.log('🔍 FRONTEND Response is direct object');
-          result = response;
-        }
-        
-        console.log('🔍 FRONTEND Response result:', JSON.stringify(result));
-        console.log('🔍 FRONTEND targetKeywords from response:', JSON.stringify(result?.targetKeywords));
-        
-        // Update keywords state with saved data to reflect in UI
-        if (result && result.targetKeywords) {
-          const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : '';
-          console.log('🔍 FRONTEND Setting keywords to:', newKeywords);
-          setKeywords(newKeywords);
-          setContentData(prev => ({ 
-            ...prev, 
-            targetKeywords: result.targetKeywords 
-          }));
-        } else {
-          console.log('🔍 FRONTEND No targetKeywords in result or result is null');
-        }
-        
-        toast({
-          title: 'Content saved',
-          description: contentId ? 'Content updated successfully' : 'New content created successfully',
-        });
-        queryClient.invalidateQueries({ queryKey: ['/api/content'] });
-        
-        if (mode === 'embedded' && onClose) {
-          onClose();
-        }
-      } catch (error) {
-        console.error('🔍 FRONTEND Failed to parse response:', error);
+    onSuccess: async (result) => {
+      console.log('🔍 FRONTEND onSuccess called with result:', JSON.stringify(result));
+      console.log('🔍 FRONTEND targetKeywords from response:', JSON.stringify(result?.targetKeywords));
+      
+      // Update keywords state with saved data to reflect in UI
+      if (result && result.targetKeywords) {
+        const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : '';
+        console.log('🔍 FRONTEND Setting keywords to:', newKeywords);
+        setKeywords(newKeywords);
+        setContentData(prev => ({ 
+          ...prev, 
+          targetKeywords: result.targetKeywords 
+        }));
+      } else {
+        console.log('🔍 FRONTEND No targetKeywords in result or result is null');
+      }
+      
+      toast({
+        title: 'Content saved',
+        description: contentId ? 'Content updated successfully' : 'New content created successfully',
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      
+      if (mode === 'embedded' && onClose) {
+        onClose();
       }
     },
     onError: (error: any) => {
