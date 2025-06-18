@@ -42,7 +42,9 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
     queryKey: ['/api/content', { siteId }],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/content?siteId=${siteId}`);
-      return response.json();
+      const data = await response.json();
+      console.log('Content API response:', data);
+      return data;
     },
   });
 
@@ -67,7 +69,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
       await apiRequest("DELETE", `/api/content/${contentId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/content?siteId=${siteId}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/content', { siteId }] });
       toast({
         title: "Content deleted",
         description: "The content has been deleted successfully.",
@@ -261,7 +263,9 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
         </TabsList>
         
         <TabsContent value="content" className="space-y-6">
-          {content.length === 0 ? (
+          {contentLoading ? (
+            <div className="text-center py-12">Loading content...</div>
+          ) : content.length === 0 ? (
             <Card className="text-center py-12">
               <CardContent>
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
