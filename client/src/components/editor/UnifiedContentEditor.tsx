@@ -315,10 +315,15 @@ export function UnifiedContentEditor({
   };
 
   const handlePublish = () => {
-    updateContentData({ status: 'published' });
-    setTimeout(() => {
-      handleSave();
-    }, 100);
+    if (!handleValidation()) return;
+
+    const dataToSave = {
+      ...contentData,
+      status: 'published',
+      targetKeywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
+    };
+
+    defaultSaveMutation.mutate(dataToSave);
   };
 
   const handleSaveTable = (config: any) => {
