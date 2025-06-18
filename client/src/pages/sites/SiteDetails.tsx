@@ -16,8 +16,10 @@ import {
   Trash2,
   ExternalLink,
   Calendar,
-  Tag
+  Tag,
+  Search
 } from "lucide-react";
+import { format } from "date-fns";
 import { Link, useLocation } from "wouter";
 import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -278,18 +280,9 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
         </TabsList>
         
         <TabsContent value="content" className="space-y-6">
-          <div className="p-4 bg-gray-100 rounded mb-4">
-            <strong>Debug Info:</strong><br/>
-            Loading: {contentLoading ? 'true' : 'false'}<br/>
-            Content Length: {content?.length || 0}<br/>
-            Content Type: {typeof content}<br/>
-            Is Array: {Array.isArray(content) ? 'true' : 'false'}<br/>
-            Error: {contentError ? String(contentError) : 'none'}
-          </div>
-          
           {contentLoading ? (
             <div className="text-center py-12">Loading content...</div>
-          ) : !content || content.length === 0 ? (
+          ) : content.length === 0 ? (
             <Card className="text-center py-12">
               <CardContent>
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -306,70 +299,125 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold">All Content (Debug):</h3>
-              {content.map((item) => (
-                <Card key={item.id} className="card-hover">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold">{item.title}</h3>
-                          <Badge className={getStatusColor(item.status)}>
-                            {item.status}
-                          </Badge>
-                        </div>
-                        
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                          {item.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
-                        </p>
-                        
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span>Type: {item.contentType.replace('_', ' ')}</span>
-                          <span>Created: {formatDate(item.createdAt.toString())}</span>
-                          {item.publishedAt && (
-                            <span>Published: {formatDate(item.publishedAt.toString())}</span>
-                          )}
-                        </div>
-                        
-                        {item.targetKeywords && item.targetKeywords.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {item.targetKeywords.slice(0, 3).map((keyword) => (
-                              <Badge key={keyword} variant="outline" className="text-xs">
-                                {keyword}
+            <>
+              {/* Published Content */}
+              {publishedContent.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Published Content</h3>
+                  {publishedContent.map((item) => (
+                    <Card key={item.id} className="card-hover">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="font-semibold">{item.title}</h4>
+                              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                Published
                               </Badge>
-                            ))}
-                            {item.targetKeywords.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{item.targetKeywords.length - 3} more
-                              </Badge>
-                            )}
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                              {item.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                            </p>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                {format(new Date(item.publishedAt || item.createdAt), 'MMM d, yyyy')}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Tag className="h-4 w-4" />
+                                {item.contentType}
+                              </span>
+                              {item.targetKeywords && (
+                                <span className="flex items-center gap-1">
+                                  <Search className="h-4 w-4" />
+                                  {item.targetKeywords.slice(0, 2).join(', ')}
+                                  {item.targetKeywords.length > 2 && ` +${item.targetKeywords.length - 2}`}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => setLocation(`/content/editor/${item.id}`)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleDeleteContent(item.id, item.title)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                          <div className="flex items-center gap-2 ml-4">
+                            <Button variant="outline" size="sm" asChild>
+                              <Link href={`/content/${item.id}`}>
+                                <Edit className="h-4 w-4 mr-1" />
+                                Edit
+                              </Link>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteContentMutation.mutate(item.id)}
+                              disabled={deleteContentMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* Draft Content */}
+              {draftContent.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Draft Content</h3>
+                  {draftContent.map((item) => (
+                    <Card key={item.id} className="card-hover">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="font-semibold">{item.title}</h4>
+                              <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                                Draft
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                              {item.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                            </p>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                {format(new Date(item.createdAt), 'MMM d, yyyy')}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Tag className="h-4 w-4" />
+                                {item.contentType}
+                              </span>
+                              {item.targetKeywords && (
+                                <span className="flex items-center gap-1">
+                                  <Search className="h-4 w-4" />
+                                  {item.targetKeywords.slice(0, 2).join(', ')}
+                                  {item.targetKeywords.length > 2 && ` +${item.targetKeywords.length - 2}`}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 ml-4">
+                            <Button variant="outline" size="sm" asChild>
+                              <Link href={`/content/${item.id}`}>
+                                <Edit className="h-4 w-4 mr-1" />
+                                Edit
+                              </Link>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteContentMutation.mutate(item.id)}
+                              disabled={deleteContentMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </TabsContent>
         
