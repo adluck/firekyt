@@ -38,15 +38,27 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
   });
 
   // Fetch site content
-  const { data: content = [], isLoading: contentLoading } = useQuery<Content[]>({
+  const { data: contentData, isLoading: contentLoading, error: contentError } = useQuery<Content[]>({
     queryKey: ['/api/content', { siteId }],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/content?siteId=${siteId}`);
       const data = await response.json();
       console.log('Content API response:', data);
-      return data;
+      console.log('Content length:', data?.length);
+      console.log('Content array:', Array.isArray(data));
+      return data as Content[];
     },
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
   });
+
+  const content = contentData || [];
+
+  // Debug content state
+  console.log('Current content state:', content);
+  console.log('Content loading:', contentLoading);
+  console.log('Content error:', contentError);
 
   // Fetch site analytics
   const { data: analytics } = useQuery<{
@@ -263,9 +275,18 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
         </TabsList>
         
         <TabsContent value="content" className="space-y-6">
+          <div className="p-4 bg-gray-100 rounded mb-4">
+            <strong>Debug Info:</strong><br/>
+            Loading: {contentLoading ? 'true' : 'false'}<br/>
+            Content Length: {content?.length || 0}<br/>
+            Content Type: {typeof content}<br/>
+            Is Array: {Array.isArray(content) ? 'true' : 'false'}<br/>
+            Error: {contentError ? String(contentError) : 'none'}
+          </div>
+          
           {contentLoading ? (
             <div className="text-center py-12">Loading content...</div>
-          ) : content.length === 0 ? (
+          ) : !content || content.length === 0 ? (
             <Card className="text-center py-12">
               <CardContent>
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
