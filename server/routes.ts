@@ -638,6 +638,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updates = req.body;
       
       console.log('🔍 PUT /api/content/:id - Received targetKeywords:', JSON.stringify(updates.targetKeywords));
+      console.error('🚨 FORCE DEBUG - PUT targetKeywords:', JSON.stringify(updates.targetKeywords));
 
       // Verify content belongs to user
       const userContent = await storage.getContent(userId);
