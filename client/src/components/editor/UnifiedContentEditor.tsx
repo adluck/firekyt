@@ -207,18 +207,21 @@ export function UnifiedContentEditor({
       return apiRequest(method, url, data);
     },
     onSuccess: async (response) => {
+      console.log('🔍 FRONTEND onSuccess called with response:', response);
       try {
         let result;
         if (response && typeof response === 'object' && 'json' in response) {
+          console.log('🔍 FRONTEND Response has json method, parsing...');
           result = await response.json();
         } else {
+          console.log('🔍 FRONTEND Response is direct object');
           result = response;
         }
         
-        // Update keywords state with saved data to reflect in UI
         console.log('🔍 FRONTEND Response result:', JSON.stringify(result));
         console.log('🔍 FRONTEND targetKeywords from response:', JSON.stringify(result?.targetKeywords));
         
+        // Update keywords state with saved data to reflect in UI
         if (result && result.targetKeywords) {
           const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : '';
           console.log('🔍 FRONTEND Setting keywords to:', newKeywords);
@@ -227,6 +230,8 @@ export function UnifiedContentEditor({
             ...prev, 
             targetKeywords: result.targetKeywords 
           }));
+        } else {
+          console.log('🔍 FRONTEND No targetKeywords in result or result is null');
         }
         
         toast({
@@ -239,7 +244,7 @@ export function UnifiedContentEditor({
           onClose();
         }
       } catch (error) {
-        console.error('Failed to parse response:', error);
+        console.error('🔍 FRONTEND Failed to parse response:', error);
       }
     },
     onError: (error: any) => {
