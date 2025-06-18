@@ -660,6 +660,23 @@ export class DatabaseStorage implements IStorage {
       .returning();
       
     console.log('🔍 DATABASE Result from database:', JSON.stringify(contentItem.targetKeywords));
+    
+    // Ensure targetKeywords is returned as a proper JavaScript array
+    if (contentItem.targetKeywords && typeof contentItem.targetKeywords === 'string') {
+      try {
+        // Parse PostgreSQL array string format to JavaScript array
+        const arrayString = contentItem.targetKeywords.replace(/^{/, '[').replace(/}$/, ']').replace(/"/g, '"');
+        contentItem.targetKeywords = JSON.parse(arrayString);
+      } catch {
+        // If parsing fails, split by comma as fallback
+        contentItem.targetKeywords = contentItem.targetKeywords
+          .replace(/[{}]/g, '')
+          .split(',')
+          .map(keyword => keyword.replace(/"/g, '').trim())
+          .filter(keyword => keyword.length > 0);
+      }
+    }
+    
     return contentItem;
   }
 
@@ -683,7 +700,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserContent(userId: number): Promise<Content[]> {
-    return await db.select().from(content).where(eq(content.userId, userId)).orderBy(desc(content.createdAt));
+    const contentItems = await db.select().from(content).where(eq(content.userId, userId)).orderBy(desc(content.createdAt));
+    
+    // Convert PostgreSQL arrays to JavaScript arrays for all content items
+    return contentItems.map(item => {
+      if (item.targetKeywords && typeof item.targetKeywords === 'string') {
+        try {
+          // Parse PostgreSQL array string format to JavaScript array
+          const arrayString = item.targetKeywords.replace(/^{/, '[').replace(/}$/, ']').replace(/"/g, '"');
+          item.targetKeywords = JSON.parse(arrayString);
+        } catch {
+          // If parsing fails, split by comma as fallback
+          item.targetKeywords = item.targetKeywords
+            .replace(/[{}]/g, '')
+            .split(',')
+            .map(keyword => keyword.replace(/"/g, '').trim())
+            .filter(keyword => keyword.length > 0);
+        }
+      }
+      return item;
+    });
   }
 
   async getSiteContent(siteId: number): Promise<Content[]> {
