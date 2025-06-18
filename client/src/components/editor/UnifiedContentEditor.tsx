@@ -205,20 +205,25 @@ export function UnifiedContentEditor({
       
       // Update local state immediately
       if (result && result.targetKeywords) {
-        const newKeywordsString = Array.isArray(result.targetKeywords) 
-          ? result.targetKeywords.join(', ') 
-          : String(result.targetKeywords);
+        const newKeywordsArray = Array.isArray(result.targetKeywords) 
+          ? result.targetKeywords 
+          : [result.targetKeywords];
+        const newKeywordsString = newKeywordsArray.join(', ');
         
-        console.log('🔍 KEYWORDS Updating UI to:', newKeywordsString);
+        console.log('🔍 KEYWORDS Updating UI to array:', newKeywordsArray);
+        console.log('🔍 KEYWORDS Updating UI to string:', newKeywordsString);
         
-        // Force immediate state update
+        // Force both state updates simultaneously
         setKeywords(newKeywordsString);
         setContentData(prev => ({ 
           ...prev, 
-          targetKeywords: result.targetKeywords 
+          targetKeywords: newKeywordsArray 
         }));
         
-        console.log('🔍 KEYWORDS UI state updated to:', newKeywordsString);
+        // Force re-render by updating a dummy state
+        setActiveTab(prev => prev);
+        
+        console.log('🔍 KEYWORDS Both states updated - string:', newKeywordsString, 'array:', newKeywordsArray);
       }
       
       toast({
