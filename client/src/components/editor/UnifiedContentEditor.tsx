@@ -143,9 +143,34 @@ export function UnifiedContentEditor({
   useEffect(() => {
     if (existingContent) {
       const contentWithKeywords = existingContent as any;
+      
+      // Parse content if it's JSON formatted
+      let parsedContent = contentWithKeywords.content;
+      if (typeof parsedContent === 'string') {
+        try {
+          // Try to parse as JSON first
+          const jsonContent = JSON.parse(parsedContent);
+          if (jsonContent && typeof jsonContent === 'object') {
+            // If it's a JSON object with content field, extract it
+            if (jsonContent.content) {
+              parsedContent = jsonContent.content;
+            } else if (jsonContent.generated_text) {
+              parsedContent = jsonContent.generated_text;
+            } else {
+              // If it's JSON but doesn't have expected fields, use the raw string
+              parsedContent = contentWithKeywords.content;
+            }
+          }
+        } catch {
+          // If JSON parsing fails, use the content as-is
+          parsedContent = contentWithKeywords.content;
+        }
+      }
+      
       setContentData(prevData => ({
         ...prevData,
         ...existingContent,
+        content: parsedContent || '',
         targetKeywords: contentWithKeywords.targetKeywords || [],
         comparisonTables: contentWithKeywords.comparisonTables || null,
       }));
