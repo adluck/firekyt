@@ -93,12 +93,15 @@ export default function ContentEditor() {
   // Load existing content data
   useEffect(() => {
     if (existingContent) {
-      setContentData({
+      const contentWithKeywords = existingContent as any;
+      setContentData(prevData => ({
+        ...prevData,
         ...existingContent,
-        targetKeywords: existingContent.targetKeywords || [],
-      });
-      setKeywords((existingContent.targetKeywords || []).join(', '));
-      setComparisonTableConfig(existingContent.comparisonTables);
+        targetKeywords: contentWithKeywords.targetKeywords || [],
+        comparisonTables: contentWithKeywords.comparisonTables || null,
+      }));
+      setKeywords((contentWithKeywords.targetKeywords || []).join(', '));
+      setComparisonTableConfig(contentWithKeywords.comparisonTables || null);
     }
   }, [existingContent]);
 
@@ -109,14 +112,19 @@ export default function ContentEditor() {
       const method = id ? 'PATCH' : 'POST';
       return apiRequest(method, url, data);
     },
-    onSuccess: (result) => {
-      toast({
-        title: 'Content saved',
-        description: id ? 'Content updated successfully' : 'New content created successfully',
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
-      if (!id) {
-        setLocation(`/content/editor/${result.id}`);
+    onSuccess: async (response) => {
+      try {
+        const result = await response.json();
+        toast({
+          title: 'Content saved',
+          description: id ? 'Content updated successfully' : 'New content created successfully',
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+        if (!id && result?.id) {
+          setLocation(`/content/editor/${result.id}`);
+        }
+      } catch (error) {
+        console.error('Failed to parse response:', error);
       }
     },
     onError: (error) => {
@@ -489,7 +497,7 @@ export default function ContentEditor() {
               </div>
               <div className="flex justify-between text-sm">
                 <span>Character Count:</span>
-                <span>{contentData.content.length}</span>
+                <span>{contentData.content?.length || 0}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Reading Time:</span>
