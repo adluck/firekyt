@@ -216,9 +216,17 @@ export function UnifiedContentEditor({
         }
         
         // Update keywords state with saved data to reflect in UI
+        console.log('🔍 FRONTEND Response result:', JSON.stringify(result));
+        console.log('🔍 FRONTEND targetKeywords from response:', JSON.stringify(result?.targetKeywords));
+        
         if (result && result.targetKeywords) {
-          setKeywords(Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : '');
-          setContentData(prev => ({ ...prev, targetKeywords: result.targetKeywords }));
+          const newKeywords = Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : '';
+          console.log('🔍 FRONTEND Setting keywords to:', newKeywords);
+          setKeywords(newKeywords);
+          setContentData(prev => ({ 
+            ...prev, 
+            targetKeywords: result.targetKeywords 
+          }));
         }
         
         toast({
