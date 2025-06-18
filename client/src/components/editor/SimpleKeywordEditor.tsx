@@ -28,13 +28,23 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     }
   }, [currentKeywords]);
 
-  // Callback to update keywords with forced re-render
-  const updateKeywordsState = useCallback((keywords: string[]) => {
-    console.log('🔍 SimpleKeywordEditor: Force updating keywords state:', keywords);
-    setSavedKeywords([...keywords]);
-    setInput(keywords.join(', '));
+  // Force refresh keywords display with immediate state updates
+  const forceRefreshKeywords = useCallback((keywords: string[]) => {
+    console.log('🔍 SimpleKeywordEditor: Force refreshing keywords display:', keywords);
+    
+    // Use functional state updates to ensure React processes changes
+    setSavedKeywords(() => [...keywords]);
+    setInput(() => keywords.join(', '));
     setUpdateCounter(prev => prev + 1);
     onUpdate([...keywords]);
+    
+    // Additional timeout to ensure complete re-render
+    setTimeout(() => {
+      setSavedKeywords(prevKeywords => {
+        console.log('🔍 Previous keywords:', prevKeywords, 'New keywords:', keywords);
+        return [...keywords];
+      });
+    }, 50);
   }, [onUpdate]);
 
   const saveMutation = useMutation({
@@ -48,10 +58,10 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
       return { result: await response.json(), keywords };
     },
     onSuccess: ({ result, keywords }) => {
-      console.log('🔍 SimpleKeywordEditor: Save success, updating UI with keywords:', keywords);
+      console.log('🔍 SimpleKeywordEditor: Save success, forcing keywords refresh:', keywords);
       
-      // Use callback to ensure proper state update
-      updateKeywordsState(keywords);
+      // Force complete refresh of keywords display
+      forceRefreshKeywords(keywords);
       
       toast({
         title: 'Keywords saved',
