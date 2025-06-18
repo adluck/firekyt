@@ -143,7 +143,9 @@ export function UnifiedContentEditor({
     }
   }, [sites, contentData.siteId]);
 
-  // Load existing content data
+  // Load existing content data - track if keywords have been manually updated
+  const [keywordsManuallyUpdated, setKeywordsManuallyUpdated] = useState(false);
+  
   useEffect(() => {
     if (initialContent) {
       const contentWithKeywords = initialContent as any;
@@ -181,23 +183,25 @@ export function UnifiedContentEditor({
         parsedContent = contentWithKeywords.content;
       }
       
-
-      
       setContentData(prevData => ({
         ...prevData,
         ...(initialContent || {}),
         content: parsedContent,
-        targetKeywords: contentWithKeywords.targetKeywords || [],
+        // Only update keywords if they haven't been manually updated
+        targetKeywords: keywordsManuallyUpdated ? prevData.targetKeywords : (contentWithKeywords.targetKeywords || []),
         comparisonTables: contentWithKeywords.comparisonTables || null,
       }));
       setComparisonTableConfig(contentWithKeywords.comparisonTables || null);
     }
-  }, [initialContent]);
+  }, [initialContent, keywordsManuallyUpdated]);
 
   // Handle keyword updates from KeywordManager - single source of truth
   const handleKeywordsUpdate = (newKeywords: string[]) => {
     console.log('🔍 UNIFIED handleKeywordsUpdate called with:', newKeywords);
     console.log('🔍 UNIFIED Current keywords before update:', currentKeywords);
+    
+    // Mark keywords as manually updated to prevent overwriting on page loads
+    setKeywordsManuallyUpdated(true);
     
     // Update only the contentData - currentKeywords will automatically reflect this change
     setContentData(prev => ({ 
