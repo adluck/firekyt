@@ -76,6 +76,10 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
   const urlParams = new URLSearchParams(window.location.search);
   const siteIdFromUrl = urlParams.get('siteId');
   
+  // Debug URL parameters
+  console.log('URL search:', window.location.search);
+  console.log('siteIdFromUrl:', siteIdFromUrl);
+  
   const [contentData, setContentData] = useState<ContentData>({
     title: '',
     content: '',
@@ -446,9 +450,9 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="site">Site</Label>
+                <Label htmlFor="site">Target Site (Optional)</Label>
                 <Select
-                  value={contentData.siteId?.toString() || ""}
+                  value={contentData.siteId > 0 ? contentData.siteId.toString() : ""}
                   onValueChange={(value) => updateContentData({ siteId: parseInt(value) })}
                 >
                   <SelectTrigger>
