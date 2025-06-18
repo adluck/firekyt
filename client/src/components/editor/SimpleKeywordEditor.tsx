@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ interface SimpleKeywordEditorProps {
 export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: SimpleKeywordEditorProps) {
   const [input, setInput] = useState('');
   const [savedKeywords, setSavedKeywords] = useState<string[]>([]);
+  const [renderKey, setRenderKey] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -39,16 +40,18 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     },
     onSuccess: ({ result, keywords }) => {
       console.log('🔍 SimpleKeywordEditor: Save success, updating UI with keywords:', keywords);
-      setSavedKeywords(keywords);
-      onUpdate(keywords);
       
-      // Force a re-render by updating the input to reflect saved state
+      // Update all states to force UI refresh
+      setSavedKeywords([...keywords]);
+      onUpdate([...keywords]);
       setInput(keywords.join(', '));
+      setRenderKey(prev => prev + 1); // Force re-render
       
       toast({
         title: 'Keywords saved',
         description: 'SEO keywords updated successfully',
       });
+      
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
     },
     onError: (error: any) => {
@@ -61,7 +64,7 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" key={`editor-${renderKey}`}>
       <div>
         <Label htmlFor="keyword-input">Target Keywords (comma-separated)</Label>
         <div className="flex gap-2 mt-1">
@@ -86,11 +89,11 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
       </div>
 
       {savedKeywords.length > 0 && (
-        <div>
+        <div key={`keywords-${renderKey}-${savedKeywords.length}`}>
           <Label>Current Keywords</Label>
           <div className="flex flex-wrap gap-2 mt-2">
             {savedKeywords.map((keyword, index) => (
-              <Badge key={`${keyword}-${index}-${savedKeywords.length}`} variant="secondary">
+              <Badge key={`${keyword}-${index}-${renderKey}`} variant="secondary">
                 {keyword}
               </Badge>
             ))}
