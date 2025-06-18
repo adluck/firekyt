@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { X } from 'lucide-react';
 
 interface SimpleKeywordEditorProps {
   contentId: number | null;
@@ -114,6 +115,46 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     }
   });
 
+  // Delete keyword mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (keywordToDelete: string) => {
+      console.log('🔍 Starting keyword delete mutation for:', keywordToDelete);
+      console.log('🔍 Current saved keywords:', savedKeywords);
+      
+      const updatedKeywords = savedKeywords.filter(keyword => keyword !== keywordToDelete);
+      console.log('🔍 Keywords after deletion:', updatedKeywords);
+      
+      const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
+        targetKeywords: updatedKeywords
+      });
+      
+      const result = await response.json();
+      console.log('🔍 Delete API response:', result);
+      
+      return { result, keywords: updatedKeywords };
+    },
+    onSuccess: ({ result, keywords }) => {
+      console.log('🔍 SimpleKeywordEditor: Delete success, handling success:', keywords);
+      
+      // Handle successful deletion with proper state management
+      handleSaveSuccess(keywords);
+      
+      toast({
+        title: 'Keyword deleted',
+        description: 'SEO keyword removed successfully',
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Delete failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  });
+
   return (
     <div className="space-y-4" key={`editor-${updateCounter}`}>
       <div>
@@ -151,11 +192,26 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
           <Label>Current Keywords</Label>
           <div className="flex flex-wrap gap-2 mt-2">
             {savedKeywords.map((keyword, index) => (
-              <Badge key={`${keyword}-${index}-${updateCounter}`} variant="secondary">
-                {keyword}
+              <Badge key={`${keyword}-${index}-${updateCounter}`} variant="secondary" className="flex items-center gap-1 pr-1">
+                <span>{keyword}</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => {
+                    console.log('🔍 Delete button clicked for keyword:', keyword);
+                    deleteMutation.mutate(keyword);
+                  }}
+                  disabled={!contentId || deleteMutation.isPending}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
               </Badge>
             ))}
           </div>
+          {deleteMutation.isPending && (
+            <p className="text-xs text-muted-foreground mt-1">Deleting keyword...</p>
+          )}
         </div>
       )}
     </div>
