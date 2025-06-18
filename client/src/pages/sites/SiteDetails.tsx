@@ -39,7 +39,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
 
   // Fetch site content
   const { data: contentData, isLoading: contentLoading, error: contentError } = useQuery<Content[]>({
-    queryKey: ['/api/content', { siteId }],
+    queryKey: [`/api/content?siteId=${siteId}`],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/content?siteId=${siteId}`);
       const data = await response.json();
@@ -48,9 +48,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
       console.log('Content array:', Array.isArray(data));
       return data as Content[];
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: true,
+    enabled: !!siteId,
   });
 
   const content = contentData || [];
@@ -81,7 +79,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
       await apiRequest("DELETE", `/api/content/${contentId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/content', { siteId }] });
+      queryClient.invalidateQueries({ queryKey: [`/api/content?siteId=${siteId}`] });
       toast({
         title: "Content deleted",
         description: "The content has been deleted successfully.",
