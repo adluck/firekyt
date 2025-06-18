@@ -316,7 +316,11 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4">
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => setLocation(`/content/editor/${item.id}`)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button 

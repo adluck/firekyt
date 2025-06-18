@@ -61,8 +61,13 @@ const statusOptions = [
   { value: 'scheduled', label: 'Scheduled' },
 ];
 
-export default function ContentEditor() {
-  const { id } = useParams<{ id?: string }>();
+interface ContentEditorProps {
+  id?: string;
+}
+
+export default function ContentEditor({ id: propId }: ContentEditorProps = {} as ContentEditorProps) {
+  const { id: urlId } = useParams<{ id?: string }>();
+  const id = propId || urlId;
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();

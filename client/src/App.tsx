@@ -122,11 +122,13 @@ function Router() {
       </Route>
       
       <Route path="/content/editor/:id">
-        <ProtectedRoute>
-          <AppLayout>
-            <ContentEditor />
-          </AppLayout>
-        </ProtectedRoute>
+        {(params) => (
+          <ProtectedRoute>
+            <AppLayout>
+              <ContentEditor id={params.id} />
+            </AppLayout>
+          </ProtectedRoute>
+        )}
       </Route>
       
       <Route path="/research">
