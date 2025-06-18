@@ -215,6 +215,12 @@ export function UnifiedContentEditor({
           result = response;
         }
         
+        // Update keywords state with saved data to reflect in UI
+        if (result && result.targetKeywords) {
+          setKeywords(Array.isArray(result.targetKeywords) ? result.targetKeywords.join(', ') : '');
+          setContentData(prev => ({ ...prev, targetKeywords: result.targetKeywords }));
+        }
+        
         toast({
           title: 'Content saved',
           description: contentId ? 'Content updated successfully' : 'New content created successfully',
