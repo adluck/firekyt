@@ -9,7 +9,8 @@ import TableCell from '@tiptap/extension-table-cell';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
 import {
   Bold,
   Italic,
@@ -49,6 +50,18 @@ export function RichTextEditor({
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [showImageInput, setShowImageInput] = useState(false);
 
+  // Convert markdown to HTML if needed
+  const processedContent = useMemo(() => {
+    if (!content) return '';
+    
+    // If content looks like markdown, convert it to HTML
+    if (isMarkdown(content)) {
+      return markdownToHtml(content);
+    }
+    
+    return content;
+  }, [content]);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -81,12 +94,19 @@ export function RichTextEditor({
         },
       }),
     ],
-    content,
+    content: processedContent,
     editable,
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
     },
   });
+
+  // Update editor content when processedContent changes
+  useEffect(() => {
+    if (editor && processedContent !== editor.getHTML()) {
+      editor.commands.setContent(processedContent);
+    }
+  }, [editor, processedContent]);
 
   if (!editor) {
     return null;
