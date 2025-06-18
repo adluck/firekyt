@@ -636,6 +636,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contentId = parseInt(req.params.id);
       const userId = req.user!.id;
       const updates = req.body;
+      
+      console.log('🔍 PUT /api/content/:id - Received targetKeywords:', updates.targetKeywords);
 
       // Verify content belongs to user
       const userContent = await storage.getContent(userId);
@@ -689,6 +691,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contentId = parseInt(req.params.id);
       const userId = req.user!.id;
       const updates = req.body;
+      
+      console.log('🔍 PATCH /api/content/:id - Received targetKeywords:', updates.targetKeywords);
 
       // Verify content belongs to user
       const userContent = await storage.getContent(userId);
