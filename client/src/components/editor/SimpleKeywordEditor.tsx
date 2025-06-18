@@ -122,7 +122,13 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
             className="flex-1"
           />
           <Button 
-            onClick={() => saveMutation.mutate()}
+            onClick={() => {
+              console.log('🔍 Save button clicked!');
+              console.log('🔍 ContentId available:', contentId);
+              console.log('🔍 Input value:', input);
+              console.log('🔍 Mutation pending:', saveMutation.isPending);
+              saveMutation.mutate();
+            }}
             disabled={!contentId || saveMutation.isPending}
             size="sm"
           >
