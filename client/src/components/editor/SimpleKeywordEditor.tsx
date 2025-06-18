@@ -16,44 +16,27 @@ interface SimpleKeywordEditorProps {
 
 export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: SimpleKeywordEditorProps) {
   const [input, setInput] = useState('');
-  const [savedKeywords, setSavedKeywords] = useState<string[]>([]);
   const [updateCounter, setUpdateCounter] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Track if we just updated keywords to prevent override
-  const [justUpdated, setJustUpdated] = useState(false);
+  // Use currentKeywords directly from props, no local state that can get out of sync
+  const savedKeywords = currentKeywords || [];
   
+  // Initialize on mount only
   useEffect(() => {
-    // Only sync from parent if we haven't just updated keywords ourselves
-    if (currentKeywords && Array.isArray(currentKeywords) && !justUpdated) {
-      const validKeywords = currentKeywords.filter(k => k && k.trim());
-      console.log('🔍 Syncing from parent (not after update):', validKeywords);
-      setSavedKeywords(validKeywords);
-    }
-    // Reset the flag after a brief delay
-    if (justUpdated) {
-      const timer = setTimeout(() => setJustUpdated(false), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [currentKeywords, justUpdated]);
+    console.log('🔍 SimpleKeywordEditor mounted with keywords:', currentKeywords);
+  }, []); // Empty dependency array - only run on mount
 
   // Handle successful save with immediate UI refresh
   const handleSaveSuccess = useCallback((keywords: string[]) => {
     console.log('🔍 SimpleKeywordEditor: Handling save success:', keywords);
     
-    // Set flag to prevent useEffect override
-    setJustUpdated(true);
-    
-    // Force immediate state updates
-    setSavedKeywords([...keywords]);
-    console.log('🔍 Setting saved keywords to:', keywords);
-    
     // Clear input field immediately
     setInput('');
     console.log('🔍 Clearing input field');
     
-    // Update parent component
+    // Update parent component - this will trigger re-render with new keywords
     onUpdate([...keywords]);
     
     // Force complete component re-render
