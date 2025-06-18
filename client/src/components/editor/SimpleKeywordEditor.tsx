@@ -31,23 +31,33 @@ export function SimpleKeywordEditor({ contentId, currentKeywords, onUpdate }: Si
     }
   }, [currentKeywords, input]);
 
-  // Handle successful save with proper state management
+  // Handle successful save with immediate UI refresh
   const handleSaveSuccess = useCallback((keywords: string[]) => {
     console.log('🔍 SimpleKeywordEditor: Handling save success:', keywords);
     
-    // Update keywords display immediately
-    setSavedKeywords([...keywords]);
+    // Force immediate state updates
+    setSavedKeywords(() => {
+      console.log('🔍 Setting saved keywords to:', keywords);
+      return [...keywords];
+    });
     
-    // Clear input field
-    setInput('');
+    // Clear input field immediately
+    setInput(() => {
+      console.log('🔍 Clearing input field');
+      return '';
+    });
     
-    // Trigger parent update
+    // Update parent component
     onUpdate([...keywords]);
     
-    // Force re-render with counter
-    setUpdateCounter(prev => prev + 1);
+    // Force complete component re-render
+    setUpdateCounter(prev => {
+      const newCounter = prev + 1;
+      console.log('🔍 Update counter incremented to:', newCounter);
+      return newCounter;
+    });
     
-    console.log('🔍 SimpleKeywordEditor: Save success handled - input cleared, keywords updated');
+    console.log('🔍 SimpleKeywordEditor: Save success handled - UI should refresh now');
   }, [onUpdate]);
 
   const saveMutation = useMutation({
