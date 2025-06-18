@@ -662,7 +662,17 @@ export class DatabaseStorage implements IStorage {
     await db.delete(content).where(and(eq(content.id, id), eq(content.userId, userId)));
   }
 
+  async getUserContent(userId: number): Promise<Content[]> {
+    return await db.select().from(content).where(eq(content.userId, userId)).orderBy(desc(content.createdAt));
+  }
 
+  async getSiteContent(siteId: number): Promise<Content[]> {
+    return await db.select().from(content).where(eq(content.siteId, siteId)).orderBy(desc(content.createdAt));
+  }
+
+  async getContent(userId: number): Promise<Content[]> {
+    return await this.getUserContent(userId);
+  }
 
   // Analytics
   async createAnalytics(analyticsData: InsertAnalytics): Promise<Analytics> {
