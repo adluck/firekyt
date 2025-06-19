@@ -42,16 +42,7 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
 
   // Fetch content for this site
   const { data: content = [], isLoading: contentLoading } = useQuery<Content[]>({
-    queryKey: [`/api/content`, { siteId }],
-    queryFn: async () => {
-      const response = await fetch(`/api/content?siteId=${siteId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch content');
-      return response.json();
-    }
+    queryKey: [`/api/content?siteId=${siteId}`],
   });
 
   // Fetch analytics for this site
