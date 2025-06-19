@@ -85,7 +85,9 @@ export default function PublishingDashboard() {
   const queryClient = useQueryClient();
   const [showConnectionDialog, setShowConnectionDialog] = useState(false);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [selectedContent, setSelectedContent] = useState<any>(null);
+  const [selectedConnection, setSelectedConnection] = useState<any>(null);
 
   // Fetch platform connections
   const { data: connectionsData, isLoading: connectionsLoading } = useQuery({
@@ -502,6 +504,58 @@ export default function PublishingDashboard() {
               </Form>
             </DialogContent>
           </Dialog>
+
+          {/* Publish Now Dialog */}
+          <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Publish Content Now</DialogTitle>
+                <DialogDescription>
+                  Select content to publish immediately to {selectedConnection?.platform}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Select Content</label>
+                  <div className="mt-2 space-y-2 max-h-64 overflow-y-auto">
+                    {(userContent as any[])?.map((content: any) => (
+                      <div
+                        key={content.id}
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                          selectedContent?.id === content.id ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => setSelectedContent(content)}
+                      >
+                        <h4 className="font-medium">{content.title}</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {content.contentType} • {content.status}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Created: {new Date(content.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowPublishDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      if (selectedContent && selectedConnection) {
+                        handlePublishNow(selectedContent.id, selectedConnection.id);
+                        setShowPublishDialog(false);
+                      }
+                    }}
+                    disabled={!selectedContent || publishNowMutation.isPending}
+                  >
+                    {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -571,6 +625,18 @@ export default function PublishingDashboard() {
                         >
                           <Calendar className="h-4 w-4 mr-1" />
                           Schedule
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="default"
+                          onClick={() => {
+                            setSelectedConnection(connection);
+                            setShowPublishDialog(true);
+                          }}
+                          disabled={publishNowMutation.isPending}
+                        >
+                          <Play className="h-4 w-4 mr-1" />
+                          {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
                         </Button>
                       </div>
                     </div>
