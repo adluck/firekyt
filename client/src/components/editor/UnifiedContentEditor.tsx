@@ -166,54 +166,41 @@ export function UnifiedContentEditor({
         let cellClass = 'border border-border px-4 py-2';
         let headerClass = 'border border-border px-4 py-2 font-semibold';
         
-        // Apply header background color via CSS class
-        const getHeaderColorClass = (color: string) => {
-          const normalizedColor = color.toLowerCase();
-          
-          // Map common colors to CSS classes
-          const colorMap: Record<string, string> = {
-            '#047af1': 'custom-table-blue',
-            '#004d99': 'custom-table-dark-blue',
-            '#dc2626': 'custom-table-red', 
-            '#16a34a': 'custom-table-green',
-            '#7c3aed': 'custom-table-purple',
-            '#ea580c': 'custom-table-orange',
-            '#ec4899': 'custom-table-pink'
-          };
-          
-          // Check for exact match first
-          if (colorMap[normalizedColor]) {
-            return colorMap[normalizedColor];
+        // Apply header background color via dynamic CSS injection
+        const applyHeaderColor = (color: string) => {
+          if (!color || color === '#f8f9fa') {
+            return '';
           }
           
-          // Check for close color matches (for color picker variations)
-          const colorRanges: Array<{range: string[], className: string}> = [
-            { range: ['#0066cc', '#0077dd', '#0088ee', '#047af1', '#1188ff'], className: 'custom-table-blue' },
-            { range: ['#cc0000', '#dd1111', '#dc2626', '#ee3333'], className: 'custom-table-red' },
-            { range: ['#009900', '#16a34a', '#22aa55', '#33bb66'], className: 'custom-table-green' },
-            { range: ['#6600cc', '#7711dd', '#7c3aed', '#8822ee'], className: 'custom-table-purple' },
-            { range: ['#cc4400', '#dd5511', '#ea580c', '#ee6622'], className: 'custom-table-orange' },
-            { range: ['#cc0088', '#dd1199', '#ec4899', '#ee22aa'], className: 'custom-table-pink' }
-          ];
+          // Create a unique class name for this color
+          const colorHash = color.replace('#', '').toLowerCase();
+          const customClassName = `custom-header-${colorHash}`;
           
-          for (const colorRange of colorRanges) {
-            if (colorRange.range.includes(normalizedColor)) {
-              return colorRange.className;
-            }
+          // Inject CSS dynamically for this specific color
+          const styleId = `table-header-style-${colorHash}`;
+          if (!document.getElementById(styleId)) {
+            const style = document.createElement('style');
+            style.id = styleId;
+            style.textContent = `
+              .ProseMirror table.${customClassName} th {
+                background-color: ${color} !important;
+                color: white !important;
+              }
+            `;
+            document.head.appendChild(style);
           }
           
-          return '';
+          return customClassName;
         };
         
-        // Add header color class to table
+        // Add header color styling to table
         console.log('🎨 Header styling - headerBg:', styling.headerBg);
-        if (styling.headerBg && styling.headerBg !== '#f8f9fa') {
-          const headerColorClass = getHeaderColorClass(styling.headerBg);
-          console.log('🎨 Generated color class:', headerColorClass);
-          if (headerColorClass) {
-            tableClass += ` ${headerColorClass}`;
-            console.log('🎨 Final table class:', tableClass);
-          }
+        const headerColorClass = applyHeaderColor(styling.headerBg);
+        
+        if (headerColorClass) {
+          tableClass += ` ${headerColorClass}`;
+          console.log('🎨 Applied dynamic color class:', headerColorClass);
+          console.log('🎨 Final table class:', tableClass);
         } else {
           headerClass += ' bg-muted';
           console.log('🎨 Using default muted header');
