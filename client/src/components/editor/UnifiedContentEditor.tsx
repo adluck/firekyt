@@ -325,7 +325,7 @@ export function UnifiedContentEditor({
       console.log('Editor instance not ready, attempting retry...');
       // Retry after a short delay for editor initialization
       setTimeout(() => {
-        const retryEditor = editorRef.current;
+        const retryEditor = editorRef.current || editorInstance || window.editor;
         if (retryEditor && retryEditor.isEditable) {
           console.log('Retry successful, inserting table');
           handleTableInsertion(tableConfig);
