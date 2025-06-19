@@ -301,6 +301,34 @@ export default function PublishingDashboard() {
     }
   };
 
+  // Validate all connections mutation
+  const validateConnectionsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/publishing/connections/validate', {});
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
+      if (data.validations) {
+        const validCount = data.validations.filter((v: any) => v.isValid).length;
+        const totalCount = data.validations.length;
+        toast({ 
+          title: "Token Validation Complete", 
+          description: `${validCount}/${totalCount} connections are valid` 
+        });
+      } else {
+        toast({ title: "Token validation completed" });
+      }
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Validation failed", 
+        description: error?.message || "Failed to validate connections",
+        variant: "destructive" 
+      });
+    },
+  });
+
   const onSchedulePublication = (values: z.infer<typeof scheduleSchema>) => {
     schedulePublicationMutation.mutate({
       ...values,
@@ -350,6 +378,15 @@ export default function PublishingDashboard() {
           <p className="text-muted-foreground">Manage your content publishing across multiple platforms</p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => validateConnectionsMutation.mutate()}
+            disabled={validateConnectionsMutation.isPending}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${validateConnectionsMutation.isPending ? 'animate-spin' : ''}`} />
+            {validateConnectionsMutation.isPending ? 'Validating...' : 'Validate All Tokens'}
+          </Button>
           <Dialog open={showAddConnectionDialog} onOpenChange={setShowAddConnectionDialog}>
             <DialogTrigger asChild>
               <Button>
