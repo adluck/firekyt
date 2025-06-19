@@ -76,6 +76,7 @@ interface ComparisonTableBuilderProps {
   config?: ComparisonTableConfig;
   onChange?: (config: ComparisonTableConfig) => void;
   onSave?: (config: ComparisonTableConfig) => void;
+  onInsertTable?: (config: ComparisonTableConfig) => boolean;
   className?: string;
 }
 
@@ -106,6 +107,7 @@ export function ComparisonTableBuilder({
   config,
   onChange,
   onSave,
+  onInsertTable,
   className,
 }: ComparisonTableBuilderProps) {
   const [currentConfig, setCurrentConfig] = useState<ComparisonTableConfig>(config || defaultConfig);
@@ -308,56 +310,20 @@ export function ComparisonTableBuilder({
             onClick={() => {
               console.log('Insert button clicked');
               console.log('Current config:', currentConfig);
-              console.log('Window editor exists:', !!(window as any).editor);
+              console.log('onInsertTable exists:', !!onInsertTable);
               
-              if ((window as any).editor) {
-                console.log('Editor found, attempting insertion...');
-                try {
-                  // Try the comparison table extension first
-                  if ((window as any).editor.commands.insertComparisonTable) {
-                    console.log('Using custom table extension');
-                    (window as any).editor.chain().focus().insertComparisonTable(currentConfig).run();
-                  } else {
-                    console.log('Using HTML fallback');
-                    // Fallback: Insert HTML directly
-                    const tableHtml = `
-                      <div data-type="comparison-table" data-table-config='${JSON.stringify(currentConfig)}' class="my-4 p-4 border rounded-lg">
-                        <h3 class="font-semibold mb-2">${currentConfig.name}</h3>
-                        <p class="text-sm text-gray-600 mb-4">${currentConfig.description}</p>
-                        <div class="overflow-x-auto">
-                          <table class="w-full border-collapse border border-gray-200">
-                            <thead>
-                              <tr class="bg-gray-50">
-                                ${currentConfig.columns.map((col: any) => `<th class="border border-gray-200 px-4 py-2 text-left font-semibold">${col.name}</th>`).join('')}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              ${currentConfig.rows.map((row: any, index: number) => `
-                                <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
-                                  ${currentConfig.columns.map((col: any) => `<td class="border border-gray-200 px-4 py-2">${row[col.id] || ''}</td>`).join('')}
-                                </tr>
-                              `).join('')}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    `;
-                    console.log('Generated HTML:', tableHtml);
-                    const result = (window as any).editor.chain().focus().insertContent(tableHtml).run();
-                    console.log('Insert result:', result);
-                  }
-                  // Switch to editor tab to show the inserted table
-                  const event = new CustomEvent('switchToEditor');
-                  window.dispatchEvent(event);
-                  console.log('Tab switch event dispatched');
-                } catch (error) {
-                  console.error('Failed to insert table:', error);
+              if (onInsertTable) {
+                console.log('Using onInsertTable prop...');
+                const success = onInsertTable(currentConfig);
+                console.log('Insert result:', success);
+                if (!success) {
+                  console.log('Insert failed - editor may not be ready');
                 }
               } else {
-                console.log('No editor found on window object');
+                console.log('No onInsertTable prop provided');
               }
             }}
-            disabled={!currentConfig.rows.length}
+            disabled={!currentConfig.rows.length || !onInsertTable}
           >
             Insert into Editor
           </Button>

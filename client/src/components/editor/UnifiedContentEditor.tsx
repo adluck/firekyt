@@ -550,6 +550,7 @@ export function UnifiedContentEditor({
                       config={comparisonTableConfig}
                       onChange={handleTableConfigChange}
                       onSave={handleSaveTable}
+                      onInsertTable={handleTableInsertion}
                     />
                   </TabsContent>
                 )}
