@@ -1671,6 +1671,7 @@ Format your response as a JSON object with the following structure:
 
   // Test external blog connection
   app.post("/api/publishing/test-connection", authenticateToken, async (req, res) => {
+    console.log('Test connection endpoint hit with body:', req.body);
     try {
       const { blogUrl, token } = req.body;
       

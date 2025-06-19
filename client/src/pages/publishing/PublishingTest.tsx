@@ -96,20 +96,22 @@ export default function PublishingTest() {
       try {
         const response = await apiRequest('POST', '/api/publishing/test-connection', data);
         
-        // Check if response is successful
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || `HTTP ${response.status}: ${response.statusText}`);
+        // Parse response as JSON first, handle errors properly
+        let responseData;
+        try {
+          responseData = await response.json();
+        } catch (jsonError) {
+          // If JSON parsing fails, try to get text response
+          const textResponse = await response.text();
+          throw new Error(`Invalid response format: ${textResponse}`);
         }
         
-        // Try to parse as JSON, fallback to text if needed
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          return await response.json();
-        } else {
-          const text = await response.text();
-          throw new Error(`Invalid response format: ${text}`);
+        // Check if response indicates success
+        if (!response.ok) {
+          throw new Error(responseData?.message || `HTTP ${response.status}: ${response.statusText}`);
         }
+        
+        return responseData;
       } catch (error: any) {
         console.error('Connection test error:', error);
         throw new Error(error.message || 'Failed to connect to blog server');
