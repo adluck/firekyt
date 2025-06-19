@@ -30,6 +30,7 @@ import AffiliateNetworks from "@/pages/research/AffiliateNetworks";
 import ContentEditor from "@/pages/content/ContentEditor";
 import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
 import PublishingDashboard from "@/pages/publishing/PublishingDashboard";
+import PublishingTest from "@/pages/publishing/PublishingTest";
 import LinkDashboard from "@/pages/links/LinkDashboard";
 import LinkInserter from "@/pages/links/LinkInserter";
 import Pricing from "@/pages/subscription/Pricing";
@@ -169,6 +170,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <PublishingDashboard />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/publishing/test">
+        <ProtectedRoute>
+          <AppLayout>
+            <PublishingTest />
           </AppLayout>
         </ProtectedRoute>
       </Route>

@@ -1625,6 +1625,210 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // ===== PUBLISHING & EXTERNAL BLOG ENDPOINTS =====
+
+  // Generate test publishing token
+  app.post("/api/publishing/generate-token", authenticateToken, async (req, res) => {
+    try {
+      const { blogName, blogUrl } = req.body;
+      
+      if (!blogName || !blogUrl) {
+        return res.status(400).json({ message: "Blog name and URL are required" });
+      }
+
+      // Generate a unique token for this blog connection
+      const token = `firekyt_${crypto.randomBytes(16).toString('hex')}`;
+      
+      // Store the connection (in real implementation, this would be in database)
+      const connection = {
+        id: Date.now(),
+        userId: req.user!.id,
+        blogName,
+        blogUrl,
+        token,
+        platform: 'custom_api',
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+
+      res.json({
+        success: true,
+        connection,
+        instructions: {
+          token,
+          endpoints: {
+            base: blogUrl,
+            posts: `${blogUrl}/api/posts`,
+            auth: `Bearer ${token}`
+          },
+          usage: "Use this token in the Authorization header as 'Bearer [token]' when making API calls"
+        }
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to generate token: " + error.message });
+    }
+  });
+
+  // Test external blog connection
+  app.post("/api/publishing/test-connection", authenticateToken, async (req, res) => {
+    try {
+      const { blogUrl, token } = req.body;
+      
+      if (!blogUrl || !token) {
+        return res.status(400).json({ message: "Blog URL and token are required" });
+      }
+
+      // Test the connection by making a health check request
+      const fetch = (await import('node-fetch')).default;
+      const testUrl = `${blogUrl}/health`;
+      
+      const response = await fetch(testUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        res.json({
+          success: true,
+          status: 'connected',
+          blogStatus: data,
+          message: 'Connection successful'
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          status: 'failed',
+          message: 'Failed to connect to blog',
+          error: response.statusText
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        status: 'error',
+        message: "Connection test failed: " + error.message
+      });
+    }
+  });
+
+  // Publish content to external blog
+  app.post("/api/publishing/publish", authenticateToken, async (req, res) => {
+    try {
+      const { contentId, blogUrl, token, publishSettings } = req.body;
+      
+      if (!contentId || !blogUrl || !token) {
+        return res.status(400).json({ message: "Content ID, blog URL, and token are required" });
+      }
+
+      // Get the content from FireKyt
+      const userContent = await storage.getUserContent(req.user!.id);
+      const content = userContent.find((c: any) => c.id === parseInt(contentId));
+      
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+
+      // Prepare the post data for the external blog
+      const postData = {
+        title: content.title,
+        content: content.content,
+        excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
+        tags: content.targetKeywords || [],
+        status: publishSettings?.status || 'published'
+      };
+
+      // Publish to external blog
+      const fetch = (await import('node-fetch')).default;
+      const publishUrl = `${blogUrl}/api/posts`;
+      
+      const response = await fetch(publishUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(postData)
+      });
+
+      if (response.ok) {
+        const publishedPost = await response.json();
+        
+        // Update content status in FireKyt
+        await storage.updateContent(content.id, {
+          ...content,
+          status: 'published',
+          publishedAt: new Date()
+        });
+
+        res.json({
+          success: true,
+          message: 'Content published successfully',
+          publishedPost,
+          firekytContent: content
+        });
+      } else {
+        const errorData = await response.json().catch(() => ({ error: response.statusText }));
+        res.status(response.status).json({
+          success: false,
+          message: 'Publishing failed',
+          error: errorData
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Publishing failed: " + error.message
+      });
+    }
+  });
+
+  // Get published posts from external blog
+  app.get("/api/publishing/posts/:blogUrl", authenticateToken, async (req, res) => {
+    try {
+      const { blogUrl } = req.params;
+      const { token } = req.query;
+      
+      if (!token) {
+        return res.status(400).json({ message: "Token is required" });
+      }
+
+      const fetch = (await import('node-fetch')).default;
+      const postsUrl = `${decodeURIComponent(blogUrl)}/api/posts`;
+      
+      const response = await fetch(postsUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        res.json({
+          success: true,
+          posts: data.posts,
+          total: data.total
+        });
+      } else {
+        res.status(response.status).json({
+          success: false,
+          message: 'Failed to fetch posts',
+          error: response.statusText
+        });
+      }
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch posts: " + error.message
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
