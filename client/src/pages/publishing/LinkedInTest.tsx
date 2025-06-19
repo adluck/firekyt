@@ -285,7 +285,7 @@ export default function LinkedInTest() {
               className="mt-1 font-mono"
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Token must include: openid, profile, email, w_member_social scopes
+              Token must include: r_liteprofile, w_member_social scopes (minimal required)
             </p>
           </div>
 
