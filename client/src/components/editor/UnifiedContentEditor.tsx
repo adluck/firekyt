@@ -166,42 +166,42 @@ export function UnifiedContentEditor({
         let cellClass = 'border border-border px-4 py-2';
         let headerClass = 'border border-border px-4 py-2 font-semibold';
         
-        // Apply header background color via dynamic CSS injection
+        // Apply header background color via data attribute and dynamic CSS
         const applyHeaderColor = (color: string) => {
           if (!color || color === '#f8f9fa') {
-            return '';
+            return { attribute: '', value: '' };
           }
           
-          // Create a unique class name for this color
+          // Create a unique identifier for this color
           const colorHash = color.replace('#', '').toLowerCase();
-          const customClassName = `custom-header-${colorHash}`;
           
-          // Inject CSS dynamically for this specific color with proper dark mode support
+          // Inject CSS using data attributes (TipTap preserves these better)
           const styleId = `table-header-style-${colorHash}`;
           if (!document.getElementById(styleId)) {
             const style = document.createElement('style');
             style.id = styleId;
             style.textContent = `
-              .ProseMirror table.${customClassName} th,
-              .dark .ProseMirror table.${customClassName} th {
+              .ProseMirror table[data-header-color="${colorHash}"] th,
+              .dark .ProseMirror table[data-header-color="${colorHash}"] th {
                 background-color: ${color} !important;
                 color: white !important;
               }
             `;
             document.head.appendChild(style);
+            console.log('🎨 Injected CSS with data attribute:', style.textContent);
           }
           
-          return customClassName;
+          return { attribute: 'data-header-color', value: colorHash };
         };
         
         // Add header color styling to table
         console.log('🎨 Header styling - headerBg:', styling.headerBg);
-        const headerColorClass = applyHeaderColor(styling.headerBg);
+        const headerColorData = applyHeaderColor(styling.headerBg);
         
-        if (headerColorClass) {
-          tableClass += ` ${headerColorClass}`;
-          console.log('🎨 Applied dynamic color class:', headerColorClass);
-          console.log('🎨 Final table class:', tableClass);
+        let tableAttributes = '';
+        if (headerColorData.attribute && headerColorData.value) {
+          tableAttributes = ` ${headerColorData.attribute}="${headerColorData.value}"`;
+          console.log('🎨 Applied data attribute:', tableAttributes);
         } else {
           headerClass += ' bg-muted';
           console.log('🎨 Using default muted header');
@@ -228,8 +228,8 @@ export function UnifiedContentEditor({
           headerClass = headerClass.replace('px-4 py-2', 'px-2 py-1');
         }
         
-        // Start table with styling
-        tableHtml += `<table class="${tableClass}">`;
+        // Start table with styling and data attributes
+        tableHtml += `<table class="${tableClass}"${tableAttributes}>`;
         
         // Header row with custom styling
         if (tableConfig.settings.showHeader) {
