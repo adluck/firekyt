@@ -2122,6 +2122,72 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // Update platform connection
+  app.put("/api/publishing/connections/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const userId = req.user!.id;
+      
+      // Verify connection belongs to user
+      const existingConnection = await storage.getPlatformConnection(parseInt(id));
+      if (!existingConnection || existingConnection.userId !== userId) {
+        return res.status(404).json({ success: false, message: "Connection not found" });
+      }
+
+      // Filter out empty/null values from updates
+      const cleanUpdates: any = {};
+      Object.keys(updates).forEach(key => {
+        if (updates[key] !== null && updates[key] !== '') {
+          cleanUpdates[key] = updates[key];
+        }
+      });
+
+      // Update the connection
+      const updatedConnection = await storage.updatePlatformConnection(parseInt(id), cleanUpdates);
+      
+      res.json({
+        success: true,
+        connection: updatedConnection,
+        message: "Connection updated successfully"
+      });
+    } catch (error: any) {
+      console.error('Connection update error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to update connection: " + error.message 
+      });
+    }
+  });
+
+  // Delete platform connection
+  app.delete("/api/publishing/connections/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      
+      // Verify connection belongs to user
+      const existingConnection = await storage.getPlatformConnection(parseInt(id));
+      if (!existingConnection || existingConnection.userId !== userId) {
+        return res.status(404).json({ success: false, message: "Connection not found" });
+      }
+
+      // Delete the connection
+      await storage.deletePlatformConnection(parseInt(id));
+      
+      res.json({
+        success: true,
+        message: "Connection removed successfully"
+      });
+    } catch (error: any) {
+      console.error('Connection deletion error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to remove connection: " + error.message 
+      });
+    }
+  });
+
   // Publishing history endpoint
   app.get("/api/publishing/history", authenticateToken, async (req, res) => {
     try {
