@@ -279,6 +279,8 @@ export class TokenValidationService {
           const errorData = JSON.parse(errorText);
           if (errorData.code === 2) {
             errorDetails = 'Token is invalid, expired, or has insufficient permissions.';
+          } else if (errorData.code === 3) {
+            errorDetails = 'Application consumer type not supported. Your Pinterest app needs approval for API access.';
           } else if (errorData.message) {
             errorDetails = errorData.message;
           }
@@ -290,15 +292,16 @@ export class TokenValidationService {
 
 To fix this issue:
 1. Go to Pinterest Developer Console (https://developers.pinterest.com/apps/)
-2. Generate a NEW access token with these scopes:
+2. Apply for API access approval if you see "consumer type not supported"
+3. Generate a NEW access token with these scopes:
    • user_accounts:read
    • pins:read  
    • pins:write
    • boards:read
-3. Ensure you have a Pinterest Business account
-4. Verify your domain is linked to your Pinterest Business account
+4. Ensure you have a Pinterest Business account
+5. Verify your domain is linked to your Pinterest Business account
 
-Note: Pinterest test tokens expire after 30 days and must be regenerated.`;
+Note: Pinterest requires app review for production API access. Test tokens expire after 30 days.`;
         
         return {
           isValid: false,

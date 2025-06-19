@@ -2018,6 +2018,30 @@ Format your response as a JSON object with the following structure:
 
       console.log(`🔍 Testing ${platform} connection...`);
       
+      // Check for demo mode tokens
+      if (accessToken.startsWith('demo_')) {
+        const demoValidation = {
+          isValid: true,
+          platform,
+          details: {
+            mode: 'simulation',
+            profile: {
+              id: `demo_user_${platform}`,
+              name: `Demo ${platform.charAt(0).toUpperCase() + platform.slice(1)} User`,
+              username: `demo_${platform}_user`
+            }
+          },
+          lastChecked: new Date()
+        };
+        
+        return res.json({
+          success: true,
+          platform,
+          validation: demoValidation,
+          message: `Successfully connected to ${platform} (simulation mode)`
+        });
+      }
+      
       // Use TokenValidationService to validate the token
       const validationResult = await tokenValidationService.validateToken(
         platform, 
