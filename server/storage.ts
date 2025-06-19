@@ -99,6 +99,11 @@ export interface IStorage {
   updatePlatformConnection(id: number, updates: Partial<any>): Promise<any>;
   deletePlatformConnection(id: number): Promise<void>;
 
+  // Publishing operations
+  getPublishingConnections(userId: number): Promise<any[]>;
+  getPublishingHistory(userId: number): Promise<any[]>;
+  getScheduledPublishing(userId: number): Promise<any[]>;
+
   // Scheduled Publications operations
   getScheduledPublication(id: number): Promise<any>;
   getUserScheduledPublications(userId: number): Promise<any[]>;
@@ -1465,6 +1470,19 @@ export class DatabaseStorage implements IStorage {
       .where(eq(linkSuggestions.id, id))
       .returning();
     return updated;
+  }
+
+  // Publishing operations - stub implementations for testing
+  async getPublishingConnections(userId: number): Promise<any[]> {
+    return [];
+  }
+
+  async getPublishingHistory(userId: number): Promise<any[]> {
+    return [];
+  }
+
+  async getScheduledPublishing(userId: number): Promise<any[]> {
+    return [];
   }
 }
 

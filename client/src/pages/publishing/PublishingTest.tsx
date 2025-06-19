@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/api';
+import { apiRequest } from '@/lib/queryClient';
 import { 
   Globe, 
   Key, 
@@ -51,11 +51,7 @@ export default function PublishingTest() {
 
   // Fetch user content for publishing
   const { data: contentList = [] } = useQuery<Content[]>({
-    queryKey: ['/api/content'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/content');
-      return response.json();
-    }
+    queryKey: ['/api/content']
   });
 
   // Generate new token mutation

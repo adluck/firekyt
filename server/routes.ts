@@ -1829,6 +1829,42 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // Publishing connections endpoint
+  app.get("/api/publishing/connections", authenticateToken, async (req, res) => {
+    try {
+      res.json({ success: true, connections: [] });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch connections: " + error.message
+      });
+    }
+  });
+
+  // Publishing history endpoint
+  app.get("/api/publishing/history", authenticateToken, async (req, res) => {
+    try {
+      res.json({ success: true, history: [] });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch history: " + error.message
+      });
+    }
+  });
+
+  // Scheduled publishing endpoint
+  app.get("/api/publishing/scheduled", authenticateToken, async (req, res) => {
+    try {
+      res.json({ success: true, scheduled: [] });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch scheduled posts: " + error.message
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
