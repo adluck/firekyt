@@ -96,7 +96,7 @@ export default function PublishingTest() {
       try {
         // Use direct fetch to bypass apiRequest error handling
         const authToken = localStorage.getItem("authToken");
-        const response = await fetch('/api/publishing/test-connection', {
+        const response = await fetch('/test-blog-connection', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

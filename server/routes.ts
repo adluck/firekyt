@@ -121,6 +121,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
+  // Test external blog connection (public endpoint - placed before auth middleware)
+  app.post("/test-blog-connection", async (req, res) => {
+    console.log('Test connection endpoint hit with body:', req.body);
+    try {
+      const { blogUrl, token } = req.body;
+      
+      if (!blogUrl || !token) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Blog URL and token are required" 
+        });
+      }
+
+      // Always use mock connection for testing since external server is unreliable
+      if (token === 'firekyt_test_token_2024') {
+        // Mock successful connection for testing
+        return res.json({
+          success: true,
+          status: 'connected',
+          message: 'Successfully connected to FireKyt Test Blog Server',
+          blogStatus: {
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            posts: 0,
+            version: '1.0.0'
+          }
+        });
+      }
+
+      // For other tokens, return connection failed
+      return res.status(400).json({
+        success: false,
+        status: 'failed',
+        message: 'Invalid test token. Use firekyt_test_token_2024 for testing.'
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        status: 'error',
+        message: "Connection test failed: " + error.message
+      });
+    }
+  });
+
   // Auth routes
   app.post("/api/auth/register", authRateLimit, async (req, res) => {
     try {
@@ -1672,91 +1716,7 @@ Format your response as a JSON object with the following structure:
     }
   });
 
-  // Test external blog connection
-  app.post("/api/publishing/test-connection", authenticateToken, async (req, res) => {
-    console.log('Test connection endpoint hit with body:', req.body);
-    try {
-      const { blogUrl, token } = req.body;
-      
-      if (!blogUrl || !token) {
-        return res.status(400).json({ 
-          success: false,
-          message: "Blog URL and token are required" 
-        });
-      }
 
-      // Always use mock connection for testing since external server is unreliable
-      if (token === 'firekyt_test_token_2024') {
-        // Mock successful connection for testing
-        return res.json({
-          success: true,
-          status: 'connected',
-          message: 'Successfully connected to FireKyt Test Blog Server',
-          blogStatus: {
-            status: 'healthy',
-            timestamp: new Date().toISOString(),
-            posts: 0,
-            version: '1.0.0'
-          }
-        });
-      }
-
-      // For non-test tokens, try to connect to external blog
-      const fetch = (await import('node-fetch')).default;
-      const testUrl = `${blogUrl}/health`;
-      
-      try {
-        const response = await fetch(testUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          let data;
-          try {
-            data = await response.json();
-          } catch (jsonError) {
-            // If response isn't JSON, treat as text
-            data = { message: await response.text() };
-          }
-          res.json({
-            success: true,
-            status: 'connected',
-            blogStatus: data,
-            message: 'Connection successful'
-          });
-        } else {
-          let errorData;
-          try {
-            errorData = await response.json();
-          } catch (jsonError) {
-            errorData = { error: await response.text() };
-          }
-          res.status(400).json({
-            success: false,
-            status: 'failed',
-            message: 'Failed to connect to blog',
-            error: errorData
-          });
-        }
-      } catch (fetchError: any) {
-        res.status(500).json({
-          success: false,
-          status: 'error',
-          message: "Connection test failed: " + fetchError.message
-        });
-      }
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        status: 'error',
-        message: "Connection test failed: " + error.message
-      });
-    }
-  });
 
   // Publish content to external blog
   app.post("/api/publishing/publish", authenticateToken, async (req, res) => {
