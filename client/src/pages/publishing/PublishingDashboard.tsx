@@ -84,6 +84,7 @@ export default function PublishingDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showConnectionDialog, setShowConnectionDialog] = useState(false);
+  const [showAddConnectionDialog, setShowAddConnectionDialog] = useState(false);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [selectedContent, setSelectedContent] = useState<any>(null);
@@ -121,7 +122,7 @@ export default function PublishingDashboard() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
       connectionForm.reset();
-      setShowConnectionDialog(false);
+      setShowAddConnectionDialog(false);
       toast({ 
         title: "Platform connected successfully",
         description: data.message || `Connected to ${data.connection?.platform || 'platform'}`
@@ -280,7 +281,7 @@ export default function PublishingDashboard() {
           <p className="text-muted-foreground">Manage your content publishing across multiple platforms</p>
         </div>
         <div className="flex gap-2">
-          <Dialog open={showConnectionDialog} onOpenChange={setShowConnectionDialog}>
+          <Dialog open={showAddConnectionDialog} onOpenChange={setShowAddConnectionDialog}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
