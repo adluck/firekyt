@@ -536,15 +536,20 @@ export default function PublishingDashboard() {
                       {getPlatformIcon(connection.platform)}
                       {connection.platform}
                     </CardTitle>
-                    <Badge variant={connection.isActive ? "default" : "secondary"}>
-                      {connection.isActive ? "Active" : "Inactive"}
+                    <Badge variant={connection.status === 'connected' ? "default" : "secondary"}>
+                      {connection.status === 'connected' ? "Connected" : "Inactive"}
                     </Badge>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
-                        Username: {connection.platformUsername || "Not provided"}
+                        Username: {connection.username || "Not provided"}
                       </p>
+                      {connection.blogUrl && (
+                        <p className="text-sm text-muted-foreground">
+                          Blog: {connection.blogUrl}
+                        </p>
+                      )}
                       <p className="text-sm text-muted-foreground">
                         Connected: {new Date(connection.createdAt).toLocaleDateString()}
                       </p>
