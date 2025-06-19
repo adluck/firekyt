@@ -279,22 +279,28 @@ export function UnifiedContentEditor({
         
         console.log('Generated table HTML:', tableHtml);
         
-        // Get current content
+        // Get current content and cursor position
         const currentContent = editorInstance.getHTML();
         console.log('Current content:', currentContent);
         
-        // Append table to current content or replace if empty
-        const newContent = currentContent === '<p></p>' ? tableHtml : currentContent + tableHtml;
+        // Use TipTap's insertContent command instead of setContent to avoid duplication
+        if (currentContent === '<p></p>' || currentContent.trim() === '') {
+          editorInstance.commands.setContent(tableHtml);
+        } else {
+          // Move cursor to end and insert table
+          editorInstance.commands.focus('end');
+          editorInstance.commands.insertContent(tableHtml);
+        }
         
-        // Update the content data state directly
-        setContentData(prev => ({
-          ...prev,
-          richContent: newContent,
-          content: newContent
-        }));
-        
-        // Set editor content
-        editorInstance.commands.setContent(newContent);
+        // Update the content data state with the processed content
+        setTimeout(() => {
+          const updatedContent = editorInstance.getHTML();
+          setContentData(prev => ({
+            ...prev,
+            richContent: updatedContent,
+            content: updatedContent
+          }));
+        }, 100);
         
         console.log('Table insertion completed with content:', newContent);
         setActiveTab('editor');
