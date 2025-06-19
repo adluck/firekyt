@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { 
@@ -19,7 +20,9 @@ import {
   ExternalLink,
   Copy,
   RefreshCw,
-  Zap
+  Zap,
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 
 interface BlogConnection {
@@ -357,32 +360,66 @@ export default function PublishingTest() {
         </CardContent>
       </Card>
 
-      {/* Instructions */}
+      {/* Quick Start Guide */}
       <Card>
         <CardHeader>
-          <CardTitle>Test Instructions</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5" />
+            Quick Start Testing Guide
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="text-sm space-y-2">
-            <p><strong>Step 1:</strong> Start the test blog server:</p>
-            <code className="block bg-muted p-2 rounded text-xs">
-              node test-blog-server.js
-            </code>
-            
-            <p><strong>Step 2:</strong> Generate or use the provided test token</p>
-            <p><strong>Step 3:</strong> Test the connection to ensure everything is working</p>
-            <p><strong>Step 4:</strong> Select content from your FireKyt library</p>
-            <p><strong>Step 5:</strong> Publish the content and verify it appears on the test blog</p>
-            
-            <Separator className="my-4" />
-            
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-              <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+        <CardContent className="space-y-4">
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Before testing, you need to start the external test blog server in a separate terminal or command prompt.
+            </AlertDescription>
+          </Alert>
+
+          <div className="space-y-4">
+            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <h3 className="font-semibold text-green-800 dark:text-green-200 mb-2">Terminal Setup (Required)</h3>
+              <p className="text-sm text-green-700 dark:text-green-300 mb-2">Run this command in a new terminal window:</p>
+              <div className="bg-black text-green-400 p-3 rounded font-mono text-xs">
+                ./start-test-blog.sh
+              </div>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                This starts a test blog server at http://localhost:3001
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-3 border rounded-lg">
+                <h4 className="font-medium mb-2">Step 1: Server Setup</h4>
+                <p className="text-sm text-muted-foreground">Start the test blog server using the command above</p>
+              </div>
+              
+              <div className="p-3 border rounded-lg">
+                <h4 className="font-medium mb-2">Step 2: Test Connection</h4>
+                <p className="text-sm text-muted-foreground">Use the "Test Connection" button to verify connectivity</p>
+              </div>
+              
+              <div className="p-3 border rounded-lg">
+                <h4 className="font-medium mb-2">Step 3: Select Content</h4>
+                <p className="text-sm text-muted-foreground">Choose content from your FireKyt library to publish</p>
+              </div>
+              
+              <div className="p-3 border rounded-lg">
+                <h4 className="font-medium mb-2">Step 4: Publish & Verify</h4>
+                <p className="text-sm text-muted-foreground">Publish content and check the test blog to see results</p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
                 Pre-configured Test Token:
               </p>
-              <code className="text-xs text-blue-700 dark:text-blue-300 font-mono">
+              <code className="text-xs text-blue-700 dark:text-blue-300 font-mono bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded">
                 firekyt_test_token_2024
               </code>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                This token is already configured for testing. You can generate a new one if needed.
+              </p>
             </div>
           </div>
         </CardContent>
