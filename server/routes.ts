@@ -1990,14 +1990,11 @@ Format your response as a JSON object with the following structure:
     }
   });
 
-  // In-memory storage for connections (in production, use database)
-  const connectionsStore = new Map<number, any[]>();
-
   // Publishing connections endpoint
   app.get("/api/publishing/connections", authenticateToken, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const userConnections = connectionsStore.get(userId) || [];
+      const userConnections = await storage.getUserPlatformConnections(userId);
       res.json({ success: true, connections: userConnections });
     } catch (error: any) {
       res.status(500).json({
@@ -2039,24 +2036,20 @@ Format your response as a JSON object with the following structure:
         return res.status(400).json({ message: tokenValidation.message });
       }
 
-      const connection = {
-        id: Date.now(),
+      const connectionData = {
         userId: req.user!.id,
         platform,
-        username: platformUsername || 'Unknown',
-        blogUrl: blogUrl || null,
-        apiEndpoint: apiEndpoint || null,
+        platformUsername: platformUsername || 'Unknown',
         accessToken: accessToken,
-        status: 'connected',
-        lastSync: new Date().toISOString(),
-        createdAt: new Date().toISOString()
+        connectionData: {
+          blogUrl: blogUrl || null,
+          apiEndpoint: apiEndpoint || null
+        },
+        isActive: true
       };
 
-      // Store the connection
-      const userId = req.user!.id;
-      const userConnections = connectionsStore.get(userId) || [];
-      userConnections.push(connection);
-      connectionsStore.set(userId, userConnections);
+      // Save to database
+      const connection = await storage.createPlatformConnection(connectionData);
 
       res.json({
         success: true,
@@ -2076,38 +2069,40 @@ Format your response as a JSON object with the following structure:
     try {
       const { connectionId } = req.body;
       const userId = req.user!.id;
-      const userConnections = connectionsStore.get(userId) || [];
       
       if (connectionId) {
         // Validate specific connection
-        const connection = userConnections.find(c => c.id === connectionId);
-        if (!connection) {
+        const connection = await storage.getPlatformConnection(connectionId);
+        if (!connection || connection.userId !== userId) {
           return res.status(404).json({ success: false, error: "Connection not found" });
         }
         
         const result = await tokenValidationService.validateToken(
           connection.platform,
           connection.accessToken,
-          { blogUrl: connection.blogUrl, apiEndpoint: connection.apiEndpoint }
+          connection.connectionData || {}
         );
         
         // Update connection status
-        connection.status = result.isValid ? 'connected' : 'error';
-        connection.lastSync = new Date().toISOString();
-        connectionsStore.set(userId, userConnections);
+        await storage.updatePlatformConnection(connectionId, {
+          isActive: result.isValid,
+          lastSyncAt: new Date()
+        });
         
         res.json({ success: true, validation: result });
       } else {
         // Validate all user connections
+        const userConnections = await storage.getUserPlatformConnections(userId);
         const validationResults = await tokenValidationService.validateAllConnections(userConnections);
         
         // Update connection statuses
-        userConnections.forEach((connection, index) => {
-          const result = validationResults[index];
-          connection.status = result.isValid ? 'connected' : 'error';
-          connection.lastSync = new Date().toISOString();
-        });
-        connectionsStore.set(userId, userConnections);
+        const updatePromises = validationResults.map((result, index) => 
+          storage.updatePlatformConnection(userConnections[index].id, {
+            isActive: result.isValid,
+            lastSyncAt: new Date()
+          })
+        );
+        await Promise.all(updatePromises);
         
         res.json({ 
           success: true, 
@@ -2221,8 +2216,7 @@ Format your response as a JSON object with the following structure:
 
       // Get the platform connection
       const userId = req.user!.id;
-      const userConnections = connectionsStore.get(userId) || [];
-      const connection = userConnections.find(c => c.id === parseInt(platformConnectionId));
+      const connection = await storage.getPlatformConnection(parseInt(platformConnectionId));
       
       if (!connection) {
         return res.status(404).json({ 
