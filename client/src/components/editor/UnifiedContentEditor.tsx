@@ -160,21 +160,66 @@ export function UnifiedContentEditor({
           tableHtml += `<p>${tableConfig.description}</p>`;
         }
         
-        // Start table
-        tableHtml += '<table>';
+        // Apply styling configuration
+        const { styling } = tableConfig;
+        let tableClass = 'border-collapse border border-border w-full my-4';
+        let headerStyle = '';
+        let cellClass = 'border border-border px-4 py-2';
+        let headerClass = 'border border-border px-4 py-2 font-semibold';
         
-        // Header row
-        tableHtml += '<thead><tr>';
-        tableConfig.columns.forEach((col: any) => {
-          tableHtml += `<th>${col.name}</th>`;
-        });
-        tableHtml += '</tr></thead>';
+        // Apply border styling
+        if (styling.borderStyle === 'none') {
+          tableClass = 'border-collapse w-full my-4';
+          cellClass = 'px-4 py-2';
+          headerClass = 'px-4 py-2 font-semibold';
+        } else if (styling.borderStyle === 'medium') {
+          tableClass = 'border-collapse border-2 border-border w-full my-4';
+          cellClass = 'border-2 border-border px-4 py-2';
+          headerClass = 'border-2 border-border px-4 py-2 font-semibold';
+        } else if (styling.borderStyle === 'heavy') {
+          tableClass = 'border-collapse border-4 border-border w-full my-4';
+          cellClass = 'border-4 border-border px-4 py-2';
+          headerClass = 'border-4 border-border px-4 py-2 font-semibold';
+        }
+        
+        // Apply compact styling
+        if (styling.compact) {
+          cellClass = cellClass.replace('px-4 py-2', 'px-2 py-1');
+          headerClass = headerClass.replace('px-4 py-2', 'px-2 py-1');
+        }
+        
+        // Apply header background color
+        if (styling.headerBg && styling.headerBg !== '#f8f9fa') {
+          headerStyle = `background-color: ${styling.headerBg};`;
+        } else {
+          headerClass += ' bg-muted';
+        }
+        
+        // Start table with styling
+        tableHtml += `<table class="${tableClass}">`;
+        
+        // Header row with custom styling
+        if (tableConfig.settings.showHeader) {
+          tableHtml += '<thead><tr>';
+          tableConfig.columns.forEach((col: any) => {
+            const style = headerStyle ? ` style="${headerStyle}"` : '';
+            tableHtml += `<th class="${headerClass}"${style}>${col.name}</th>`;
+          });
+          tableHtml += '</tr></thead>';
+        }
         
         // Data rows
         tableHtml += '<tbody>';
-        tableConfig.rows.forEach((row: any) => {
+        tableConfig.rows.forEach((row: any, rowIndex: number) => {
           const product = products.find(p => p.id === row.productId);
-          tableHtml += '<tr>';
+          
+          // Apply alternating row styling
+          let rowClass = '';
+          if (styling.alternateRows && rowIndex % 2 === 1) {
+            rowClass = ' class="bg-muted/50"';
+          }
+          
+          tableHtml += `<tr${rowClass}>`;
           
           tableConfig.columns.forEach((col: any) => {
             let cellContent = '';
@@ -193,7 +238,7 @@ export function UnifiedContentEditor({
               }
             }
             
-            tableHtml += `<td>${cellContent}</td>`;
+            tableHtml += `<td class="${cellClass}">${cellContent}</td>`;
           });
           
           tableHtml += '</tr>';
