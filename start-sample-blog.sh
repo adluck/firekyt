@@ -8,7 +8,7 @@ sleep 1
 
 # Start the sample blog server
 echo "Starting FireKyt Sample Blog Server..."
-node sample-blog-server.js &
+node sample-blog-server.cjs &
 
 # Get the process ID
 BLOG_PID=$!
@@ -18,10 +18,10 @@ echo "Sample blog server started with PID: $BLOG_PID"
 sleep 2
 
 # Check if server is running
-if curl -s http://localhost:3001/api/health > /dev/null; then
-    echo "✅ Sample blog server is running at http://localhost:3001"
-    echo "🔍 Health check: http://localhost:3001/api/health"
-    echo "📝 View posts: http://localhost:3001/api/posts/list"
+if curl -s http://localhost:3002/api/health > /dev/null; then
+    echo "✅ Sample blog server is running at http://localhost:3002"
+    echo "🔍 Health check: http://localhost:3002/api/health"
+    echo "📝 View posts: http://localhost:3002/api/posts/list"
     echo "🔑 Test token: firekyt_test_token_2024"
 else
     echo "❌ Failed to start sample blog server"
