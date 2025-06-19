@@ -209,21 +209,15 @@ export function UnifiedContentEditor({
         // Append table to current content or replace if empty
         const newContent = currentContent === '<p></p>' ? tableHtml : currentContent + tableHtml;
         
-        // Update the form data directly to prevent clearing
-        setValue('richContent', newContent);
-        
-        // Update the local state
-        setFormData(prev => ({
+        // Update the content data state directly
+        setContentData(prev => ({
           ...prev,
           richContent: newContent,
-          content: newContent // Also update plain content
+          content: newContent
         }));
         
         // Set editor content
         editorInstance.commands.setContent(newContent);
-        
-        // Force a re-render by updating the key
-        setFormData(prev => ({ ...prev }));
         
         console.log('Table insertion completed with content:', newContent);
         setActiveTab('editor');
