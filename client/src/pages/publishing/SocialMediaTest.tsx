@@ -304,7 +304,7 @@ export default function SocialMediaTest() {
                   <Input
                     id="token"
                     type="password"
-                    placeholder={`Enter your ${platform.name} access token`}
+                    placeholder={`Enter your ${platform.name} access token or use demo_${platform.id}_token`}
                     value={accessToken}
                     onChange={(e) => setAccessToken(e.target.value)}
                     className="mt-1 font-mono"
@@ -312,6 +312,11 @@ export default function SocialMediaTest() {
                   <p className="text-sm text-muted-foreground mt-1">
                     Token must include: {platform.scopes.join(', ')}
                   </p>
+                  <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                    <p className="text-xs text-blue-700 dark:text-blue-300">
+                      <strong>Demo Mode:</strong> Use <code>demo_{platform.id}_token</code> to test the integration workflow without real API tokens
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex gap-2">
@@ -326,6 +331,14 @@ export default function SocialMediaTest() {
                       <CheckCircle className="h-4 w-4 mr-2" />
                     )}
                     Test Token
+                  </Button>
+                  
+                  <Button
+                    onClick={() => setAccessToken(`demo_${platform.id}_token`)}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    Use Demo Token
                   </Button>
 
                   <Button
