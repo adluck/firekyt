@@ -123,7 +123,6 @@ export function UnifiedContentEditor({
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
-  const editorRef = useRef<any>(null);
 
   // Fetch products for table data population
   const { data: products = [] } = useQuery<any[]>({
@@ -144,18 +143,8 @@ export function UnifiedContentEditor({
 
   // Handle table insertion from table builder
   const handleTableInsertion = (tableConfig: any) => {
-    // Try multiple editor reference approaches
-    const editor = editorRef.current || editorInstance || window.editor;
-    console.log('Editor check:', { 
-      editorRef: editorRef.current, 
-      editorInstance, 
-      windowEditor: window.editor,
-      finalEditor: editor,
-      isEditable: editor?.isEditable 
-    });
-    
-    if (editor && editor.isEditable) {
-      console.log('Inserting table with ready editor instance');
+    if (editorInstance) {
+      console.log('Inserting table with editor instance:', editorInstance);
       
       try {
         // Build complete HTML table with product data
@@ -290,77 +279,24 @@ export function UnifiedContentEditor({
         
         console.log('Generated table HTML:', tableHtml);
         
-        // Get current content and cursor position
-        const currentContent = editor.getHTML();
+        // Get current content
+        const currentContent = editorInstance.getHTML();
         console.log('Current content:', currentContent);
         
-        // Move cursor to end and create table using TipTap commands
-        editor.commands.focus('end');
-        editor.commands.insertContent('<p></p>');
+        // Append table to current content or replace if empty
+        const newContent = currentContent === '<p></p>' ? tableHtml : currentContent + tableHtml;
         
-        // Insert table title
-        editor.commands.insertContent(`<h3>${styling.title}</h3>`);
+        // Update the content data state directly
+        setContentData(prev => ({
+          ...prev,
+          richContent: newContent,
+          content: newContent
+        }));
         
-        // Create table using TipTap's native commands
-        const rows = tableConfig.rows.length;
-        const cols = tableConfig.columns.length;
+        // Set editor content
+        editorInstance.commands.setContent(newContent);
         
-        // Insert table with proper dimensions
-        editor.commands.insertTable({ rows: rows + 1, cols, withHeaderRow: true });
-        
-        // Fill table with data
-        setTimeout(() => {
-          try {
-            // Update header row
-            tableConfig.columns.forEach((col: any, colIndex: number) => {
-              editor.commands.setCellSelection({ 
-                anchorCell: { row: 0, col: colIndex },
-                headCell: { row: 0, col: colIndex }
-              });
-              editor.commands.insertContent(col.name);
-            });
-            
-            // Update data rows
-            tableConfig.rows.forEach((row: any, rowIndex: number) => {
-              const product = products.find(p => p.id === row.productId);
-              if (product) {
-                tableConfig.columns.forEach((col: any, colIndex: number) => {
-                  let cellContent = '';
-                  
-                  if (col.productField === 'title') {
-                    cellContent = product.title || '';
-                  } else if (col.productField === 'price') {
-                    cellContent = `$${product.price?.toFixed(2) || '0.00'}`;
-                  } else if (col.productField === 'rating') {
-                    cellContent = `${product.rating?.toFixed(2) || '0.00'} ⭐`;
-                  }
-                  
-                  editor.commands.setCellSelection({ 
-                    anchorCell: { row: rowIndex + 1, col: colIndex },
-                    headCell: { row: rowIndex + 1, col: colIndex }
-                  });
-                  editor.commands.insertContent(cellContent);
-                });
-              }
-            });
-            
-            console.log('Table created and populated using TipTap commands');
-          } catch (error) {
-            console.error('Error populating table:', error);
-          }
-        }, 100);
-        
-        // Update the content data state with the processed content
-        setTimeout(() => {
-          const updatedContent = editor.getHTML();
-          setContentData(prev => ({
-            ...prev,
-            richContent: updatedContent,
-            content: updatedContent
-          }));
-        }, 100);
-        
-        console.log('Table insertion completed');
+        console.log('Table insertion completed with content:', newContent);
         setActiveTab('editor');
         return true;
         
@@ -369,22 +305,7 @@ export function UnifiedContentEditor({
         return false;
       }
     } else {
-      console.log('Editor instance not ready, attempting retry...');
-      // Retry after a short delay for editor initialization
-      setTimeout(() => {
-        const retryEditor = editorRef.current || editorInstance || window.editor;
-        if (retryEditor && retryEditor.isEditable) {
-          console.log('Retry successful, inserting table');
-          handleTableInsertion(tableConfig);
-        } else {
-          console.log('Retry failed - editor still not ready');
-          toast({
-            title: "Editor Not Ready",
-            description: "Please wait a moment and try again.",
-            variant: "destructive",
-          });
-        }
-      }, 500);
+      console.log('No editor instance available');
       return false;
     }
   };
