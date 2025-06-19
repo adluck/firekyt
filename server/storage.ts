@@ -161,7 +161,7 @@ export interface IStorage {
   getMultiSiteMetrics(userId: number, startDate?: Date, endDate?: Date): Promise<SiteMetrics[]>;
 
   // Link Suggestions
-  getUserLinkSuggestions(userId: number, status?: string): Promise<LinkSuggestion[]>;
+  getUserLinkSuggestions(userId: number, contentId?: number, siteId?: number): Promise<LinkSuggestion[]>;
   createLinkSuggestion(suggestion: InsertLinkSuggestion): Promise<LinkSuggestion>;
   updateLinkSuggestion(id: number, suggestion: Partial<InsertLinkSuggestion>): Promise<LinkSuggestion>;
 }
@@ -1444,18 +1444,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Link Suggestions
-  async getUserLinkSuggestions(userId: number, status?: string): Promise<LinkSuggestion[]> {
-    let conditions = [eq(linkSuggestions.userId, userId)];
-    
-    if (status) {
-      conditions.push(eq(linkSuggestions.status, status));
-    }
+  async getUserLinkSuggestions(userId: number, contentId?: number, siteId?: number): Promise<LinkSuggestion[]> {
+    try {
+      let conditions = [eq(linkSuggestions.userId, userId)];
+      
+      if (contentId) {
+        conditions.push(eq(linkSuggestions.contentId, contentId));
+      }
+      
+      if (siteId) {
+        conditions.push(eq(linkSuggestions.siteId, siteId));
+      }
 
-    return await db
-      .select()
-      .from(linkSuggestions)
-      .where(and(...conditions))
-      .orderBy(desc(linkSuggestions.confidence), desc(linkSuggestions.createdAt));
+      return await db
+        .select()
+        .from(linkSuggestions)
+        .where(and(...conditions))
+        .orderBy(desc(linkSuggestions.confidence), desc(linkSuggestions.createdAt));
+    } catch (error) {
+      console.error('Error fetching link suggestions:', error);
+      // Return empty array if table doesn't exist yet
+      return [];
+    }
   }
 
   async createLinkSuggestion(suggestion: InsertLinkSuggestion): Promise<LinkSuggestion> {

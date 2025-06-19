@@ -2685,6 +2685,55 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // ===== LINK SUGGESTIONS API ROUTES =====
+  
+  // Get link suggestions
+  app.get("/api/links/suggestions", authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { contentId, siteId } = req.query;
+      
+      // Get user's link suggestions
+      const suggestions = await storage.getUserLinkSuggestions(
+        userId,
+        contentId ? parseInt(contentId as string) : undefined,
+        siteId ? parseInt(siteId as string) : undefined
+      );
+      
+      res.json(suggestions);
+    } catch (error: any) {
+      console.error('Get link suggestions error:', error);
+      res.status(500).json({ message: "Failed to get link suggestions" });
+    }
+  });
+
+  // Create link suggestion
+  app.post("/api/links/suggestions", authenticateToken, async (req, res) => {
+    try {
+      const suggestionData = {
+        userId: req.user!.id,
+        ...req.body
+      };
+      const suggestion = await storage.createLinkSuggestion(suggestionData);
+      res.status(201).json(suggestion);
+    } catch (error: any) {
+      console.error('Create link suggestion error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Update link suggestion
+  app.put("/api/links/suggestions/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const suggestion = await storage.updateLinkSuggestion(parseInt(id), req.body);
+      res.json(suggestion);
+    } catch (error: any) {
+      console.error('Update link suggestion error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
