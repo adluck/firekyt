@@ -237,7 +237,7 @@ export default function LinkDashboard() {
                   Organize your links with custom categories
                 </DialogDescription>
               </DialogHeader>
-              <form action={handleCreateCategory}>
+              <form onSubmit={(e) => { e.preventDefault(); handleCreateCategory(new FormData(e.currentTarget)); }}>
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="name">Category Name</Label>
@@ -275,7 +275,7 @@ export default function LinkDashboard() {
                   Add a new link with AI-powered insertion capabilities
                 </DialogDescription>
               </DialogHeader>
-              <form action={handleCreateLink}>
+              <form onSubmit={(e) => { e.preventDefault(); handleCreateLink(new FormData(e.currentTarget)); }}>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -317,7 +317,7 @@ export default function LinkDashboard() {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">No category</SelectItem>
+                          <SelectItem value="none">No category</SelectItem>
                           {categories.map((cat: LinkCategory) => (
                             <SelectItem key={cat.id} value={cat.id.toString()}>
                               {cat.name}
@@ -333,7 +333,7 @@ export default function LinkDashboard() {
                           <SelectValue placeholder="Select site" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All sites</SelectItem>
+                          <SelectItem value="all">All sites</SelectItem>
                           {sites.map((site: any) => (
                             <SelectItem key={site.id} value={site.id.toString()}>
                               {site.name}
@@ -749,7 +749,7 @@ export default function LinkDashboard() {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No category</SelectItem>
+                        <SelectItem value="none">No category</SelectItem>
                         {categories.map((cat: LinkCategory) => (
                           <SelectItem key={cat.id} value={cat.id.toString()}>
                             {cat.name}
@@ -765,7 +765,7 @@ export default function LinkDashboard() {
                         <SelectValue placeholder="Select site" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All sites</SelectItem>
+                        <SelectItem value="all">All sites</SelectItem>
                         {sites.map((site: any) => (
                           <SelectItem key={site.id} value={site.id.toString()}>
                             {site.name}
