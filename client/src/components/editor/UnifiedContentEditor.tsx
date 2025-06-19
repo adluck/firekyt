@@ -173,6 +173,7 @@ export function UnifiedContentEditor({
           // Map common colors to CSS classes
           const colorMap: Record<string, string> = {
             '#047af1': 'custom-table-blue',
+            '#004d99': 'custom-table-dark-blue',
             '#dc2626': 'custom-table-red', 
             '#16a34a': 'custom-table-green',
             '#7c3aed': 'custom-table-purple',

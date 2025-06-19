@@ -71,6 +71,11 @@
   color: white !important;
 }
 
+.ProseMirror table.custom-table-dark-blue th {
+  background-color: #004d99 !important;
+  color: white !important;
+}
+
 .ProseMirror table.custom-table-red th {
   background-color: #dc2626 !important;
   color: white !important;
