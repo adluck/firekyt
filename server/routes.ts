@@ -2047,6 +2047,7 @@ Format your response as a JSON object with the following structure:
         username: platformUsername || 'Unknown',
         blogUrl: blogUrl || null,
         apiEndpoint: apiEndpoint || null,
+        accessToken: accessToken,
         status: 'connected',
         lastSync: new Date().toISOString(),
         createdAt: new Date().toISOString()
