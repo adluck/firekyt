@@ -2004,6 +2004,52 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // Test platform connection endpoint
+  app.post("/api/publishing/test-connection", authenticateToken, async (req, res) => {
+    try {
+      const { platform, accessToken, blogUrl } = req.body;
+      
+      if (!platform || !accessToken) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Platform and access token are required" 
+        });
+      }
+
+      console.log(`🔍 Testing ${platform} connection...`);
+      
+      // Use TokenValidationService to validate the token
+      const validationResult = await tokenValidationService.validateToken(
+        platform, 
+        accessToken, 
+        { blogUrl }
+      );
+
+      if (validationResult.isValid) {
+        res.json({
+          success: true,
+          platform: validationResult.platform,
+          message: `Successfully connected to ${platform}`,
+          details: validationResult.details,
+          lastChecked: validationResult.lastChecked
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          platform: validationResult.platform,
+          message: validationResult.error || `Failed to connect to ${platform}`,
+          lastChecked: validationResult.lastChecked
+        });
+      }
+    } catch (error: any) {
+      console.error('Test connection error:', error);
+      res.status(500).json({
+        success: false,
+        message: "Connection test failed: " + error.message
+      });
+    }
+  });
+
   // Add platform connection endpoint
   app.post("/api/publishing/connections", authenticateToken, async (req, res) => {
     try {

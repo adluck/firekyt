@@ -146,6 +146,10 @@ export class TokenValidationService {
    */
   async validateLinkedInToken(accessToken: string): Promise<TokenValidationResult> {
     try {
+      console.log('🔗 Testing LinkedIn token validation...');
+      console.log('🔑 Token length:', accessToken?.length);
+      console.log('🔑 Token starts with:', accessToken?.substring(0, 10) + '...');
+      
       const response = await fetch('https://api.linkedin.com/v2/me', {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -153,27 +157,45 @@ export class TokenValidationService {
         }
       });
 
+      console.log('📡 LinkedIn API response status:', response.status, response.statusText);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (response.ok) {
         const userData = await response.json();
+        console.log('✅ LinkedIn profile data received:', {
+          id: userData.id,
+          firstName: userData.firstName?.localized,
+          lastName: userData.lastName?.localized
+        });
+        
         return {
           isValid: true,
           platform: 'linkedin',
           details: {
             firstName: userData.firstName?.localized?.en_US,
             lastName: userData.lastName?.localized?.en_US,
-            status: 'authenticated'
+            status: 'authenticated',
+            profileId: userData.id
           },
           lastChecked: new Date()
         };
       } else {
+        const errorText = await response.text();
+        console.log('❌ LinkedIn API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+        
         return {
           isValid: false,
           platform: 'linkedin',
-          error: `Authentication failed: ${response.status} ${response.statusText}`,
+          error: `Authentication failed: ${response.status} ${response.statusText} - ${errorText}`,
           lastChecked: new Date()
         };
       }
     } catch (error: any) {
+      console.log('🔥 LinkedIn validation error:', error.message);
       return {
         isValid: false,
         platform: 'linkedin',
