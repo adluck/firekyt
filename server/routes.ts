@@ -1765,10 +1765,10 @@ Format your response as a JSON object with the following structure:
 
 
 
-  // Publish content to external blog
+  // Production publishing endpoint for real external blogs
   app.post("/api/publishing/publish", authenticateToken, async (req, res) => {
     try {
-      const { contentId, blogUrl, token, publishSettings } = req.body;
+      const { contentId, blogUrl, token, publishSettings, platformType = 'wordpress' } = req.body;
       
       if (!contentId || !blogUrl || !token) {
         return res.status(400).json({ message: "Content ID, blog URL, and token are required" });
@@ -1782,39 +1782,78 @@ Format your response as a JSON object with the following structure:
         return res.status(404).json({ message: "Content not found" });
       }
 
-      // Check if using the test blog server
+      // Check if using the test environment
       if (blogUrl.includes('localhost:3001') && token === 'firekyt_test_token_2024') {
-        // Mock successful publishing for testing
-        res.json({
-          success: true,
-          message: 'Content published successfully to FireKyt Test Blog Server',
-          postId: Math.floor(Math.random() * 1000) + 1,
-          publishedUrl: `${blogUrl}/posts/${content.id}`,
-          status: 'published'
+        // Use test publishing endpoint for local testing
+        const testResponse = await fetch('http://localhost:5000/api/test-blog-publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contentId, blogUrl, token, publishSettings })
         });
-        return;
+        const testData = await testResponse.json();
+        return res.json(testData);
       }
 
-      // Prepare the post data for the external blog
-      const postData = {
-        title: content.title,
-        content: content.content,
-        excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
-        tags: content.targetKeywords || [],
-        status: publishSettings?.status || 'published'
-      };
-
-      // Publish to external blog
+      // Production publishing logic
       const fetch = (await import('node-fetch')).default;
-      const publishUrl = `${blogUrl}/api/posts`;
-      
+      let publishUrl: string;
+      let postData: any;
+      let headers: any;
+
+      // Configure for different blog platforms
+      switch (platformType.toLowerCase()) {
+        case 'wordpress':
+          publishUrl = `${blogUrl}/wp-json/wp/v2/posts`;
+          postData = {
+            title: content.title,
+            content: content.content,
+            excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
+            status: publishSettings?.status || 'publish',
+            tags: content.targetKeywords?.join(',') || '',
+            categories: publishSettings?.categories || []
+          };
+          headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          };
+          break;
+
+        case 'ghost':
+          publishUrl = `${blogUrl}/ghost/api/v3/admin/posts/`;
+          postData = {
+            posts: [{
+              title: content.title,
+              html: content.content,
+              excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
+              status: publishSettings?.status || 'published',
+              tags: content.targetKeywords?.map((tag: string) => ({ name: tag })) || []
+            }]
+          };
+          headers = {
+            'Authorization': `Ghost ${token}`,
+            'Content-Type': 'application/json'
+          };
+          break;
+
+        default: // Custom API
+          publishUrl = `${blogUrl}/api/posts`;
+          postData = {
+            title: content.title,
+            content: content.content,
+            excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
+            tags: content.targetKeywords || [],
+            status: publishSettings?.status || 'published'
+          };
+          headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          };
+      }
+
       try {
         const response = await fetch(publishUrl, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
+          headers,
           body: JSON.stringify(postData)
         });
 

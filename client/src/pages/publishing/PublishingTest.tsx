@@ -498,14 +498,17 @@ export default function PublishingTest() {
                   <p><strong>Status:</strong> {publishingResults.status}</p>
                   <p><strong>Published At:</strong> {new Date(publishingResults.publishedAt).toLocaleString()}</p>
                   <p><strong>Published URL:</strong> 
-                    <a 
-                      href={publishingResults.publishedUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline ml-2"
-                    >
+                    <span className="text-blue-600 dark:text-blue-400 ml-2">
                       {publishingResults.publishedUrl}
-                    </a>
+                    </span>
+                  </p>
+                </div>
+                
+                <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded">
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
+                    <strong>Note:</strong> This is a test environment using mock publishing. 
+                    The URL above is simulated and won't resolve to an actual blog post. 
+                    In production, this would be a real blog URL where your content is published.
                   </p>
                 </div>
               </div>
