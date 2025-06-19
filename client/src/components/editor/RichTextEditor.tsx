@@ -101,24 +101,30 @@ export function RichTextEditor({
     content: processedContent,
     editable,
     onUpdate: ({ editor }) => {
+      setIsUserEditing(true);
       onChange?.(editor.getHTML());
+      // Reset the flag after a short delay to allow content changes to propagate
+      setTimeout(() => setIsUserEditing(false), 100);
     },
   });
 
   // Update editor content when processedContent changes
-  // Only sync when processedContent actually changes, not when editor content changes
+  // Prevent circular updates by tracking if we're in the middle of user editing
+  const [isUserEditing, setIsUserEditing] = useState(false);
+  
   useEffect(() => {
-    if (editor && processedContent && processedContent !== editor.getHTML()) {
-      // Only set content if processedContent is different and not empty
+    if (editor && processedContent && !isUserEditing) {
       const currentContent = editor.getHTML();
-      const isCurrentEmpty = currentContent === '<p></p>' || currentContent === '';
-      const isNewContentMeaningful = processedContent !== '<p></p>' && processedContent !== '';
+      const normalizedCurrent = currentContent.trim();
+      const normalizedNew = processedContent.trim();
       
-      if (isCurrentEmpty || isNewContentMeaningful) {
+      // Only update if content is meaningfully different
+      if (normalizedCurrent !== normalizedNew && processedContent !== '<p></p>') {
+        console.log('🔄 RichTextEditor syncing content:', { current: normalizedCurrent, new: normalizedNew });
         editor.commands.setContent(processedContent);
       }
     }
-  }, [editor, processedContent]);
+  }, [editor, processedContent, isUserEditing]);
 
   // Expose editor instance globally for table insertion and notify parent
   useEffect(() => {

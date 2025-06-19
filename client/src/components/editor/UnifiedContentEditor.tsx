@@ -438,6 +438,9 @@ export function UnifiedContentEditor({
   };
 
   const handleRichContentChange = (content: string) => {
+    console.log('🔄 handleRichContentChange called with:', content);
+    console.log('🔄 Current contentData.content:', contentData.content);
+    
     updateContentData({ 
       content,
       richContent: content,
