@@ -434,7 +434,28 @@ export function UnifiedContentEditor({
         title: 'Content saved',
         description: contentId ? 'Content updated successfully' : 'New content created successfully',
       });
+      
+      // Invalidate all content-related queries
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      
+      // Invalidate site-specific content queries
+      if (contentData.siteId) {
+        queryClient.invalidateQueries({ 
+          queryKey: [`/api/content?siteId=${contentData.siteId}`]
+        });
+        queryClient.invalidateQueries({ 
+          queryKey: [`/api/analytics/site/${contentData.siteId}`]
+        });
+      }
+      
+      // Invalidate any query that contains 'content' to ensure comprehensive cache clearing
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          return query.queryKey.some(key => 
+            typeof key === 'string' && key.includes('content')
+          );
+        }
+      });
       
       if (mode === 'embedded' && onClose) {
         onClose();
