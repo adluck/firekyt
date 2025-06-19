@@ -146,63 +146,75 @@ export function UnifiedContentEditor({
     if (editorInstance) {
       console.log('Inserting table with editor instance:', editorInstance);
       try {
-        // Generate table HTML with actual product data
-        const tableHtml = `
-          <div data-type="comparison-table" data-table-config='${JSON.stringify(tableConfig)}' class="my-4 p-4 border rounded-lg bg-white dark:bg-gray-900">
-            <h3 class="font-semibold mb-2 text-gray-900 dark:text-gray-100">${tableConfig.name}</h3>
-            ${tableConfig.description ? `<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">${tableConfig.description}</p>` : ''}
-            <div class="overflow-x-auto">
-              <table class="w-full border-collapse border border-gray-200 dark:border-gray-700">
-                <thead>
-                  <tr class="bg-gray-50 dark:bg-gray-800">
-                    ${tableConfig.columns.map((col: any) => `<th class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-left font-semibold text-gray-900 dark:text-gray-100">${col.name}</th>`).join('')}
-                  </tr>
-                </thead>
-                <tbody>
-                  ${tableConfig.rows.map((row: any, index: number) => {
-                    // Find actual product data from database
-                    const product = products.find(p => p.id === row.productId);
-                    
-                    return `
-                      <tr class="${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}">
-                        ${tableConfig.columns.map((col: any) => {
-                          let cellContent = '';
-                          
-                          // Get cell content based on column type and product field mapping
-                          if (row.customData && row.customData[col.id]) {
-                            cellContent = row.customData[col.id];
-                          } else if (product && col.productField) {
-                            if (col.productField === 'title') {
-                              cellContent = product.title;
-                            } else if (col.productField === 'price') {
-                              cellContent = `$${product.price}`;
-                            } else if (col.productField === 'rating') {
-                              cellContent = `${product.rating} ⭐`;
-                            } else {
-                              cellContent = product[col.productField] || '';
-                            }
-                          }
-                          
-                          // Apply styling based on column type
-                          if (col.type === 'price' && cellContent.includes('$')) {
-                            cellContent = `<span class="font-semibold text-green-600 dark:text-green-400">${cellContent}</span>`;
-                          } else if (col.type === 'rating' && cellContent.includes('⭐')) {
-                            cellContent = `<span class="text-yellow-500">${cellContent}</span>`;
-                          }
-                          
-                          return `<td class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-gray-900 dark:text-gray-100">${cellContent}</td>`;
-                        }).join('')}
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-        console.log('Generated HTML:', tableHtml);
-        const result = editorInstance.chain().focus().insertContent(tableHtml).run();
-        console.log('Insert result:', result);
+        // First insert the table title as a heading
+        if (tableConfig.name) {
+          editorInstance.chain().focus().insertContent(`<h3>${tableConfig.name}</h3>`).run();
+        }
+        
+        // Insert description if provided
+        if (tableConfig.description) {
+          editorInstance.chain().focus().insertContent(`<p>${tableConfig.description}</p>`).run();
+        }
+
+        // Create table structure using TipTap's native table commands
+        const colCount = tableConfig.columns.length;
+        const rowCount = tableConfig.rows.length + 1; // +1 for header row
+        
+        // Insert table
+        editorInstance.chain().focus().insertTable({ 
+          rows: rowCount, 
+          cols: colCount, 
+          withHeaderRow: true 
+        }).run();
+
+        // Populate header row
+        tableConfig.columns.forEach((col: any, colIndex: number) => {
+          if (colIndex > 0) {
+            editorInstance.chain().focus().goToNextCell().run();
+          }
+          editorInstance.chain().focus().insertContent(col.name).run();
+        });
+
+        // Move to first data row
+        editorInstance.chain().focus().goToNextCell().run();
+
+        // Populate data rows
+        tableConfig.rows.forEach((row: any, rowIndex: number) => {
+          // Find actual product data from database
+          const product = products.find(p => p.id === row.productId);
+          
+          tableConfig.columns.forEach((col: any, colIndex: number) => {
+            if (colIndex > 0) {
+              editorInstance.chain().focus().goToNextCell().run();
+            }
+            
+            let cellContent = '';
+            
+            // Get cell content based on column type and product field mapping
+            if (row.customData && row.customData[col.id]) {
+              cellContent = row.customData[col.id];
+            } else if (product && col.productField) {
+              if (col.productField === 'title') {
+                cellContent = product.title;
+              } else if (col.productField === 'price') {
+                cellContent = `$${product.price}`;
+              } else if (col.productField === 'rating') {
+                cellContent = `${product.rating} ⭐`;
+              } else {
+                cellContent = product[col.productField] || '';
+              }
+            }
+            
+            editorInstance.chain().focus().insertContent(cellContent).run();
+          });
+          
+          // Move to next row if not the last row
+          if (rowIndex < tableConfig.rows.length - 1) {
+            editorInstance.chain().focus().goToNextCell().run();
+          }
+        });
+
+        console.log('Table inserted successfully');
         setActiveTab('editor');
         return true;
       } catch (error) {
