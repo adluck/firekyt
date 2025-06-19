@@ -176,13 +176,14 @@ export function UnifiedContentEditor({
           const colorHash = color.replace('#', '').toLowerCase();
           const customClassName = `custom-header-${colorHash}`;
           
-          // Inject CSS dynamically for this specific color
+          // Inject CSS dynamically for this specific color with proper dark mode support
           const styleId = `table-header-style-${colorHash}`;
           if (!document.getElementById(styleId)) {
             const style = document.createElement('style');
             style.id = styleId;
             style.textContent = `
-              .ProseMirror table.${customClassName} th {
+              .ProseMirror table.${customClassName} th,
+              .dark .ProseMirror table.${customClassName} th {
                 background-color: ${color} !important;
                 color: white !important;
               }

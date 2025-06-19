@@ -57,7 +57,8 @@
   border-color: #374151;
 }
 
-.dark .ProseMirror table th {
+/* Default dark mode header - only apply if no custom color class is present */
+.dark .ProseMirror table:not([class*="custom-header-"]) th {
   background-color: #1f2937;
 }
 
