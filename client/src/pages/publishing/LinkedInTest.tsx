@@ -132,17 +132,44 @@ export default function LinkedInTest() {
   // Test post to LinkedIn
   const testPostMutation = useMutation({
     mutationFn: async () => {
-      if (!connection) throw new Error("No LinkedIn connection found");
-      
-      const response = await apiRequest('POST', '/api/social/publish', {
-        connectionId: connection.id,
-        content: {
-          title: testContent.title,
-          content: testContent.content,
-          hashtags: testContent.hashtags
+      if (!connection) {
+        // If no connection exists, try to create one first
+        if (!accessToken.trim()) {
+          throw new Error("Please enter a LinkedIn access token first");
         }
-      });
-      return response.json();
+        
+        // Create connection automatically
+        const connectionResponse = await apiRequest('POST', '/api/publishing/connections', {
+          platform: 'linkedin',
+          accessToken: accessToken,
+          platformUsername: '',
+          platformUserId: ''
+        });
+        const connectionData = await connectionResponse.json();
+        setConnection(connectionData);
+        
+        // Now post with the new connection
+        const response = await apiRequest('POST', '/api/social/publish', {
+          connectionId: connectionData.id,
+          content: {
+            title: testContent.title,
+            content: testContent.content,
+            hashtags: testContent.hashtags
+          }
+        });
+        return response.json();
+      } else {
+        // Use existing connection
+        const response = await apiRequest('POST', '/api/social/publish', {
+          connectionId: connection.id,
+          content: {
+            title: testContent.title,
+            content: testContent.content,
+            hashtags: testContent.hashtags
+          }
+        });
+        return response.json();
+      }
     },
     onSuccess: (data) => {
       toast({
@@ -225,23 +252,23 @@ export default function LinkedInTest() {
               </div>
               
               <div>
-                <p className="font-medium mb-1">2. Required OAuth Scopes:</p>
+                <p className="font-medium mb-1">2. Minimal Required OAuth Scopes:</p>
                 <div className="flex flex-wrap gap-1">
-                  {['r_liteprofile', 'r_emailaddress', 'w_member_social'].map(scope => (
+                  {['r_liteprofile', 'w_member_social'].map(scope => (
                     <Badge key={scope} variant="secondary" className="text-xs">
                       {scope}
                     </Badge>
                   ))}
                 </div>
                 <p className="text-xs mt-1 text-blue-700 dark:text-blue-300">
-                  Note: Using standard LinkedIn scopes (openid requires special approval)
+                  Using minimal scopes - r_emailaddress requires additional LinkedIn approval
                 </p>
               </div>
               
               <div>
                 <p className="font-medium mb-1">3. Authorization URL Template:</p>
                 <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded text-xs break-all">
-                  https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri={encodeURIComponent(`${window.location.origin}/publishing/linkedin`)}&scope=r_liteprofile%20r_emailaddress%20w_member_social
+                  https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri={encodeURIComponent(`${window.location.origin}/publishing/linkedin`)}&scope=r_liteprofile%20w_member_social
                 </div>
               </div>
             </div>
@@ -287,7 +314,24 @@ export default function LinkedInTest() {
               )}
               Add Connection
             </Button>
+            
+            <Button
+              onClick={() => testPostMutation.mutate()}
+              disabled={testPostMutation.isPending || !accessToken}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {testPostMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Linkedin className="h-4 w-4 mr-2" />
+              )}
+              Quick Test Post
+            </Button>
           </div>
+          
+          <p className="text-xs text-muted-foreground">
+            Quick Test Post will create a connection automatically if needed, then post test content
+          </p>
 
           {connection && (
             <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">

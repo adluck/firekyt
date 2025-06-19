@@ -187,7 +187,7 @@ export class TokenValidationService {
         let errorMessage = `Authentication failed: ${response.status} ${response.statusText}`;
         
         if (response.status === 403) {
-          errorMessage += '\n\nYour LinkedIn access token needs these scopes:\n• r_liteprofile\n• r_emailaddress\n• w_member_social\n\nPlease regenerate your token with these permissions.';
+          errorMessage += '\n\nYour LinkedIn access token needs these minimal scopes:\n• r_liteprofile\n• w_member_social\n\nNote: r_emailaddress requires LinkedIn approval and is optional.';
         }
         
         return {
