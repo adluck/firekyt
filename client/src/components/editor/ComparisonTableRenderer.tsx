@@ -42,9 +42,10 @@ interface ComparisonTableConfig {
 interface ComparisonTableRendererProps {
   config: ComparisonTableConfig;
   className?: string;
+  previewMode?: boolean;
 }
 
-export function ComparisonTableRenderer({ config, className }: ComparisonTableRendererProps) {
+export function ComparisonTableRenderer({ config, className, previewMode = false }: ComparisonTableRendererProps) {
   // Fetch products data
   const { data: products = [] } = useQuery<Product[]>({
     queryKey: ['/api/products'],
