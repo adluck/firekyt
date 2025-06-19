@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { z } from "zod";
 import { emailService } from "./EmailService";
+import { tokenValidationService } from "./TokenValidationService";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { storage } from "./storage";
 import { insertUserSchema, insertSiteSchema, insertContentSchema, SUBSCRIPTION_LIMITS, type User } from "@shared/schema";
@@ -2066,6 +2067,62 @@ Format your response as a JSON object with the following structure:
       res.status(500).json({
         success: false,
         message: "Failed to add connection: " + error.message
+      });
+    }
+  });
+
+  // Validate platform connection tokens
+  app.post("/api/publishing/connections/validate", authenticateToken, async (req, res) => {
+    try {
+      const { connectionId } = req.body;
+      const userId = req.user!.id;
+      const userConnections = connectionsStore.get(userId) || [];
+      
+      if (connectionId) {
+        // Validate specific connection
+        const connection = userConnections.find(c => c.id === connectionId);
+        if (!connection) {
+          return res.status(404).json({ success: false, error: "Connection not found" });
+        }
+        
+        const result = await tokenValidationService.validateToken(
+          connection.platform,
+          connection.accessToken,
+          { blogUrl: connection.blogUrl, apiEndpoint: connection.apiEndpoint }
+        );
+        
+        // Update connection status
+        connection.status = result.isValid ? 'connected' : 'error';
+        connection.lastSync = new Date().toISOString();
+        connectionsStore.set(userId, userConnections);
+        
+        res.json({ success: true, validation: result });
+      } else {
+        // Validate all user connections
+        const validationResults = await tokenValidationService.validateAllConnections(userConnections);
+        
+        // Update connection statuses
+        userConnections.forEach((connection, index) => {
+          const result = validationResults[index];
+          connection.status = result.isValid ? 'connected' : 'error';
+          connection.lastSync = new Date().toISOString();
+        });
+        connectionsStore.set(userId, userConnections);
+        
+        res.json({ 
+          success: true, 
+          validations: validationResults.map((result, index) => ({
+            connectionId: userConnections[index].id,
+            platform: userConnections[index].platform,
+            ...result
+          }))
+        });
+      }
+    } catch (error: any) {
+      console.error('❌ Token validation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || "Failed to validate tokens" 
       });
     }
   });
