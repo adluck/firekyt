@@ -28,7 +28,8 @@ import {
   Pause,
   Play,
   Trash2,
-  Globe
+  Globe,
+  RefreshCw
 } from "lucide-react";
 import { 
   SiWordpress, 
