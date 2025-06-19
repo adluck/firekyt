@@ -163,36 +163,51 @@ export function UnifiedContentEditor({
         // Apply styling configuration
         const { styling } = tableConfig;
         let tableClass = 'border-collapse border border-border w-full my-4';
-        let headerStyle = '';
         let cellClass = 'border border-border px-4 py-2';
         let headerClass = 'border border-border px-4 py-2 font-semibold';
         
+        // Apply header background color via CSS class
+        const getHeaderColorClass = (color: string) => {
+          const colorMap: Record<string, string> = {
+            '#047af1': 'custom-table-blue',
+            '#dc2626': 'custom-table-red', 
+            '#16a34a': 'custom-table-green',
+            '#7c3aed': 'custom-table-purple',
+            '#ea580c': 'custom-table-orange',
+            '#ec4899': 'custom-table-pink'
+          };
+          return colorMap[color] || '';
+        };
+        
+        // Add header color class to table
+        if (styling.headerBg && styling.headerBg !== '#f8f9fa') {
+          const headerColorClass = getHeaderColorClass(styling.headerBg);
+          if (headerColorClass) {
+            tableClass += ` ${headerColorClass}`;
+          }
+        } else {
+          headerClass += ' bg-muted';
+        }
+        
         // Apply border styling
         if (styling.borderStyle === 'none') {
-          tableClass = 'border-collapse w-full my-4';
-          cellClass = 'px-4 py-2';
-          headerClass = 'px-4 py-2 font-semibold';
+          tableClass = tableClass.replace('border border-border', '');
+          cellClass = cellClass.replace('border border-border ', '');
+          headerClass = headerClass.replace('border border-border ', '');
         } else if (styling.borderStyle === 'medium') {
-          tableClass = 'border-collapse border-2 border-border w-full my-4';
-          cellClass = 'border-2 border-border px-4 py-2';
-          headerClass = 'border-2 border-border px-4 py-2 font-semibold';
+          tableClass = tableClass.replace('border border-border', 'border-2 border-border');
+          cellClass = cellClass.replace('border border-border', 'border-2 border-border');
+          headerClass = headerClass.replace('border border-border', 'border-2 border-border');
         } else if (styling.borderStyle === 'heavy') {
-          tableClass = 'border-collapse border-4 border-border w-full my-4';
-          cellClass = 'border-4 border-border px-4 py-2';
-          headerClass = 'border-4 border-border px-4 py-2 font-semibold';
+          tableClass = tableClass.replace('border border-border', 'border-4 border-border');
+          cellClass = cellClass.replace('border border-border', 'border-4 border-border');
+          headerClass = headerClass.replace('border border-border', 'border-4 border-border');
         }
         
         // Apply compact styling
         if (styling.compact) {
           cellClass = cellClass.replace('px-4 py-2', 'px-2 py-1');
           headerClass = headerClass.replace('px-4 py-2', 'px-2 py-1');
-        }
-        
-        // Apply header background color
-        if (styling.headerBg && styling.headerBg !== '#f8f9fa') {
-          headerStyle = `background-color: ${styling.headerBg} !important;`;
-        } else {
-          headerClass += ' bg-muted';
         }
         
         // Start table with styling
@@ -202,16 +217,7 @@ export function UnifiedContentEditor({
         if (tableConfig.settings.showHeader) {
           tableHtml += '<thead><tr>';
           tableConfig.columns.forEach((col: any) => {
-            let thElement = `<th class="${headerClass}"`;
-            
-            // Add custom data attribute for styling
-            if (styling.headerBg && styling.headerBg !== '#f8f9fa') {
-              thElement += ` data-header-bg="${styling.headerBg}"`;
-              thElement += ` style="background-color: ${styling.headerBg} !important; color: white;"`;
-            }
-            
-            thElement += `>${col.name}</th>`;
-            tableHtml += thElement;
+            tableHtml += `<th class="${headerClass}">${col.name}</th>`;
           });
           tableHtml += '</tr></thead>';
         }

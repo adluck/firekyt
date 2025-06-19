@@ -66,18 +66,40 @@
 }
 
 /* Custom table header styles - override TipTap defaults */
-.ProseMirror table th[data-header-bg] {
-  background-color: attr(data-header-bg) !important;
+.ProseMirror table.custom-table-blue th {
+  background-color: #047af1 !important;
   color: white !important;
 }
 
-.ProseMirror table th[style*="background-color"] {
-  background-color: inherit !important;
+.ProseMirror table.custom-table-red th {
+  background-color: #dc2626 !important;
+  color: white !important;
 }
 
-/* Ensure inline styles take precedence */
-.ProseMirror table th[style*="background-color"] {
-  background: revert !important;
+.ProseMirror table.custom-table-green th {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+.ProseMirror table.custom-table-purple th {
+  background-color: #7c3aed !important;
+  color: white !important;
+}
+
+.ProseMirror table.custom-table-orange th {
+  background-color: #ea580c !important;
+  color: white !important;
+}
+
+.ProseMirror table.custom-table-pink th {
+  background-color: #ec4899 !important;
+  color: white !important;
+}
+
+/* Dynamic header color support */
+.ProseMirror table[data-header-color] th {
+  background-color: var(--header-bg-color) !important;
+  color: white !important;
 }
 
 /* MintySea UI Template Colors */
