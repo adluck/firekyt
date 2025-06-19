@@ -65,6 +65,21 @@
   background-color: #1f2937;
 }
 
+/* Custom table header styles - override TipTap defaults */
+.ProseMirror table th[data-header-bg] {
+  background-color: attr(data-header-bg) !important;
+  color: white !important;
+}
+
+.ProseMirror table th[style*="background-color"] {
+  background-color: inherit !important;
+}
+
+/* Ensure inline styles take precedence */
+.ProseMirror table th[style*="background-color"] {
+  background: revert !important;
+}
+
 /* MintySea UI Template Colors */
 :root {
   --primary-gradient: linear-gradient(135deg, #f97316 0%, #ec4899 100%);

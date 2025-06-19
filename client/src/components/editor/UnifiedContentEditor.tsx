@@ -190,7 +190,7 @@ export function UnifiedContentEditor({
         
         // Apply header background color
         if (styling.headerBg && styling.headerBg !== '#f8f9fa') {
-          headerStyle = `background-color: ${styling.headerBg};`;
+          headerStyle = `background-color: ${styling.headerBg} !important;`;
         } else {
           headerClass += ' bg-muted';
         }
@@ -202,8 +202,16 @@ export function UnifiedContentEditor({
         if (tableConfig.settings.showHeader) {
           tableHtml += '<thead><tr>';
           tableConfig.columns.forEach((col: any) => {
-            const style = headerStyle ? ` style="${headerStyle}"` : '';
-            tableHtml += `<th class="${headerClass}"${style}>${col.name}</th>`;
+            let thElement = `<th class="${headerClass}"`;
+            
+            // Add custom data attribute for styling
+            if (styling.headerBg && styling.headerBg !== '#f8f9fa') {
+              thElement += ` data-header-bg="${styling.headerBg}"`;
+              thElement += ` style="background-color: ${styling.headerBg} !important; color: white;"`;
+            }
+            
+            thElement += `>${col.name}</th>`;
+            tableHtml += thElement;
           });
           tableHtml += '</tr></thead>';
         }
