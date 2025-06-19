@@ -106,9 +106,17 @@ export function RichTextEditor({
   });
 
   // Update editor content when processedContent changes
+  // Only sync when processedContent actually changes, not when editor content changes
   useEffect(() => {
-    if (editor && processedContent !== editor.getHTML()) {
-      editor.commands.setContent(processedContent);
+    if (editor && processedContent && processedContent !== editor.getHTML()) {
+      // Only set content if processedContent is different and not empty
+      const currentContent = editor.getHTML();
+      const isCurrentEmpty = currentContent === '<p></p>' || currentContent === '';
+      const isNewContentMeaningful = processedContent !== '<p></p>' && processedContent !== '';
+      
+      if (isCurrentEmpty || isNewContentMeaningful) {
+        editor.commands.setContent(processedContent);
+      }
     }
   }, [editor, processedContent]);
 
