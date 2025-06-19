@@ -1809,8 +1809,7 @@ Format your response as a JSON object with the following structure:
             const publishedPost = await response.json() as any;
             
             // Update content status in FireKyt
-            await storage.updateContent(content.id, {
-              ...content,
+            await storage.updateContent(content.id, req.user!.id, {
               status: 'published',
               publishedAt: new Date()
             });
@@ -1914,8 +1913,7 @@ Format your response as a JSON object with the following structure:
           const publishedPost = await response.json();
           
           // Update content status in FireKyt
-          await storage.updateContent(content.id, {
-            ...content,
+          await storage.updateContent(content.id, req.user!.id, {
             status: 'published',
             publishedAt: new Date()
           });
@@ -2203,8 +2201,7 @@ Format your response as a JSON object with the following structure:
             const publishedPost = await response.json() as any;
             
             // Update content status in FireKyt
-            await storage.updateContent(content.id, {
-              ...content,
+            await storage.updateContent(content.id, req.user!.id, {
               status: 'published',
               publishedAt: new Date()
             });
@@ -2238,8 +2235,7 @@ Format your response as a JSON object with the following structure:
       };
 
       // Update content status
-      await storage.updateContent(content.id, {
-        ...content,
+      await storage.updateContent(content.id, req.user!.id, {
         status: 'published',
         publishedAt: new Date()
       });
