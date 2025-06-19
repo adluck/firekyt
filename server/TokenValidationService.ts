@@ -235,6 +235,73 @@ export class TokenValidationService {
   }
 
   /**
+   * Validate Pinterest token by testing user info endpoint
+   */
+  async validatePinterestToken(accessToken: string): Promise<TokenValidationResult> {
+    try {
+      console.log('🔗 Testing Pinterest token validation...');
+      console.log('🔑 Token length:', accessToken?.length);
+      console.log('🔑 Token starts with:', accessToken?.substring(0, 10) + '...');
+      
+      // Pinterest API v5 user info endpoint
+      const response = await fetch('https://api.pinterest.com/v5/user_account', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('📡 Pinterest API response status:', response.status, response.statusText);
+
+      if (response.ok) {
+        const userData = await response.json();
+        console.log('✅ Pinterest token validated successfully');
+        
+        return {
+          isValid: true,
+          platform: 'pinterest',
+          details: {
+            username: userData.username,
+            account_type: userData.account_type,
+            profile_image: userData.profile_image,
+            status: 'authenticated'
+          },
+          lastChecked: new Date()
+        };
+      } else if (response.status === 401) {
+        return {
+          isValid: false,
+          platform: 'pinterest',
+          error: 'Pinterest access token is invalid or expired. Please generate a new token.',
+          lastChecked: new Date()
+        };
+      } else {
+        const errorText = await response.text();
+        console.log('❌ Pinterest API validation failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+
+        return {
+          isValid: false,
+          platform: 'pinterest',
+          error: `Pinterest API error: ${response.status} ${response.statusText}. Please check your token and scopes.`,
+          lastChecked: new Date()
+        };
+      }
+    } catch (error: any) {
+      console.log('🔥 Pinterest validation error:', error.message);
+      return {
+        isValid: false,
+        platform: 'pinterest',
+        error: `Connection error: ${error.message}`,
+        lastChecked: new Date()
+      };
+    }
+  }
+
+  /**
    * Test local blog server token (for development/testing)
    */
   async validateLocalBlogToken(accessToken: string, serverUrl: string = 'http://localhost:3002'): Promise<TokenValidationResult> {
@@ -293,6 +360,9 @@ export class TokenValidationService {
       
       case 'linkedin':
         return this.validateLinkedInToken(accessToken);
+      
+      case 'pinterest':
+        return this.validatePinterestToken(accessToken);
       
       case 'local_blog':
       case 'test':

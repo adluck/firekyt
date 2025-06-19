@@ -32,6 +32,7 @@ import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
 import PublishingDashboard from "@/pages/publishing/PublishingDashboard";
 import PublishingTest from "@/pages/publishing/PublishingTest";
 import LinkedInTest from "@/pages/publishing/LinkedInTest";
+import PinterestTest from "@/pages/publishing/PinterestTest";
 import LinkDashboard from "@/pages/links/LinkDashboard";
 import LinkInserter from "@/pages/links/LinkInserter";
 import Pricing from "@/pages/subscription/Pricing";
@@ -187,6 +188,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <LinkedInTest />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/publishing/pinterest">
+        <ProtectedRoute>
+          <AppLayout>
+            <PinterestTest />
           </AppLayout>
         </ProtectedRoute>
       </Route>
