@@ -145,122 +145,90 @@ export function UnifiedContentEditor({
   const handleTableInsertion = (tableConfig: any) => {
     if (editorInstance) {
       console.log('Inserting table with editor instance:', editorInstance);
-      console.log('Editor available commands:', Object.keys(editorInstance.commands));
-      console.log('Table config:', tableConfig);
       
       try {
-        // Check if insertTable command is available
-        if (!editorInstance.commands.insertTable) {
-          console.error('insertTable command not available');
-          return false;
-        }
-
-        // Get current editor content before insertion
-        const contentBefore = editorInstance.getHTML();
-        console.log('Content before insertion:', contentBefore);
-
-        // First insert the table title as a heading
+        // Build complete HTML table with product data
+        let tableHtml = '';
+        
+        // Add title if provided
         if (tableConfig.name) {
-          const titleResult = editorInstance.chain().focus().insertContent(`<h3>${tableConfig.name}</h3>`).run();
-          console.log('Title insert result:', titleResult);
+          tableHtml += `<h3>${tableConfig.name}</h3>`;
         }
         
-        // Insert description if provided
+        // Add description if provided
         if (tableConfig.description) {
-          const descResult = editorInstance.chain().focus().insertContent(`<p>${tableConfig.description}</p>`).run();
-          console.log('Description insert result:', descResult);
+          tableHtml += `<p>${tableConfig.description}</p>`;
         }
-
-        // Create table structure using TipTap's native table commands
-        const colCount = tableConfig.columns.length;
-        const rowCount = tableConfig.rows.length + 1; // +1 for header row
         
-        console.log('Creating table with:', { rows: rowCount, cols: colCount });
+        // Start table
+        tableHtml += '<table>';
         
-        // Insert table
-        const tableResult = editorInstance.chain().focus().insertTable({ 
-          rows: rowCount, 
-          cols: colCount, 
-          withHeaderRow: true 
-        }).run();
+        // Header row
+        tableHtml += '<thead><tr>';
+        tableConfig.columns.forEach((col: any) => {
+          tableHtml += `<th>${col.name}</th>`;
+        });
+        tableHtml += '</tr></thead>';
         
-        console.log('Table insert result:', tableResult);
-        
-        // Check content after table insertion
-        const contentAfterTable = editorInstance.getHTML();
-        console.log('Content after table insertion:', contentAfterTable);
-
-        // Wait a moment for the table to be created
-        setTimeout(() => {
-          try {
-            // Populate header row
-            console.log('Populating header row...');
-            tableConfig.columns.forEach((col: any, colIndex: number) => {
-              if (colIndex > 0) {
-                const nextCellResult = editorInstance.chain().focus().goToNextCell().run();
-                console.log(`Move to header cell ${colIndex} result:`, nextCellResult);
-              }
-              const headerResult = editorInstance.chain().focus().insertContent(col.name).run();
-              console.log(`Header cell ${colIndex} insert result:`, headerResult);
-            });
-
-            // Move to first data row
-            const moveToDataResult = editorInstance.chain().focus().goToNextCell().run();
-            console.log('Move to first data row result:', moveToDataResult);
-
-            // Populate data rows
-            console.log('Populating data rows...');
-            tableConfig.rows.forEach((row: any, rowIndex: number) => {
-              // Find actual product data from database
-              const product = products.find(p => p.id === row.productId);
-              console.log(`Row ${rowIndex} product:`, product);
-              
-              tableConfig.columns.forEach((col: any, colIndex: number) => {
-                if (colIndex > 0) {
-                  const nextCellResult = editorInstance.chain().focus().goToNextCell().run();
-                  console.log(`Move to data cell ${rowIndex},${colIndex} result:`, nextCellResult);
-                }
-                
-                let cellContent = '';
-                
-                // Get cell content based on column type and product field mapping
-                if (row.customData && row.customData[col.id]) {
-                  cellContent = row.customData[col.id];
-                } else if (product && col.productField) {
-                  if (col.productField === 'title') {
-                    cellContent = product.title;
-                  } else if (col.productField === 'price') {
-                    cellContent = `$${product.price}`;
-                  } else if (col.productField === 'rating') {
-                    cellContent = `${product.rating} ⭐`;
-                  } else {
-                    cellContent = product[col.productField] || '';
-                  }
-                }
-                
-                const cellResult = editorInstance.chain().focus().insertContent(cellContent).run();
-                console.log(`Data cell ${rowIndex},${colIndex} insert result:`, cellResult, 'content:', cellContent);
-              });
-              
-              // Move to next row if not the last row
-              if (rowIndex < tableConfig.rows.length - 1) {
-                const nextRowResult = editorInstance.chain().focus().goToNextCell().run();
-                console.log(`Move to next row result:`, nextRowResult);
-              }
-            });
-
-            // Final content check
-            const finalContent = editorInstance.getHTML();
-            console.log('Final content after population:', finalContent);
+        // Data rows
+        tableHtml += '<tbody>';
+        tableConfig.rows.forEach((row: any) => {
+          const product = products.find(p => p.id === row.productId);
+          tableHtml += '<tr>';
+          
+          tableConfig.columns.forEach((col: any) => {
+            let cellContent = '';
             
-          } catch (populateError) {
-            console.error('Error populating table:', populateError);
-          }
-        }, 100);
-
-        console.log('Table insertion completed');
+            if (row.customData && row.customData[col.id]) {
+              cellContent = row.customData[col.id];
+            } else if (product && col.productField) {
+              if (col.productField === 'title') {
+                cellContent = product.title;
+              } else if (col.productField === 'price') {
+                cellContent = `$${product.price}`;
+              } else if (col.productField === 'rating') {
+                cellContent = `${product.rating} ⭐`;
+              } else {
+                cellContent = product[col.productField] || '';
+              }
+            }
+            
+            tableHtml += `<td>${cellContent}</td>`;
+          });
+          
+          tableHtml += '</tr>';
+        });
+        tableHtml += '</tbody></table>';
+        
+        console.log('Generated table HTML:', tableHtml);
+        
+        // Get current content
+        const currentContent = editorInstance.getHTML();
+        console.log('Current content:', currentContent);
+        
+        // Append table to current content or replace if empty
+        const newContent = currentContent === '<p></p>' ? tableHtml : currentContent + tableHtml;
+        
+        // Update the form data directly to prevent clearing
+        setValue('richContent', newContent);
+        
+        // Update the local state
+        setFormData(prev => ({
+          ...prev,
+          richContent: newContent,
+          content: newContent // Also update plain content
+        }));
+        
+        // Set editor content
+        editorInstance.commands.setContent(newContent);
+        
+        // Force a re-render by updating the key
+        setFormData(prev => ({ ...prev }));
+        
+        console.log('Table insertion completed with content:', newContent);
         setActiveTab('editor');
         return true;
+        
       } catch (error) {
         console.error('Failed to insert table:', error);
         return false;
