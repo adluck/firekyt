@@ -231,4 +231,4 @@ app.listen(PORT, () => {
   console.log('Ready to receive published content from FireKyt!');
 });
 
-module.exports = app;
+export default app;
