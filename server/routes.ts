@@ -378,15 +378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Content management
-  app.get("/api/content", authenticateToken, async (req, res) => {
-    try {
-      const content = await storage.getUserContent(req.user!.id);
-      res.json(content);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
+  // Content management - removed duplicate, proper implementation is at line 1593
 
   app.post("/api/content", authenticateToken, contentGenerationRateLimit, checkSubscriptionLimit('content_generation'), async (req, res) => {
     try {

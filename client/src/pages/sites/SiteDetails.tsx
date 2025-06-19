@@ -42,7 +42,16 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
 
   // Fetch content for this site
   const { data: content = [], isLoading: contentLoading } = useQuery<Content[]>({
-    queryKey: [`/api/content`],
+    queryKey: [`/api/content`, { siteId }],
+    queryFn: async () => {
+      const response = await fetch(`/api/content?siteId=${siteId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch content');
+      return response.json();
+    }
   });
 
   // Fetch analytics for this site
@@ -50,10 +59,9 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
     queryKey: [`/api/analytics/site/${siteId}`],
   });
 
-  // Filter content by site and status with safe checks
-  const siteIdNum = parseInt(siteId);
+  // Content is already filtered by site from the API
   const allContent = Array.isArray(content) ? content : [];
-  const siteContent = allContent.filter(c => c && c.siteId === siteIdNum);
+  const siteContent = allContent;
   const publishedContent = siteContent.filter(c => c?.status === 'published');
   const draftContent = siteContent.filter(c => c?.status === 'draft');
 
