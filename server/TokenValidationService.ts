@@ -269,10 +269,41 @@ export class TokenValidationService {
           lastChecked: new Date()
         };
       } else if (response.status === 401) {
+        const errorText = await response.text();
+        console.log('❌ Pinterest 401 error details:', errorText);
+        
+        let errorMessage = 'Pinterest authentication failed.';
+        let errorDetails = '';
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.code === 2) {
+            errorDetails = 'Token is invalid, expired, or has insufficient permissions.';
+          } else if (errorData.message) {
+            errorDetails = errorData.message;
+          }
+        } catch (e) {
+          errorDetails = 'Authentication error occurred.';
+        }
+        
+        errorMessage = `${errorMessage} ${errorDetails}
+
+To fix this issue:
+1. Go to Pinterest Developer Console (https://developers.pinterest.com/apps/)
+2. Generate a NEW access token with these scopes:
+   • user_accounts:read
+   • pins:read  
+   • pins:write
+   • boards:read
+3. Ensure you have a Pinterest Business account
+4. Verify your domain is linked to your Pinterest Business account
+
+Note: Pinterest test tokens expire after 30 days and must be regenerated.`;
+        
         return {
           isValid: false,
           platform: 'pinterest',
-          error: 'Pinterest access token is invalid or expired. Please generate a new token.',
+          error: errorMessage,
           lastChecked: new Date()
         };
       } else {

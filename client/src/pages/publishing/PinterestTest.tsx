@@ -227,6 +227,16 @@ export default function PinterestTest() {
               <li>Copy the access token and paste it below</li>
             </ol>
           </div>
+          
+          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+            <h4 className="font-medium mb-2">Common Issues:</h4>
+            <ul className="list-disc list-inside space-y-1 text-sm">
+              <li><strong>401 Unauthorized:</strong> Token expired or invalid scopes. Pinterest test tokens expire in 30 days.</li>
+              <li><strong>App Review Required:</strong> Pinterest requires app review for production use beyond 100 daily requests.</li>
+              <li><strong>Business Account:</strong> Pinterest API requires a Pinterest Business account, not personal.</li>
+              <li><strong>Verified Domain:</strong> Your website domain must be verified in Pinterest Business settings.</li>
+            </ul>
+          </div>
         </CardContent>
       </Card>
 
@@ -251,6 +261,9 @@ export default function PinterestTest() {
             />
             <p className="text-sm text-muted-foreground mt-1">
               Token must include: boards:read, pins:read, pins:write, user_accounts:read scopes
+            </p>
+            <p className="text-xs text-red-600 mt-1">
+              Note: Pinterest test tokens expire in 30 days. Generate a fresh token if getting 401 errors.
             </p>
           </div>
 
