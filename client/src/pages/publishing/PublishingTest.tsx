@@ -60,21 +60,31 @@ export default function PublishingTest() {
   // Generate new token mutation
   const generateTokenMutation = useMutation({
     mutationFn: async (data: { blogName: string; blogUrl: string }) => {
-      const response = await apiRequest('POST', '/api/publishing/generate-token', data);
-      return response.json();
+      try {
+        const response = await apiRequest('POST', '/api/publishing/generate-token', data);
+        return response.json();
+      } catch (error) {
+        console.error('Token generation error:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
-      setConnection(data.connection);
-      setTestToken(data.instructions.token);
+      if (data?.connection) {
+        setConnection(data.connection);
+      }
+      if (data?.instructions?.token) {
+        setTestToken(data.instructions.token);
+      }
       toast({
         title: 'Token Generated',
         description: 'New publishing token created successfully'
       });
     },
     onError: (error: any) => {
+      console.error('Token generation mutation error:', error);
       toast({
         title: 'Generation Failed',
-        description: error.message,
+        description: error?.message || 'Failed to generate token',
         variant: 'destructive'
       });
     }
@@ -83,8 +93,13 @@ export default function PublishingTest() {
   // Test connection mutation
   const testConnectionMutation = useMutation({
     mutationFn: async (data: { blogUrl: string; token: string }) => {
-      const response = await apiRequest('POST', '/api/publishing/test-connection', data);
-      return response.json();
+      try {
+        const response = await apiRequest('POST', '/api/publishing/test-connection', data);
+        return response.json();
+      } catch (error) {
+        console.error('Connection test error:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       toast({
@@ -94,9 +109,10 @@ export default function PublishingTest() {
       setPublishStatus('connected');
     },
     onError: (error: any) => {
+      console.error('Connection test mutation error:', error);
       toast({
         title: 'Connection Failed',
-        description: error.message,
+        description: error?.message || 'Failed to connect to blog server',
         variant: 'destructive'
       });
       setPublishStatus('failed');

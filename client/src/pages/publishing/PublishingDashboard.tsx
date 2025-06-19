@@ -97,10 +97,10 @@ export default function PublishingDashboard() {
 
   // Add platform connection mutation
   const addConnectionMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/publishing/connections", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/publishing/connections', data);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
       setShowConnectionDialog(false);
@@ -109,7 +109,7 @@ export default function PublishingDashboard() {
     onError: (error: any) => {
       toast({ 
         title: "Failed to connect platform", 
-        description: error.message,
+        description: error?.message || "Failed to connect platform",
         variant: "destructive" 
       });
     },
@@ -117,10 +117,10 @@ export default function PublishingDashboard() {
 
   // Schedule publication mutation
   const schedulePublicationMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/publishing/schedule", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/publishing/schedule', data);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/scheduled"] });
       setShowScheduleDialog(false);
@@ -129,7 +129,7 @@ export default function PublishingDashboard() {
     onError: (error: any) => {
       toast({ 
         title: "Failed to schedule content", 
-        description: error.message,
+        description: error?.message || "Failed to schedule content",
         variant: "destructive" 
       });
     },
@@ -137,22 +137,22 @@ export default function PublishingDashboard() {
 
   // Publish immediately mutation
   const publishNowMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/publishing/publish", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/publishing/publish', data);
+      return response.json();
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/history"] });
       queryClient.invalidateQueries({ queryKey: ["/api/content"] });
       toast({ 
         title: "Content published successfully",
-        description: `Published to ${data.message}` 
+        description: `Published to ${data?.message || 'platform'}` 
       });
     },
     onError: (error: any) => {
       toast({ 
         title: "Failed to publish content", 
-        description: error.message,
+        description: error?.message || "Failed to publish content",
         variant: "destructive" 
       });
     },
