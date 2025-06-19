@@ -73,19 +73,22 @@ export default function PublishingDashboard() {
   const [selectedContent, setSelectedContent] = useState<any>(null);
 
   // Fetch platform connections
-  const { data: connections = [], isLoading: connectionsLoading } = useQuery({
+  const { data: connectionsData, isLoading: connectionsLoading } = useQuery({
     queryKey: ["/api/publishing/connections"],
   });
+  const connections = connectionsData?.connections || [];
 
   // Fetch scheduled publications
-  const { data: scheduledPublications = [], isLoading: scheduledLoading } = useQuery({
+  const { data: scheduledData, isLoading: scheduledLoading } = useQuery({
     queryKey: ["/api/publishing/scheduled"],
   });
+  const scheduledPublications = scheduledData?.scheduled || [];
 
   // Fetch publication history
-  const { data: publicationHistory = [], isLoading: historyLoading } = useQuery({
+  const { data: historyData, isLoading: historyLoading } = useQuery({
     queryKey: ["/api/publishing/history"],
   });
+  const publicationHistory = historyData?.history || [];
 
   // Fetch user content for scheduling
   const { data: userContent = [] } = useQuery({
