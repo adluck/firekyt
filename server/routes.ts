@@ -2310,9 +2310,31 @@ Format your response as a JSON object with the following structure:
       // Publish to external blog using proper API format
       if (connection.connectionData?.blogUrl || connection.blogUrl) {
         const blogUrl = connection.connectionData?.blogUrl || connection.blogUrl;
+        
+        console.log('🚀 Publishing to external blog:', {
+          blogUrl,
+          platform: connection.platform,
+          hasToken: !!connection.accessToken,
+          tokenLength: connection.accessToken?.length,
+          postData: {
+            title: postData.title,
+            slug: postData.slug,
+            hasContent: !!postData.content,
+            contentLength: postData.content?.length
+          }
+        });
+
         try {
           const fetch = (await import('node-fetch')).default;
-          const response = await fetch(`${blogUrl}/api/posts`, {
+          const apiUrl = `${blogUrl}/api/posts`;
+          
+          console.log('📡 Making API request to:', apiUrl);
+          console.log('📝 Request headers:', {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${connection.accessToken?.substring(0, 10)}...`
+          });
+          
+          const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -2321,8 +2343,11 @@ Format your response as a JSON object with the following structure:
             body: JSON.stringify(postData)
           });
 
+          console.log('📨 Response status:', response.status, response.statusText);
+          
           if (response.ok) {
             const publishedPost = await response.json() as any;
+            console.log('✅ Successfully published to external blog:', publishedPost);
             
             // Update content status in FireKyt
             await storage.updateContent(content.id, req.user!.id, {
@@ -2332,19 +2357,40 @@ Format your response as a JSON object with the following structure:
 
             return res.json({
               success: true,
-              message: 'Content published successfully',
+              message: 'Content published successfully to external blog',
               publication: {
                 id: publishedPost.post?.id || publishedPost.id,
                 url: publishedPost.post?.url || publishedPost.url,
                 status: 'published',
                 publishedAt: new Date().toISOString(),
                 platform: connection.platform,
-                title: postData.title
+                title: postData.title,
+                externalBlog: true
               }
             });
+          } else {
+            const errorText = await response.text();
+            console.log('❌ External blog API error:', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorText
+            });
+            
+            return res.status(response.status).json({
+              success: false,
+              message: `External blog publishing failed: ${response.status} ${response.statusText}`,
+              error: errorText,
+              blogUrl: apiUrl
+            });
           }
-        } catch (error) {
-          console.log('External blog not available, using mock response');
+        } catch (error: any) {
+          console.log('🔥 External blog connection error:', error.message);
+          return res.status(500).json({
+            success: false,
+            message: `Failed to connect to external blog: ${error.message}`,
+            blogUrl,
+            error: error.message
+          });
         }
       }
 
