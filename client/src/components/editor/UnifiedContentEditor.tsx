@@ -769,12 +769,7 @@ export function UnifiedContentEditor({
                         }}
                       />
 
-                      {comparisonTableConfig && (
-                        <div className="mt-8">
-                          <h2 className="text-xl font-semibold mb-4">Product Comparison</h2>
-                          <ComparisonTableRenderer config={comparisonTableConfig} previewMode={true} />
-                        </div>
-                      )}
+
 
                       {currentKeywords && currentKeywords.length > 0 && (
                         <div className="mt-8">
