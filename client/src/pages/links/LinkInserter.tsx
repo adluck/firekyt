@@ -51,19 +51,28 @@ export default function LinkInserter() {
   // Fetch user content
   const { data: contentData, isLoading: contentLoading } = useQuery({
     queryKey: ['/api/content'],
-    queryFn: () => apiRequest('/api/content')
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/content');
+      return response.json();
+    }
   });
 
   // Fetch user sites
   const { data: sitesData } = useQuery({
     queryKey: ['/api/sites'],
-    queryFn: () => apiRequest('/api/sites')
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/sites');
+      return response.json();
+    }
   });
 
   // Fetch link suggestions
   const { data: suggestionsData, isLoading: suggestionsLoading } = useQuery({
     queryKey: ['/api/links/suggestions'],
-    queryFn: () => apiRequest('/api/links/suggestions')
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/links/suggestions');
+      return response.json();
+    }
   });
 
   // Ensure we have arrays to work with
@@ -73,11 +82,10 @@ export default function LinkInserter() {
 
   // AI suggestion mutation
   const generateSuggestionsMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/links/ai-suggest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }),
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/links/ai-suggest', data);
+      return response.json();
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/suggestions'] });
       toast({ 
@@ -94,11 +102,10 @@ export default function LinkInserter() {
 
   // Update suggestion mutation
   const updateSuggestionMutation = useMutation({
-    mutationFn: ({ id, status, userFeedback }: any) => apiRequest(`/api/links/suggestions/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status, userFeedback })
-    }),
+    mutationFn: async ({ id, status, userFeedback }: any) => {
+      const response = await apiRequest('PUT', `/api/links/suggestions/${id}`, { status, userFeedback });
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/suggestions'] });
       toast({ title: 'Success', description: 'Suggestion updated successfully' });
@@ -107,11 +114,10 @@ export default function LinkInserter() {
 
   // Bulk insert mutation
   const bulkInsertMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/links/bulk-insert', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }),
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/links/bulk-insert', data);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/insertions'] });
       toast({ 
