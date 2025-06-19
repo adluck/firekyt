@@ -168,6 +168,9 @@ export function UnifiedContentEditor({
         
         // Apply header background color via CSS class
         const getHeaderColorClass = (color: string) => {
+          const normalizedColor = color.toLowerCase();
+          
+          // Map common colors to CSS classes
           const colorMap: Record<string, string> = {
             '#047af1': 'custom-table-blue',
             '#dc2626': 'custom-table-red', 
@@ -176,17 +179,43 @@ export function UnifiedContentEditor({
             '#ea580c': 'custom-table-orange',
             '#ec4899': 'custom-table-pink'
           };
-          return colorMap[color] || '';
+          
+          // Check for exact match first
+          if (colorMap[normalizedColor]) {
+            return colorMap[normalizedColor];
+          }
+          
+          // Check for close color matches (for color picker variations)
+          const colorRanges: Array<{range: string[], className: string}> = [
+            { range: ['#0066cc', '#0077dd', '#0088ee', '#047af1', '#1188ff'], className: 'custom-table-blue' },
+            { range: ['#cc0000', '#dd1111', '#dc2626', '#ee3333'], className: 'custom-table-red' },
+            { range: ['#009900', '#16a34a', '#22aa55', '#33bb66'], className: 'custom-table-green' },
+            { range: ['#6600cc', '#7711dd', '#7c3aed', '#8822ee'], className: 'custom-table-purple' },
+            { range: ['#cc4400', '#dd5511', '#ea580c', '#ee6622'], className: 'custom-table-orange' },
+            { range: ['#cc0088', '#dd1199', '#ec4899', '#ee22aa'], className: 'custom-table-pink' }
+          ];
+          
+          for (const colorRange of colorRanges) {
+            if (colorRange.range.includes(normalizedColor)) {
+              return colorRange.className;
+            }
+          }
+          
+          return '';
         };
         
         // Add header color class to table
+        console.log('🎨 Header styling - headerBg:', styling.headerBg);
         if (styling.headerBg && styling.headerBg !== '#f8f9fa') {
           const headerColorClass = getHeaderColorClass(styling.headerBg);
+          console.log('🎨 Generated color class:', headerColorClass);
           if (headerColorClass) {
             tableClass += ` ${headerColorClass}`;
+            console.log('🎨 Final table class:', tableClass);
           }
         } else {
           headerClass += ' bg-muted';
+          console.log('🎨 Using default muted header');
         }
         
         // Apply border styling
