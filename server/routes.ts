@@ -2389,11 +2389,28 @@ Format your response as a JSON object with the following structure:
               console.log('❌ Blog returned HTML instead of JSON');
               return res.status(500).json({
                 success: false,
-                message: 'Blog API endpoint returned HTML instead of JSON. Please check if /api/posts endpoint exists and is properly configured.',
-                error: 'Invalid response format',
+                message: 'Your blog server is not configured to handle API requests. The /api/posts endpoint is returning HTML instead of JSON, which means your blog needs a backend API server to receive published content.',
+                error: 'Blog API endpoint not configured',
                 blogUrl: apiUrl,
                 contentType: response.headers.get('content-type'),
-                responsePreview: responseText.substring(0, 200)
+                solution: 'Add a backend API server to your blog with POST /api/posts endpoint that accepts JSON data with Bearer token authentication.',
+                expectedFormat: {
+                  method: 'POST',
+                  endpoint: '/api/posts',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer YOUR_TOKEN'
+                  },
+                  body: {
+                    title: 'string',
+                    slug: 'string',
+                    content: 'string',
+                    excerpt: 'string',
+                    author: 'string',
+                    category: 'string',
+                    published: 'boolean'
+                  }
+                }
               });
             }
           } else {
