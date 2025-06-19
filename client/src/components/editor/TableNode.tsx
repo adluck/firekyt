@@ -6,7 +6,7 @@ import { Edit, Trash2 } from 'lucide-react';
 import type { ReactNodeViewProps } from '@tiptap/react';
 
 export function TableNode({ node, updateAttributes, deleteNode, selected }: ReactNodeViewProps) {
-  const { tableConfig } = node.attrs;
+  const tableConfig = node.attrs.tableConfig;
 
   const handleEdit = () => {
     // This will be triggered to open the table editor

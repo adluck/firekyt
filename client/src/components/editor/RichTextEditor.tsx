@@ -94,6 +94,7 @@ export function RichTextEditor({
           class: 'border border-border px-4 py-2',
         },
       }),
+      TableExtension,
     ],
     content: processedContent,
     editable,
@@ -108,6 +109,18 @@ export function RichTextEditor({
       editor.commands.setContent(processedContent);
     }
   }, [editor, processedContent]);
+
+  // Expose editor instance globally for table insertion
+  useEffect(() => {
+    if (editor) {
+      window.editor = editor;
+    }
+    return () => {
+      if (window.editor === editor) {
+        delete window.editor;
+      }
+    };
+  }, [editor]);
 
   if (!editor) {
     return null;

@@ -122,6 +122,18 @@ export function UnifiedContentEditor({
   
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
+
+  // Listen for tab switching events from table builder
+  useEffect(() => {
+    const handleSwitchToEditor = () => {
+      setActiveTab('editor');
+    };
+
+    window.addEventListener('switchToEditor', handleSwitchToEditor);
+    return () => {
+      window.removeEventListener('switchToEditor', handleSwitchToEditor);
+    };
+  }, []);
   
   // Use contentData.targetKeywords as the single source of truth for keywords
   const currentKeywords = contentData.targetKeywords || [];
@@ -301,6 +313,17 @@ export function UnifiedContentEditor({
     updateContentData({
       comparisonTables: config,
     });
+  };
+
+  const handleInsertTable = () => {
+    if (comparisonTableConfig && window.editor) {
+      // Insert the comparison table into the rich text editor
+      window.editor.chain().focus().insertComparisonTable(comparisonTableConfig).run();
+      toast({
+        title: 'Table inserted',
+        description: 'Comparison table has been added to your content',
+      });
+    }
   };
 
   const handleValidation = (): boolean => {

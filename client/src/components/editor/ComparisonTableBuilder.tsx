@@ -303,6 +303,20 @@ export function ComparisonTableBuilder({
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              if ((window as any).editor) {
+                (window as any).editor.chain().focus().insertComparisonTable(currentConfig).run();
+                // Switch to editor tab to show the inserted table
+                const event = new CustomEvent('switchToEditor');
+                window.dispatchEvent(event);
+              }
+            }}
+            disabled={!currentConfig.rows.length}
+          >
+            Insert into Editor
+          </Button>
           <Button onClick={() => onSave?.(currentConfig)}>
             Save Table
           </Button>
