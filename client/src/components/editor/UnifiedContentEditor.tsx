@@ -122,6 +122,7 @@ export function UnifiedContentEditor({
   
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
+  const [editorInstance, setEditorInstance] = useState<any>(null);
 
   // Listen for tab switching events from table builder
   useEffect(() => {
@@ -134,6 +135,49 @@ export function UnifiedContentEditor({
       window.removeEventListener('switchToEditor', handleSwitchToEditor);
     };
   }, []);
+
+  // Handle table insertion from table builder
+  const handleTableInsertion = (tableConfig: any) => {
+    if (editorInstance) {
+      console.log('Inserting table with editor instance:', editorInstance);
+      try {
+        // Fallback: Insert HTML directly
+        const tableHtml = `
+          <div data-type="comparison-table" data-table-config='${JSON.stringify(tableConfig)}' class="my-4 p-4 border rounded-lg">
+            <h3 class="font-semibold mb-2">${tableConfig.name}</h3>
+            <p class="text-sm text-gray-600 mb-4">${tableConfig.description}</p>
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse border border-gray-200">
+                <thead>
+                  <tr class="bg-gray-50">
+                    ${tableConfig.columns.map((col: any) => `<th class="border border-gray-200 px-4 py-2 text-left font-semibold">${col.name}</th>`).join('')}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableConfig.rows.map((row: any, index: number) => `
+                    <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                      ${tableConfig.columns.map((col: any) => `<td class="border border-gray-200 px-4 py-2">${row[col.id] || ''}</td>`).join('')}
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        console.log('Generated HTML:', tableHtml);
+        const result = editorInstance.chain().focus().insertContent(tableHtml).run();
+        console.log('Insert result:', result);
+        setActiveTab('editor');
+        return true;
+      } catch (error) {
+        console.error('Failed to insert table:', error);
+        return false;
+      }
+    } else {
+      console.log('No editor instance available');
+      return false;
+    }
+  };
   
   // Use contentData.targetKeywords as the single source of truth for keywords
   const currentKeywords = contentData.targetKeywords || [];
@@ -495,6 +539,7 @@ export function UnifiedContentEditor({
                       onChange={handleRichContentChange}
                       placeholder="Start writing your content..."
                       className="min-h-[500px]"
+                      onEditorReady={setEditorInstance}
                     />
                   </div>
                 </TabsContent>

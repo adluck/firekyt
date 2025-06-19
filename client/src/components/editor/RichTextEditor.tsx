@@ -37,6 +37,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   editable?: boolean;
+  onEditorReady?: (editor: any) => void;
 }
 
 export function RichTextEditor({
@@ -45,6 +46,7 @@ export function RichTextEditor({
   placeholder = 'Start writing...',
   className,
   editable = true,
+  onEditorReady,
 }: RichTextEditorProps) {
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -110,17 +112,18 @@ export function RichTextEditor({
     }
   }, [editor, processedContent]);
 
-  // Expose editor instance globally for table insertion
+  // Expose editor instance globally for table insertion and notify parent
   useEffect(() => {
     if (editor) {
       window.editor = editor;
+      onEditorReady?.(editor);
     }
     return () => {
       if (window.editor === editor) {
         delete window.editor;
       }
     };
-  }, [editor]);
+  }, [editor, onEditorReady]);
 
   if (!editor) {
     return null;
