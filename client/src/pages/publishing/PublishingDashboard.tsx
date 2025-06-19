@@ -27,7 +27,8 @@ import {
   AlertCircle,
   Pause,
   Play,
-  Trash2
+  Trash2,
+  Globe
 } from "lucide-react";
 import { 
   SiWordpress, 
@@ -35,11 +36,14 @@ import {
   SiShopify, 
   SiLinkedin, 
   SiPinterest, 
-  SiInstagram 
+  SiInstagram,
+  SiGhost
 } from "react-icons/si";
 
 const platformIcons = {
   wordpress: SiWordpress,
+  ghost: SiGhost,
+  custom: Globe,
   medium: SiMedium,
   shopify: SiShopify,
   linkedin: SiLinkedin,
@@ -52,6 +56,8 @@ const connectionSchema = z.object({
   accessToken: z.string().min(1, "Access token is required"),
   platformUsername: z.string().optional(),
   platformUserId: z.string().optional(),
+  blogUrl: z.string().optional(),
+  apiEndpoint: z.string().optional(),
 });
 
 const scheduleSchema = z.object({
@@ -184,6 +190,8 @@ export default function PublishingDashboard() {
       accessToken: "",
       platformUsername: "",
       platformUserId: "",
+      blogUrl: "",
+      apiEndpoint: "",
     },
   });
 
@@ -284,6 +292,8 @@ export default function PublishingDashboard() {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="wordpress">WordPress</SelectItem>
+                            <SelectItem value="ghost">Ghost CMS</SelectItem>
+                            <SelectItem value="custom">Custom Blog/API</SelectItem>
                             <SelectItem value="medium">Medium</SelectItem>
                             <SelectItem value="shopify">Shopify</SelectItem>
                             <SelectItem value="linkedin">LinkedIn</SelectItem>
@@ -295,27 +305,87 @@ export default function PublishingDashboard() {
                       </FormItem>
                     )}
                   />
+                  {/* Show blog URL field for custom blogs and Ghost */}
+                  {(connectionForm.watch("platform") === "custom" || connectionForm.watch("platform") === "ghost" || connectionForm.watch("platform") === "wordpress") && (
+                    <FormField
+                      control={connectionForm.control}
+                      name="blogUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {connectionForm.watch("platform") === "wordpress" ? "WordPress Site URL" : 
+                             connectionForm.watch("platform") === "ghost" ? "Ghost Site URL" : 
+                             "Blog URL"}
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder={
+                                connectionForm.watch("platform") === "wordpress" ? "https://yoursite.com" :
+                                connectionForm.watch("platform") === "ghost" ? "https://yoursite.com" :
+                                "https://yourblog.com"
+                              } 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
                   <FormField
                     control={connectionForm.control}
                     name="accessToken"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Access Token</FormLabel>
+                        <FormLabel>
+                          {connectionForm.watch("platform") === "wordpress" ? "Application Password or API Key" :
+                           connectionForm.watch("platform") === "ghost" ? "Admin API Key" :
+                           connectionForm.watch("platform") === "custom" ? "API Access Token" :
+                           "Access Token"}
+                        </FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Enter access token" {...field} />
+                          <Input type="password" placeholder={
+                            connectionForm.watch("platform") === "wordpress" ? "WordPress app password" :
+                            connectionForm.watch("platform") === "ghost" ? "Ghost admin API key" :
+                            connectionForm.watch("platform") === "custom" ? "Your blog's API token" :
+                            "Enter access token"
+                          } {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  {/* Show API endpoint field for custom blogs */}
+                  {connectionForm.watch("platform") === "custom" && (
+                    <FormField
+                      control={connectionForm.control}
+                      name="apiEndpoint"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>API Endpoint (Optional)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="/api/posts or /api/v1/posts" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
                   <FormField
                     control={connectionForm.control}
                     name="platformUsername"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username (Optional)</FormLabel>
+                        <FormLabel>
+                          {connectionForm.watch("platform") === "wordpress" ? "Username (for app password)" : "Username (Optional)"}
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="Platform username" {...field} />
+                          <Input placeholder={
+                            connectionForm.watch("platform") === "wordpress" ? "WordPress username" : "Platform username"
+                          } {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
