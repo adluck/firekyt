@@ -556,6 +556,74 @@ export default function PublishingDashboard() {
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Connection Settings Dialog */}
+          <Dialog open={showConnectionDialog} onOpenChange={setShowConnectionDialog}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Connection Settings</DialogTitle>
+                <DialogDescription>
+                  Manage your {selectedConnection?.platform} connection
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Platform</label>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {selectedConnection?.platform}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Username</label>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedConnection?.username || "Not provided"}
+                  </p>
+                </div>
+                {selectedConnection?.blogUrl && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Blog URL</label>
+                    <p className="text-sm text-muted-foreground break-all">
+                      {selectedConnection.blogUrl}
+                    </p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Status</label>
+                  <Badge variant={selectedConnection?.status === 'connected' ? "default" : "secondary"}>
+                    {selectedConnection?.status === 'connected' ? "Connected" : "Inactive"}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Connected</label>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedConnection?.createdAt ? new Date(selectedConnection.createdAt).toLocaleString() : "Unknown"}
+                  </p>
+                </div>
+                <div className="flex justify-between gap-2 pt-4">
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => {
+                      // Handle connection removal
+                      if (selectedConnection) {
+                        const updatedConnections = connections.filter((c: any) => c.id !== selectedConnection.id);
+                        // Update connections in storage would go here
+                        setShowConnectionDialog(false);
+                      }
+                    }}
+                  >
+                    Remove Connection
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowConnectionDialog(false)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -611,7 +679,14 @@ export default function PublishingDashboard() {
                         Connected: {new Date(connection.createdAt).toLocaleDateString()}
                       </p>
                       <div className="flex gap-2 pt-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedConnection(connection);
+                            setShowConnectionDialog(true);
+                          }}
+                        >
                           <Settings className="h-4 w-4 mr-1" />
                           Settings
                         </Button>
