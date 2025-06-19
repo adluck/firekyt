@@ -150,7 +150,8 @@ export class TokenValidationService {
       console.log('🔑 Token length:', accessToken?.length);
       console.log('🔑 Token starts with:', accessToken?.substring(0, 10) + '...');
       
-      const response = await fetch('https://api.linkedin.com/v2/me', {
+      // Try the userinfo endpoint first, which requires fewer permissions
+      const response = await fetch('https://api.linkedin.com/v2/userinfo', {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
@@ -162,37 +163,68 @@ export class TokenValidationService {
 
       if (response.ok) {
         const userData = await response.json();
-        console.log('✅ LinkedIn profile data received:', {
-          id: userData.id,
-          firstName: userData.firstName?.localized,
-          lastName: userData.lastName?.localized
-        });
+        console.log('✅ LinkedIn profile data received:', userData);
         
         return {
           isValid: true,
           platform: 'linkedin',
           details: {
-            firstName: userData.firstName?.localized?.en_US,
-            lastName: userData.lastName?.localized?.en_US,
+            name: userData.name,
+            email: userData.email,
             status: 'authenticated',
-            profileId: userData.id
+            profileId: userData.sub
           },
           lastChecked: new Date()
         };
       } else {
         const errorText = await response.text();
-        console.log('❌ LinkedIn API error:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
+        console.log('❌ LinkedIn userinfo API failed, trying profile endpoint...');
         
-        return {
-          isValid: false,
-          platform: 'linkedin',
-          error: `Authentication failed: ${response.status} ${response.statusText} - ${errorText}`,
-          lastChecked: new Date()
-        };
+        // Fallback to the original profile endpoint
+        const profileResponse = await fetch('https://api.linkedin.com/v2/people/~', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('📡 LinkedIn profile API response status:', profileResponse.status);
+
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          console.log('✅ LinkedIn profile data received:', profileData);
+          
+          return {
+            isValid: true,
+            platform: 'linkedin',
+            details: {
+              firstName: profileData.firstName?.localized?.en_US,
+              lastName: profileData.lastName?.localized?.en_US,
+              status: 'authenticated',
+              profileId: profileData.id
+            },
+            lastChecked: new Date()
+          };
+        } else {
+          const profileErrorText = await profileResponse.text();
+          console.log('❌ LinkedIn profile API also failed:', {
+            status: profileResponse.status,
+            error: profileErrorText
+          });
+
+          let errorMessage = `Authentication failed: ${response.status} ${response.statusText}`;
+          
+          if (response.status === 403) {
+            errorMessage += '\n\nYour LinkedIn access token needs these scopes:\n• openid\n• profile\n• email\n• w_member_social\n\nPlease regenerate your token with these permissions.';
+          }
+          
+          return {
+            isValid: false,
+            platform: 'linkedin',
+            error: errorMessage,
+            lastChecked: new Date()
+          };
+        }
       }
     } catch (error: any) {
       console.log('🔥 LinkedIn validation error:', error.message);
