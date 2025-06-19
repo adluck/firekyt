@@ -123,6 +123,7 @@ export function UnifiedContentEditor({
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
+  const editorRef = useRef<any>(null);
 
   // Fetch products for table data population
   const { data: products = [] } = useQuery<any[]>({
@@ -143,8 +144,18 @@ export function UnifiedContentEditor({
 
   // Handle table insertion from table builder
   const handleTableInsertion = (tableConfig: any) => {
-    if (editorInstance) {
-      console.log('Inserting table with editor instance:', editorInstance);
+    // Try multiple editor reference approaches
+    const editor = editorRef.current || editorInstance || window.editor;
+    console.log('Editor check:', { 
+      editorRef: editorRef.current, 
+      editorInstance, 
+      windowEditor: window.editor,
+      finalEditor: editor,
+      isEditable: editor?.isEditable 
+    });
+    
+    if (editor && editor.isEditable) {
+      console.log('Inserting table with ready editor instance');
       
       try {
         // Build complete HTML table with product data
@@ -280,21 +291,21 @@ export function UnifiedContentEditor({
         console.log('Generated table HTML:', tableHtml);
         
         // Get current content and cursor position
-        const currentContent = editorInstance.getHTML();
+        const currentContent = editor.getHTML();
         console.log('Current content:', currentContent);
         
         // Use TipTap's insertContent command instead of setContent to avoid duplication
         if (currentContent === '<p></p>' || currentContent.trim() === '') {
-          editorInstance.commands.setContent(tableHtml);
+          editor.commands.setContent(tableHtml);
         } else {
           // Move cursor to end and insert table
-          editorInstance.commands.focus('end');
-          editorInstance.commands.insertContent(tableHtml);
+          editor.commands.focus('end');
+          editor.commands.insertContent(tableHtml);
         }
         
         // Update the content data state with the processed content
         setTimeout(() => {
-          const updatedContent = editorInstance.getHTML();
+          const updatedContent = editor.getHTML();
           setContentData(prev => ({
             ...prev,
             richContent: updatedContent,
@@ -302,7 +313,7 @@ export function UnifiedContentEditor({
           }));
         }, 100);
         
-        console.log('Table insertion completed with content:', newContent);
+        console.log('Table insertion completed');
         setActiveTab('editor');
         return true;
         
@@ -311,7 +322,22 @@ export function UnifiedContentEditor({
         return false;
       }
     } else {
-      console.log('No editor instance available');
+      console.log('Editor instance not ready, attempting retry...');
+      // Retry after a short delay for editor initialization
+      setTimeout(() => {
+        const retryEditor = editorRef.current;
+        if (retryEditor && retryEditor.isEditable) {
+          console.log('Retry successful, inserting table');
+          handleTableInsertion(tableConfig);
+        } else {
+          console.log('Retry failed - editor still not ready');
+          toast({
+            title: "Editor Not Ready",
+            description: "Please wait a moment and try again.",
+            variant: "destructive",
+          });
+        }
+      }, 500);
       return false;
     }
   };
