@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,41 @@ export default function LinkedInTest() {
     hashtags: ["AI", "Marketing", "Automation", "Content"]
   });
   const { toast } = useToast();
+
+  // Handle OAuth callback parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+    const code = urlParams.get('code');
+
+    if (error) {
+      let message = 'LinkedIn OAuth authorization failed';
+      if (error === 'unauthorized_scope_error') {
+        message = 'Your LinkedIn app lacks required permissions. Please check scope configuration in LinkedIn Developer Console.';
+      } else if (errorDescription) {
+        message = decodeURIComponent(errorDescription);
+      }
+      
+      toast({
+        title: "OAuth Error",
+        description: message,
+        variant: "destructive"
+      });
+      
+      // Clean URL without reloading
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (code) {
+      toast({
+        title: "Authorization Code Received",
+        description: "Exchange this code for an access token using your LinkedIn app credentials.",
+        variant: "default"
+      });
+      
+      // Clean URL without reloading
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [toast]);
 
   // Test LinkedIn token
   const testTokenMutation = useMutation({
@@ -192,18 +227,21 @@ export default function LinkedInTest() {
               <div>
                 <p className="font-medium mb-1">2. Required OAuth Scopes:</p>
                 <div className="flex flex-wrap gap-1">
-                  {['openid', 'profile', 'email', 'w_member_social'].map(scope => (
+                  {['r_liteprofile', 'r_emailaddress', 'w_member_social'].map(scope => (
                     <Badge key={scope} variant="secondary" className="text-xs">
                       {scope}
                     </Badge>
                   ))}
                 </div>
+                <p className="text-xs mt-1 text-blue-700 dark:text-blue-300">
+                  Note: Using standard LinkedIn scopes (openid requires special approval)
+                </p>
               </div>
               
               <div>
                 <p className="font-medium mb-1">3. Authorization URL Template:</p>
                 <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded text-xs break-all">
-                  https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri={encodeURIComponent(`${window.location.origin}/publishing/linkedin`)}&scope=openid%20profile%20email%20w_member_social
+                  https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri={encodeURIComponent(`${window.location.origin}/publishing/linkedin`)}&scope=r_liteprofile%20r_emailaddress%20w_member_social
                 </div>
               </div>
             </div>

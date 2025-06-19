@@ -22,22 +22,20 @@
 ### 3. Request Required Scopes
 Your LinkedIn app needs these specific permissions:
 
-#### Essential Scopes:
-- `openid` - Basic identity verification
-- `profile` - Access to profile information
-- `email` - Access to email address
+#### Required Scopes:
+- `r_liteprofile` - Read lite profile information
+- `r_emailaddress` - Read email address  
 - `w_member_social` - Post content to LinkedIn
 
-#### Additional Scopes (if available):
-- `r_liteprofile` - Read lite profile
-- `r_emailaddress` - Read email address
+#### Note on OpenID Scopes:
+The `openid`, `profile`, and `email` scopes require special approval from LinkedIn and are typically only available to enterprise applications. The standard scopes listed above work for most LinkedIn developer apps.
 
 ### 4. Generate Access Token
 
 #### Method 1: OAuth Flow (Recommended)
 1. Use this authorization URL:
 ```
-https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=openid%20profile%20email%20w_member_social
+https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=r_liteprofile%20r_emailaddress%20w_member_social
 ```
 
 2. After user authorizes, exchange code for access token:
