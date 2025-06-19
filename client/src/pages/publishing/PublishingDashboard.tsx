@@ -143,6 +143,7 @@ export default function PublishingDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/scheduled"] });
       setShowScheduleDialog(false);
+      scheduleForm.reset();
       toast({ title: "Content scheduled successfully" });
     },
     onError: (error: any) => {
@@ -154,10 +155,10 @@ export default function PublishingDashboard() {
     },
   });
 
-  // Publish immediately mutation
+  // Publish now mutation
   const publishNowMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/publishing/publish', data);
+      const response = await apiRequest('POST', '/api/publishing/publish-now', data);
       return response.json();
     },
     onSuccess: (data) => {
@@ -165,7 +166,7 @@ export default function PublishingDashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/content"] });
       toast({ 
         title: "Content published successfully",
-        description: `Published to ${data?.message || 'platform'}` 
+        description: `Published to ${data.publication?.platform || 'platform'}`
       });
     },
     onError: (error: any) => {
@@ -176,6 +177,8 @@ export default function PublishingDashboard() {
       });
     },
   });
+
+
 
   // Cancel scheduled publication mutation
   const cancelPublicationMutation = useMutation({
