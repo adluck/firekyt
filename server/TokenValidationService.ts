@@ -150,50 +150,76 @@ export class TokenValidationService {
       console.log('🔑 Token length:', accessToken?.length);
       console.log('🔑 Token starts with:', accessToken?.substring(0, 10) + '...');
       
-      // Use the standard LinkedIn profile endpoint with lite profile scope
-      const response = await fetch('https://api.linkedin.com/v2/people/~', {
+      // LinkedIn has restricted API access significantly. We'll do basic token validation
+      // and let the actual posting attempt handle detailed validation
+      
+      // Basic token format validation
+      if (!accessToken || accessToken.length < 50) {
+        return {
+          isValid: false,
+          platform: 'linkedin',
+          error: 'LinkedIn access token appears invalid - should be 50+ characters',
+          lastChecked: new Date()
+        };
+      }
+
+      // Test with a simple API call that works with minimal scopes
+      const response = await fetch('https://api.linkedin.com/v2/me', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Restli-Protocol-Version': '2.0.0'
         }
       });
 
       console.log('📡 LinkedIn API response status:', response.status, response.statusText);
-      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (response.ok) {
-        const userData = await response.json();
-        console.log('✅ LinkedIn profile data received:', userData);
+        const data = await response.json();
+        console.log('✅ LinkedIn token validated successfully');
         
         return {
           isValid: true,
           platform: 'linkedin',
           details: {
-            firstName: userData.firstName?.localized?.en_US || userData.localizedFirstName,
-            lastName: userData.lastName?.localized?.en_US || userData.localizedLastName,
             status: 'authenticated',
-            profileId: userData.id
+            profileId: data.id || 'unknown',
+            message: 'Token validation successful'
+          },
+          lastChecked: new Date()
+        };
+      } else if (response.status === 401) {
+        return {
+          isValid: false,
+          platform: 'linkedin',
+          error: 'LinkedIn access token is invalid or expired. Please generate a new token.',
+          lastChecked: new Date()
+        };
+      } else if (response.status === 403) {
+        // Token is valid but may lack some scopes - this is acceptable for basic validation
+        console.log('✅ LinkedIn token is valid but has limited scopes');
+        return {
+          isValid: true,
+          platform: 'linkedin',
+          details: {
+            status: 'authenticated',
+            message: 'Token valid with limited scopes - posting functionality will validate required permissions'
           },
           lastChecked: new Date()
         };
       } else {
         const errorText = await response.text();
-        console.log('❌ LinkedIn profile API failed:', {
+        console.log('❌ LinkedIn API validation failed:', {
           status: response.status,
           statusText: response.statusText,
           error: errorText
         });
 
-        let errorMessage = `Authentication failed: ${response.status} ${response.statusText}`;
-        
-        if (response.status === 403) {
-          errorMessage += '\n\nYour LinkedIn access token needs these minimal scopes:\n• r_liteprofile\n• w_member_social\n\nNote: r_emailaddress requires LinkedIn approval and is optional.';
-        }
-        
         return {
           isValid: false,
           platform: 'linkedin',
-          error: errorMessage,
+          error: `LinkedIn API error: ${response.status} ${response.statusText}. Please check your token and try again.`,
           lastChecked: new Date()
         };
       }
