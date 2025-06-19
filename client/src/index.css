@@ -15,6 +15,56 @@
   box-shadow: none !important;
 }
 
+/* TipTap Table Styles */
+.ProseMirror table {
+  border-collapse: collapse;
+  border: 1px solid #e2e8f0;
+  margin: 16px 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+  vertical-align: top;
+  min-width: 100px;
+  position: relative;
+}
+
+.ProseMirror table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  text-align: left;
+}
+
+.ProseMirror table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.ProseMirror table p {
+  margin: 0;
+}
+
+/* Dark mode table styles */
+.dark .ProseMirror table {
+  border-color: #374151;
+}
+
+.dark .ProseMirror table td,
+.dark .ProseMirror table th {
+  border-color: #374151;
+}
+
+.dark .ProseMirror table th {
+  background-color: #1f2937;
+}
+
+.dark .ProseMirror table tr:nth-child(even) {
+  background-color: #1f2937;
+}
+
 /* MintySea UI Template Colors */
 :root {
   --primary-gradient: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
