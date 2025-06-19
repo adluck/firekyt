@@ -31,6 +31,7 @@ import ContentEditor from "@/pages/content/ContentEditor";
 import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
 import PublishingDashboard from "@/pages/publishing/PublishingDashboard";
 import PublishingTest from "@/pages/publishing/PublishingTest";
+import LinkedInTest from "@/pages/publishing/LinkedInTest";
 import LinkDashboard from "@/pages/links/LinkDashboard";
 import LinkInserter from "@/pages/links/LinkInserter";
 import Pricing from "@/pages/subscription/Pricing";
@@ -178,6 +179,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <PublishingTest />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/publishing/linkedin">
+        <ProtectedRoute>
+          <AppLayout>
+            <LinkedInTest />
           </AppLayout>
         </ProtectedRoute>
       </Route>
