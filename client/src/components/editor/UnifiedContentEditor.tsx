@@ -294,14 +294,61 @@ export function UnifiedContentEditor({
         const currentContent = editor.getHTML();
         console.log('Current content:', currentContent);
         
-        // Use TipTap's insertContent command instead of setContent to avoid duplication
-        if (currentContent === '<p></p>' || currentContent.trim() === '') {
-          editor.commands.setContent(tableHtml);
-        } else {
-          // Move cursor to end and insert table
-          editor.commands.focus('end');
-          editor.commands.insertContent(tableHtml);
-        }
+        // Move cursor to end and create table using TipTap commands
+        editor.commands.focus('end');
+        editor.commands.insertContent('<p></p>');
+        
+        // Insert table title
+        editor.commands.insertContent(`<h3>${styling.title}</h3>`);
+        
+        // Create table using TipTap's native commands
+        const rows = tableConfig.rows.length;
+        const cols = tableConfig.columns.length;
+        
+        // Insert table with proper dimensions
+        editor.commands.insertTable({ rows: rows + 1, cols, withHeaderRow: true });
+        
+        // Fill table with data
+        setTimeout(() => {
+          try {
+            // Update header row
+            tableConfig.columns.forEach((col: any, colIndex: number) => {
+              editor.commands.setCellSelection({ 
+                anchorCell: { row: 0, col: colIndex },
+                headCell: { row: 0, col: colIndex }
+              });
+              editor.commands.insertContent(col.name);
+            });
+            
+            // Update data rows
+            tableConfig.rows.forEach((row: any, rowIndex: number) => {
+              const product = products.find(p => p.id === row.productId);
+              if (product) {
+                tableConfig.columns.forEach((col: any, colIndex: number) => {
+                  let cellContent = '';
+                  
+                  if (col.productField === 'title') {
+                    cellContent = product.title || '';
+                  } else if (col.productField === 'price') {
+                    cellContent = `$${product.price?.toFixed(2) || '0.00'}`;
+                  } else if (col.productField === 'rating') {
+                    cellContent = `${product.rating?.toFixed(2) || '0.00'} ⭐`;
+                  }
+                  
+                  editor.commands.setCellSelection({ 
+                    anchorCell: { row: rowIndex + 1, col: colIndex },
+                    headCell: { row: rowIndex + 1, col: colIndex }
+                  });
+                  editor.commands.insertContent(cellContent);
+                });
+              }
+            });
+            
+            console.log('Table created and populated using TipTap commands');
+          } catch (error) {
+            console.error('Error populating table:', error);
+          }
+        }, 100);
         
         // Update the content data state with the processed content
         setTimeout(() => {
