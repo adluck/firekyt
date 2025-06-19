@@ -95,16 +95,30 @@ export default function PublishingTest() {
     mutationFn: async (data: { blogUrl: string; token: string }) => {
       try {
         const response = await apiRequest('POST', '/api/publishing/test-connection', data);
-        return response.json();
-      } catch (error) {
+        
+        // Check if response is successful
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || `HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        // Try to parse as JSON, fallback to text if needed
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          return await response.json();
+        } else {
+          const text = await response.text();
+          throw new Error(`Invalid response format: ${text}`);
+        }
+      } catch (error: any) {
         console.error('Connection test error:', error);
-        throw error;
+        throw new Error(error.message || 'Failed to connect to blog server');
       }
     },
     onSuccess: (data) => {
       toast({
         title: 'Connection Successful',
-        description: `Successfully connected to ${blogUrl}`
+        description: data.message || `Successfully connected to ${blogUrl}`
       });
       setPublishStatus('connected');
     },
