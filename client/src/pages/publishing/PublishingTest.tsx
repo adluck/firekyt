@@ -94,7 +94,17 @@ export default function PublishingTest() {
   const testConnectionMutation = useMutation({
     mutationFn: async (data: { blogUrl: string; token: string }) => {
       try {
-        const response = await apiRequest('POST', '/api/publishing/test-connection', data);
+        // Use direct fetch to bypass apiRequest error handling
+        const authToken = localStorage.getItem("authToken");
+        const response = await fetch('/api/publishing/test-connection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(data),
+          credentials: 'include'
+        });
         
         // Parse response as JSON first, handle errors properly
         let responseData;
