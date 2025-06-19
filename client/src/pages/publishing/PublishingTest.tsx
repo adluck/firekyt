@@ -43,7 +43,7 @@ interface Content {
 
 export default function PublishingTest() {
   const [blogName, setBlogName] = useState('Test Blog');
-  const [blogUrl, setBlogUrl] = useState('http://localhost:3001');
+  const [blogUrl, setBlogUrl] = useState('http://localhost:3002');
   const [testToken, setTestToken] = useState('firekyt_test_token_2024');
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [connection, setConnection] = useState<BlogConnection | null>(null);

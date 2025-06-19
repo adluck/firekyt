@@ -1783,15 +1783,68 @@ Format your response as a JSON object with the following structure:
       }
 
       // Check if using the test environment
-      if (blogUrl.includes('localhost:3001') && token === 'firekyt_test_token_2024') {
-        // Use test publishing endpoint for local testing
-        const testResponse = await fetch('http://localhost:5000/api/test-blog-publish', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contentId, blogUrl, token, publishSettings })
-        });
-        const testData = await testResponse.json();
-        return res.json(testData);
+      if ((blogUrl.includes('localhost:3001') || blogUrl.includes('localhost:3002')) && token === 'firekyt_test_token_2024') {
+        // For testing with real external blog
+        const realBlogUrl = blogUrl.replace('localhost:3001', 'localhost:3002');
+        
+        const postData = {
+          title: content.title,
+          content: content.content,
+          excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
+          tags: content.targetKeywords || [],
+          status: publishSettings?.status || 'published'
+        };
+
+        try {
+          const response = await fetch(`${realBlogUrl}/api/posts`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(postData)
+          });
+
+          if (response.ok) {
+            const publishedPost = await response.json() as any;
+            
+            // Update content status in FireKyt
+            await storage.updateContent(content.id, {
+              ...content,
+              status: 'published',
+              publishedAt: new Date()
+            });
+
+            return res.json({
+              success: true,
+              message: 'Content published successfully to external blog',
+              postId: publishedPost.post?.id || publishedPost.id,
+              publishedUrl: publishedPost.post?.url || publishedPost.url || `${realBlogUrl}/posts/${publishedPost.post?.id || publishedPost.id}`,
+              status: publishedPost.post?.status || publishedPost.status || 'published',
+              publishedAt: publishedPost.post?.publishedAt || publishedPost.publishedAt || new Date().toISOString(),
+              content: {
+                title: content.title,
+                content: content.content
+              }
+            });
+          } else {
+            // Fallback to test response if external blog not available
+            const testData = await fetch('http://localhost:5000/api/test-blog-publish', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contentId, blogUrl, token, publishSettings })
+            }).then(r => r.json());
+            return res.json(testData);
+          }
+        } catch (error) {
+          // Fallback to test response if external blog not available
+          const testData = await fetch('http://localhost:5000/api/test-blog-publish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contentId, blogUrl, token, publishSettings })
+          }).then(r => r.json());
+          return res.json(testData);
+        }
       }
 
       // Production publishing logic
