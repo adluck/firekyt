@@ -52,10 +52,13 @@ const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 // Middleware to verify JWT token
 const authenticateToken = async (req: any, res: any, next: any) => {
+  console.log('Auth middleware called for:', req.method, req.path);
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
+  console.log('Auth token present:', !!token);
 
   if (!token) {
+    console.log('No token provided for:', req.path);
     return res.status(401).json({ message: 'Access token required' });
   }
 
