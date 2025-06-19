@@ -648,7 +648,7 @@ export default function PublishingDashboard() {
                   <p className="text-muted-foreground text-center mb-4">
                     Connect your social media and publishing platforms to start publishing content
                   </p>
-                  <Button onClick={() => setShowConnectionDialog(true)}>
+                  <Button onClick={() => setShowAddConnectionDialog(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Connect Your First Platform
                   </Button>
