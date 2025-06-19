@@ -761,7 +761,7 @@ export function UnifiedContentEditor({
                       </div>
 
                       <div 
-                        className="prose max-w-none"
+                        className="prose max-w-none prose-table:border-collapse prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-2 prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-2"
                         dangerouslySetInnerHTML={{ 
                           __html: contentData.content && isMarkdown(contentData.content) 
                             ? markdownToHtml(contentData.content) 
@@ -772,7 +772,7 @@ export function UnifiedContentEditor({
                       {comparisonTableConfig && (
                         <div className="mt-8">
                           <h2 className="text-xl font-semibold mb-4">Product Comparison</h2>
-                          <ComparisonTableRenderer config={comparisonTableConfig} />
+                          <ComparisonTableRenderer config={comparisonTableConfig} previewMode={true} />
                         </div>
                       )}
 

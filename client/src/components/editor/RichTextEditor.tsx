@@ -38,6 +38,7 @@ interface RichTextEditorProps {
   className?: string;
   editable?: boolean;
   onEditorReady?: (editor: any) => void;
+  previewMode?: boolean;
 }
 
 export function RichTextEditor({
@@ -47,6 +48,7 @@ export function RichTextEditor({
   className,
   editable = true,
   onEditorReady,
+  previewMode = false,
 }: RichTextEditorProps) {
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
