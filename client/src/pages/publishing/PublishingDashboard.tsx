@@ -160,12 +160,20 @@ export default function PublishingDashboard() {
 
   // Cancel scheduled publication mutation
   const cancelPublicationMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/publishing/scheduled/${id}`, {
-      method: "DELETE",
-    }),
+    mutationFn: async (id: number) => {
+      const response = await apiRequest('DELETE', `/api/publishing/scheduled/${id}`);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/scheduled"] });
       toast({ title: "Scheduled publication cancelled" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Failed to cancel publication", 
+        description: error?.message || "Failed to cancel scheduled publication",
+        variant: "destructive" 
+      });
     },
   });
 
