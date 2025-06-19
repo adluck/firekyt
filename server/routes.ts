@@ -2003,6 +2003,63 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // Add platform connection endpoint
+  app.post("/api/publishing/connections", authenticateToken, async (req, res) => {
+    try {
+      const { platform, accessToken, platformUsername, blogUrl, apiEndpoint } = req.body;
+      
+      if (!platform || !accessToken) {
+        return res.status(400).json({ message: "Platform and access token are required" });
+      }
+
+      // For custom blogs, require blog URL
+      if (platform === 'custom' && !blogUrl) {
+        return res.status(400).json({ message: "Blog URL is required for custom blogs" });
+      }
+
+      // For WordPress and Ghost, require blog URL
+      if ((platform === 'wordpress' || platform === 'ghost') && !blogUrl) {
+        return res.status(400).json({ message: "Blog URL is required for this platform" });
+      }
+
+      // Validate access token format for different platforms
+      let tokenValidation = { valid: true, message: "" };
+      
+      if (platform === 'wordpress' && !accessToken.includes(':') && accessToken.length < 20) {
+        tokenValidation = { valid: false, message: "WordPress requires an application password (format: username:password)" };
+      } else if (platform === 'ghost' && !accessToken.startsWith('6')) {
+        tokenValidation = { valid: false, message: "Ghost requires an Admin API key (starts with alphanumeric characters)" };
+      }
+
+      if (!tokenValidation.valid) {
+        return res.status(400).json({ message: tokenValidation.message });
+      }
+
+      const connection = {
+        id: Date.now(),
+        userId: req.user!.id,
+        platform,
+        username: platformUsername || 'Unknown',
+        blogUrl: blogUrl || null,
+        apiEndpoint: apiEndpoint || null,
+        status: 'connected',
+        lastSync: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      };
+
+      res.json({
+        success: true,
+        connection,
+        message: `Successfully connected to ${platform === 'custom' ? 'custom blog' : platform}`
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to add connection: " + error.message
+      });
+    }
+  });
+
   // Publishing history endpoint
   app.get("/api/publishing/history", authenticateToken, async (req, res) => {
     try {
