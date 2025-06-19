@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
-import { CheckCircle, XCircle, Loader2, Linkedin, ExternalLink } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Linkedin, ExternalLink, Info, Copy } from "lucide-react";
 
 interface LinkedInProfile {
   firstName?: { localized?: { en_US?: string } };
@@ -164,18 +164,63 @@ export default function LinkedInTest() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* OAuth Setup Instructions */}
+          <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              LinkedIn OAuth Setup Required
+            </h4>
+            <div className="text-sm text-blue-800 dark:text-blue-200 space-y-3">
+              <div>
+                <p className="font-medium mb-1">1. Add Redirect URL in LinkedIn Developer Console:</p>
+                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded font-mono text-xs flex items-center justify-between">
+                  <span>{window.location.origin}/publishing/linkedin</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/publishing/linkedin`);
+                      toast({ title: "Copied to clipboard" });
+                    }}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div>
+                <p className="font-medium mb-1">2. Required OAuth Scopes:</p>
+                <div className="flex flex-wrap gap-1">
+                  {['openid', 'profile', 'email', 'w_member_social'].map(scope => (
+                    <Badge key={scope} variant="secondary" className="text-xs">
+                      {scope}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <p className="font-medium mb-1">3. Authorization URL Template:</p>
+                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded text-xs break-all">
+                  https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri={encodeURIComponent(`${window.location.origin}/publishing/linkedin`)}&scope=openid%20profile%20email%20w_member_social
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div>
             <Label htmlFor="token">LinkedIn Access Token</Label>
             <Input
               id="token"
               type="password"
-              placeholder="Enter your LinkedIn API access token"
+              placeholder="Enter your LinkedIn access token with required scopes"
               value={accessToken}
               onChange={(e) => setAccessToken(e.target.value)}
-              className="mt-1"
+              className="mt-1 font-mono"
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Get your access token from LinkedIn Developer Console with 'w_member_social' permissions
+              Token must include: openid, profile, email, w_member_social scopes
             </p>
           </div>
 
