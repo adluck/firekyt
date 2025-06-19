@@ -661,7 +661,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (updates.targetKeywords !== undefined) cleanUpdates.targetKeywords = Array.isArray(updates.targetKeywords) ? updates.targetKeywords : null;
       if (updates.affiliateLinks !== undefined) cleanUpdates.affiliateLinks = updates.affiliateLinks;
       if (updates.richContent !== undefined) cleanUpdates.richContent = updates.richContent;
-      if (updates.comparisonTables !== undefined) cleanUpdates.comparisonTables = updates.comparisonTables;
+      if (updates.comparisonTables !== undefined) {
+        cleanUpdates.comparisonTables = updates.comparisonTables;
+        console.log('🔍 COMPARISON TABLES - Saving data:', JSON.stringify(updates.comparisonTables, null, 2));
+      }
       if (updates.publishedAt !== undefined) cleanUpdates.publishedAt = updates.publishedAt ? new Date(updates.publishedAt) : null;
       
       // Handle siteId conversion - ensure it's an integer or null

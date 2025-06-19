@@ -381,8 +381,14 @@ export class MemStorage implements IStorage {
     if (!content) throw new Error("Content not found");
     if (content.userId !== userId) throw new Error("Access denied");
     
+    console.log('🔍 STORAGE - Before update, existing comparisonTables:', JSON.stringify(content.comparisonTables, null, 2));
+    console.log('🔍 STORAGE - Updates comparisonTables:', JSON.stringify(updates.comparisonTables, null, 2));
+    
     const updatedContent = { ...content, ...updates, updatedAt: new Date() };
     this.content.set(id, updatedContent);
+    
+    console.log('🔍 STORAGE - After update, saved comparisonTables:', JSON.stringify(updatedContent.comparisonTables, null, 2));
+    
     return updatedContent;
   }
 
