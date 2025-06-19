@@ -52,12 +52,21 @@ const platformIcons = {
 };
 
 const connectionSchema = z.object({
-  platform: z.string(),
+  platform: z.string().min(1, "Platform is required"),
   accessToken: z.string().min(1, "Access token is required"),
   platformUsername: z.string().optional(),
   platformUserId: z.string().optional(),
   blogUrl: z.string().optional(),
   apiEndpoint: z.string().optional(),
+}).refine((data) => {
+  // Require blog URL for WordPress, Ghost, and Custom platforms
+  if (['wordpress', 'ghost', 'custom'].includes(data.platform)) {
+    return data.blogUrl && data.blogUrl.length > 0;
+  }
+  return true;
+}, {
+  message: "Blog URL is required for this platform",
+  path: ["blogUrl"],
 });
 
 const scheduleSchema = z.object({
@@ -107,10 +116,14 @@ export default function PublishingDashboard() {
       const response = await apiRequest('POST', '/api/publishing/connections', data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
+      connectionForm.reset();
       setShowConnectionDialog(false);
-      toast({ title: "Platform connected successfully" });
+      toast({ 
+        title: "Platform connected successfully",
+        description: data.message || `Connected to ${data.connection?.platform || 'platform'}`
+      });
     },
     onError: (error: any) => {
       toast({ 

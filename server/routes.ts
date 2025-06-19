@@ -1991,10 +1991,15 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // In-memory storage for connections (in production, use database)
+  const connectionsStore = new Map<number, any[]>();
+
   // Publishing connections endpoint
   app.get("/api/publishing/connections", authenticateToken, async (req, res) => {
     try {
-      res.json({ success: true, connections: [] });
+      const userId = req.user!.id;
+      const userConnections = connectionsStore.get(userId) || [];
+      res.json({ success: true, connections: userConnections });
     } catch (error: any) {
       res.status(500).json({
         success: false,
@@ -2046,6 +2051,12 @@ Format your response as a JSON object with the following structure:
         lastSync: new Date().toISOString(),
         createdAt: new Date().toISOString()
       };
+
+      // Store the connection
+      const userId = req.user!.id;
+      const userConnections = connectionsStore.get(userId) || [];
+      userConnections.push(connection);
+      connectionsStore.set(userId, userConnections);
 
       res.json({
         success: true,
