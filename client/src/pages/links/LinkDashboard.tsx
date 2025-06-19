@@ -677,7 +677,7 @@ export default function LinkDashboard() {
                 Update link details and settings
               </DialogDescription>
             </DialogHeader>
-            <form action={handleUpdateLink}>
+            <form onSubmit={(e) => { e.preventDefault(); handleUpdateLink(new FormData(e.currentTarget)); }}>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
