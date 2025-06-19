@@ -58,33 +58,42 @@ export default function LinkDashboard() {
   // Fetch link dashboard data
   const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
     queryKey: ['/api/links/dashboard'],
-    queryFn: () => apiRequest('/api/links/dashboard')
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/links/dashboard');
+      return response.json();
+    }
   });
 
   // Fetch intelligent links
   const { data: links = [], isLoading: linksLoading } = useQuery({
     queryKey: ['/api/links/intelligent'],
-    queryFn: () => apiRequest('/api/links/intelligent')
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/links/intelligent');
+      return response.json();
+    }
   });
 
   // Fetch link categories
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['/api/links/categories'],
-    queryFn: () => apiRequest('/api/links/categories')
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/links/categories');
+      return response.json();
+    }
   });
 
   // Fetch user sites
   const { data: sites = [] } = useQuery({
     queryKey: ['/api/sites'],
-    queryFn: () => apiRequest('/api/sites')
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/sites');
+      return response.json();
+    }
   });
 
   // Create link mutation
   const createLinkMutation = useMutation({
-    mutationFn: (linkData: any) => apiRequest('/api/links/intelligent', {
-      method: 'POST',
-      body: JSON.stringify(linkData)
-    }),
+    mutationFn: (linkData: any) => apiRequest('POST', '/api/links/intelligent', linkData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/intelligent'] });
       queryClient.invalidateQueries({ queryKey: ['/api/links/dashboard'] });
@@ -98,10 +107,7 @@ export default function LinkDashboard() {
 
   // Update link mutation
   const updateLinkMutation = useMutation({
-    mutationFn: ({ id, ...linkData }: any) => apiRequest(`/api/links/intelligent/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(linkData)
-    }),
+    mutationFn: ({ id, ...linkData }: any) => apiRequest('PUT', `/api/links/intelligent/${id}`, linkData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/intelligent'] });
       queryClient.invalidateQueries({ queryKey: ['/api/links/dashboard'] });
@@ -112,9 +118,7 @@ export default function LinkDashboard() {
 
   // Delete link mutation
   const deleteLinkMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/links/intelligent/${id}`, {
-      method: 'DELETE'
-    }),
+    mutationFn: (id: number) => apiRequest('DELETE', `/api/links/intelligent/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/intelligent'] });
       queryClient.invalidateQueries({ queryKey: ['/api/links/dashboard'] });
@@ -124,10 +128,7 @@ export default function LinkDashboard() {
 
   // Create category mutation
   const createCategoryMutation = useMutation({
-    mutationFn: (categoryData: any) => apiRequest('/api/links/categories', {
-      method: 'POST',
-      body: JSON.stringify(categoryData)
-    }),
+    mutationFn: (categoryData: any) => apiRequest('POST', '/api/links/categories', categoryData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/links/categories'] });
       setIsCreateCategoryOpen(false);
