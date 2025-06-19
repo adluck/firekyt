@@ -201,6 +201,14 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
+      <Route path="/publishing/social-media">
+        <ProtectedRoute>
+          <AppLayout>
+            <SocialMediaTest />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
       <Route path="/links">
         <ProtectedRoute>
           <AppLayout>

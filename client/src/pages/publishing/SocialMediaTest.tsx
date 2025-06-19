@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Loader2, CheckCircle, ExternalLink, AlertTriangle } from "lucide-react";
-import { SiPinterest, SiLinkedin, SiInstagram, SiTwitter } from "react-icons/si";
+import { SiPinterest, SiLinkedin, SiInstagram } from "react-icons/si";
 
 interface SocialConnection {
   id: number;
@@ -221,7 +221,7 @@ export default function SocialMediaTest() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-          <SiTwitter className="h-6 w-6 text-white" />
+          <CheckCircle className="h-6 w-6 text-white" />
         </div>
         <div>
           <h1 className="text-3xl font-bold">Social Media Integration Test</h1>
