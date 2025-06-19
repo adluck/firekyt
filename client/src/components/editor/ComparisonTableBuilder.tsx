@@ -306,12 +306,19 @@ export function ComparisonTableBuilder({
           <Button 
             variant="outline" 
             onClick={() => {
+              console.log('Insert button clicked');
+              console.log('Current config:', currentConfig);
+              console.log('Window editor exists:', !!(window as any).editor);
+              
               if ((window as any).editor) {
+                console.log('Editor found, attempting insertion...');
                 try {
                   // Try the comparison table extension first
                   if ((window as any).editor.commands.insertComparisonTable) {
+                    console.log('Using custom table extension');
                     (window as any).editor.chain().focus().insertComparisonTable(currentConfig).run();
                   } else {
+                    console.log('Using HTML fallback');
                     // Fallback: Insert HTML directly
                     const tableHtml = `
                       <div data-type="comparison-table" data-table-config='${JSON.stringify(currentConfig)}' class="my-4 p-4 border rounded-lg">
@@ -335,14 +342,19 @@ export function ComparisonTableBuilder({
                         </div>
                       </div>
                     `;
-                    (window as any).editor.chain().focus().insertContent(tableHtml).run();
+                    console.log('Generated HTML:', tableHtml);
+                    const result = (window as any).editor.chain().focus().insertContent(tableHtml).run();
+                    console.log('Insert result:', result);
                   }
                   // Switch to editor tab to show the inserted table
                   const event = new CustomEvent('switchToEditor');
                   window.dispatchEvent(event);
+                  console.log('Tab switch event dispatched');
                 } catch (error) {
                   console.error('Failed to insert table:', error);
                 }
+              } else {
+                console.log('No editor found on window object');
               }
             }}
             disabled={!currentConfig.rows.length}
