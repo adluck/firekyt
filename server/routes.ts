@@ -2344,30 +2344,58 @@ Format your response as a JSON object with the following structure:
           });
 
           console.log('📨 Response status:', response.status, response.statusText);
+          console.log('📨 Response headers:', Object.fromEntries(response.headers.entries()));
           
           if (response.ok) {
-            const publishedPost = await response.json() as any;
-            console.log('✅ Successfully published to external blog:', publishedPost);
+            const responseText = await response.text();
+            console.log('📄 Raw response:', responseText.substring(0, 200) + '...');
             
-            // Update content status in FireKyt
-            await storage.updateContent(content.id, req.user!.id, {
-              status: 'published',
-              publishedAt: new Date()
-            });
+            // Check if response is JSON
+            if (response.headers.get('content-type')?.includes('application/json')) {
+              try {
+                const publishedPost = JSON.parse(responseText);
+                console.log('✅ Successfully published to external blog:', publishedPost);
+                
+                // Update content status in FireKyt
+                await storage.updateContent(content.id, req.user!.id, {
+                  status: 'published',
+                  publishedAt: new Date()
+                });
 
-            return res.json({
-              success: true,
-              message: 'Content published successfully to external blog',
-              publication: {
-                id: publishedPost.post?.id || publishedPost.id,
-                url: publishedPost.post?.url || publishedPost.url,
-                status: 'published',
-                publishedAt: new Date().toISOString(),
-                platform: connection.platform,
-                title: postData.title,
-                externalBlog: true
+                return res.json({
+                  success: true,
+                  message: 'Content published successfully to external blog',
+                  publication: {
+                    id: publishedPost.post?.id || publishedPost.id,
+                    url: publishedPost.post?.url || publishedPost.url,
+                    status: 'published',
+                    publishedAt: new Date().toISOString(),
+                    platform: connection.platform,
+                    title: postData.title,
+                    externalBlog: true
+                  }
+                });
+              } catch (jsonError) {
+                console.log('❌ Failed to parse JSON response:', jsonError);
+                return res.status(500).json({
+                  success: false,
+                  message: 'Blog returned invalid JSON response',
+                  error: 'Response parsing failed',
+                  blogUrl: apiUrl,
+                  responsePreview: responseText.substring(0, 200)
+                });
               }
-            });
+            } else {
+              console.log('❌ Blog returned HTML instead of JSON');
+              return res.status(500).json({
+                success: false,
+                message: 'Blog API endpoint returned HTML instead of JSON. Please check if /api/posts endpoint exists and is properly configured.',
+                error: 'Invalid response format',
+                blogUrl: apiUrl,
+                contentType: response.headers.get('content-type'),
+                responsePreview: responseText.substring(0, 200)
+              });
+            }
           } else {
             const errorText = await response.text();
             console.log('❌ External blog API error:', {
