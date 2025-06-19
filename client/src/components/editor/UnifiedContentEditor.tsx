@@ -145,76 +145,120 @@ export function UnifiedContentEditor({
   const handleTableInsertion = (tableConfig: any) => {
     if (editorInstance) {
       console.log('Inserting table with editor instance:', editorInstance);
+      console.log('Editor available commands:', Object.keys(editorInstance.commands));
+      console.log('Table config:', tableConfig);
+      
       try {
+        // Check if insertTable command is available
+        if (!editorInstance.commands.insertTable) {
+          console.error('insertTable command not available');
+          return false;
+        }
+
+        // Get current editor content before insertion
+        const contentBefore = editorInstance.getHTML();
+        console.log('Content before insertion:', contentBefore);
+
         // First insert the table title as a heading
         if (tableConfig.name) {
-          editorInstance.chain().focus().insertContent(`<h3>${tableConfig.name}</h3>`).run();
+          const titleResult = editorInstance.chain().focus().insertContent(`<h3>${tableConfig.name}</h3>`).run();
+          console.log('Title insert result:', titleResult);
         }
         
         // Insert description if provided
         if (tableConfig.description) {
-          editorInstance.chain().focus().insertContent(`<p>${tableConfig.description}</p>`).run();
+          const descResult = editorInstance.chain().focus().insertContent(`<p>${tableConfig.description}</p>`).run();
+          console.log('Description insert result:', descResult);
         }
 
         // Create table structure using TipTap's native table commands
         const colCount = tableConfig.columns.length;
         const rowCount = tableConfig.rows.length + 1; // +1 for header row
         
+        console.log('Creating table with:', { rows: rowCount, cols: colCount });
+        
         // Insert table
-        editorInstance.chain().focus().insertTable({ 
+        const tableResult = editorInstance.chain().focus().insertTable({ 
           rows: rowCount, 
           cols: colCount, 
           withHeaderRow: true 
         }).run();
+        
+        console.log('Table insert result:', tableResult);
+        
+        // Check content after table insertion
+        const contentAfterTable = editorInstance.getHTML();
+        console.log('Content after table insertion:', contentAfterTable);
 
-        // Populate header row
-        tableConfig.columns.forEach((col: any, colIndex: number) => {
-          if (colIndex > 0) {
-            editorInstance.chain().focus().goToNextCell().run();
-          }
-          editorInstance.chain().focus().insertContent(col.name).run();
-        });
-
-        // Move to first data row
-        editorInstance.chain().focus().goToNextCell().run();
-
-        // Populate data rows
-        tableConfig.rows.forEach((row: any, rowIndex: number) => {
-          // Find actual product data from database
-          const product = products.find(p => p.id === row.productId);
-          
-          tableConfig.columns.forEach((col: any, colIndex: number) => {
-            if (colIndex > 0) {
-              editorInstance.chain().focus().goToNextCell().run();
-            }
-            
-            let cellContent = '';
-            
-            // Get cell content based on column type and product field mapping
-            if (row.customData && row.customData[col.id]) {
-              cellContent = row.customData[col.id];
-            } else if (product && col.productField) {
-              if (col.productField === 'title') {
-                cellContent = product.title;
-              } else if (col.productField === 'price') {
-                cellContent = `$${product.price}`;
-              } else if (col.productField === 'rating') {
-                cellContent = `${product.rating} ⭐`;
-              } else {
-                cellContent = product[col.productField] || '';
+        // Wait a moment for the table to be created
+        setTimeout(() => {
+          try {
+            // Populate header row
+            console.log('Populating header row...');
+            tableConfig.columns.forEach((col: any, colIndex: number) => {
+              if (colIndex > 0) {
+                const nextCellResult = editorInstance.chain().focus().goToNextCell().run();
+                console.log(`Move to header cell ${colIndex} result:`, nextCellResult);
               }
-            }
-            
-            editorInstance.chain().focus().insertContent(cellContent).run();
-          });
-          
-          // Move to next row if not the last row
-          if (rowIndex < tableConfig.rows.length - 1) {
-            editorInstance.chain().focus().goToNextCell().run();
-          }
-        });
+              const headerResult = editorInstance.chain().focus().insertContent(col.name).run();
+              console.log(`Header cell ${colIndex} insert result:`, headerResult);
+            });
 
-        console.log('Table inserted successfully');
+            // Move to first data row
+            const moveToDataResult = editorInstance.chain().focus().goToNextCell().run();
+            console.log('Move to first data row result:', moveToDataResult);
+
+            // Populate data rows
+            console.log('Populating data rows...');
+            tableConfig.rows.forEach((row: any, rowIndex: number) => {
+              // Find actual product data from database
+              const product = products.find(p => p.id === row.productId);
+              console.log(`Row ${rowIndex} product:`, product);
+              
+              tableConfig.columns.forEach((col: any, colIndex: number) => {
+                if (colIndex > 0) {
+                  const nextCellResult = editorInstance.chain().focus().goToNextCell().run();
+                  console.log(`Move to data cell ${rowIndex},${colIndex} result:`, nextCellResult);
+                }
+                
+                let cellContent = '';
+                
+                // Get cell content based on column type and product field mapping
+                if (row.customData && row.customData[col.id]) {
+                  cellContent = row.customData[col.id];
+                } else if (product && col.productField) {
+                  if (col.productField === 'title') {
+                    cellContent = product.title;
+                  } else if (col.productField === 'price') {
+                    cellContent = `$${product.price}`;
+                  } else if (col.productField === 'rating') {
+                    cellContent = `${product.rating} ⭐`;
+                  } else {
+                    cellContent = product[col.productField] || '';
+                  }
+                }
+                
+                const cellResult = editorInstance.chain().focus().insertContent(cellContent).run();
+                console.log(`Data cell ${rowIndex},${colIndex} insert result:`, cellResult, 'content:', cellContent);
+              });
+              
+              // Move to next row if not the last row
+              if (rowIndex < tableConfig.rows.length - 1) {
+                const nextRowResult = editorInstance.chain().focus().goToNextCell().run();
+                console.log(`Move to next row result:`, nextRowResult);
+              }
+            });
+
+            // Final content check
+            const finalContent = editorInstance.getHTML();
+            console.log('Final content after population:', finalContent);
+            
+          } catch (populateError) {
+            console.error('Error populating table:', populateError);
+          }
+        }, 100);
+
+        console.log('Table insertion completed');
         setActiveTab('editor');
         return true;
       } catch (error) {
