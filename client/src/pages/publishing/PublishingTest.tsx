@@ -48,6 +48,7 @@ export default function PublishingTest() {
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [connection, setConnection] = useState<BlogConnection | null>(null);
   const [publishStatus, setPublishStatus] = useState<string>('');
+  const [publishingResults, setPublishingResults] = useState<any>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -154,7 +155,7 @@ export default function PublishingTest() {
       publishSettings?: any 
     }) => {
       // Use direct fetch to bypass authentication issues for testing
-      const response = await fetch('/test-blog-publish', {
+      const response = await fetch('/api/test-blog-publish', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -172,10 +173,11 @@ export default function PublishingTest() {
     onSuccess: (data) => {
       toast({
         title: 'Published Successfully',
-        description: 'Content has been published to your blog'
+        description: `Content published with ID ${data.postId}. View at ${data.publishedUrl}`
       });
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
       setPublishStatus('published');
+      setPublishingResults(data);
     },
     onError: (error: any) => {
       toast({
@@ -479,6 +481,46 @@ export default function PublishingTest() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Publishing Results Display */}
+      {publishingResults && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-green-600 dark:text-green-400">
+              Publishing Successful
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="space-y-2">
+                  <p><strong>Post ID:</strong> {publishingResults.postId}</p>
+                  <p><strong>Status:</strong> {publishingResults.status}</p>
+                  <p><strong>Published At:</strong> {new Date(publishingResults.publishedAt).toLocaleString()}</p>
+                  <p><strong>Published URL:</strong> 
+                    <a 
+                      href={publishingResults.publishedUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 dark:text-blue-400 hover:underline ml-2"
+                    >
+                      {publishingResults.publishedUrl}
+                    </a>
+                  </p>
+                </div>
+              </div>
+              
+              <div className="p-3 border rounded-lg">
+                <h4 className="font-medium mb-2">Published Content Preview</h4>
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded text-sm">
+                  <p><strong>Title:</strong> {publishingResults.content?.title}</p>
+                  <p className="mt-2"><strong>Content:</strong> {publishingResults.content?.content}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
