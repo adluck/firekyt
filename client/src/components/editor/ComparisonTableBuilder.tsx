@@ -307,10 +307,42 @@ export function ComparisonTableBuilder({
             variant="outline" 
             onClick={() => {
               if ((window as any).editor) {
-                (window as any).editor.chain().focus().insertComparisonTable(currentConfig).run();
-                // Switch to editor tab to show the inserted table
-                const event = new CustomEvent('switchToEditor');
-                window.dispatchEvent(event);
+                try {
+                  // Try the comparison table extension first
+                  if ((window as any).editor.commands.insertComparisonTable) {
+                    (window as any).editor.chain().focus().insertComparisonTable(currentConfig).run();
+                  } else {
+                    // Fallback: Insert HTML directly
+                    const tableHtml = `
+                      <div data-type="comparison-table" data-table-config='${JSON.stringify(currentConfig)}' class="my-4 p-4 border rounded-lg">
+                        <h3 class="font-semibold mb-2">${currentConfig.name}</h3>
+                        <p class="text-sm text-gray-600 mb-4">${currentConfig.description}</p>
+                        <div class="overflow-x-auto">
+                          <table class="w-full border-collapse border border-gray-200">
+                            <thead>
+                              <tr class="bg-gray-50">
+                                ${currentConfig.columns.map((col: any) => `<th class="border border-gray-200 px-4 py-2 text-left font-semibold">${col.name}</th>`).join('')}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              ${currentConfig.rows.map((row: any, index: number) => `
+                                <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                                  ${currentConfig.columns.map((col: any) => `<td class="border border-gray-200 px-4 py-2">${row[col.id] || ''}</td>`).join('')}
+                                </tr>
+                              `).join('')}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    `;
+                    (window as any).editor.chain().focus().insertContent(tableHtml).run();
+                  }
+                  // Switch to editor tab to show the inserted table
+                  const event = new CustomEvent('switchToEditor');
+                  window.dispatchEvent(event);
+                } catch (error) {
+                  console.error('Failed to insert table:', error);
+                }
               }
             }}
             disabled={!currentConfig.rows.length}
