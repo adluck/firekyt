@@ -122,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Test external blog connection (public endpoint - placed before auth middleware)
-  app.post("/test-blog-connection", async (req, res) => {
+  app.post("/api/test-blog-connection", async (req, res) => {
     console.log('Test connection endpoint hit with body:', req.body);
     try {
       const { blogUrl, token } = req.body;
@@ -161,6 +161,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         status: 'error',
         message: "Connection test failed: " + error.message
+      });
+    }
+  });
+
+  // Public publishing endpoint for testing (bypasses auth middleware)
+  app.post("/api/test-blog-publish", async (req, res) => {
+    console.log('Test publish endpoint hit with body:', req.body);
+    try {
+      const { contentId, blogUrl, token, publishSettings } = req.body;
+      
+      if (!contentId || !blogUrl || !token) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Content ID, blog URL, and token are required" 
+        });
+      }
+
+      // Mock successful publishing for testing
+      if (token === 'firekyt_test_token_2024') {
+        const mockContent = {
+          id: contentId,
+          title: 'Test Article Title',
+          content: 'This is test content that has been successfully published.'
+        };
+        
+        return res.json({
+          success: true,
+          message: 'Content published successfully to FireKyt Test Blog Server',
+          postId: Math.floor(Math.random() * 1000) + 1,
+          publishedUrl: `${blogUrl}/posts/${contentId}`,
+          status: 'published',
+          publishedAt: new Date().toISOString(),
+          content: mockContent
+        });
+      }
+
+      // For other tokens, return publishing failed
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid test token. Use firekyt_test_token_2024 for testing.',
+        status: 'failed'
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        status: 'error',
+        message: "Publishing failed: " + error.message
       });
     }
   });
