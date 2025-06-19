@@ -2291,25 +2291,32 @@ Format your response as a JSON object with the following structure:
         });
       }
 
-      // Prepare post data based on platform
+      // Prepare post data according to your blog's API requirements
       const postData = {
         title: publishSettings?.title || content.title,
+        slug: (publishSettings?.title || content.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         content: content.content,
         excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
-        tags: publishSettings?.tags || content.targetKeywords || [],
-        status: publishSettings?.status || 'published',
-        author: connection.username || 'FireKyt User'
+        author: connection.platformUsername || connection.username || 'FireKyt User',
+        category: publishSettings?.category || 'Blog Post',
+        readTime: Math.ceil((content.content || '').split(' ').length / 200) || 5,
+        published: true,
+        // Optional SEO fields
+        metaTitle: publishSettings?.metaTitle || content.title,
+        metaDescription: publishSettings?.metaDescription || (publishSettings?.excerpt || content.content.substring(0, 160)),
+        featured: publishSettings?.featured || false
       };
 
-      // Test publishing with external blog server
-      if (connection.blogUrl && connection.blogUrl.includes('localhost:3002')) {
+      // Publish to external blog using proper API format
+      if (connection.connectionData?.blogUrl || connection.blogUrl) {
+        const blogUrl = connection.connectionData?.blogUrl || connection.blogUrl;
         try {
           const fetch = (await import('node-fetch')).default;
-          const response = await fetch(`${connection.blogUrl}/api/posts`, {
+          const response = await fetch(`${blogUrl}/api/posts`, {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${connection.accessToken}`,
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${connection.accessToken}`
             },
             body: JSON.stringify(postData)
           });
