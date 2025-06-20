@@ -2425,6 +2425,9 @@ Format your response as a JSON object with the following structure:
       // Publish to external blog using proper API format
       if (connection.connectionData?.blogUrl || connection.blogUrl) {
         const blogUrl = connection.connectionData?.blogUrl || connection.blogUrl;
+        // Fix URL construction to avoid double slashes
+        const cleanBlogUrl = blogUrl.replace(/\/$/, ''); // Remove trailing slash
+        const apiUrl = `${cleanBlogUrl}/api/posts`;
         
         console.log('🚀 Publishing to external blog:', {
           blogUrl,
@@ -2441,9 +2444,6 @@ Format your response as a JSON object with the following structure:
 
         try {
           const fetch = (await import('node-fetch')).default;
-          // Fix URL construction to avoid double slashes
-          const cleanBlogUrl = blogUrl.replace(/\/$/, ''); // Remove trailing slash
-          const apiUrl = `${cleanBlogUrl}/api/posts`;
           
           console.log('📡 Making API request to:', apiUrl);
           console.log('📝 Request headers:', {
@@ -2577,8 +2577,8 @@ Format your response as a JSON object with the following structure:
             success: false,
             message: errorMessage,
             details: error.message,
-            blogUrl: cleanBlogUrl,
-            apiEndpoint: apiUrl,
+            blogUrl: blogUrl,
+            apiEndpoint: `${blogUrl}/api/posts`,
             errorCode: error.code || 'UNKNOWN',
             suggestion
           });
