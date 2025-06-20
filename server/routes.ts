@@ -2441,7 +2441,9 @@ Format your response as a JSON object with the following structure:
 
         try {
           const fetch = (await import('node-fetch')).default;
-          const apiUrl = `${blogUrl}/api/posts`;
+          // Fix URL construction to avoid double slashes
+          const cleanBlogUrl = blogUrl.replace(/\/$/, ''); // Remove trailing slash
+          const apiUrl = `${cleanBlogUrl}/api/posts`;
           
           console.log('📡 Making API request to:', apiUrl);
           console.log('📝 Request headers:', {
@@ -2449,14 +2451,21 @@ Format your response as a JSON object with the following structure:
             'Authorization': `Bearer ${connection.accessToken?.substring(0, 10)}...`
           });
           
+          // Add timeout and better error handling
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          
           const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${connection.accessToken}`
             },
-            body: JSON.stringify(postData)
+            body: JSON.stringify(postData),
+            signal: controller.signal
           });
+          
+          clearTimeout(timeoutId);
 
           console.log('📨 Response status:', response.status, response.statusText);
           console.log('📨 Response headers:', Object.fromEntries(response.headers.entries()));
@@ -2545,11 +2554,33 @@ Format your response as a JSON object with the following structure:
           }
         } catch (error: any) {
           console.log('🔥 External blog connection error:', error.message);
+          
+          // Provide specific error messages based on error type
+          let errorMessage = 'Failed to connect to external blog';
+          let suggestion = 'Please check your blog configuration';
+          
+          if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
+            errorMessage = 'Cannot reach the blog domain - DNS resolution failed';
+            suggestion = 'Verify the blog URL is correct and the domain is accessible from the internet';
+          } else if (error.code === 'ECONNREFUSED') {
+            errorMessage = 'Connection refused by the blog server';
+            suggestion = 'Check if the blog server is running and the API endpoint exists';
+          } else if (error.code === 'ETIMEDOUT' || error.name === 'AbortError') {
+            errorMessage = 'Connection timed out';
+            suggestion = 'The blog server is taking too long to respond. Try again later';
+          } else if (error.code === 'ECONNRESET') {
+            errorMessage = 'Connection was reset by the blog server';
+            suggestion = 'Check your authentication credentials and API permissions';
+          }
+          
           return res.status(500).json({
             success: false,
-            message: `Failed to connect to external blog: ${error.message}`,
-            blogUrl,
-            error: error.message
+            message: errorMessage,
+            details: error.message,
+            blogUrl: cleanBlogUrl,
+            apiEndpoint: apiUrl,
+            errorCode: error.code || 'UNKNOWN',
+            suggestion
           });
         }
       }
