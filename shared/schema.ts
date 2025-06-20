@@ -394,6 +394,22 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Affiliate networks configuration
+export const affiliateNetworks = pgTable("affiliate_networks", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  networkKey: text("network_key").notNull(),
+  networkName: text("network_name").notNull(),
+  baseUrl: text("base_url").notNull(),
+  trackingParam: text("tracking_param").notNull(),
+  affiliateId: text("affiliate_id").notNull(),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).notNull().default("5.0"),
+  cookieDuration: integer("cookie_duration").notNull().default(30),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
