@@ -167,6 +167,14 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
+      <Route path="/affiliate-networks">
+        <ProtectedRoute>
+          <AppLayout>
+            <AffiliateNetworks />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
 
       
       <Route path="/publishing">
