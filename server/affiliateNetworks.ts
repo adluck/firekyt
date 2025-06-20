@@ -77,12 +77,18 @@ export class AffiliateNetworkManager {
     customAffiliateId?: string,
     subId?: string
   ): AffiliateLink {
+    // Check if any networks are configured
+    if (this.networks.size === 0) {
+      throw new Error('No affiliate networks configured. Please add your affiliate network credentials first.');
+    }
+
     // Auto-detect network if not specified
     const detectedNetwork = networkName || this.detectNetworkFromUrl(productUrl);
-    const network = this.networks.get(detectedNetwork || 'shareasale');
+    const network = this.networks.get(detectedNetwork || '');
     
     if (!network) {
-      throw new Error(`Unsupported affiliate network: ${detectedNetwork}`);
+      const availableNetworks = Array.from(this.networks.keys()).join(', ');
+      throw new Error(`Affiliate network "${detectedNetwork}" not configured. Available networks: ${availableNetworks || 'none'}`);
     }
 
     const trackingId = this.generateTrackingId();

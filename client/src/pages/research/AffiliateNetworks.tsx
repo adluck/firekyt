@@ -13,7 +13,9 @@ import {
   Percent, 
   Clock, 
   Copy,
-  CheckCircle 
+  CheckCircle,
+  Plus,
+  Settings
 } from "lucide-react";
 import {
   Select,
@@ -22,6 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface AffiliateNetwork {
   name: string;
@@ -46,6 +56,18 @@ export default function AffiliateNetworks() {
   const [generatedLink, setGeneratedLink] = useState<AffiliateLink | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // State for adding new networks
+  const [showAddNetworkDialog, setShowAddNetworkDialog] = useState(false);
+  const [newNetwork, setNewNetwork] = useState({
+    networkKey: "",
+    networkName: "",
+    baseUrl: "",
+    trackingParam: "",
+    affiliateId: "",
+    commissionRate: 5.0,
+    cookieDuration: 30
+  });
 
   const { data: networksData, isLoading: networksLoading } = useQuery<{networks: AffiliateNetwork[]}>({
     queryKey: ["/api/affiliate-networks"],
@@ -72,6 +94,37 @@ export default function AffiliateNetworks() {
       toast({
         title: "Generation Failed",
         description: error.message || "Failed to generate affiliate link",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const addNetworkMutation = useMutation({
+    mutationFn: async (networkData: typeof newNetwork) => {
+      const response = await apiRequest("POST", "/api/affiliate-networks", networkData);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Network Added",
+        description: `Successfully added ${data.network.name} affiliate network`,
+      });
+      setShowAddNetworkDialog(false);
+      setNewNetwork({
+        networkKey: "",
+        networkName: "",
+        baseUrl: "",
+        trackingParam: "",
+        affiliateId: "",
+        commissionRate: 5.0,
+        cookieDuration: 30
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/affiliate-networks"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Add Network",
+        description: error.message || "Failed to add affiliate network",
         variant: "destructive",
       });
     },
@@ -203,62 +256,78 @@ export default function AffiliateNetworks() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="productUrl">Product URL</Label>
-            <Input
-              id="productUrl"
-              placeholder="https://amazon.com/product-page"
-              value={productUrl}
-              onChange={(e) => setProductUrl(e.target.value)}
-            />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="network">Network (auto-detect if empty)</Label>
-              <Select value={selectedNetwork} onValueChange={setSelectedNetwork}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Auto-detect from URL" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">Auto-detect</SelectItem>
-                  {networks.map((network) => (
-                    <SelectItem key={network.name} value={network.name.toLowerCase().replace(/\s+/g, '').replace(/&/g, '')}>
-                      {network.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {networks.length === 0 ? (
+            <div className="text-center py-8 space-y-4">
+              <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                <LinkIcon className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">No Networks Configured</h3>
+                <p className="text-muted-foreground mt-2">
+                  Add affiliate network credentials to start generating tracking links.
+                </p>
+              </div>
             </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="productUrl">Product URL</Label>
+                <Input
+                  id="productUrl"
+                  placeholder="https://amazon.com/product-page"
+                  value={productUrl}
+                  onChange={(e) => setProductUrl(e.target.value)}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="affiliateId">Custom Affiliate ID (optional)</Label>
-              <Input
-                id="affiliateId"
-                placeholder="your-affiliate-id"
-                value={customAffiliateId}
-                onChange={(e) => setCustomAffiliateId(e.target.value)}
-              />
-            </div>
-          </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="network">Network (auto-detect if empty)</Label>
+                  <Select value={selectedNetwork} onValueChange={setSelectedNetwork}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Auto-detect from URL" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Auto-detect</SelectItem>
+                      {networks.map((network) => (
+                        <SelectItem key={network.name} value={network.name.toLowerCase().replace(/\s+/g, '').replace(/&/g, '')}>
+                          {network.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="subId">Sub ID / Campaign Tracking (optional)</Label>
-            <Input
-              id="subId"
-              placeholder="campaign-name"
-              value={subId}
-              onChange={(e) => setSubId(e.target.value)}
-            />
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="affiliateId">Custom Affiliate ID (optional)</Label>
+                  <Input
+                    id="affiliateId"
+                    placeholder="your-affiliate-id"
+                    value={customAffiliateId}
+                    onChange={(e) => setCustomAffiliateId(e.target.value)}
+                  />
+                </div>
+              </div>
 
-          <Button 
-            onClick={handleGenerateLink}
-            disabled={generateLinkMutation.isPending}
-            className="w-full"
-          >
-            {generateLinkMutation.isPending ? "Generating..." : "Generate Affiliate Link"}
-          </Button>
+              <div className="space-y-2">
+                <Label htmlFor="subId">Sub ID / Campaign Tracking (optional)</Label>
+                <Input
+                  id="subId"
+                  placeholder="campaign-name"
+                  value={subId}
+                  onChange={(e) => setSubId(e.target.value)}
+                />
+              </div>
+
+              <Button 
+                onClick={handleGenerateLink}
+                disabled={generateLinkMutation.isPending}
+                className="w-full"
+              >
+                {generateLinkMutation.isPending ? "Generating..." : "Generate Affiliate Link"}
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
 
