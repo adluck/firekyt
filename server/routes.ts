@@ -674,9 +674,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         message: `Successfully added ${networkName} affiliate network`,
         network: {
-          name: networkName,
-          commissionRate: networkConfig.commissionRate,
-          cookieDuration: networkConfig.cookieDuration
+          id: createdNetwork.id,
+          name: createdNetwork.networkName,
+          networkKey: createdNetwork.networkKey,
+          commissionRate: parseFloat(createdNetwork.commissionRate),
+          cookieDuration: createdNetwork.cookieDuration
         }
       });
     } catch (error) {
@@ -688,18 +690,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate Affiliate Link endpoint
   app.post("/api/affiliate-link", authenticateToken, async (req, res) => {
     try {
-      const { productUrl, networkName, customAffiliateId, subId } = req.body;
+      const userId = req.user!.id;
+      const { productUrl, networkKey, customAffiliateId, subId } = req.body;
       
       if (!productUrl) {
         return res.status(400).json({ error: 'Product URL is required' });
       }
 
-      const affiliateLink = affiliateManager.generateAffiliateLink(
-        productUrl,
-        networkName,
-        customAffiliateId,
-        subId
-      );
+      // Get user's affiliate networks from database
+      const userNetworks = await storage.getUserAffiliateNetworks(userId);
+      
+      if (userNetworks.length === 0) {
+        return res.status(400).json({ 
+          error: 'No affiliate networks configured. Please add your affiliate network credentials first.' 
+        });
+      }
+
+      // Find the specified network or use the first available one
+      let selectedNetwork = userNetworks[0];
+      if (networkKey) {
+        const network = userNetworks.find(n => n.networkKey === networkKey);
+        if (network) {
+          selectedNetwork = network;
+        }
+      }
+
+      // Generate affiliate link using the database network
+      const trackingId = `${selectedNetwork.networkKey}_${Date.now()}`;
+      const affiliateUrl = `${selectedNetwork.baseUrl}?${selectedNetwork.trackingParam}=${customAffiliateId || selectedNetwork.affiliateId}&url=${encodeURIComponent(productUrl)}${subId ? `&subid=${subId}` : ''}`;
+
+      const affiliateLink = {
+        originalUrl: productUrl,
+        affiliateUrl,
+        networkName: selectedNetwork.networkName,
+        commissionRate: parseFloat(selectedNetwork.commissionRate),
+        trackingId
+      };
 
       res.json({
         success: true,
