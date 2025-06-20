@@ -30,77 +30,8 @@ export class AffiliateNetworkManager {
   }
 
   private initializeNetworks() {
-    // Amazon Associates
-    this.networks.set('amazon', {
-      networkName: 'Amazon Associates',
-      baseUrl: 'https://amazon.com',
-      trackingParam: 'tag',
-      commissionRate: 4.5, // Average commission rate
-      cookieDuration: 24
-    });
-
-    // ShareASale
-    this.networks.set('shareasale', {
-      networkName: 'ShareASale',
-      baseUrl: 'https://shareasale.com/r.cfm',
-      trackingParam: 'b',
-      commissionRate: 6.0,
-      cookieDuration: 45
-    });
-
-    // Commission Junction (CJ Affiliate)
-    this.networks.set('cj', {
-      networkName: 'CJ Affiliate',
-      baseUrl: 'https://www.anrdoezrs.net/links',
-      trackingParam: 'sid',
-      commissionRate: 5.5,
-      cookieDuration: 30
-    });
-
-    // ClickBank
-    this.networks.set('clickbank', {
-      networkName: 'ClickBank',
-      baseUrl: 'https://hop.clickbank.net',
-      trackingParam: 'tid',
-      commissionRate: 50.0, // Digital products typically higher
-      cookieDuration: 60
-    });
-
-    // Impact Radius
-    this.networks.set('impact', {
-      networkName: 'Impact Radius',
-      baseUrl: 'https://impact.com',
-      trackingParam: 'irclickid',
-      commissionRate: 7.0,
-      cookieDuration: 30
-    });
-
-    // Rakuten Advertising
-    this.networks.set('rakuten', {
-      networkName: 'Rakuten Advertising',
-      baseUrl: 'https://click.linksynergy.com/deeplink',
-      trackingParam: 'id',
-      commissionRate: 4.0,
-      cookieDuration: 7
-    });
-
-    // PartnerStack
-    this.networks.set('partnerstack', {
-      networkName: 'PartnerStack',
-      baseUrl: 'https://partnerstack.com/ps',
-      trackingParam: 'ps_partner',
-      commissionRate: 8.0,
-      cookieDuration: 90
-    });
-
-    // Awin
-    this.networks.set('awin', {
-      networkName: 'Awin',
-      baseUrl: 'https://www.awin1.com/cread.php',
-      trackingParam: 'clickref',
-      commissionRate: 5.0,
-      cookieDuration: 30
-    });
+    // Networks are only added when API credentials are provided and verified
+    // This ensures only authenticated affiliate programs are available
   }
 
   /**
@@ -283,6 +214,27 @@ export class AffiliateNetworkManager {
    */
   getSupportedNetworks(): AffiliateConfig[] {
     return Array.from(this.networks.values());
+  }
+
+  /**
+   * Add an authenticated affiliate network
+   */
+  addNetwork(networkKey: string, config: AffiliateConfig): void {
+    this.networks.set(networkKey, config);
+  }
+
+  /**
+   * Remove a network
+   */
+  removeNetwork(networkKey: string): boolean {
+    return this.networks.delete(networkKey);
+  }
+
+  /**
+   * Check if a network is configured
+   */
+  hasNetwork(networkKey: string): boolean {
+    return this.networks.has(networkKey);
   }
 
   /**

@@ -129,6 +129,39 @@ export default function AffiliateNetworks() {
         </p>
       </div>
 
+      {networks.length === 0 && !networksLoading && (
+        <Card className="text-center py-12">
+          <CardContent>
+            <div className="space-y-4">
+              <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                <LinkIcon className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">No Affiliate Networks Connected</h3>
+                <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+                  Connect your affiliate network accounts to start generating tracking links and earning commissions.
+                  You'll need API credentials from each network you want to use.
+                </p>
+              </div>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p><strong>Popular Networks:</strong></p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {['Amazon Associates', 'ShareASale', 'CJ Affiliate', 'Impact', 'Rakuten'].map(network => (
+                    <Badge key={network} variant="outline" className="text-xs">
+                      {network}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <Button variant="outline" className="mt-4">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Learn How to Connect Networks
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Supported Networks */}
       <Card>
         <CardHeader>

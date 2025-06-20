@@ -626,6 +626,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add affiliate network endpoint
+  app.post("/api/affiliate-networks", authenticateToken, async (req, res) => {
+    try {
+      const { 
+        networkKey, 
+        networkName, 
+        baseUrl, 
+        trackingParam, 
+        affiliateId, 
+        commissionRate, 
+        cookieDuration 
+      } = req.body;
+
+      if (!networkKey || !networkName || !baseUrl || !trackingParam || !affiliateId) {
+        return res.status(400).json({ 
+          error: 'Network key, name, base URL, tracking parameter, and affiliate ID are required' 
+        });
+      }
+
+      const networkConfig = {
+        networkName,
+        baseUrl,
+        trackingParam,
+        affiliateId,
+        commissionRate: commissionRate || 5.0,
+        cookieDuration: cookieDuration || 30
+      };
+
+      affiliateManager.addNetwork(networkKey, networkConfig);
+
+      res.json({
+        success: true,
+        message: `Successfully added ${networkName} affiliate network`,
+        network: {
+          name: networkName,
+          commissionRate: networkConfig.commissionRate,
+          cookieDuration: networkConfig.cookieDuration
+        }
+      });
+    } catch (error) {
+      console.error('Error adding affiliate network:', error);
+      res.status(500).json({ error: 'Failed to add affiliate network' });
+    }
+  });
+
   // Generate Affiliate Link endpoint
   app.post("/api/affiliate-link", authenticateToken, async (req, res) => {
     try {

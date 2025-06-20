@@ -159,7 +159,7 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      <Route path="/affiliate-networks">
+      <Route path="/research/affiliate-networks">
         <ProtectedRoute>
           <AppLayout>
             <AffiliateNetworks />
