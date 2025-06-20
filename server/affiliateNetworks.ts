@@ -84,7 +84,20 @@ export class AffiliateNetworkManager {
 
     // Auto-detect network if not specified
     const detectedNetwork = networkName || this.detectNetworkFromUrl(productUrl);
-    const network = this.networks.get(detectedNetwork || '');
+    
+    // Find network with case-insensitive lookup
+    let network = null;
+    let actualNetworkKey = '';
+    
+    if (detectedNetwork) {
+      for (const [key, config] of this.networks) {
+        if (key.toLowerCase() === detectedNetwork.toLowerCase()) {
+          network = config;
+          actualNetworkKey = key;
+          break;
+        }
+      }
+    }
     
     if (!network) {
       const availableNetworks = Array.from(this.networks.keys()).join(', ');
@@ -92,11 +105,11 @@ export class AffiliateNetworkManager {
     }
 
     const trackingId = this.generateTrackingId();
-    const affiliateId = customAffiliateId || this.getDefaultAffiliateId(detectedNetwork || 'shareasale');
+    const affiliateId = customAffiliateId || network.affiliateId || this.getDefaultAffiliateId(actualNetworkKey);
     
     let affiliateUrl = '';
 
-    switch (detectedNetwork) {
+    switch (actualNetworkKey.toLowerCase()) {
       case 'amazon':
         affiliateUrl = this.generateAmazonLink(productUrl, affiliateId, trackingId);
         break;
