@@ -175,11 +175,108 @@ export default function AffiliateNetworks() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Affiliate Networks</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage affiliate programs and generate tracking links for your products
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Affiliate Networks</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage affiliate programs and generate tracking links for your products
+          </p>
+        </div>
+        <Dialog open={showAddNetworkDialog} onOpenChange={setShowAddNetworkDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Network
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add Affiliate Network</DialogTitle>
+              <DialogDescription>
+                Configure your affiliate network credentials to start generating tracking links.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="networkKey">Network Key *</Label>
+                <Input
+                  id="networkKey"
+                  placeholder="e.g., amazon, shareasale, cj"
+                  value={newNetwork.networkKey}
+                  onChange={(e) => setNewNetwork({...newNetwork, networkKey: e.target.value})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="networkName">Network Name *</Label>
+                <Input
+                  id="networkName"
+                  placeholder="e.g., Amazon Associates"
+                  value={newNetwork.networkName}
+                  onChange={(e) => setNewNetwork({...newNetwork, networkName: e.target.value})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="baseUrl">Base URL *</Label>
+                <Input
+                  id="baseUrl"
+                  placeholder="e.g., https://amazon.com"
+                  value={newNetwork.baseUrl}
+                  onChange={(e) => setNewNetwork({...newNetwork, baseUrl: e.target.value})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="trackingParam">Tracking Parameter *</Label>
+                <Input
+                  id="trackingParam"
+                  placeholder="e.g., tag, affid, pid"
+                  value={newNetwork.trackingParam}
+                  onChange={(e) => setNewNetwork({...newNetwork, trackingParam: e.target.value})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="affiliateId">Your Affiliate ID *</Label>
+                <Input
+                  id="affiliateId"
+                  placeholder="Your affiliate account ID"
+                  value={newNetwork.affiliateId}
+                  onChange={(e) => setNewNetwork({...newNetwork, affiliateId: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="commissionRate">Commission Rate (%)</Label>
+                  <Input
+                    id="commissionRate"
+                    type="number"
+                    step="0.1"
+                    value={newNetwork.commissionRate}
+                    onChange={(e) => setNewNetwork({...newNetwork, commissionRate: parseFloat(e.target.value) || 0})}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="cookieDuration">Cookie Duration (days)</Label>
+                  <Input
+                    id="cookieDuration"
+                    type="number"
+                    value={newNetwork.cookieDuration}
+                    onChange={(e) => setNewNetwork({...newNetwork, cookieDuration: parseInt(e.target.value) || 30})}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowAddNetworkDialog(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => addNetworkMutation.mutate(newNetwork)}
+                disabled={addNetworkMutation.isPending || !newNetwork.networkKey || !newNetwork.networkName || !newNetwork.baseUrl || !newNetwork.trackingParam || !newNetwork.affiliateId}
+              >
+                {addNetworkMutation.isPending ? "Adding..." : "Add Network"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {networks.length === 0 && !networksLoading && (
