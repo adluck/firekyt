@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, passwordResetTokens, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type PasswordResetToken, type InsertPasswordResetToken } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, passwordResetTokens, affiliateNetworks, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
@@ -18,6 +18,13 @@ export interface IStorage {
   getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   markPasswordResetTokenAsUsed(token: string): Promise<void>;
   deleteExpiredPasswordResetTokens(): Promise<void>;
+
+  // Affiliate network management
+  getUserAffiliateNetworks(userId: number): Promise<AffiliateNetwork[]>;
+  createAffiliateNetwork(network: InsertAffiliateNetwork): Promise<AffiliateNetwork>;
+  updateAffiliateNetwork(id: number, updates: Partial<AffiliateNetwork>): Promise<AffiliateNetwork>;
+  deleteAffiliateNetwork(id: number): Promise<void>;
+  getAffiliateNetworkByKey(userId: number, networkKey: string): Promise<AffiliateNetwork | undefined>;
 
   // Site management
   getSite(id: number): Promise<Site | undefined>;
@@ -1480,6 +1487,52 @@ export class DatabaseStorage implements IStorage {
       .where(eq(linkSuggestions.id, id))
       .returning();
     return updated;
+  }
+
+  // Affiliate network management
+  async getUserAffiliateNetworks(userId: number): Promise<AffiliateNetwork[]> {
+    return await db
+      .select()
+      .from(affiliateNetworks)
+      .where(and(
+        eq(affiliateNetworks.userId, userId),
+        eq(affiliateNetworks.isActive, true)
+      ))
+      .orderBy(desc(affiliateNetworks.createdAt));
+  }
+
+  async createAffiliateNetwork(network: InsertAffiliateNetwork): Promise<AffiliateNetwork> {
+    const [created] = await db.insert(affiliateNetworks).values(network).returning();
+    return created;
+  }
+
+  async updateAffiliateNetwork(id: number, updates: Partial<AffiliateNetwork>): Promise<AffiliateNetwork> {
+    const [updated] = await db
+      .update(affiliateNetworks)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(affiliateNetworks.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteAffiliateNetwork(id: number): Promise<void> {
+    await db
+      .update(affiliateNetworks)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(affiliateNetworks.id, id));
+  }
+
+  async getAffiliateNetworkByKey(userId: number, networkKey: string): Promise<AffiliateNetwork | undefined> {
+    const [network] = await db
+      .select()
+      .from(affiliateNetworks)
+      .where(and(
+        eq(affiliateNetworks.userId, userId),
+        eq(affiliateNetworks.networkKey, networkKey),
+        eq(affiliateNetworks.isActive, true)
+      ))
+      .limit(1);
+    return network;
   }
 
   // Publishing operations - stub implementations for testing

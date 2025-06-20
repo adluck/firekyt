@@ -685,7 +685,17 @@ export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTo
   id: true,
   createdAt: true,
 });
+
+export const insertAffiliateNetworkSchema = createInsertSchema(affiliateNetworks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
 export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
+
+// Affiliate network types
+export type AffiliateNetwork = typeof affiliateNetworks.$inferSelect;
+export type InsertAffiliateNetwork = z.infer<typeof insertAffiliateNetworkSchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {

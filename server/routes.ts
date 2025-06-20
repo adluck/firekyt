@@ -612,11 +612,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Affiliate Networks Management
   app.get("/api/affiliate-networks", authenticateToken, async (req, res) => {
     try {
-      const networks = affiliateManager.getSupportedNetworks();
+      const userId = req.user!.id;
+      const networks = await storage.getUserAffiliateNetworks(userId);
       res.json({
         networks: networks.map(network => ({
+          id: network.id,
           name: network.networkName,
-          commissionRate: network.commissionRate,
+          networkKey: network.networkKey,
+          commissionRate: parseFloat(network.commissionRate),
           cookieDuration: network.cookieDuration
         }))
       });
@@ -629,6 +632,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add affiliate network endpoint
   app.post("/api/affiliate-networks", authenticateToken, async (req, res) => {
     try {
+      const userId = req.user!.id;
       const { 
         networkKey, 
         networkName, 
@@ -645,16 +649,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const networkConfig = {
+      // Check if network already exists for this user
+      const existingNetwork = await storage.getAffiliateNetworkByKey(userId, networkKey);
+      if (existingNetwork) {
+        return res.status(400).json({ 
+          error: 'An affiliate network with this key already exists' 
+        });
+      }
+
+      const networkData = {
+        userId,
+        networkKey,
         networkName,
         baseUrl,
         trackingParam,
         affiliateId,
-        commissionRate: commissionRate || 5.0,
+        commissionRate: commissionRate?.toString() || "5.0",
         cookieDuration: cookieDuration || 30
       };
 
-      affiliateManager.addNetwork(networkKey, networkConfig);
+      const createdNetwork = await storage.createAffiliateNetwork(networkData);
 
       res.json({
         success: true,
