@@ -24,15 +24,31 @@ div[dangerouslySetInnerHTML] a:hover,
 }
 
 /* Ensure navigation links override the global blue link styles */
+.nav-link,
 .nav-link a,
-.nav-link {
+nav .nav-link,
+nav .nav-link a,
+.sidebar .nav-link,
+.sidebar .nav-link a {
   color: var(--sidebar-foreground) !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+.nav-link:hover,
+.nav-link:hover a,
+nav .nav-link:hover,
+nav .nav-link:hover a {
+  color: var(--sidebar-accent-foreground) !important;
   text-decoration: none !important;
 }
 
 .nav-link.active,
-.nav-link.active a {
+.nav-link.active a,
+nav .nav-link.active,
+nav .nav-link.active a {
   color: #ea580c !important;
+  text-decoration: none !important;
 }
 
 /* Ensure affiliate links are always styled regardless of context */
