@@ -782,7 +782,7 @@ export function UnifiedContentEditor({
                       </div>
 
                       <div 
-                        className="prose max-w-none prose-table:border-collapse prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-2 prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-2"
+                        className="prose max-w-none prose-table:border-collapse prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-2 prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-2 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-a:font-medium [&_a]:text-blue-600 [&_a]:underline [&_a:hover]:text-blue-800"
                         dangerouslySetInnerHTML={{ 
                           __html: contentData.content && isMarkdown(contentData.content) 
                             ? markdownToHtml(contentData.content) 

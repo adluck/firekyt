@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global link styles for inserted affiliate links */
+.prose a,
+.content-preview a,
+[data-content] a {
+  color: rgb(37 99 235) !important;
+  text-decoration: underline !important;
+  font-weight: 500 !important;
+  transition: color 0.2s ease !important;
+}
+
+.prose a:hover,
+.content-preview a:hover,
+[data-content] a:hover {
+  color: rgb(29 78 216) !important;
+  text-decoration: underline !important;
+}
+
 /* TipTap Editor Styles - Remove borders */
 .ProseMirror {
   border: none !important;
