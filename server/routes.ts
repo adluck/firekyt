@@ -2480,27 +2480,39 @@ Format your response as a JSON object with the following structure:
           
           // First check user capabilities
           const userCheckUrl = `${cleanBlogUrl}/wp-json/wp/v2/users/me`;
+          console.log('🔍 Checking WordPress user capabilities at:', userCheckUrl);
+          
           const userResponse = await fetch(userCheckUrl, {
             headers: {
               'Authorization': `Basic ${Buffer.from(connection.accessToken).toString('base64')}`
             }
           });
           
+          console.log('📊 User check response status:', userResponse.status);
+          
           if (userResponse.ok) {
             const userData = await userResponse.json();
-            console.log('WordPress user capabilities:', userData.capabilities);
+            console.log('👤 WordPress user data:', {
+              name: userData.name,
+              roles: userData.roles,
+              capabilities: Object.keys(userData.capabilities || {}).filter(cap => userData.capabilities[cap])
+            });
             
             // Check if user can publish posts
-            if (!userData.capabilities?.publish_posts && !userData.capabilities?.edit_posts) {
+            if (!userData.capabilities?.publish_posts) {
               return res.status(403).json({
                 success: false,
                 message: 'WordPress user permissions insufficient',
-                suggestion: `Your WordPress user "${userData.name}" has role "${userData.roles?.[0] || 'unknown'}" which cannot create posts. Please upgrade to "Editor" or "Administrator" role.`,
+                suggestion: `Your WordPress user "${userData.name}" has role "${userData.roles?.[0] || 'unknown'}" which cannot create posts. Please upgrade to "Editor" or "Administrator" role in WordPress admin.`,
                 userRole: userData.roles?.[0],
                 userName: userData.name,
-                capabilities: userData.capabilities
+                requiredCapability: 'publish_posts',
+                currentCapabilities: Object.keys(userData.capabilities || {}).filter(cap => userData.capabilities[cap])
               });
             }
+          } else {
+            const userErrorText = await userResponse.text();
+            console.log('❌ User capability check failed:', userResponse.status, userErrorText);
           }
           
           // WordPress REST API post data structure
