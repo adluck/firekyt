@@ -649,6 +649,7 @@ export class DatabaseStorage implements IStorage {
     );
     
     console.log('🔍 DATABASE updateContent - cleanUpdates before processing:', JSON.stringify(cleanUpdates));
+    console.log('🔍 DATABASE updateContent - siteId in cleanUpdates:', cleanUpdates.siteId);
     
     // Ensure targetKeywords is properly handled as a PostgreSQL array
     if (cleanUpdates.targetKeywords !== undefined) {
@@ -671,11 +672,14 @@ export class DatabaseStorage implements IStorage {
     }
     
     console.log('🔍 DATABASE Final cleanUpdates being sent to database:', JSON.stringify(cleanUpdates));
+    console.log('🔍 DATABASE Final siteId being sent to database:', cleanUpdates.siteId);
     
     const [contentItem] = await db.update(content)
       .set(cleanUpdates)
       .where(and(eq(content.id, id), eq(content.userId, userId)))
       .returning();
+      
+    console.log('🔍 DATABASE Updated content result siteId:', contentItem.siteId);
       
     console.log('🔍 DATABASE Result from database:', JSON.stringify(contentItem.targetKeywords));
     console.log('🔍 DATABASE targetKeywords type:', typeof contentItem.targetKeywords);
