@@ -2497,27 +2497,42 @@ Format your response as a JSON object with the following structure:
           
           if (userResponse.ok) {
             const userData = await userResponse.json();
-            console.log('👤 WordPress user data:', {
+            console.log('👤 Full WordPress user data:', userData);
+            
+            // WordPress REST API might return capabilities in different formats
+            const capabilities = userData.capabilities || userData.allcaps || {};
+            const roles = userData.roles || [];
+            
+            console.log('👤 WordPress user info:', {
               name: userData.name,
-              roles: userData.roles,
-              capabilities: Object.keys(userData.capabilities || {}).filter(cap => userData.capabilities[cap])
+              roles: roles,
+              hasPublishPosts: !!capabilities.publish_posts,
+              hasEditPosts: !!capabilities.edit_posts,
+              isAdmin: !!capabilities.administrator || roles.includes('administrator'),
+              capabilityCount: Object.keys(capabilities).length
             });
             
-            // Check if user can publish posts
-            if (!userData.capabilities?.publish_posts) {
+            // Check if user can publish posts (administrators automatically have this)
+            const canPublish = capabilities.publish_posts || capabilities.administrator || roles.includes('administrator');
+            
+            if (!canPublish) {
               return res.status(403).json({
                 success: false,
                 message: 'WordPress user permissions insufficient',
-                suggestion: `Your WordPress user "${userData.name}" has role "${userData.roles?.[0] || 'unknown'}" which cannot create posts. Please upgrade to "Editor" or "Administrator" role in WordPress admin.`,
-                userRole: userData.roles?.[0],
+                suggestion: `Your WordPress user "${userData.name}" has role "${roles[0] || 'unknown'}" which cannot create posts. Please upgrade to "Editor" or "Administrator" role in WordPress admin.`,
+                userRole: roles[0],
                 userName: userData.name,
                 requiredCapability: 'publish_posts',
-                currentCapabilities: Object.keys(userData.capabilities || {}).filter(cap => userData.capabilities[cap])
+                currentCapabilities: Object.keys(capabilities).filter(cap => capabilities[cap]).slice(0, 10) // Show first 10 to avoid overflow
               });
             }
+            
+            console.log('✅ WordPress user has publishing permissions');
           } else {
             const userErrorText = await userResponse.text();
             console.log('❌ User capability check failed:', userResponse.status, userErrorText);
+            // Continue with post creation even if capability check fails
+            console.log('⚠️ Proceeding with post creation despite capability check failure');
           }
           
           // WordPress REST API post data structure
