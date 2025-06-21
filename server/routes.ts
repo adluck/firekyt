@@ -2478,71 +2478,31 @@ Format your response as a JSON object with the following structure:
         try {
           const fetch = (await import('node-fetch')).default;
           
-          // First check user capabilities
-          const userCheckUrl = `${cleanBlogUrl}/wp-json/wp/v2/users/me`;
-          console.log('🔍 Checking WordPress user capabilities at:', userCheckUrl);
-          
           // WordPress application passwords need username:password format
           const wpAuth = connection.accessToken.includes(':') 
             ? connection.accessToken 
             : `${connection.platformUsername}:${connection.accessToken}`;
           
-          const userResponse = await fetch(userCheckUrl, {
-            headers: {
-              'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`
-            }
+          console.log('🔧 WordPress auth format:', {
+            hasColon: connection.accessToken.includes(':'),
+            username: connection.platformUsername,
+            authLength: wpAuth.length
           });
-          
-          console.log('📊 User check response status:', userResponse.status);
-          
-          if (userResponse.ok) {
-            const userData = await userResponse.json();
-            console.log('👤 Full WordPress user data:', userData);
-            
-            // WordPress REST API might return capabilities in different formats
-            const capabilities = userData.capabilities || userData.allcaps || {};
-            const roles = userData.roles || [];
-            
-            console.log('👤 WordPress user info:', {
-              name: userData.name,
-              roles: roles,
-              hasPublishPosts: !!capabilities.publish_posts,
-              hasEditPosts: !!capabilities.edit_posts,
-              isAdmin: !!capabilities.administrator || roles.includes('administrator'),
-              capabilityCount: Object.keys(capabilities).length
-            });
-            
-            // Check if user can publish posts (administrators automatically have this)
-            const canPublish = capabilities.publish_posts || capabilities.administrator || roles.includes('administrator');
-            
-            if (!canPublish) {
-              return res.status(403).json({
-                success: false,
-                message: 'WordPress user permissions insufficient',
-                suggestion: `Your WordPress user "${userData.name}" has role "${roles[0] || 'unknown'}" which cannot create posts. Please upgrade to "Editor" or "Administrator" role in WordPress admin.`,
-                userRole: roles[0],
-                userName: userData.name,
-                requiredCapability: 'publish_posts',
-                currentCapabilities: Object.keys(capabilities).filter(cap => capabilities[cap]).slice(0, 10) // Show first 10 to avoid overflow
-              });
-            }
-            
-            console.log('✅ WordPress user has publishing permissions');
-          } else {
-            const userErrorText = await userResponse.text();
-            console.log('❌ User capability check failed:', userResponse.status, userErrorText);
-            // Continue with post creation even if capability check fails
-            console.log('⚠️ Proceeding with post creation despite capability check failure');
-          }
           
           // WordPress REST API post data structure
           const wpPostData = {
             title: postData.title,
             content: postData.content,
-            excerpt: postData.excerpt,
+            excerpt: postData.excerpt || '',
             status: 'publish'
-            // Note: Omitting author field - WordPress will use the authenticated user
           };
+          
+          console.log('📝 WordPress post data:', {
+            title: wpPostData.title,
+            contentLength: wpPostData.content?.length || 0,
+            excerptLength: wpPostData.excerpt?.length || 0,
+            status: wpPostData.status
+          });
           
           console.log('📡 Making WordPress API request to:', apiUrl);
           
@@ -2592,17 +2552,25 @@ Format your response as a JSON object with the following structure:
             let errorMessage = `WordPress API error: ${response.status}`;
             let suggestion = '';
             
-            if (response.status === 401) {
-              if (errorText.includes('rest_cannot_create') || errorText.includes('rest_cannot_edit_others')) {
+            // Parse the error response to provide specific guidance
+            try {
+              const errorData = JSON.parse(errorText);
+              if (errorData.code === 'rest_cannot_create') {
                 errorMessage = 'WordPress user permissions insufficient';
-                suggestion = 'Your WordPress user account needs "Editor" or "Administrator" role to create posts. Please check your user permissions in WordPress admin dashboard and ensure the user has post creation privileges.';
-              } else {
+                suggestion = 'Your WordPress user needs "Editor" or "Administrator" role. Go to WordPress Admin → Users → All Users → Edit your user → Change role to "Administrator" and save.';
+              } else if (errorData.code === 'rest_not_logged_in') {
                 errorMessage = 'WordPress authentication failed';
-                suggestion = 'Please verify your WordPress application password is correct and still active.';
+                suggestion = 'Your application password may be invalid. Please regenerate it in WordPress Admin → Users → Profile → Application Passwords.';
+              } else if (response.status === 403) {
+                errorMessage = 'WordPress access forbidden';
+                suggestion = 'Check that your WordPress user has publishing permissions and the site allows REST API access.';
               }
-            } else if (response.status === 403) {
-              errorMessage = 'WordPress access forbidden';
-              suggestion = 'Your WordPress user role may not have permission to create posts. Ensure you have at least "Editor" permissions.';
+            } catch (e) {
+              // Fallback for non-JSON responses
+              if (response.status === 401) {
+                errorMessage = 'WordPress authentication failed';
+                suggestion = 'Please verify your WordPress application password and user permissions.';
+              }
             }
             
             return res.status(response.status).json({
