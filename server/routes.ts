@@ -829,6 +829,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       const updates = req.body;
       
+      console.log('🔍 PUT /api/content/:id - ContentId:', contentId);
+      console.log('🔍 PUT /api/content/:id - Full request body:', JSON.stringify(updates));
       console.log('🔍 PUT /api/content/:id - Received targetKeywords:', JSON.stringify(updates.targetKeywords));
       console.log('🔍 PUT /api/content/:id - Received siteId:', JSON.stringify(updates.siteId));
       console.error('🚨 FORCE DEBUG - PUT targetKeywords:', JSON.stringify(updates.targetKeywords));
@@ -896,7 +898,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       const updates = req.body;
       
+      console.log('🔍 PATCH /api/content/:id - ContentId:', contentId);
+      console.log('🔍 PATCH /api/content/:id - Full request body:', JSON.stringify(updates));
       console.log('🔍 PATCH /api/content/:id - Received targetKeywords:', updates.targetKeywords);
+      console.log('🔍 PATCH /api/content/:id - Received siteId:', JSON.stringify(updates.siteId));
 
       // Verify content belongs to user
       const userContent = await storage.getContent(userId);
@@ -942,19 +947,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle siteId conversion - ensure it's an integer or null
       if (updates.siteId !== undefined) {
-        if (updates.siteId === null || updates.siteId === '') {
+        console.log('🔍 PATCH Processing siteId:', updates.siteId, 'type:', typeof updates.siteId);
+        if (updates.siteId === null || updates.siteId === '' || updates.siteId === 0) {
           cleanUpdates.siteId = null;
+          console.log('🔍 PATCH siteId set to null');
         } else {
           const siteIdInt = parseInt(String(updates.siteId));
           cleanUpdates.siteId = isNaN(siteIdInt) ? null : siteIdInt;
+          console.log('🔍 PATCH siteId converted to:', cleanUpdates.siteId);
         }
       }
 
       // Always update the timestamp
       cleanUpdates.updatedAt = new Date();
 
+      console.log('🔍 PATCH Final cleanUpdates:', JSON.stringify(cleanUpdates));
+
       // Update the content
       const updatedContent = await storage.updateContent(contentId, userId, cleanUpdates);
+
+      console.log('🔍 PATCH Updated content siteId:', updatedContent.siteId);
 
       res.json(updatedContent);
     } catch (error: any) {
