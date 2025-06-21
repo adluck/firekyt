@@ -2938,8 +2938,23 @@ Format your response as a JSON object with the following structure:
         // Create the link HTML
         const linkHtml = `<a target="_blank" rel="noopener noreferrer nofollow" class="text-blue-600 hover:text-blue-800 underline" href="${product.affiliateUrl || product.productUrl}">${insertion.anchorText}</a>`;
         
-        // Insert the link at the specified position
-        const position = Math.min(insertion.position || 0, updatedContentText.length);
+        // Find a safe insertion point near the suggested position (word boundary)
+        let position = Math.min(insertion.position || 0, updatedContentText.length);
+        
+        // Look for word boundaries around the suggested position
+        if (position > 0 && position < updatedContentText.length) {
+          // Look backwards for a space or punctuation
+          let safePosition = position;
+          for (let i = position; i >= Math.max(0, position - 50); i--) {
+            const char = updatedContentText[i];
+            if (char === ' ' || char === '.' || char === ',' || char === '!' || char === '?' || char === ';' || char === ':') {
+              safePosition = i + 1; // Insert after the space/punctuation
+              break;
+            }
+          }
+          position = safePosition;
+        }
+        
         updatedContentText = updatedContentText.slice(0, position) + linkHtml + updatedContentText.slice(position);
 
         // Create insertion record
