@@ -885,7 +885,16 @@ export function UnifiedContentEditor({
                   <Label htmlFor="site">Target Site (Optional)</Label>
                   <Select
                     value={contentData.siteId > 0 ? contentData.siteId.toString() : ""}
-                    onValueChange={(value) => updateContentData({ siteId: parseInt(value) })}
+                    onValueChange={(value) => {
+                      const newSiteId = parseInt(value);
+                      updateContentData({ siteId: newSiteId });
+                      
+                      // Auto-save when site is changed
+                      if (contentData.title && contentData.content) {
+                        const updatedData = { ...contentData, siteId: newSiteId };
+                        defaultSaveMutation.mutate(updatedData);
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a site" />
