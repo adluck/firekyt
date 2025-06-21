@@ -71,7 +71,7 @@ div[dangerouslySetInnerHTML] a *,
   opacity: 1 !important;
 }
 
-/* Navigation link overrides - only target sidebar navigation */
+/* Navigation link overrides - target all sidebar navigation elements */
 .sidebar nav a,
 .sidebar nav a:link,
 .sidebar nav a:visited,
@@ -82,7 +82,17 @@ div[dangerouslySetInnerHTML] a *,
 .sidebar .nav-link a:link,
 .sidebar .nav-link a:visited,
 .sidebar .nav-link a:hover,
-.sidebar .nav-link a:active {
+.sidebar .nav-link a:active,
+.sidebar button,
+.sidebar button:link,
+.sidebar button:visited,
+.sidebar button:hover,
+.sidebar button:active,
+.sidebar [role="button"],
+.sidebar [role="button"]:link,
+.sidebar [role="button"]:visited,
+.sidebar [role="button"]:hover,
+.sidebar [role="button"]:active {
   color: var(--sidebar-foreground) !important;
   text-decoration: none !important;
   border-bottom: none !important;
@@ -93,8 +103,33 @@ div[dangerouslySetInnerHTML] a *,
 .sidebar .nav-link.active a:link,
 .sidebar .nav-link.active a:visited,
 .sidebar .nav-link.active a:hover,
-.sidebar .nav-link.active a:active {
+.sidebar .nav-link.active a:active,
+.sidebar button.active,
+.sidebar [role="button"].active {
   color: #ea580c !important;
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+/* Specifically target submenu items */
+.sidebar .submenu a,
+.sidebar .submenu button,
+.sidebar .submenu [role="button"],
+.sidebar .pl-8 a,
+.sidebar .pl-8 button,
+.sidebar .pl-8 [role="button"] {
+  color: rgb(156 163 175) !important;
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+.sidebar .submenu a:hover,
+.sidebar .submenu button:hover,
+.sidebar .submenu [role="button"]:hover,
+.sidebar .pl-8 a:hover,
+.sidebar .pl-8 button:hover,
+.sidebar .pl-8 [role="button"]:hover {
+  color: white !important;
   text-decoration: none !important;
   border-bottom: none !important;
 }
