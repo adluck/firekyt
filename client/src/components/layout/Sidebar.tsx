@@ -55,6 +55,7 @@ const navigation = [
     submenu: [
       { name: 'Product Research', href: '/research', icon: Search },
       { name: 'SEO Analysis', href: '/research/seo', icon: Search },
+      { name: 'Keyword Analytics', href: '/research/keywords', icon: BarChart3 },
       { name: 'Niche Insights', href: '/research/niche', icon: Brain }
     ]
   },

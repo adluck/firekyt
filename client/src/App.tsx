@@ -26,6 +26,7 @@ import ProductResearch from "@/pages/research/ProductResearch";
 import SeoAnalysis from "@/pages/research/SeoAnalysis";
 import NicheInsights from "@/pages/research/NicheInsights";
 import AffiliateNetworks from "@/pages/research/AffiliateNetworks";
+import KeywordAnalytics from "@/pages/research/KeywordAnalytics";
 
 import ContentEditor from "@/pages/content/ContentEditor";
 import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
@@ -163,6 +164,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <AffiliateNetworks />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/research/keywords">
+        <ProtectedRoute>
+          <AppLayout>
+            <KeywordAnalytics />
           </AppLayout>
         </ProtectedRoute>
       </Route>
