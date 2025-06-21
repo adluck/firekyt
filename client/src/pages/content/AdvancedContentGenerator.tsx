@@ -189,12 +189,15 @@ export default function AdvancedContentGenerator() {
         throw new Error("No content to save");
       }
 
+      // Use siteId from dialog if provided, otherwise use form data
+      const finalSiteId = siteId !== null ? siteId : formData.siteId;
+
       // Create payload from generated content
       const payload = {
         title: generatedContent.title || `Generated Content - ${formData.keyword}`,
         content: generatedContent.generated_text || '',
         contentType: formData.content_type,
-        siteId: siteId,
+        siteId: finalSiteId,
         seoTitle: generatedContent.seo_title,
         seoDescription: generatedContent.seo_description,
         targetKeywords: [formData.keyword],
@@ -403,7 +406,14 @@ export default function AdvancedContentGenerator() {
                 Content Editor
               </Button>
               <Button
-                onClick={() => setShowSiteDialog(true)}
+                onClick={() => {
+                  // If a site is already selected in the form, save directly with that site
+                  if (formData.siteId) {
+                    saveMutation.mutate(formData.siteId);
+                  } else {
+                    setShowSiteDialog(true);
+                  }
+                }}
                 className="flex items-center gap-2"
                 disabled={!generatedContent || generatedContent.status !== 'completed'}
               >
