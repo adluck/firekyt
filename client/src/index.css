@@ -35,12 +35,12 @@ body {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* Global link styles for inserted affiliate links */
-.prose a,
-.content-preview a,
-[data-content] a,
-div[dangerouslySetInnerHTML] a,
-.ProseMirror a {
+/* Global link styles for inserted affiliate links - exclude sidebar */
+.prose a:not(.sidebar a),
+.content-preview a:not(.sidebar a),
+[data-content] a:not(.sidebar a),
+div[dangerouslySetInnerHTML] a:not(.sidebar a),
+.ProseMirror a:not(.sidebar a) {
   color: rgb(37 99 235) !important;
   text-decoration: underline !important;
   font-weight: 500 !important;
@@ -111,16 +111,27 @@ div[dangerouslySetInnerHTML] a *,
   border-bottom: none !important;
 }
 
-/* Specifically target submenu items */
+/* Specifically target submenu items and all sidebar elements */
 .sidebar .submenu a,
 .sidebar .submenu button,
 .sidebar .submenu [role="button"],
 .sidebar .pl-8 a,
 .sidebar .pl-8 button,
-.sidebar .pl-8 [role="button"] {
+.sidebar .pl-8 [role="button"],
+.sidebar .ml-8 a,
+.sidebar .ml-8 button,
+.sidebar .ml-8 [role="button"],
+.sidebar .ml-8 div,
+.sidebar .ml-8 .nav-link,
+.sidebar a[href="/affiliate-networks"],
+.sidebar a[href*="affiliate"],
+.sidebar div[onclick*="affiliate"] {
   color: rgb(156 163 175) !important;
   text-decoration: none !important;
   border-bottom: none !important;
+  text-underline-offset: unset !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
 }
 
 .sidebar .submenu a:hover,
@@ -128,10 +139,49 @@ div[dangerouslySetInnerHTML] a *,
 .sidebar .submenu [role="button"]:hover,
 .sidebar .pl-8 a:hover,
 .sidebar .pl-8 button:hover,
-.sidebar .pl-8 [role="button"]:hover {
+.sidebar .pl-8 [role="button"]:hover,
+.sidebar .ml-8 a:hover,
+.sidebar .ml-8 button:hover,
+.sidebar .ml-8 [role="button"]:hover,
+.sidebar .ml-8 div:hover,
+.sidebar .ml-8 .nav-link:hover,
+.sidebar a[href="/affiliate-networks"]:hover,
+.sidebar a[href*="affiliate"]:hover {
   color: white !important;
   text-decoration: none !important;
   border-bottom: none !important;
+  text-underline-offset: unset !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+}
+
+/* Force override any global link styles on sidebar - nuclear option */
+.sidebar,
+.sidebar *,
+.sidebar a,
+.sidebar a *,
+.sidebar button,
+.sidebar button *,
+.sidebar [role="button"],
+.sidebar [role="button"] *,
+.sidebar div,
+.sidebar span {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  text-underline-offset: unset !important;
+  -webkit-text-decoration: none !important;
+  -moz-text-decoration: none !important;
+}
+
+/* Specifically override any Tailwind underline classes */
+.sidebar .underline,
+.sidebar .decoration-slice,
+.sidebar .decoration-clone {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
 }
 
 /* Ensure affiliate links are always styled regardless of context */
