@@ -2850,6 +2850,183 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // AI-Powered Link Insertion Engine
+  app.post("/api/links/ai-suggest", authenticateToken, async (req, res) => {
+    try {
+      const { contentId, siteId, keywords, context } = req.body;
+      
+      if (!contentId) {
+        return res.status(400).json({ message: "Content ID is required" });
+      }
+
+      // Get user's intelligent links for matching
+      const userLinks = await storage.getUserIntelligentLinks(req.user!.id, siteId);
+      
+      // AI-powered link suggestion logic
+      const suggestions = await generateAILinkSuggestions({
+        contentId: parseInt(contentId),
+        userLinks,
+        keywords: keywords || [],
+        context: context || '',
+        userId: req.user!.id
+      });
+
+      // Store suggestions in database
+      const createdSuggestions = [];
+      for (const suggestion of suggestions) {
+        const created = await storage.createLinkSuggestion({
+          userId: req.user!.id,
+          contentId: parseInt(contentId),
+          siteId: siteId ? parseInt(siteId) : null,
+          suggestedLinkId: suggestion.linkId,
+          suggestedAnchorText: suggestion.anchorText,
+          suggestedPosition: suggestion.position,
+          confidence: suggestion.confidence?.toString(),
+          reasoning: suggestion.reasoning,
+          contextMatch: suggestion.contextMatch,
+          status: 'pending'
+        });
+        createdSuggestions.push(created);
+      }
+
+      res.json({
+        success: true,
+        suggestions: createdSuggestions,
+        message: `Generated ${createdSuggestions.length} AI-powered link suggestions`
+      });
+    } catch (error: any) {
+      console.error('AI suggest error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Bulk Link Operations
+  app.post("/api/links/bulk-insert", authenticateToken, async (req, res) => {
+    try {
+      const { contentId, insertions } = req.body;
+      
+      if (!contentId || !insertions || !Array.isArray(insertions)) {
+        return res.status(400).json({ message: "Content ID and insertions array are required" });
+      }
+
+      const results = [];
+      for (const insertion of insertions) {
+        const insertionData = {
+          userId: req.user!.id,
+          contentId: parseInt(contentId),
+          linkId: insertion.linkId,
+          anchorText: insertion.anchorText,
+          position: insertion.position,
+          insertedAt: new Date()
+        };
+        
+        const result = await storage.createLinkInsertion(insertionData);
+        results.push(result);
+      }
+
+      res.json({
+        success: true,
+        insertions: results,
+        message: `Successfully inserted ${results.length} links`
+      });
+    } catch (error: any) {
+      console.error('Bulk insert error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// AI-powered link suggestion helper function
+async function generateAILinkSuggestions(params: {
+  contentId: number;
+  userLinks: any[];
+  keywords: string[];
+  context: string;
+  userId: number;
+}): Promise<any[]> {
+  const { userLinks, keywords, context } = params;
+  
+  // AI-powered matching algorithm
+  const suggestions = [];
+  
+  for (const link of userLinks) {
+    if (!link.isActive) continue;
+    
+    let confidence = 0;
+    let reasoning = '';
+    let contextMatch = {};
+    
+    // Keyword matching
+    const linkKeywords = link.keywords || [];
+    const targetKeywords = link.targetKeywords || [];
+    const allLinkKeywords = [...linkKeywords, ...targetKeywords];
+    
+    const keywordMatches = keywords.filter(keyword => 
+      allLinkKeywords.some(linkKeyword => 
+        linkKeyword.toLowerCase().includes(keyword.toLowerCase()) ||
+        keyword.toLowerCase().includes(linkKeyword.toLowerCase())
+      )
+    );
+    
+    if (keywordMatches.length > 0) {
+      confidence += (keywordMatches.length / keywords.length) * 40;
+      contextMatch.keywordMatches = keywordMatches;
+      reasoning += `Matches ${keywordMatches.length} keywords: ${keywordMatches.join(', ')}. `;
+    }
+    
+    // Context matching
+    if (context && link.description) {
+      const contextWords = context.toLowerCase().split(/\s+/);
+      const descriptionWords = link.description.toLowerCase().split(/\s+/);
+      const commonWords = contextWords.filter(word => 
+        word.length > 3 && descriptionWords.includes(word)
+      );
+
+      if (commonWords.length > 0) {
+        confidence += Math.min(commonWords.length * 5, 25);
+        contextMatch.contextWords = commonWords;
+        reasoning += `Context relevance: ${commonWords.length} matching terms. `;
+      }
+    }
+    
+    // Priority boost
+    confidence += (link.priority / 100) * 15;
+    
+    // Category relevance
+    if (link.categoryId) {
+      confidence += 10;
+      reasoning += 'Categorized link. ';
+    }
+    
+    // Performance boost for high-performing links
+    if (link.affiliateData?.commissionRate) {
+      const commissionRate = parseFloat(link.affiliateData.commissionRate);
+      if (commissionRate > 5) {
+        confidence += 10;
+        reasoning += `High commission rate (${commissionRate}%). `;
+      }
+    }
+    
+    // Only suggest links with reasonable confidence
+    if (confidence >= 25) {
+      suggestions.push({
+        linkId: link.id,
+        anchorText: link.title,
+        position: Math.floor(Math.random() * 500) + 100, // Random position in content
+        confidence: Math.min(confidence, 100),
+        reasoning: reasoning.trim(),
+        contextMatch,
+        originalUrl: link.originalUrl,
+        shortenedUrl: link.shortenedUrl
+      });
+    }
+  }
+  
+  // Sort by confidence and return top suggestions
+  return suggestions
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 5);
 }
