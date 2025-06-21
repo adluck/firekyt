@@ -448,17 +448,48 @@ export default function LinkInserter() {
         </Card>
       </div>
 
-      {/* Quick Tips */}
+      {/* Dynamic Tips */}
       <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <Lightbulb className="w-5 h-5 text-blue-600 mt-0.5" />
             <div>
-              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Pro Tips</h4>
+              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Smart Tips</h4>
               <ul className="text-sm text-blue-700 dark:text-blue-200 space-y-1">
-                <li>• Be specific with keywords - "grant writing" works better than "writing"</li>
-                <li>• Add context about your content to get more relevant suggestions</li>
-                <li>• Higher confidence scores mean better matches for your content</li>
+                {!selectedContent ? (
+                  <>
+                    <li>• Start by selecting the content you want to optimize</li>
+                    <li>• Choose content with clear topics for better AI matching</li>
+                  </>
+                ) : !keywords.trim() ? (
+                  <>
+                    <li>• Add specific keywords like "{selectedContent && content.find(c => c.id.toString() === selectedContent)?.title ? 
+                        content.find(c => c.id.toString() === selectedContent)?.title?.split(' ').slice(0, 2).join(' ').toLowerCase() : 'your topic'}" instead of generic terms</li>
+                    <li>• Include 3-5 relevant keywords for better link matching</li>
+                  </>
+                ) : !context.trim() ? (
+                  <>
+                    <li>• Describe your content's purpose and target audience</li>
+                    <li>• Mention the type of links you want (educational, tools, resources)</li>
+                  </>
+                ) : pendingSuggestions.length === 0 ? (
+                  <>
+                    <li>• Your setup looks good! Click "Find Smart Links" to generate suggestions</li>
+                    <li>• Keywords: "{keywords}" will help AI find relevant matches</li>
+                  </>
+                ) : acceptedSuggestions.length === 0 ? (
+                  <>
+                    <li>• Review confidence scores - higher percentages mean better matches</li>
+                    <li>• Check if the suggested anchor text fits naturally in your content</li>
+                    <li>• Accept links that add real value for your readers</li>
+                  </>
+                ) : (
+                  <>
+                    <li>• Great! You've added {acceptedSuggestions.length} smart link{acceptedSuggestions.length > 1 ? 's' : ''}</li>
+                    <li>• Monitor performance in your analytics to see what works best</li>
+                    <li>• Generate suggestions for more content to build your link strategy</li>
+                  </>
+                )}
               </ul>
             </div>
           </div>
