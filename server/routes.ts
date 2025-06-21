@@ -2861,6 +2861,8 @@ Format your response as a JSON object with the following structure:
 
       // Get user's intelligent links for matching
       const userLinks = await storage.getUserIntelligentLinks(req.user!.id, siteId);
+      console.log(`AI Suggest Debug: Found ${userLinks.length} user links for matching`);
+      console.log(`AI Suggest Debug: Keywords: ${JSON.stringify(keywords)}, Context: "${context}"`);
       
       // AI-powered link suggestion logic
       const suggestions = await generateAILinkSuggestions({
@@ -2870,6 +2872,8 @@ Format your response as a JSON object with the following structure:
         context: context || '',
         userId: req.user!.id
       });
+      
+      console.log(`AI Suggest Debug: Generated ${suggestions.length} suggestions`);
 
       // Store suggestions in database
       const createdSuggestions = [];
