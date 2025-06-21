@@ -436,9 +436,25 @@ export default function LinkInserter() {
                 
                 {acceptedSuggestions.length > 0 && (
                   <div className="mt-4 p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-                    <div className="text-green-700 dark:text-green-300 text-sm font-medium">
-                      <CheckCircle className="w-4 h-4 inline mr-1" />
-                      {acceptedSuggestions.length} links added successfully!
+                    <div className="flex items-center justify-between">
+                      <div className="text-green-700 dark:text-green-300 text-sm font-medium">
+                        <CheckCircle className="w-4 h-4 inline mr-1" />
+                        {acceptedSuggestions.length} links added successfully!
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const contentItem = content.find(c => c.id.toString() === selectedContent);
+                          if (contentItem) {
+                            window.open(`/content/editor/${contentItem.id}`, '_blank');
+                          }
+                        }}
+                        className="text-green-700 dark:text-green-300 border-green-300 hover:bg-green-200 dark:hover:bg-green-800"
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        View Content
+                      </Button>
                     </div>
                   </div>
                 )}
