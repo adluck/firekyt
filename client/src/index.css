@@ -12,6 +12,9 @@ div[dangerouslySetInnerHTML] a,
   text-decoration: underline !important;
   font-weight: 500 !important;
   transition: color 0.2s ease !important;
+  display: inline !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .prose a:hover,
@@ -21,6 +24,18 @@ div[dangerouslySetInnerHTML] a:hover,
 .ProseMirror a:hover {
   color: rgb(29 78 216) !important;
   text-decoration: underline !important;
+}
+
+/* Ensure link text is always visible */
+.prose a *,
+.content-preview a *,
+[data-content] a *,
+div[dangerouslySetInnerHTML] a *,
+.ProseMirror a * {
+  color: inherit !important;
+  display: inline !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Navigation link overrides - only target sidebar navigation */
