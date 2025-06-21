@@ -2482,9 +2482,14 @@ Format your response as a JSON object with the following structure:
           const userCheckUrl = `${cleanBlogUrl}/wp-json/wp/v2/users/me`;
           console.log('🔍 Checking WordPress user capabilities at:', userCheckUrl);
           
+          // WordPress application passwords need username:password format
+          const wpAuth = connection.accessToken.includes(':') 
+            ? connection.accessToken 
+            : `${connection.platformUsername}:${connection.accessToken}`;
+          
           const userResponse = await fetch(userCheckUrl, {
             headers: {
-              'Authorization': `Basic ${Buffer.from(connection.accessToken).toString('base64')}`
+              'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`
             }
           });
           
@@ -2533,7 +2538,7 @@ Format your response as a JSON object with the following structure:
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Basic ${Buffer.from(connection.accessToken).toString('base64')}`
+              'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`
             },
             body: JSON.stringify(wpPostData),
             signal: controller.signal
