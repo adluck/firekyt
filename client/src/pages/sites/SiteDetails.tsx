@@ -76,13 +76,13 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
   });
 
   // Use real analytics data from API
-  const analyticsData = siteAnalytics ? [
+  const analyticsData = analytics ? [
     { date: 'Jan', value: 0 },
     { date: 'Feb', value: 0 },
     { date: 'Mar', value: 0 },
     { date: 'Apr', value: 0 },
     { date: 'May', value: 0 },
-    { date: 'Jun', value: siteAnalytics.views || 0 },
+    { date: 'Jun', value: analytics.views || 0 },
   ] : [];
 
   if (siteLoading) {
