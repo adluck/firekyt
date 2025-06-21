@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Page transition styles to prevent white flash */
+html {
+  background-color: hsl(var(--background));
+}
+
+body {
+  background-color: hsl(var(--background));
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Smooth page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
 /* Global link styles for inserted affiliate links */
 .prose a,
 .content-preview a,

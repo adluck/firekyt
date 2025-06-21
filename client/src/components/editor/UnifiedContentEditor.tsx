@@ -402,17 +402,31 @@ export function UnifiedContentEditor({
 
   // Quick Actions handlers
   const handleAddAffiliateLinks = () => {
+    // Show loading state
+    toast({
+      title: 'Opening Link Inserter',
+      description: 'Saving content and preparing affiliate tools...',
+    });
+    
+    // Add page transition class to body for smooth exit
+    document.body.style.transition = 'opacity 0.2s ease-in-out';
+    document.body.style.opacity = '0.8';
+    
     // Save current content first, then navigate to link inserter
     if (contentData.content && contentData.title) {
       defaultSaveMutation.mutate(contentData, {
         onSuccess: () => {
-          // Navigate to link inserter with content context
-          window.location.href = '/links/inserter';
+          // Navigate with smooth transition
+          setTimeout(() => {
+            window.location.href = '/links/inserter';
+          }, 200);
         }
       });
     } else {
-      // If no content to save, just navigate
-      window.location.href = '/links/inserter';
+      // If no content to save, navigate with transition
+      setTimeout(() => {
+        window.location.href = '/links/inserter';
+      }, 200);
     }
   };
 
