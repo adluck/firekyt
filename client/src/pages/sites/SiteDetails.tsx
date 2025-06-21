@@ -75,15 +75,15 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
     },
   });
 
-  // Analytics data for charts
-  const analyticsData = [
-    { date: 'Jan', value: 400 },
-    { date: 'Feb', value: 300 },
-    { date: 'Mar', value: 600 },
-    { date: 'Apr', value: 800 },
-    { date: 'May', value: 500 },
-    { date: 'Jun', value: 900 },
-  ];
+  // Use real analytics data from API
+  const analyticsData = siteAnalytics ? [
+    { date: 'Jan', value: 0 },
+    { date: 'Feb', value: 0 },
+    { date: 'Mar', value: 0 },
+    { date: 'Apr', value: 0 },
+    { date: 'May', value: 0 },
+    { date: 'Jun', value: siteAnalytics.views || 0 },
+  ] : [];
 
   if (siteLoading) {
     return (
