@@ -605,12 +605,13 @@ export function UnifiedContentEditor({
     const dataToSave = {
       ...contentData,
       targetKeywords: currentKeywords || [],
-      siteId: contentData.siteId || 0, // Ensure siteId is included
+      siteId: contentData.siteId > 0 ? contentData.siteId : null, // Properly handle siteId
     };
 
     console.log('Saving content with keywords:', dataToSave.targetKeywords);
     console.log('Full data being saved:', dataToSave);
     console.log('SiteId being saved:', dataToSave.siteId);
+    console.log('Original contentData.siteId:', contentData.siteId);
 
     defaultSaveMutation.mutate(dataToSave);
   };
@@ -622,12 +623,13 @@ export function UnifiedContentEditor({
       ...contentData,
       status: 'published',
       targetKeywords: currentKeywords || [],
-      siteId: contentData.siteId || 0, // Ensure siteId is included
+      siteId: contentData.siteId > 0 ? contentData.siteId : null, // Properly handle siteId
     };
 
     console.log('Publishing content with keywords:', dataToSave.targetKeywords);
     console.log('Full data being published:', dataToSave);
     console.log('SiteId being published:', dataToSave.siteId);
+    console.log('Original contentData.siteId:', contentData.siteId);
 
     defaultSaveMutation.mutate(dataToSave);
   };

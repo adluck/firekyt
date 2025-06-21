@@ -862,19 +862,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle siteId conversion - ensure it's an integer or null
       if (updates.siteId !== undefined) {
-        if (updates.siteId === null || updates.siteId === '') {
+        console.log('🔍 PUT Processing siteId:', updates.siteId, 'type:', typeof updates.siteId);
+        if (updates.siteId === null || updates.siteId === '' || updates.siteId === 0) {
           cleanUpdates.siteId = null;
+          console.log('🔍 PUT siteId set to null');
         } else {
           const siteIdInt = parseInt(String(updates.siteId));
           cleanUpdates.siteId = isNaN(siteIdInt) ? null : siteIdInt;
+          console.log('🔍 PUT siteId converted to:', cleanUpdates.siteId);
         }
       }
 
       // Always update the timestamp
       cleanUpdates.updatedAt = new Date();
 
+      console.log('🔍 PUT Final cleanUpdates:', JSON.stringify(cleanUpdates));
+
       // Update the content
       const updatedContent = await storage.updateContent(contentId, userId, cleanUpdates);
+
+      console.log('🔍 PUT Updated content siteId:', updatedContent.siteId);
 
       res.json(updatedContent);
     } catch (error: any) {
