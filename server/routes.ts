@@ -2358,7 +2358,9 @@ Format your response as a JSON object with the following structure:
   // Scheduled publishing endpoint
   app.get("/api/publishing/scheduled", authenticateToken, async (req, res) => {
     try {
-      res.json({ success: true, scheduled: [] });
+      const userId = req.user!.id;
+      const scheduledPublications = await storage.getUserScheduledPublications(userId);
+      res.json({ success: true, scheduled: scheduledPublications });
     } catch (error: any) {
       res.status(500).json({
         success: false,
@@ -2387,17 +2389,15 @@ Format your response as a JSON object with the following structure:
         });
       }
 
-      // Create scheduled publication
-      const scheduledPublication = {
-        id: Date.now(),
+      // Create scheduled publication using storage
+      const scheduledPublication = await storage.createScheduledPublication({
         userId: req.user!.id,
         contentId: parseInt(contentId),
         platformConnectionId: parseInt(platformConnectionId),
         scheduledAt: scheduleDate,
         publishSettings: publishSettings || {},
-        status: 'pending',
-        createdAt: new Date()
-      };
+        status: 'pending'
+      });
 
       res.status(201).json({
         success: true,
