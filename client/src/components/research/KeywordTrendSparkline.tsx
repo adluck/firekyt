@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, TrendingDown, Minus, Search, Calendar, BarChart3, X } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Search, Calendar, BarChart3, X, RefreshCw } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 
 interface TrendDataPoint {
@@ -92,12 +93,25 @@ const SAMPLE_TRENDS: KeywordTrend[] = [
 ];
 
 export default function KeywordTrendSparkline() {
-  const [trends, setTrends] = useState<KeywordTrend[]>(SAMPLE_TRENDS);
+  const [trends, setTrends] = useState<KeywordTrend[]>([]);
   const [timeframe, setTimeframe] = useState("6w");
   const [sortBy, setSortBy] = useState("volume");
   const [filterCategory, setFilterCategory] = useState("all");
   const [newKeyword, setNewKeyword] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Fetch real keyword trends from API
+  const { data: apiTrends, isLoading, refetch } = useQuery({
+    queryKey: ['/api/analytics/keyword-trends'],
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+  });
+
+  // Update trends when API data is available
+  useEffect(() => {
+    if (apiTrends && Array.isArray(apiTrends)) {
+      setTrends(apiTrends);
+    }
+  }, [apiTrends]);
 
   const getTrendIcon = (trend: "up" | "down" | "stable") => {
     switch (trend) {
@@ -458,11 +472,35 @@ export default function KeywordTrendSparkline() {
         })}
       </div>
 
-      {filteredTrends.length === 0 && (
+      {isLoading && (
+        <Card>
+          <CardContent className="text-center py-8">
+            <RefreshCw className="h-8 w-8 mx-auto text-muted-foreground mb-4 animate-spin" />
+            <p className="text-muted-foreground">Loading keyword trends...</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {!isLoading && filteredTrends.length === 0 && (
         <Card>
           <CardContent className="text-center py-8">
             <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No trends found for the selected filters</p>
+            <p className="text-muted-foreground">
+              {trends.length === 0 
+                ? "No keyword data available. Create content with target keywords to see trends."
+                : "No trends found for the selected filters"
+              }
+            </p>
+            {trends.length === 0 && (
+              <Button 
+                variant="outline" 
+                onClick={() => refetch()} 
+                className="mt-4"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh Data
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
