@@ -252,6 +252,89 @@ nav [data-wouter-link] *,
   text-decoration: none !important;
 }
 
+/* Absolute override - target the exact element structure */
+.sidebar nav div div a,
+.sidebar nav div div a:link,
+.sidebar nav div div a:visited,
+.sidebar nav div div a:hover,
+.sidebar nav div div a:active,
+.sidebar nav div div a:focus {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  -webkit-text-decoration: none !important;
+  -moz-text-decoration: none !important;
+  text-underline-offset: unset !important;
+}
+
+/* Target by specificity - highest priority */
+.sidebar .ml-8 .nav-link,
+.sidebar .ml-8 .nav-link:link,
+.sidebar .ml-8 .nav-link:visited,
+.sidebar .ml-8 .nav-link:hover,
+.sidebar .ml-8 .nav-link:active {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+}
+
+/* Reset any inherited text decoration */
+.sidebar * {
+  text-decoration: none !important;
+}
+
+.sidebar {
+  text-decoration: none !important;
+}
+
+/* Emergency override for affiliate networks specifically */
+a[href="/affiliate-networks"],
+a[href="/affiliate-networks"]:link,
+a[href="/affiliate-networks"]:visited,
+a[href="/affiliate-networks"]:hover,
+a[href="/affiliate-networks"]:active,
+a[href="/affiliate-networks"]:focus {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  -webkit-text-decoration-line: none !important;
+  -moz-text-decoration-line: none !important;
+}
+
+/* Override all Tailwind underline utilities in sidebar */
+.sidebar .underline,
+.sidebar .hover\:underline,
+.sidebar .hover\:underline:hover,
+.sidebar .underline-offset-4,
+.sidebar .decoration-slice,
+.sidebar .decoration-clone {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+}
+
+/* Highly specific override with maximum CSS specificity */
+body .sidebar nav div div a[href="/affiliate-networks"],
+body .sidebar nav div div a[href="/affiliate-networks"]:link,
+body .sidebar nav div div a[href="/affiliate-networks"]:visited,
+body .sidebar nav div div a[href="/affiliate-networks"]:hover,
+body .sidebar nav div div a[href="/affiliate-networks"]:active {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: none !important;
+}
+
+/* Final catch-all for any remaining underlines in navigation */
+.sidebar a[href*="affiliate"],
+.sidebar button[class*="underline"],
+.sidebar div[class*="underline"],
+.sidebar [class*="underline"] {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+}
+
 /* Ensure affiliate links are always styled regardless of context - exclude sidebar navigation */
 a[href*="affiliate"]:not(.sidebar *):not(.nav-link):not([role="button"]),
 a[href*="amzn.to"]:not(.sidebar *):not(.nav-link):not([role="button"]),
