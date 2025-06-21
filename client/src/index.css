@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global link styles for inserted affiliate links */
+/* Global link styles for inserted affiliate links - but NOT navigation */
 .prose a,
 .content-preview a,
 [data-content] a,
@@ -21,6 +21,18 @@ div[dangerouslySetInnerHTML] a:hover,
 .ProseMirror a:hover {
   color: rgb(29 78 216) !important;
   text-decoration: underline !important;
+}
+
+/* Ensure navigation links override the global blue link styles */
+.nav-link a,
+.nav-link {
+  color: var(--sidebar-foreground) !important;
+  text-decoration: none !important;
+}
+
+.nav-link.active,
+.nav-link.active a {
+  color: #ea580c !important;
 }
 
 /* Ensure affiliate links are always styled regardless of context */
@@ -423,7 +435,7 @@ a[target="_blank"][rel*="nofollow"]:hover {
   
   /* Navigation styles */
   .nav-link {
-    @apply flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200;
+    @apply flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-sidebar-foreground;
   }
   
   .nav-link:hover {
