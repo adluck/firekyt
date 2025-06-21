@@ -429,9 +429,8 @@ export default function AdvancedContentGenerator() {
                 <form onSubmit={handleSubmit} className="space-y-4 h-full flex flex-col">
                   {/* Primary Keyword */}
                   <div className="space-y-2">
-                    <Label htmlFor="keyword" className="flex items-center space-x-1">
-                      <Target className="h-4 w-4" />
-                      <span>Primary Keyword *</span>
+                    <Label htmlFor="keyword">
+                      Primary Keyword *
                     </Label>
                     <Input
                       id="keyword"
@@ -478,9 +477,8 @@ export default function AdvancedContentGenerator() {
 
               {/* Tone of Voice */}
               <div className="space-y-2">
-                <Label className="flex items-center space-x-1">
-                  <Megaphone className="h-4 w-4" />
-                  <span>Tone of Voice</span>
+                <Label>
+                  Tone of Voice
                 </Label>
                 <Select value={formData.tone_of_voice} onValueChange={(value) => setFormData(prev => ({ ...prev, tone_of_voice: value }))}>
                   <SelectTrigger>
@@ -496,9 +494,8 @@ export default function AdvancedContentGenerator() {
 
               {/* Target Audience */}
               <div className="space-y-2">
-                <Label className="flex items-center space-x-1">
-                  <Users className="h-4 w-4" />
-                  <span>Target Audience</span>
+                <Label>
+                  Target Audience
                 </Label>
                 <Select value={formData.target_audience} onValueChange={(value) => setFormData(prev => ({ ...prev, target_audience: value }))}>
                   <SelectTrigger>
