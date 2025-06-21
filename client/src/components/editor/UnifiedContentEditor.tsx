@@ -408,39 +408,19 @@ export function UnifiedContentEditor({
       description: 'Saving content and preparing affiliate tools...',
     });
     
-    // Create seamless transition overlay
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: hsl(var(--background));
-      z-index: 9999;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    `;
-    document.body.appendChild(overlay);
-    
-    // Trigger fade
-    setTimeout(() => {
-      overlay.style.opacity = '1';
-    }, 10);
-    
     // Save current content first, then navigate to link inserter
     if (contentData.content && contentData.title) {
       defaultSaveMutation.mutate(contentData, {
         onSuccess: () => {
-          setTimeout(() => {
-            window.location.href = '/links/inserter';
-          }, 400);
+          // Use wouter's useLocation hook for navigation
+          window.history.pushState({}, '', '/links/inserter');
+          window.dispatchEvent(new PopStateEvent('popstate'));
         }
       });
     } else {
-      setTimeout(() => {
-        window.location.href = '/links/inserter';
-      }, 400);
+      // Use wouter's useLocation hook for navigation
+      window.history.pushState({}, '', '/links/inserter');
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 

@@ -4,39 +4,12 @@
 
 /* Page transition styles to prevent white flash */
 html {
-  background-color: hsl(222.2 84% 4.9%) !important;
-  transition: none;
+  background-color: hsl(var(--background));
 }
 
 body {
-  background-color: hsl(222.2 84% 4.9%) !important;
+  background-color: hsl(var(--background));
   min-height: 100vh;
-  transition: none;
-}
-
-/* Force dark background during all page loads */
-html, body {
-  background-color: hsl(222.2 84% 4.9%) !important;
-}
-
-/* Global loading overlay to prevent flash */
-.page-loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: hsl(222.2 84% 4.9%);
-  z-index: 999999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.3s ease;
-}
-
-.page-loading-overlay.fade-out {
-  opacity: 0;
-  pointer-events: none;
 }
 
 /* Smooth page transitions */

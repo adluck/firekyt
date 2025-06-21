@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { PageTransition } from '@/components/layout/PageTransition';
 import { 
   Brain, Sparkles, Target, CheckCircle, XCircle, Clock,
   Lightbulb, TrendingUp, MousePointer, ExternalLink,
@@ -45,22 +44,9 @@ export default function LinkInserter() {
   const [selectedSite, setSelectedSite] = useState<string>('');
   const [selectedTab, setSelectedTab] = useState('generator');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [pageVisible, setPageVisible] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Page entry animation
-  useEffect(() => {
-    // Remove any transition overlay and start page animation
-    const overlays = document.querySelectorAll('div[style*="z-index: 9999"]');
-    overlays.forEach(overlay => overlay.remove());
-    
-    // Trigger page entry animation
-    setTimeout(() => {
-      setPageVisible(true);
-    }, 50);
-  }, []);
 
   // Fetch user content
   const { data: contentData, isLoading: contentLoading } = useQuery({
@@ -240,8 +226,7 @@ export default function LinkInserter() {
   const rejectedSuggestions = suggestions.filter((s: LinkSuggestion) => s.status === 'rejected');
 
   return (
-    <PageTransition>
-      <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold flex items-center justify-center gap-2 mb-2">
           <Brain className="w-8 h-8 text-blue-600" />
@@ -792,7 +777,6 @@ export default function LinkInserter() {
           </Card>
         </TabsContent>
       </Tabs>
-      </div>
-    </PageTransition>
+    </div>
   );
 }
