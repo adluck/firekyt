@@ -2483,7 +2483,8 @@ Format your response as a JSON object with the following structure:
             title: postData.title,
             content: postData.content,
             excerpt: postData.excerpt,
-            status: 'publish'
+            status: 'publish',
+            author: 1 // Default to user ID 1, WordPress will use the authenticated user
           };
           
           console.log('📡 Making WordPress API request to:', apiUrl);
@@ -2531,9 +2532,27 @@ Format your response as a JSON object with the following structure:
             const errorText = await response.text();
             console.error('❌ WordPress API error:', response.status, errorText);
             
+            let errorMessage = `WordPress API error: ${response.status}`;
+            let suggestion = '';
+            
+            if (response.status === 401) {
+              if (errorText.includes('rest_cannot_create')) {
+                errorMessage = 'WordPress user permissions insufficient';
+                suggestion = 'Your WordPress user account needs "Editor" or "Administrator" role to create posts. Please check your user permissions in WordPress admin dashboard.';
+              } else {
+                errorMessage = 'WordPress authentication failed';
+                suggestion = 'Please verify your WordPress application password is correct and still active.';
+              }
+            } else if (response.status === 403) {
+              errorMessage = 'WordPress access forbidden';
+              suggestion = 'Your WordPress user role may not have permission to create posts. Ensure you have at least "Editor" permissions.';
+            }
+            
             return res.status(response.status).json({
               success: false,
-              message: `WordPress API error: ${response.status} - ${errorText}`
+              message: errorMessage,
+              suggestion: suggestion,
+              details: errorText
             });
           }
         } catch (error: any) {
