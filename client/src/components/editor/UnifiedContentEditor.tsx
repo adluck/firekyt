@@ -408,25 +408,39 @@ export function UnifiedContentEditor({
       description: 'Saving content and preparing affiliate tools...',
     });
     
-    // Add page transition class to body for smooth exit
-    document.body.style.transition = 'opacity 0.2s ease-in-out';
-    document.body.style.opacity = '0.8';
+    // Create seamless transition overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: hsl(var(--background));
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    `;
+    document.body.appendChild(overlay);
+    
+    // Trigger fade
+    setTimeout(() => {
+      overlay.style.opacity = '1';
+    }, 10);
     
     // Save current content first, then navigate to link inserter
     if (contentData.content && contentData.title) {
       defaultSaveMutation.mutate(contentData, {
         onSuccess: () => {
-          // Navigate with smooth transition
           setTimeout(() => {
             window.location.href = '/links/inserter';
-          }, 200);
+          }, 400);
         }
       });
     } else {
-      // If no content to save, navigate with transition
       setTimeout(() => {
         window.location.href = '/links/inserter';
-      }, 200);
+      }, 400);
     }
   };
 

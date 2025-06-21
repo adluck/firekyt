@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,9 +44,22 @@ export default function LinkInserter() {
   const [selectedSite, setSelectedSite] = useState<string>('');
   const [selectedTab, setSelectedTab] = useState('generator');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [pageVisible, setPageVisible] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Page entry animation
+  useEffect(() => {
+    // Remove any transition overlay and start page animation
+    const overlays = document.querySelectorAll('div[style*="z-index: 9999"]');
+    overlays.forEach(overlay => overlay.remove());
+    
+    // Trigger page entry animation
+    setTimeout(() => {
+      setPageVisible(true);
+    }, 50);
+  }, []);
 
   // Fetch user content
   const { data: contentData, isLoading: contentLoading } = useQuery({
@@ -226,7 +239,9 @@ export default function LinkInserter() {
   const rejectedSuggestions = suggestions.filter((s: LinkSuggestion) => s.status === 'rejected');
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className={`container mx-auto p-6 space-y-6 transition-all duration-300 ease-out ${
+      pageVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+    }`}>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold flex items-center justify-center gap-2 mb-2">
           <Brain className="w-8 h-8 text-blue-600" />

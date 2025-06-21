@@ -4,12 +4,35 @@
 
 /* Page transition styles to prevent white flash */
 html {
-  background-color: hsl(var(--background));
+  background-color: hsl(222.2 84% 4.9%);
+  transition: background-color 0.2s ease;
 }
 
 body {
-  background-color: hsl(var(--background));
-  transition: opacity 0.2s ease-in-out;
+  background-color: hsl(222.2 84% 4.9%);
+  transition: opacity 0.2s ease-in-out, background-color 0.2s ease;
+  min-height: 100vh;
+}
+
+/* Ensure consistent dark background during page loads */
+html.dark,
+html[data-theme="dark"] {
+  background-color: hsl(222.2 84% 4.9%) !important;
+}
+
+html:not(.dark),
+html[data-theme="light"] {
+  background-color: hsl(0 0% 100%) !important;
+}
+
+body.dark,
+body[data-theme="dark"] {
+  background-color: hsl(222.2 84% 4.9%) !important;
+}
+
+body:not(.dark),
+body[data-theme="light"] {
+  background-color: hsl(0 0% 100%) !important;
 }
 
 /* Smooth page transitions */
