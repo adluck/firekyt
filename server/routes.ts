@@ -830,6 +830,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updates = req.body;
       
       console.log('🔍 PUT /api/content/:id - Received targetKeywords:', JSON.stringify(updates.targetKeywords));
+      console.log('🔍 PUT /api/content/:id - Received siteId:', JSON.stringify(updates.siteId));
       console.error('🚨 FORCE DEBUG - PUT targetKeywords:', JSON.stringify(updates.targetKeywords));
 
       // Verify content belongs to user
