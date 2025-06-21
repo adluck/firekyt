@@ -182,7 +182,7 @@ export default function Sites() {
 
   const getSiteViews = (siteId: number) => {
     return sitesAnalytics[siteId]?.views || 0;
-  };;
+  };
 
   const canCreateSite = canAccess('site_creation') && !hasReachedLimit('sites');
 
