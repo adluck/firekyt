@@ -710,8 +710,8 @@ export default function PublishingDashboard() {
                   )}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Status</label>
-                    <Badge variant={selectedConnection?.isActive || selectedConnection?.status === 'connected' ? "default" : "secondary"}>
-                      {selectedConnection?.isActive || selectedConnection?.status === 'connected' ? "Connected" : "Inactive"}
+                    <Badge variant={selectedConnection?.isActive ? "default" : "secondary"}>
+                      {selectedConnection?.isActive ? "Connected" : "Inactive"}
                     </Badge>
                   </div>
                   <div className="space-y-2">
@@ -903,8 +903,8 @@ export default function PublishingDashboard() {
                       {getPlatformIcon(connection.platform)}
                       {connection.platform}
                     </CardTitle>
-                    <Badge variant={connection.status === 'connected' ? "default" : "secondary"}>
-                      {connection.status === 'connected' ? "Connected" : "Inactive"}
+                    <Badge variant={connection.isActive ? "default" : "secondary"}>
+                      {connection.isActive ? "Connected" : "Inactive"}
                     </Badge>
                   </CardHeader>
                   <CardContent>
