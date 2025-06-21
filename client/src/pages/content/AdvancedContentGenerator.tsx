@@ -417,10 +417,7 @@ export default function AdvancedContentGenerator() {
             {/* Content Generation Form */}
             <Card className="lg:col-span-2 flex flex-col h-full">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Wand2 className="h-5 w-5" />
-                  <span>Content Specification</span>
-                </CardTitle>
+                <CardTitle>Content Specification</CardTitle>
                 <CardDescription>
                   Configure your AI-powered content generation with advanced parameters
                 </CardDescription>
