@@ -2489,10 +2489,22 @@ Format your response as a JSON object with the following structure:
             authLength: wpAuth.length
           });
           
+          // Format content for WordPress - ensure proper HTML structure
+          let formattedContent = postData.content || '';
+          
+          // If content doesn't have HTML tags, convert line breaks to paragraphs
+          if (!formattedContent.includes('<p>') && !formattedContent.includes('<div>')) {
+            formattedContent = formattedContent
+              .split('\n\n')
+              .filter(paragraph => paragraph.trim())
+              .map(paragraph => `<p>${paragraph.trim()}</p>`)
+              .join('\n');
+          }
+          
           // WordPress REST API post data structure
           const wpPostData = {
             title: postData.title,
-            content: postData.content,
+            content: formattedContent,
             excerpt: postData.excerpt || '',
             status: 'publish'
           };
@@ -2501,7 +2513,8 @@ Format your response as a JSON object with the following structure:
             title: wpPostData.title,
             contentLength: wpPostData.content?.length || 0,
             excerptLength: wpPostData.excerpt?.length || 0,
-            status: wpPostData.status
+            status: wpPostData.status,
+            hasHtmlTags: wpPostData.content?.includes('<p>') || wpPostData.content?.includes('<div>')
           });
           
           console.log('📡 Making WordPress API request to:', apiUrl);
