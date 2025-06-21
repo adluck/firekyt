@@ -530,7 +530,13 @@ export function UnifiedContentEditor({
   });
 
   const updateContentData = (updates: Partial<ContentData>) => {
-    setContentData(prev => ({ ...prev, ...updates }));
+    console.log('🔍 updateContentData called with:', updates);
+    setContentData(prev => {
+      const newData = { ...prev, ...updates };
+      console.log('🔍 Previous contentData.siteId:', prev.siteId);
+      console.log('🔍 New contentData.siteId:', newData.siteId);
+      return newData;
+    });
     
     // Force re-render and re-apply link styles after content update
     setTimeout(() => {
@@ -890,15 +896,14 @@ export function UnifiedContentEditor({
                 <div>
                   <Label htmlFor="site">Target Site (Optional)</Label>
                   <Select
-                    value={contentData.siteId > 0 ? contentData.siteId.toString() : ""}
+                    value={contentData.siteId && contentData.siteId > 0 ? contentData.siteId.toString() : ""}
                     onValueChange={(value) => {
                       const newSiteId = parseInt(value);
-                      console.log('🔍 Target site changed to:', newSiteId);
+                      console.log('🔍 Target site dropdown changed to:', newSiteId);
+                      console.log('🔍 Current contentData.siteId before change:', contentData.siteId);
+                      console.log('🔍 Available sites:', sites.map(s => ({ id: s.id, name: s.name })));
                       
-                      // Update content data without triggering navigation
                       updateContentData({ siteId: newSiteId });
-                      
-                      console.log('🔍 Content data updated with new siteId:', newSiteId);
                     }}
                   >
                     <SelectTrigger>

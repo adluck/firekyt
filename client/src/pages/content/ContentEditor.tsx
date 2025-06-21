@@ -48,7 +48,7 @@ export default function ContentEditor({ id: propId }: ContentEditorProps = {} as
     seoTitle: existingContent.seoTitle,
     seoDescription: existingContent.seoDescription,
     targetKeywords: existingContent.targetKeywords,
-    siteId: existingContent.siteId || 0,
+    siteId: existingContent.siteId || null,
     richContent: existingContent.richContent,
     comparisonTables: existingContent.comparisonTables,
     affiliateLinks: existingContent.affiliateLinks,
