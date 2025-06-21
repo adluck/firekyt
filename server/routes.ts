@@ -2665,14 +2665,6 @@ Format your response as a JSON object with the following structure:
     }
   });
 
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to publish content: " + error.message
-      });
-    }
-  });
-
   // Social media publishing endpoint
   app.post('/api/social/publish', authenticateToken, async (req, res) => {
     try {
