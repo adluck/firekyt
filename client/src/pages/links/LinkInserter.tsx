@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Brain, Sparkles, Target, CheckCircle, XCircle, Clock,
   Lightbulb, TrendingUp, MousePointer, ExternalLink,
-  Plus, Zap, ArrowRight, AlertCircle, Info
+  Plus, Zap, ArrowRight, AlertCircle, Info, ArrowLeft, X
 } from 'lucide-react';
 
 interface ContentItem {
@@ -227,33 +227,252 @@ export default function LinkInserter() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Brain className="w-8 h-8 text-blue-600" />
-            AI Link Inserter
-          </h1>
-          <p className="text-muted-foreground">
-            Intelligent link suggestions powered by AI for optimal content performance
-          </p>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold flex items-center justify-center gap-2 mb-2">
+          <Brain className="w-8 h-8 text-blue-600" />
+          Smart Link Assistant
+        </h1>
+        <p className="text-lg text-muted-foreground">
+          AI finds the perfect links for your content in 3 simple steps
+        </p>
+      </div>
+
+      {/* Step-by-step process indicator */}
+      <div className="flex justify-center mb-8">
+        <div className="flex items-center space-x-4">
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+            selectedContent ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
+          }`}>
+            1
+          </div>
+          <div className="w-16 h-1 bg-muted"></div>
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+            pendingSuggestions.length > 0 ? 'bg-green-500 text-white' : selectedContent ? 'bg-blue-500 text-white' : 'bg-muted text-muted-foreground'
+          }`}>
+            2
+          </div>
+          <div className="w-16 h-1 bg-muted"></div>
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+            acceptedSuggestions.length > 0 ? 'bg-green-500 text-white' : pendingSuggestions.length > 0 ? 'bg-blue-500 text-white' : 'bg-muted text-muted-foreground'
+          }`}>
+            3
+          </div>
         </div>
       </div>
 
-      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList>
-          <TabsTrigger value="generator">AI Generator</TabsTrigger>
-          <TabsTrigger value="suggestions">
-            Suggestions 
-            {pendingSuggestions.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {pendingSuggestions.length}
-              </Badge>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Step 1: Select Content */}
+        <Card className={`${selectedContent ? 'border-green-200 bg-green-50 dark:bg-green-950' : 'border-blue-200'}`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">1</div>
+              Choose Your Content
+            </CardTitle>
+            <CardDescription>
+              Select the content you want to optimize with smart links
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="content-select">Content to optimize</Label>
+              <select 
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={selectedContent} 
+                onChange={(e) => setSelectedContent(e.target.value)}
+              >
+                <option value="">Choose content...</option>
+                {content.length > 0 ? (
+                  content.map((item: ContentItem) => (
+                    <option key={item.id} value={item.id.toString()}>
+                      {item.title || `Content ${item.id}`}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>No content available</option>
+                )}
+              </select>
+            </div>
+            
+            <div>
+              <Label htmlFor="keywords">What topics does this cover?</Label>
+              <Input
+                id="keywords"
+                placeholder="e.g., grant writing, AI tools, nonprofits"
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="context">Brief description</Label>
+              <textarea
+                id="context"
+                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                placeholder="Describe what this content is about..."
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Step 2: Generate Suggestions */}
+        <Card className={`${pendingSuggestions.length > 0 ? 'border-green-200 bg-green-50 dark:bg-green-950' : selectedContent ? 'border-blue-200' : 'border-muted'}`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
+                pendingSuggestions.length > 0 ? 'bg-green-500 text-white' : selectedContent ? 'bg-blue-500 text-white' : 'bg-muted text-muted-foreground'
+              }`}>2</div>
+              Get AI Suggestions
+            </CardTitle>
+            <CardDescription>
+              AI analyzes your content and finds relevant links
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!selectedContent ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <ArrowLeft className="w-8 h-8 mx-auto mb-2" />
+                <p>Select content first</p>
+              </div>
+            ) : pendingSuggestions.length === 0 ? (
+              <div className="text-center">
+                <Button
+                  onClick={handleGenerateSuggestions}
+                  disabled={isGenerating}
+                  className="w-full h-12"
+                  size="lg"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                      Finding perfect links...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Find Smart Links
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="text-center text-green-600 font-medium mb-4">
+                  <CheckCircle className="w-5 h-5 inline mr-1" />
+                  Found {pendingSuggestions.length} perfect links!
+                </div>
+                {pendingSuggestions.slice(0, 2).map((suggestion: LinkSuggestion) => (
+                  <div key={suggestion.id} className="border rounded-lg p-3 bg-white dark:bg-gray-900">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm">{suggestion.suggestedAnchorText}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={getConfidenceBadge(suggestion.confidence)} className="text-xs">
+                            {suggestion.confidence}% match
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {pendingSuggestions.length > 2 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    +{pendingSuggestions.length - 2} more suggestions
+                  </p>
+                )}
+              </div>
             )}
-          </TabsTrigger>
+          </CardContent>
+        </Card>
+
+        {/* Step 3: Review & Accept */}
+        <Card className={`${acceptedSuggestions.length > 0 ? 'border-green-200 bg-green-50 dark:bg-green-950' : pendingSuggestions.length > 0 ? 'border-blue-200' : 'border-muted'}`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
+                acceptedSuggestions.length > 0 ? 'bg-green-500 text-white' : pendingSuggestions.length > 0 ? 'bg-blue-500 text-white' : 'bg-muted text-muted-foreground'
+              }`}>3</div>
+              Review & Add Links
+            </CardTitle>
+            <CardDescription>
+              Choose which links to add to your content
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {pendingSuggestions.length === 0 && acceptedSuggestions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <ArrowLeft className="w-8 h-8 mx-auto mb-2" />
+                <p>Generate suggestions first</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingSuggestions.map((suggestion: LinkSuggestion) => (
+                  <div key={suggestion.id} className="border rounded-lg p-3">
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm">{suggestion.suggestedAnchorText}</h4>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleAcceptSuggestion(suggestion)}
+                          disabled={updateSuggestionMutation.isPending || bulkInsertMutation.isPending}
+                          className="flex-1"
+                        >
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Add Link
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRejectSuggestion(suggestion)}
+                          disabled={updateSuggestionMutation.isPending}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {acceptedSuggestions.length > 0 && (
+                  <div className="mt-4 p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <div className="text-green-700 dark:text-green-300 text-sm font-medium">
+                      <CheckCircle className="w-4 h-4 inline mr-1" />
+                      {acceptedSuggestions.length} links added successfully!
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Tips */}
+      <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="w-5 h-5 text-blue-600 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Pro Tips</h4>
+              <ul className="text-sm text-blue-700 dark:text-blue-200 space-y-1">
+                <li>• Be specific with keywords - "grant writing" works better than "writing"</li>
+                <li>• Add context about your content to get more relevant suggestions</li>
+                <li>• Higher confidence scores mean better matches for your content</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="hidden">
+        <TabsList className="hidden">
+          <TabsTrigger value="generator">AI Generator</TabsTrigger>
+          <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="generator" className="space-y-6">
+        <TabsContent value="hidden" className="hidden">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
