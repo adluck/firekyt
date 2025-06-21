@@ -402,7 +402,18 @@ export function UnifiedContentEditor({
 
   // Quick Actions handlers
   const handleAddAffiliateLinks = () => {
-    window.open('/links/inserter', '_blank');
+    // Save current content first, then navigate to link inserter
+    if (contentData.content && contentData.title) {
+      defaultSaveMutation.mutate(contentData, {
+        onSuccess: () => {
+          // Navigate to link inserter with content context
+          window.location.href = '/links/inserter';
+        }
+      });
+    } else {
+      // If no content to save, just navigate
+      window.location.href = '/links/inserter';
+    }
   };
 
   const handleSEOAnalysis = () => {
