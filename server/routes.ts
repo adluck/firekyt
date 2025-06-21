@@ -2478,13 +2478,38 @@ Format your response as a JSON object with the following structure:
         try {
           const fetch = (await import('node-fetch')).default;
           
+          // First check user capabilities
+          const userCheckUrl = `${cleanBlogUrl}/wp-json/wp/v2/users/me`;
+          const userResponse = await fetch(userCheckUrl, {
+            headers: {
+              'Authorization': `Basic ${Buffer.from(connection.accessToken).toString('base64')}`
+            }
+          });
+          
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            console.log('WordPress user capabilities:', userData.capabilities);
+            
+            // Check if user can publish posts
+            if (!userData.capabilities?.publish_posts && !userData.capabilities?.edit_posts) {
+              return res.status(403).json({
+                success: false,
+                message: 'WordPress user permissions insufficient',
+                suggestion: `Your WordPress user "${userData.name}" has role "${userData.roles?.[0] || 'unknown'}" which cannot create posts. Please upgrade to "Editor" or "Administrator" role.`,
+                userRole: userData.roles?.[0],
+                userName: userData.name,
+                capabilities: userData.capabilities
+              });
+            }
+          }
+          
           // WordPress REST API post data structure
           const wpPostData = {
             title: postData.title,
             content: postData.content,
             excerpt: postData.excerpt,
-            status: 'publish',
-            author: 1 // Default to user ID 1, WordPress will use the authenticated user
+            status: 'publish'
+            // Note: Omitting author field - WordPress will use the authenticated user
           };
           
           console.log('📡 Making WordPress API request to:', apiUrl);
@@ -2536,9 +2561,9 @@ Format your response as a JSON object with the following structure:
             let suggestion = '';
             
             if (response.status === 401) {
-              if (errorText.includes('rest_cannot_create')) {
+              if (errorText.includes('rest_cannot_create') || errorText.includes('rest_cannot_edit_others')) {
                 errorMessage = 'WordPress user permissions insufficient';
-                suggestion = 'Your WordPress user account needs "Editor" or "Administrator" role to create posts. Please check your user permissions in WordPress admin dashboard.';
+                suggestion = 'Your WordPress user account needs "Editor" or "Administrator" role to create posts. Please check your user permissions in WordPress admin dashboard and ensure the user has post creation privileges.';
               } else {
                 errorMessage = 'WordPress authentication failed';
                 suggestion = 'Please verify your WordPress application password is correct and still active.';
