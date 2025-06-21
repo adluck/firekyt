@@ -2938,24 +2938,33 @@ Format your response as a JSON object with the following structure:
         // Create the link HTML
         const linkHtml = `<a target="_blank" rel="noopener noreferrer nofollow" class="text-blue-600 hover:text-blue-800 underline" href="${product.affiliateUrl || product.productUrl}">${insertion.anchorText}</a>`;
         
-        // Find a safe insertion point near the suggested position (word boundary)
-        let position = Math.min(insertion.position || 0, updatedContentText.length);
+        // Find the anchor text in the content to replace it with the link
+        const anchorText = insertion.anchorText;
+        const anchorIndex = updatedContentText.indexOf(anchorText);
         
-        // Look for word boundaries around the suggested position
-        if (position > 0 && position < updatedContentText.length) {
-          // Look backwards for a space or punctuation
-          let safePosition = position;
-          for (let i = position; i >= Math.max(0, position - 50); i--) {
-            const char = updatedContentText[i];
-            if (char === ' ' || char === '.' || char === ',' || char === '!' || char === '?' || char === ';' || char === ':') {
-              safePosition = i + 1; // Insert after the space/punctuation
-              break;
+        if (anchorIndex !== -1) {
+          // Replace the anchor text with the link HTML
+          updatedContentText = updatedContentText.slice(0, anchorIndex) + linkHtml + updatedContentText.slice(anchorIndex + anchorText.length);
+        } else {
+          // Fallback: find a safe insertion point near the suggested position
+          let position = Math.min(insertion.position || 0, updatedContentText.length);
+          
+          // Look for word boundaries around the suggested position
+          if (position > 0 && position < updatedContentText.length) {
+            // Look backwards for a space or punctuation
+            let safePosition = position;
+            for (let i = position; i >= Math.max(0, position - 50); i--) {
+              const char = updatedContentText[i];
+              if (char === ' ' || char === '.' || char === ',' || char === '!' || char === '?' || char === ';' || char === ':') {
+                safePosition = i + 1; // Insert after the space/punctuation
+                break;
+              }
             }
+            position = safePosition;
           }
-          position = safePosition;
+          
+          updatedContentText = updatedContentText.slice(0, position) + ' ' + linkHtml + ' ' + updatedContentText.slice(position);
         }
-        
-        updatedContentText = updatedContentText.slice(0, position) + linkHtml + updatedContentText.slice(position);
 
         // Create insertion record
         const insertionData = {
