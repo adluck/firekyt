@@ -2462,11 +2462,91 @@ Format your response as a JSON object with the following structure:
         featured: publishSettings?.featured || false
       };
 
-      // Publish to external blog using proper API format
-      if (connection.connectionData?.blogUrl || connection.blogUrl) {
+      // Publish to platform based on connection type
+      if (connection.platform === 'wordpress') {
         const blogUrl = connection.connectionData?.blogUrl || connection.blogUrl;
-        // Fix URL construction to avoid double slashes
-        const cleanBlogUrl = blogUrl.replace(/\/$/, ''); // Remove trailing slash
+        const cleanBlogUrl = blogUrl.replace(/\/$/, '');
+        const apiUrl = `${cleanBlogUrl}/wp-json/wp/v2/posts`;
+        
+        console.log('🚀 Publishing to WordPress:', {
+          blogUrl,
+          apiUrl,
+          hasToken: !!connection.accessToken,
+          tokenLength: connection.accessToken?.length
+        });
+
+        try {
+          const fetch = (await import('node-fetch')).default;
+          
+          // WordPress REST API post data structure
+          const wpPostData = {
+            title: postData.title,
+            content: postData.content,
+            excerpt: postData.excerpt,
+            status: 'publish'
+          };
+          
+          console.log('📡 Making WordPress API request to:', apiUrl);
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${Buffer.from(connection.accessToken).toString('base64')}`
+            },
+            body: JSON.stringify(wpPostData),
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          
+          console.log('📡 WordPress API response status:', response.status);
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('✅ WordPress publish success:', result.id);
+            
+            // Save publication history
+            await storage.createPublicationHistory({
+              userId: req.user!.id,
+              contentId: parseInt(contentId),
+              platformConnectionId: parseInt(platformConnectionId),
+              platform: connection.platform,
+              platformPostId: result.id?.toString(),
+              platformUrl: result.link,
+              status: 'published',
+              publishedAt: new Date()
+            });
+
+            return res.json({
+              success: true,
+              message: "Content published successfully to WordPress",
+              platformUrl: result.link,
+              platformPostId: result.id
+            });
+          } else {
+            const errorText = await response.text();
+            console.error('❌ WordPress API error:', response.status, errorText);
+            
+            return res.status(response.status).json({
+              success: false,
+              message: `WordPress API error: ${response.status} - ${errorText}`
+            });
+          }
+        } catch (error: any) {
+          console.error('❌ WordPress publish error:', error);
+          return res.status(500).json({
+            success: false,
+            message: `WordPress publishing failed: ${error.message}`
+          });
+        }
+      } else if (connection.connectionData?.blogUrl || connection.blogUrl) {
+        // Custom blog API for other platforms
+        const blogUrl = connection.connectionData?.blogUrl || connection.blogUrl;
+        const cleanBlogUrl = blogUrl.replace(/\/$/, '');
         const apiUrl = `${cleanBlogUrl}/api/posts`;
         
         console.log('🚀 Publishing to external blog:', {
@@ -2491,9 +2571,8 @@ Format your response as a JSON object with the following structure:
             'Authorization': `Bearer ${connection.accessToken?.substring(0, 10)}...`
           });
           
-          // Add timeout and better error handling
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
           
           const response = await fetch(apiUrl, {
             method: 'POST',
@@ -2508,20 +2587,24 @@ Format your response as a JSON object with the following structure:
           clearTimeout(timeoutId);
 
           console.log('📨 Response status:', response.status, response.statusText);
-          console.log('📨 Response headers:', Object.fromEntries(response.headers.entries()));
           
           if (response.ok) {
             const responseText = await response.text();
             console.log('📄 Raw response:', responseText.substring(0, 200) + '...');
             
-            // Check if response is JSON
             if (response.headers.get('content-type')?.includes('application/json')) {
               try {
                 const publishedPost = JSON.parse(responseText);
                 console.log('✅ Successfully published to external blog:', publishedPost);
                 
-                // Update content status in FireKyt
-                await storage.updateContent(content.id, req.user!.id, {
+                // Save publication history
+                await storage.createPublicationHistory({
+                  userId: req.user!.id,
+                  contentId: parseInt(contentId),
+                  platformConnectionId: parseInt(platformConnectionId),
+                  platform: connection.platform,
+                  platformPostId: publishedPost.id?.toString(),
+                  platformUrl: publishedPost.url,
                   status: 'published',
                   publishedAt: new Date()
                 });
@@ -2529,52 +2612,21 @@ Format your response as a JSON object with the following structure:
                 return res.json({
                   success: true,
                   message: 'Content published successfully to external blog',
-                  publication: {
-                    id: publishedPost.post?.id || publishedPost.id,
-                    url: publishedPost.post?.url || publishedPost.url,
-                    status: 'published',
-                    publishedAt: new Date().toISOString(),
-                    platform: connection.platform,
-                    title: postData.title,
-                    externalBlog: true
-                  }
+                  platformUrl: publishedPost.url,
+                  platformPostId: publishedPost.id
                 });
               } catch (jsonError) {
                 console.log('❌ Failed to parse JSON response:', jsonError);
                 return res.status(500).json({
                   success: false,
-                  message: 'Blog returned invalid JSON response',
-                  error: 'Response parsing failed',
-                  blogUrl: apiUrl,
-                  responsePreview: responseText.substring(0, 200)
+                  message: 'Blog returned invalid JSON response'
                 });
               }
             } else {
               console.log('❌ Blog returned HTML instead of JSON');
               return res.status(500).json({
                 success: false,
-                message: 'Your blog server is not configured to handle API requests. The /api/posts endpoint is returning HTML instead of JSON, which means your blog needs a backend API server to receive published content.',
-                error: 'Blog API endpoint not configured',
-                blogUrl: apiUrl,
-                contentType: response.headers.get('content-type'),
-                solution: 'Add a backend API server to your blog with POST /api/posts endpoint that accepts JSON data with Bearer token authentication.',
-                expectedFormat: {
-                  method: 'POST',
-                  endpoint: '/api/posts',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer YOUR_TOKEN'
-                  },
-                  body: {
-                    title: 'string',
-                    slug: 'string',
-                    content: 'string',
-                    excerpt: 'string',
-                    author: 'string',
-                    category: 'string',
-                    published: 'boolean'
-                  }
-                }
+                message: 'External blog API endpoint not configured properly'
               });
             }
           } else {
@@ -2587,65 +2639,31 @@ Format your response as a JSON object with the following structure:
             
             return res.status(response.status).json({
               success: false,
-              message: `External blog publishing failed: ${response.status} ${response.statusText}`,
-              error: errorText,
-              blogUrl: apiUrl
+              message: `External blog publishing failed: ${response.status} ${response.statusText}`
             });
           }
         } catch (error: any) {
           console.log('🔥 External blog connection error:', error.message);
           
-          // Provide specific error messages based on error type
-          let errorMessage = 'Failed to connect to external blog';
-          let suggestion = 'Please check your blog configuration';
-          
-          if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
-            errorMessage = 'Cannot reach the blog domain - DNS resolution failed';
-            suggestion = 'Verify the blog URL is correct and the domain is accessible from the internet';
-          } else if (error.code === 'ECONNREFUSED') {
-            errorMessage = 'Connection refused by the blog server';
-            suggestion = 'Check if the blog server is running and the API endpoint exists';
-          } else if (error.code === 'ETIMEDOUT' || error.name === 'AbortError') {
-            errorMessage = 'Connection timed out';
-            suggestion = 'The blog server is taking too long to respond. Try again later';
-          } else if (error.code === 'ECONNRESET') {
-            errorMessage = 'Connection was reset by the blog server';
-            suggestion = 'Check your authentication credentials and API permissions';
-          }
-          
           return res.status(500).json({
             success: false,
-            message: errorMessage,
-            details: error.message,
-            blogUrl: blogUrl,
-            apiEndpoint: `${blogUrl}/api/posts`,
-            errorCode: error.code || 'UNKNOWN',
-            suggestion
+            message: `Failed to connect to external blog: ${error.message}`
           });
         }
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "No blog URL configured for this connection"
+        });
       }
-
-      // Mock successful publication for other platforms
-      const mockPublication = {
-        id: Date.now(),
-        url: `${connection.blogUrl || 'https://example.com'}/posts/${Date.now()}`,
-        status: 'published',
-        publishedAt: new Date().toISOString(),
-        platform: connection.platform,
-        title: postData.title
-      };
-
-      // Update content status
-      await storage.updateContent(content.id, req.user!.id, {
-        status: 'published',
-        publishedAt: new Date()
+    } catch (error: any) {
+      console.error('❌ Publish now error:', error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to publish content: " + error.message
       });
-
-      res.json({
-        success: true,
-        message: 'Content published successfully',
-        publication: mockPublication
-      });
+    }
+  });
 
     } catch (error: any) {
       res.status(500).json({
