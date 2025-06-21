@@ -145,12 +145,30 @@ export default function LinkInserter() {
     generateSuggestionsMutation.mutate(requestData);
   };
 
-  const handleAcceptSuggestion = (suggestion: LinkSuggestion) => {
+  const handleAcceptSuggestion = async (suggestion: LinkSuggestion) => {
+    // First update the suggestion status
     updateSuggestionMutation.mutate({
       id: suggestion.id,
       status: 'accepted',
       userFeedback: 'Accepted via AI interface'
     });
+
+    // Then automatically insert the link into content
+    if (suggestion.contentId && suggestion.suggestedLinkId) {
+      bulkInsertMutation.mutate({
+        contentId: suggestion.contentId,
+        insertions: [{
+          linkId: suggestion.suggestedLinkId,
+          anchorText: suggestion.suggestedAnchorText,
+          position: suggestion.suggestedPosition || 100
+        }]
+      });
+      
+      toast({
+        title: 'Link Accepted & Inserted',
+        description: `Link "${suggestion.suggestedAnchorText}" has been inserted into your content`,
+      });
+    }
   };
 
   const handleRejectSuggestion = (suggestion: LinkSuggestion, reason: string = '') => {
@@ -401,11 +419,11 @@ export default function LinkInserter() {
                           <Button
                             size="sm"
                             onClick={() => handleAcceptSuggestion(suggestion)}
-                            disabled={updateSuggestionMutation.isPending}
+                            disabled={updateSuggestionMutation.isPending || bulkInsertMutation.isPending}
                             className="flex items-center gap-1"
                           >
                             <CheckCircle className="w-3 h-3" />
-                            Accept
+                            {(updateSuggestionMutation.isPending || bulkInsertMutation.isPending) ? 'Inserting...' : 'Accept & Insert'}
                           </Button>
                           <Button
                             size="sm"
