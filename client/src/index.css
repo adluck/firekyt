@@ -35,12 +35,12 @@ body {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* Global link styles for inserted affiliate links - exclude sidebar */
-.prose a:not(.sidebar a),
-.content-preview a:not(.sidebar a),
-[data-content] a:not(.sidebar a),
-div[dangerouslySetInnerHTML] a:not(.sidebar a),
-.ProseMirror a:not(.sidebar a) {
+/* Global link styles for inserted affiliate links - exclude sidebar and navigation */
+.prose a:not(.sidebar *):not(.nav-link):not([role="button"]),
+.content-preview a:not(.sidebar *):not(.nav-link):not([role="button"]),
+[data-content] a:not(.sidebar *):not(.nav-link):not([role="button"]),
+div[dangerouslySetInnerHTML] a:not(.sidebar *):not(.nav-link):not([role="button"]),
+.ProseMirror a:not(.sidebar *):not(.nav-link):not([role="button"]) {
   color: rgb(37 99 235) !important;
   text-decoration: underline !important;
   font-weight: 500 !important;
@@ -184,18 +184,18 @@ div[dangerouslySetInnerHTML] a *,
   text-decoration-line: none !important;
 }
 
-/* Ensure affiliate links are always styled regardless of context */
-a[href*="affiliate"],
-a[href*="amzn.to"],
-a[target="_blank"][rel*="nofollow"] {
+/* Ensure affiliate links are always styled regardless of context - exclude sidebar navigation */
+a[href*="affiliate"]:not(.sidebar *):not(.nav-link):not([role="button"]),
+a[href*="amzn.to"]:not(.sidebar *):not(.nav-link):not([role="button"]),
+a[target="_blank"][rel*="nofollow"]:not(.sidebar *):not(.nav-link):not([role="button"]) {
   color: rgb(37 99 235) !important;
   text-decoration: underline !important;
   font-weight: 500 !important;
 }
 
-a[href*="affiliate"]:hover,
-a[href*="amzn.to"]:hover,
-a[target="_blank"][rel*="nofollow"]:hover {
+a[href*="affiliate"]:hover:not(.sidebar *):not(.nav-link):not([role="button"]),
+a[href*="amzn.to"]:hover:not(.sidebar *):not(.nav-link):not([role="button"]),
+a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([role="button"]) {
   color: rgb(29 78 216) !important;
 }
 
