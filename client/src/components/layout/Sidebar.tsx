@@ -58,7 +58,6 @@ const navigation = [
       { name: 'Niche Insights', href: '/research/niche', icon: Brain }
     ]
   },
-  { name: 'Publishing', href: '/publishing', icon: Send },
   { 
     name: 'Link Management', 
     href: '/links', 
@@ -69,6 +68,7 @@ const navigation = [
       { name: 'Partner Networks', href: '/partner-networks', icon: Network }
     ]
   },
+  { name: 'Publishing', href: '/publishing', icon: Send },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
