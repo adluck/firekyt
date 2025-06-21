@@ -531,7 +531,7 @@ export default function AdvancedContentGenerator() {
 
               {/* Advanced Options */}
               <div className="space-y-4 p-4 border rounded-lg">
-                <Label className="text-sm font-medium">Advanced Options</Label>
+                <h3 className="text-sm font-medium">Advanced Options</h3>
                 
                 <div className="flex items-center justify-between">
                   <Label htmlFor="seo-focus" className="text-sm">SEO Optimization</Label>
