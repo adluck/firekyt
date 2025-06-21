@@ -2949,7 +2949,9 @@ Format your response as a JSON object with the following structure:
           linkId: insertion.linkId,
           anchorText: insertion.anchorText,
           position: insertion.position,
-          insertedAt: new Date()
+          insertionType: 'ai-suggested',
+          insertionContext: 'smart-link-assistant',
+          isActive: true
         };
         
         const result = await storage.createLinkInsertion(insertionData);
