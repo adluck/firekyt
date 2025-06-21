@@ -2913,8 +2913,36 @@ Format your response as a JSON object with the following structure:
         return res.status(400).json({ message: "Content ID and insertions array are required" });
       }
 
+      // Get the content first
+      const userContent = await storage.getContent(req.user!.id);
+      const content = userContent.find((c: any) => c.id === parseInt(contentId));
+      
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+
+      // Get the product links we're inserting
+      const userProducts = await storage.getUserProducts(req.user!.id);
+      
+      let updatedContentText = content.content;
       const results = [];
-      for (const insertion of insertions) {
+
+      // Sort insertions by position in reverse order to maintain correct positions
+      const sortedInsertions = [...insertions].sort((a, b) => (b.position || 0) - (a.position || 0));
+
+      for (const insertion of sortedInsertions) {
+        // Find the product/link being inserted
+        const product = userProducts.find((p: any) => p.id === insertion.linkId);
+        if (!product) continue;
+
+        // Create the link HTML
+        const linkHtml = `<a target="_blank" rel="noopener noreferrer nofollow" class="text-blue-600 hover:text-blue-800 underline" href="${product.affiliateUrl || product.productUrl}">${insertion.anchorText}</a>`;
+        
+        // Insert the link at the specified position
+        const position = Math.min(insertion.position || 0, updatedContentText.length);
+        updatedContentText = updatedContentText.slice(0, position) + linkHtml + updatedContentText.slice(position);
+
+        // Create insertion record
         const insertionData = {
           userId: req.user!.id,
           contentId: parseInt(contentId),
@@ -2928,10 +2956,16 @@ Format your response as a JSON object with the following structure:
         results.push(result);
       }
 
+      // Update the content with the new links
+      await storage.updateContent(parseInt(contentId), req.user!.id, {
+        content: updatedContentText,
+        updatedAt: new Date()
+      });
+
       res.json({
         success: true,
         insertions: results,
-        message: `Successfully inserted ${results.length} links`
+        message: `Successfully inserted ${results.length} links into content`
       });
     } catch (error: any) {
       console.error('Bulk insert error:', error);
