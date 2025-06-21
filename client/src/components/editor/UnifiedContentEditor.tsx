@@ -495,6 +495,19 @@ export function UnifiedContentEditor({
 
   const updateContentData = (updates: Partial<ContentData>) => {
     setContentData(prev => ({ ...prev, ...updates }));
+    
+    // Force re-render and re-apply link styles after content update
+    setTimeout(() => {
+      const previewElement = document.querySelector('.content-updated');
+      if (previewElement) {
+        const links = previewElement.querySelectorAll('a');
+        links.forEach(link => {
+          (link as HTMLElement).style.color = 'rgb(37 99 235)';
+          (link as HTMLElement).style.textDecoration = 'underline';
+          (link as HTMLElement).style.fontWeight = '500';
+        });
+      }
+    }, 100);
   };
 
   const handleRichContentChange = (content: string) => {
@@ -782,11 +795,22 @@ export function UnifiedContentEditor({
                       </div>
 
                       <div 
-                        className="prose max-w-none prose-table:border-collapse prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-2 prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-2 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-a:font-medium [&_a]:text-blue-600 [&_a]:underline [&_a:hover]:text-blue-800"
+                        className="prose max-w-none prose-table:border-collapse prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-2 prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-2 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-a:font-medium [&_a]:text-blue-600 [&_a]:underline [&_a:hover]:text-blue-800 content-updated"
                         dangerouslySetInnerHTML={{ 
                           __html: contentData.content && isMarkdown(contentData.content) 
                             ? markdownToHtml(contentData.content) 
                             : contentData.content || '' 
+                        }}
+                        ref={(el) => {
+                          if (el) {
+                            // Force reapply styles to all links after content update
+                            const links = el.querySelectorAll('a');
+                            links.forEach(link => {
+                              link.style.color = 'rgb(37 99 235)';
+                              link.style.textDecoration = 'underline';
+                              link.style.fontWeight = '500';
+                            });
+                          }
                         }}
                       />
 

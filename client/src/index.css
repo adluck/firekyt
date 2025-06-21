@@ -5,7 +5,9 @@
 /* Global link styles for inserted affiliate links */
 .prose a,
 .content-preview a,
-[data-content] a {
+[data-content] a,
+div[dangerouslySetInnerHTML] a,
+.ProseMirror a {
   color: rgb(37 99 235) !important;
   text-decoration: underline !important;
   font-weight: 500 !important;
@@ -14,9 +16,33 @@
 
 .prose a:hover,
 .content-preview a:hover,
-[data-content] a:hover {
+[data-content] a:hover,
+div[dangerouslySetInnerHTML] a:hover,
+.ProseMirror a:hover {
   color: rgb(29 78 216) !important;
   text-decoration: underline !important;
+}
+
+/* Ensure affiliate links are always styled regardless of context */
+a[href*="affiliate"],
+a[href*="amzn.to"],
+a[target="_blank"][rel*="nofollow"] {
+  color: rgb(37 99 235) !important;
+  text-decoration: underline !important;
+  font-weight: 500 !important;
+}
+
+a[href*="affiliate"]:hover,
+a[href*="amzn.to"]:hover,
+a[target="_blank"][rel*="nofollow"]:hover {
+  color: rgb(29 78 216) !important;
+}
+
+/* Force re-apply styles after content updates */
+.content-updated a {
+  color: rgb(37 99 235) !important;
+  text-decoration: underline !important;
+  font-weight: 500 !important;
 }
 
 /* TipTap Editor Styles - Remove borders */
