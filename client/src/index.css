@@ -3,52 +3,81 @@
 @tailwind utilities;
 
 /* Global link styles for inserted affiliate links - but NOT navigation */
-.prose a,
-.content-preview a,
-[data-content] a,
-div[dangerouslySetInnerHTML] a,
-.ProseMirror a {
+.prose a:not(.nav-link):not([class*="nav"]),
+.content-preview a:not(.nav-link):not([class*="nav"]),
+[data-content] a:not(.nav-link):not([class*="nav"]),
+div[dangerouslySetInnerHTML] a:not(.nav-link):not([class*="nav"]),
+.ProseMirror a:not(.nav-link):not([class*="nav"]) {
   color: rgb(37 99 235) !important;
   text-decoration: underline !important;
   font-weight: 500 !important;
   transition: color 0.2s ease !important;
 }
 
-.prose a:hover,
-.content-preview a:hover,
-[data-content] a:hover,
-div[dangerouslySetInnerHTML] a:hover,
-.ProseMirror a:hover {
+.prose a:hover:not(.nav-link):not([class*="nav"]),
+.content-preview a:hover:not(.nav-link):not([class*="nav"]),
+[data-content] a:hover:not(.nav-link):not([class*="nav"]),
+div[dangerouslySetInnerHTML] a:hover:not(.nav-link):not([class*="nav"]),
+.ProseMirror a:hover:not(.nav-link):not([class*="nav"]) {
   color: rgb(29 78 216) !important;
   text-decoration: underline !important;
 }
 
-/* Ensure navigation links override the global blue link styles */
+/* Navigation link overrides - highest specificity */
+nav a,
+nav a:link,
+nav a:visited,
+nav a:hover,
+nav a:active,
 .nav-link,
+.nav-link *,
 .nav-link a,
+.nav-link a:link,
+.nav-link a:visited,
+.nav-link a:hover,
+.nav-link a:active,
 nav .nav-link,
+nav .nav-link *,
 nav .nav-link a,
-.sidebar .nav-link,
-.sidebar .nav-link a {
+nav .nav-link a:link,
+nav .nav-link a:visited,
+nav .nav-link a:hover,
+nav .nav-link a:active,
+[class*="sidebar"] a,
+[class*="sidebar"] a:link,
+[class*="sidebar"] a:visited,
+[class*="sidebar"] a:hover,
+[class*="sidebar"] a:active,
+[class*="sidebar"] .nav-link,
+[class*="sidebar"] .nav-link *,
+[class*="sidebar"] .nav-link a,
+[class*="sidebar"] .nav-link a:link,
+[class*="sidebar"] .nav-link a:visited,
+[class*="sidebar"] .nav-link a:hover,
+[class*="sidebar"] .nav-link a:active {
   color: var(--sidebar-foreground) !important;
   text-decoration: none !important;
-  font-weight: 500 !important;
-}
-
-.nav-link:hover,
-.nav-link:hover a,
-nav .nav-link:hover,
-nav .nav-link:hover a {
-  color: var(--sidebar-accent-foreground) !important;
-  text-decoration: none !important;
+  border-bottom: none !important;
+  text-underline-offset: unset !important;
 }
 
 .nav-link.active,
+.nav-link.active *,
 .nav-link.active a,
+.nav-link.active a:link,
+.nav-link.active a:visited,
+.nav-link.active a:hover,
+.nav-link.active a:active,
 nav .nav-link.active,
-nav .nav-link.active a {
+nav .nav-link.active *,
+nav .nav-link.active a,
+nav .nav-link.active a:link,
+nav .nav-link.active a:visited,
+nav .nav-link.active a:hover,
+nav .nav-link.active a:active {
   color: #ea580c !important;
   text-decoration: none !important;
+  border-bottom: none !important;
 }
 
 /* Ensure affiliate links are always styled regardless of context */
