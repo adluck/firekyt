@@ -893,13 +893,12 @@ export function UnifiedContentEditor({
                     value={contentData.siteId > 0 ? contentData.siteId.toString() : ""}
                     onValueChange={(value) => {
                       const newSiteId = parseInt(value);
+                      console.log('🔍 Target site changed to:', newSiteId);
+                      
+                      // Update content data without triggering navigation
                       updateContentData({ siteId: newSiteId });
                       
-                      // Auto-save when site is changed
-                      if (contentData.title && contentData.content) {
-                        const updatedData = { ...contentData, siteId: newSiteId };
-                        defaultSaveMutation.mutate(updatedData);
-                      }
+                      console.log('🔍 Content data updated with new siteId:', newSiteId);
                     }}
                   >
                     <SelectTrigger>
