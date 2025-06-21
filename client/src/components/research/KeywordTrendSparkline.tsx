@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, TrendingDown, Minus, Search, Calendar, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Search, Calendar, BarChart3, X } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 
 interface TrendDataPoint {
@@ -209,6 +209,10 @@ export default function KeywordTrendSparkline() {
     setIsAnalyzing(false);
   };
 
+  const deleteTrend = (keywordToDelete: string) => {
+    setTrends(prev => prev.filter(trend => trend.keyword !== keywordToDelete));
+  };
+
   const handleAddKeyword = () => {
     if (newKeyword.trim()) {
       analyzeNewKeyword(newKeyword.trim());
@@ -309,9 +313,17 @@ export default function KeywordTrendSparkline() {
           const difficultyBadge = getDifficultyBadge(trend.difficulty);
           
           return (
-            <Card key={index} className="hover:shadow-md transition-shadow">
+            <Card key={index} className="hover:shadow-md transition-shadow relative group">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteTrend(trend.keyword)}
+                className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-destructive hover:text-destructive-foreground"
+              >
+                <X className="h-3 w-3" />
+              </Button>
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between pr-8">
                   <div className="flex-1">
                     <CardTitle className="text-lg">{trend.keyword}</CardTitle>
                     <CardDescription className="flex items-center gap-2 mt-1">
