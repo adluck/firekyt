@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Brain, Sparkles, Target, CheckCircle, XCircle, Clock,
   Lightbulb, TrendingUp, MousePointer, ExternalLink,
-  Plus, Zap, ArrowRight, AlertCircle, Info, ArrowLeft, X
+  Plus, Zap, ArrowRight, AlertCircle, Info, ArrowLeft, X, FileText
 } from 'lucide-react';
 
 interface ContentItem {
