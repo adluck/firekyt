@@ -213,6 +213,58 @@ export default function KeywordTrendSparkline() {
     setTrends(prev => prev.filter(trend => trend.keyword !== keywordToDelete));
   };
 
+  const exportData = () => {
+    const exportData = filteredTrends.map(trend => ({
+      keyword: trend.keyword,
+      category: trend.category,
+      currentVolume: trend.currentVolume,
+      trend: trend.trend,
+      trendPercentage: trend.trendPercentage,
+      difficulty: trend.difficulty,
+      ...trend.data.reduce((acc, point, index) => {
+        acc[`week${index + 1}_volume`] = point.value;
+        acc[`week${index + 1}_date`] = point.date;
+        return acc;
+      }, {} as Record<string, any>)
+    }));
+
+    const csv = [
+      // CSV Header
+      [
+        'Keyword',
+        'Category', 
+        'Current Volume',
+        'Trend Direction',
+        'Trend Percentage',
+        'Difficulty',
+        ...Array.from({length: 6}, (_, i) => [`Week ${i+1} Volume`, `Week ${i+1} Date`]).flat()
+      ].join(','),
+      // CSV Data
+      ...exportData.map(row => [
+        `"${row.keyword}"`,
+        row.category,
+        row.currentVolume,
+        row.trend,
+        row.trendPercentage,
+        row.difficulty,
+        ...Array.from({length: 6}, (_, i) => [
+          row[`week${i+1}_volume`] || '',
+          row[`week${i+1}_date`] || ''
+        ]).flat()
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `keyword-trends-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleAddKeyword = () => {
     if (newKeyword.trim()) {
       analyzeNewKeyword(newKeyword.trim());
@@ -298,7 +350,12 @@ export default function KeywordTrendSparkline() {
             </div>
 
             <div className="flex items-end">
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={exportData}
+                disabled={filteredTrends.length === 0}
+              >
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Export Data
               </Button>
