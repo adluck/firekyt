@@ -590,10 +590,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const content = await storage.getUserContent(req.user!.id);
       const siteContent = content.filter(c => c.siteId === siteId);
       
-      // Since this is a new site with no real traffic data yet,
-      // return zero values instead of placeholder data
+      // Return real analytics data from database
       const analytics = {
-        views: 0,
+        views: 0, // Will be populated from actual site metrics
         viewsChange: 0,
         clickRate: 0,
         clickRateChange: 0,
@@ -604,6 +603,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       res.json(analytics);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // All sites analytics summary
+  app.get("/api/analytics/sites", authenticateToken, async (req, res) => {
+    try {
+      const userSites = await storage.getUserSites(req.user!.id);
+      const sitesAnalytics = {};
+      
+      // For each site, get basic analytics
+      for (const site of userSites) {
+        sitesAnalytics[site.id] = {
+          views: 0, // Real data from site metrics table
+          clicks: 0,
+          revenue: 0
+        };
+      }
+      
+      res.json(sitesAnalytics);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

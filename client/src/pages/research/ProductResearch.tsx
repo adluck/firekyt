@@ -384,10 +384,6 @@ export default function ProductResearch() {
           <h1 className="text-3xl font-bold">Product Research Engine</h1>
           <p className="text-muted-foreground">Advanced AI-powered affiliate product discovery and scoring</p>
         </div>
-        <Badge variant="outline" className="text-lg px-3 py-1">
-          <Target className="w-4 h-4 mr-1" />
-          Beta
-        </Badge>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

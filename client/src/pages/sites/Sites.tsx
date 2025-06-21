@@ -43,6 +43,12 @@ export default function Sites() {
     queryKey: ["/api/content"],
   });
 
+  // Fetch analytics for all sites
+  const { data: sitesAnalytics = {} } = useQuery({
+    queryKey: ["/api/analytics/sites"],
+    enabled: sites.length > 0,
+  });
+
   // Create site mutation
   const createSiteMutation = useMutation({
     mutationFn: async (siteData: InsertSite) => {
@@ -173,6 +179,10 @@ export default function Sites() {
   const getContentCount = (siteId: number) => {
     return allContent.filter((content: any) => content.siteId === siteId).length;
   };
+
+  const getSiteViews = (siteId: number) => {
+    return sitesAnalytics[siteId]?.views || 0;
+  };;
 
   const canCreateSite = canAccess('site_creation') && !hasReachedLimit('sites');
 
@@ -381,7 +391,7 @@ export default function Sites() {
               key={site.id}
               site={site}
               contentCount={getContentCount(site.id)}
-              totalViews={Math.floor(Math.random() * 10000)} // This would come from analytics
+              totalViews={getSiteViews(site.id)}
               onEdit={() => handleEdit(site)}
               onDelete={() => handleDelete(site)}
             />
