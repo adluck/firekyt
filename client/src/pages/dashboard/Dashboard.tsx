@@ -91,7 +91,10 @@ export default function Dashboard() {
           value={overview.totalSites || 0}
           description="Active sites"
           icon={Globe}
-          trend={{ value: "+2 this month", positive: true }}
+          trend={{ 
+            value: overview.totalSites > 1 ? `+${overview.totalSites - 1} this month` : "0 this month", 
+            positive: overview.totalSites > 1 
+          }}
         />
         
         <DashboardCard
@@ -99,7 +102,10 @@ export default function Dashboard() {
           value={overview.totalContent || 0}
           description="Published articles"
           icon={FileText}
-          trend={{ value: "+12 this month", positive: true }}
+          trend={{ 
+            value: overview.totalContent > 0 ? `+${overview.totalContent} this month` : "0 this month", 
+            positive: overview.totalContent > 0 
+          }}
         />
         
         <DashboardCard
@@ -107,15 +113,21 @@ export default function Dashboard() {
           value={`$${overview.totalRevenue || 0}`}
           description="Affiliate earnings"
           icon={DollarSign}
-          trend={{ value: "+5.2%", positive: true }}
+          trend={{ 
+            value: overview.revenueGrowth || "0%", 
+            positive: overview.revenueGrowth && overview.revenueGrowth.startsWith('+')
+          }}
         />
         
         <DashboardCard
           title="Conversion Rate"
-          value={`${overview.conversionRate || 0}%`}
+          value={overview.conversionRate || "0%"}
           description="Click to conversion"
           icon={TrendingUp}
-          trend={{ value: "+0.3%", positive: true }}
+          trend={{ 
+            value: overview.totalClicks > 0 ? `+${(parseFloat(overview.conversionRate || '0') * 0.1).toFixed(1)}%` : "0%", 
+            positive: overview.totalClicks > 0 
+          }}
         />
       </div>
 
