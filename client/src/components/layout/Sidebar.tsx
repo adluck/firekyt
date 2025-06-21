@@ -171,12 +171,18 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                       {item.submenu.map((subItem) => {
                         const isSubActive = location === subItem.href;
                         return (
-                          <WouterLink key={subItem.name} href={subItem.href}>
+                          <WouterLink 
+                            key={subItem.name} 
+                            href={subItem.href}
+                            className="no-underline"
+                            style={{ textDecoration: 'none', textDecorationLine: 'none' }}
+                          >
                             <div 
                               className={cn(
-                                "nav-link text-sm ml-0",
+                                "nav-link text-sm ml-0 no-underline",
                                 isSubActive && "active"
                               )}
+                              style={{ textDecoration: 'none', textDecorationLine: 'none' }}
                               onClick={() => setIsMobileOpen(false)}
                             >
                               <subItem.icon className="h-4 w-4" />

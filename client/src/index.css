@@ -184,6 +184,74 @@ div[dangerouslySetInnerHTML] a *,
   text-decoration-line: none !important;
 }
 
+/* Ultra-specific override for affiliate networks link */
+a[href="/affiliate-networks"],
+a[href="/affiliate-networks"] *,
+.sidebar a[href="/affiliate-networks"],
+.sidebar a[href="/affiliate-networks"] *,
+nav a[href="/affiliate-networks"],
+nav a[href="/affiliate-networks"] * {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: none !important;
+  text-underline-offset: unset !important;
+  -webkit-text-decoration: none !important;
+  -moz-text-decoration: none !important;
+}
+
+/* Override any CSS that might be applying underlines to navigation */
+.sidebar a[href*="affiliate"],
+.sidebar a[href*="affiliate"] *,
+nav a[href*="affiliate"],
+nav a[href*="affiliate"] *,
+a[href*="affiliate"].nav-link,
+a[href*="affiliate"] .nav-link {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: none !important;
+}
+
+/* Final nuclear override using attribute selectors */
+[href*="affiliate-networks"] {
+  text-decoration: none !important;
+}
+
+[href*="affiliate-networks"] * {
+  text-decoration: none !important;
+}
+
+/* Reset all text decoration for wouter links in sidebar */
+.sidebar a[role],
+.sidebar a[role] *,
+.sidebar > nav a,
+.sidebar > nav a * {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+}
+
+/* Wouter Link component override */
+.sidebar [data-wouter-link],
+.sidebar [data-wouter-link] *,
+nav [data-wouter-link],
+nav [data-wouter-link] *,
+.no-underline,
+.no-underline * {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+}
+
+/* Override browser default link styles */
+.sidebar a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
 /* Ensure affiliate links are always styled regardless of context - exclude sidebar navigation */
 a[href*="affiliate"]:not(.sidebar *):not(.nav-link):not([role="button"]),
 a[href*="amzn.to"]:not(.sidebar *):not(.nav-link):not([role="button"]),
