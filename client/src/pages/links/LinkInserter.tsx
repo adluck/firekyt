@@ -447,7 +447,8 @@ export default function LinkInserter() {
                         onClick={() => {
                           const contentItem = content.find(c => c.id.toString() === selectedContent);
                           if (contentItem) {
-                            window.open(`/content/editor/${contentItem.id}`, '_blank');
+                            window.history.pushState({}, '', `/content/editor/${contentItem.id}`);
+                            window.dispatchEvent(new PopStateEvent('popstate'));
                           }
                         }}
                         className="text-green-700 dark:text-green-300 border-green-300 hover:bg-green-200 dark:hover:bg-green-800"
