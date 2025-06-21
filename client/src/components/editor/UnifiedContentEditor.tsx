@@ -400,6 +400,23 @@ export function UnifiedContentEditor({
     console.log('🔍 UNIFIED Keywords updated, should trigger re-render');
   };
 
+  // Quick Actions handlers
+  const handleAddAffiliateLinks = () => {
+    window.open('/links/inserter', '_blank');
+  };
+
+  const handleSEOAnalysis = () => {
+    setActiveTab('seo');
+  };
+
+  const handleSchedulePost = () => {
+    updateContentData({ status: 'scheduled' });
+    toast({
+      title: 'Post scheduled',
+      description: 'Content status updated to scheduled',
+    });
+  };
+
   // Default save mutation
   const defaultSaveMutation = useMutation({
     mutationFn: async (data: ContentData) => {
@@ -937,15 +954,30 @@ export function UnifiedContentEditor({
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={handleAddAffiliateLinks}
+                >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Add Affiliate Links
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={handleSEOAnalysis}
+                >
                   <Tag className="w-4 h-4 mr-2" />
                   SEO Analysis
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={handleSchedulePost}
+                >
                   <Calendar className="w-4 h-4 mr-2" />
                   Schedule Post
                 </Button>
