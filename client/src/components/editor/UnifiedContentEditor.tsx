@@ -471,17 +471,20 @@ export function UnifiedContentEditor({
     onSuccess: async (result) => {
       console.log('🔍 FRONTEND onSuccess called with result:', JSON.stringify(result));
       console.log('🔍 FRONTEND targetKeywords from response:', JSON.stringify(result?.targetKeywords));
+      console.log('🔍 FRONTEND siteId from response:', result?.siteId);
       
-      // Update keywords state with saved data to reflect in UI
-      if (result && result.targetKeywords) {
-        console.log('🔍 FRONTEND Setting keywords to:', result.targetKeywords);
-        setContentData(prev => ({ 
-          ...prev, 
-          targetKeywords: result.targetKeywords 
-        }));
-      } else {
-        console.log('🔍 FRONTEND No targetKeywords in result or result is null');
-      }
+      // Update state with all saved data to reflect in UI
+      setContentData(prev => {
+        const updated = { 
+          ...prev,
+          // Preserve the siteId from the server response
+          siteId: result?.siteId !== undefined ? result.siteId : prev.siteId,
+          // Update keywords if present
+          targetKeywords: result?.targetKeywords || prev.targetKeywords
+        };
+        console.log('🔍 FRONTEND Updated contentData siteId:', updated.siteId);
+        return updated;
+      });
       
       toast({
         title: 'Content saved',
@@ -492,13 +495,8 @@ export function UnifiedContentEditor({
       queryClient.invalidateQueries({ queryKey: ['/api/content'] });
       
       // Invalidate site-specific content queries
-      if (contentData.siteId) {
-        queryClient.invalidateQueries({ 
-          queryKey: [`/api/content?siteId=${contentData.siteId}`]
-        });
-        queryClient.invalidateQueries({ 
-          queryKey: [`/api/analytics/site/${contentData.siteId}`]
-        });
+      if (result?.siteId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/content/site/${result.siteId}`] });
       }
       
       // Invalidate any query that contains 'content' to ensure comprehensive cache clearing
