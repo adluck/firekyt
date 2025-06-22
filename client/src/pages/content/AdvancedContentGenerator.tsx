@@ -184,25 +184,33 @@ export default function AdvancedContentGenerator() {
 
   // Save content mutation
   const saveMutation = useMutation({
-    mutationFn: async (siteId: number | null) => {
+    mutationFn: async (contentToSave: any) => {
       if (!generatedContent) {
         throw new Error("No content to save");
       }
 
-      // Use siteId from dialog if provided, otherwise use form data
-      const finalSiteId = siteId !== null ? siteId : formData.siteId;
+      // Parse the generated content for fallback values
+      let contentData;
+      try {
+        contentData = JSON.parse(generatedContent.generated_text || '{}');
+      } catch {
+        contentData = {};
+      }
 
-      // Create payload from generated content
+      // Use content from editor if provided, otherwise use generated content
       const payload = {
-        title: generatedContent.title || `Generated Content - ${formData.keyword}`,
-        content: generatedContent.generated_text || '',
+        title: contentToSave?.title || contentData.title || generatedContent.title || `Generated Content - ${formData.keyword}`,
+        content: contentToSave?.content || contentData.content || 'Content generation completed',
         contentType: formData.content_type,
-        siteId: finalSiteId,
-        seoTitle: generatedContent.seo_title,
-        seoDescription: generatedContent.seo_description,
-        targetKeywords: [formData.keyword],
+        siteId: contentToSave?.siteId || null, // Use siteId from editor
+        seoTitle: contentToSave?.seoTitle || generatedContent.seo_title,
+        seoDescription: contentToSave?.seoDescription || generatedContent.seo_description,
+        targetKeywords: contentToSave?.targetKeywords || [formData.keyword],
         status: "draft"
       };
+
+      console.log('AdvancedContentGenerator saveMutation payload:', payload);
+      console.log('AdvancedContentGenerator siteId being saved:', payload.siteId);
 
       // If we have a database content ID from AI generation, update the existing record
       if (databaseContentId) {
@@ -379,12 +387,8 @@ export default function AdvancedContentGenerator() {
               originalGenerationId: generatedContent.content_id,
             };
             console.log('AdvancedContentGenerator onSave with data:', contentToSave);
-            return new Promise((resolve, reject) => {
-              saveMutation.mutate(contentToSave, {
-                onSuccess: resolve,
-                onError: reject
-              });
-            });
+            saveMutation.mutate(contentToSave);
+            return Promise.resolve();
           }}
           onClose={() => setShowEditor(false)}
           isSaving={saveMutation.isPending}
