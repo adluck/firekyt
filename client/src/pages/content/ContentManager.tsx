@@ -63,6 +63,7 @@ export default function ContentManager() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [editingContent, setEditingContent] = useState<Content | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isUpdatingEditor, setIsUpdatingEditor] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
