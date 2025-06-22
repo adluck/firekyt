@@ -116,7 +116,7 @@ export function UnifiedContentEditor({
     content: '',
     contentType: 'blog_post',
     status: 'draft',
-    siteId: 0,
+    siteId: initialContent?.siteId || 0,
     ...initialContent,
   });
   
@@ -459,6 +459,8 @@ export function UnifiedContentEditor({
       if (onSave) {
         await onSave(data);
       }
+      
+      // State will be updated in onSuccess callback
       
       return result;
     },
