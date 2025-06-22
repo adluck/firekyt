@@ -3322,4 +3322,147 @@ async function generateAILinkSuggestions(params: {
   return suggestions
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 5);
+  // Link Tracking Routes
+  
+  // Track link click and redirect
+  app.get('/api/track/click/:linkId', async (req, res) => {
+    try {
+      const linkId = parseInt(req.params.linkId);
+      const { url, insertionId, siteId, sessionId } = req.query;
+      
+      if (!url) {
+        return res.status(400).json({ message: 'Original URL is required' });
+      }
+
+      // Get tracking data from request
+      const trackingData = {
+        insertionId: insertionId ? parseInt(insertionId as string) : undefined,
+        siteId: siteId ? parseInt(siteId as string) : undefined,
+        sessionId: sessionId as string,
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
+        referrer: req.get('Referrer')
+      };
+
+      // Process the tracked click (this will record the click)
+      const redirectUrl = await linkTrackingService.processTrackedClick(
+        linkId,
+        url as string,
+        trackingData
+      );
+
+      // Redirect to the original URL
+      res.redirect(302, redirectUrl);
+    } catch (error: any) {
+      console.error('Link tracking error:', error);
+      // If tracking fails, still redirect to the original URL if possible
+      const { url } = req.query;
+      if (url) {
+        res.redirect(302, url as string);
+      } else {
+        res.status(500).json({ message: 'Link tracking failed' });
+      }
+    }
+  });
+
+  // Track link view
+  app.post('/api/track/view', async (req, res) => {
+    try {
+      const { linkId, insertionId, siteId, userId } = req.body;
+      
+      if (!linkId) {
+        return res.status(400).json({ message: 'Link ID is required' });
+      }
+
+      await linkTrackingService.trackView({
+        linkId: parseInt(linkId),
+        insertionId: insertionId ? parseInt(insertionId) : undefined,
+        siteId: siteId ? parseInt(siteId) : undefined,
+        userId: userId || 1, // Default to user 1 for anonymous tracking
+        sessionId: req.sessionID,
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
+        referrer: req.get('Referrer')
+      });
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('View tracking error:', error);
+      res.status(500).json({ message: 'View tracking failed' });
+    }
+  });
+
+  // Track conversion
+  app.post('/api/track/conversion', async (req, res) => {
+    try {
+      const { linkId, insertionId, siteId, userId, revenue, commissionRate, eventData } = req.body;
+      
+      if (!linkId || !revenue) {
+        return res.status(400).json({ message: 'Link ID and revenue are required' });
+      }
+
+      await linkTrackingService.trackConversion({
+        linkId: parseInt(linkId),
+        insertionId: insertionId ? parseInt(insertionId) : undefined,
+        siteId: siteId ? parseInt(siteId) : undefined,
+        userId: userId || 1,
+        revenue: parseFloat(revenue),
+        commissionRate: commissionRate ? parseFloat(commissionRate) : 0,
+        sessionId: req.sessionID,
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
+        referrer: req.get('Referrer'),
+        eventData
+      });
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Conversion tracking error:', error);
+      res.status(500).json({ message: 'Conversion tracking failed' });
+    }
+  });
+
+  // Get link performance stats
+  app.get('/api/links/:linkId/stats', authenticateToken, async (req, res) => {
+    try {
+      const linkId = parseInt(req.params.linkId);
+      const { days } = req.query;
+      
+      const stats = await linkTrackingService.getLinkPerformanceStats(
+        linkId, 
+        days ? parseInt(days as string) : 30
+      );
+      
+      res.json(stats);
+    } catch (error: any) {
+      console.error('Performance stats error:', error);
+      res.status(500).json({ message: 'Failed to get performance stats' });
+    }
+  });
+
+  // Generate tracking URL for a link
+  app.post('/api/links/:linkId/tracking-url', authenticateToken, async (req, res) => {
+    try {
+      const linkId = parseInt(req.params.linkId);
+      const { originalUrl, trackingParams } = req.body;
+      
+      if (!originalUrl) {
+        return res.status(400).json({ message: 'Original URL is required' });
+      }
+
+      const trackingUrl = linkTrackingService.generateTrackingUrl(
+        linkId, 
+        originalUrl, 
+        trackingParams
+      );
+      
+      res.json({ trackingUrl });
+    } catch (error: any) {
+      console.error('Tracking URL generation error:', error);
+      res.status(500).json({ message: 'Failed to generate tracking URL' });
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
 }
