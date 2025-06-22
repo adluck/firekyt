@@ -29,6 +29,8 @@ export class LinkIntelligenceService {
   }
 
   async generateLinkSuggestions(input: LinkSuggestionInput): Promise<LinkSuggestion[]> {
+    console.log(`Generating suggestions for ${input.userLinks.length} links with keywords: ${input.keywords.join(', ')}`);
+    
     try {
       const model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
       
@@ -45,14 +47,25 @@ export class LinkIntelligenceService {
 
       const prompt = this.buildSuggestionPrompt(input.context, input.keywords, linkData);
       
+      console.log('Sending request to Google Gemini...');
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
       
+      console.log('Received AI response, parsing suggestions...');
       // Parse AI response and generate suggestions
-      return this.parseAISuggestions(text, input.userLinks);
+      const aiSuggestions = this.parseAISuggestions(text, input.userLinks);
+      
+      if (aiSuggestions.length > 0) {
+        console.log(`AI generated ${aiSuggestions.length} suggestions`);
+        return aiSuggestions;
+      } else {
+        console.log('AI returned no suggestions, falling back to rule-based');
+        return this.generateRuleBasedSuggestions(input);
+      }
     } catch (error) {
       console.error('AI link suggestion error:', error);
+      console.log('Falling back to rule-based suggestions due to AI error');
       
       // Fallback to rule-based suggestions
       return this.generateRuleBasedSuggestions(input);
@@ -133,60 +146,132 @@ Provide 3-5 high-quality suggestions maximum.
 
   private generateRuleBasedSuggestions(input: LinkSuggestionInput): LinkSuggestion[] {
     const suggestions: LinkSuggestion[] = [];
-    const contentWords = input.context.toLowerCase().split(/\s+/);
+    const contentLower = input.context.toLowerCase();
+    const contentWords = contentLower.split(/\s+/);
+    
+    console.log(`Rule-based fallback: Analyzing ${input.userLinks.length} links against content`);
     
     for (const link of input.userLinks) {
       let relevanceScore = 0;
       let matchedKeywords: string[] = [];
       
-      // Check keyword matches
+      // Check keyword matches in content
       const linkKeywords = [...(link.keywords || []), ...(link.targetKeywords || [])];
       
       for (const keyword of linkKeywords) {
-        if (input.context.toLowerCase().includes(keyword.toLowerCase())) {
-          relevanceScore += 0.3;
+        const keywordLower = keyword.toLowerCase();
+        if (contentLower.includes(keywordLower)) {
+          relevanceScore += 0.4;
           matchedKeywords.push(keyword);
+          console.log(`Found keyword "${keyword}" in content for link "${link.title}"`);
         }
       }
       
-      // Check input keywords
-      for (const keyword of input.keywords) {
-        if (linkKeywords.some(lk => lk.toLowerCase().includes(keyword.toLowerCase()))) {
+      // Check input keywords against link keywords
+      for (const inputKeyword of input.keywords) {
+        const inputLower = inputKeyword.toLowerCase().trim();
+        for (const linkKeyword of linkKeywords) {
+          const linkLower = linkKeyword.toLowerCase();
+          if (linkLower.includes(inputLower) || inputLower.includes(linkLower)) {
+            relevanceScore += 0.3;
+            if (!matchedKeywords.includes(inputKeyword)) {
+              matchedKeywords.push(inputKeyword);
+            }
+            console.log(`Keyword "${inputKeyword}" matches link keyword "${linkKeyword}"`);
+          }
+        }
+      }
+      
+      // Title relevance check
+      const titleWords = link.title.toLowerCase().split(/\s+/);
+      for (const titleWord of titleWords) {
+        if (titleWord.length > 3 && contentLower.includes(titleWord)) {
           relevanceScore += 0.2;
-          matchedKeywords.push(keyword);
+          if (!matchedKeywords.includes(titleWord)) {
+            matchedKeywords.push(titleWord);
+          }
         }
       }
       
       // Priority boost
-      relevanceScore += (link.priority / 100) * 0.3;
+      relevanceScore += (link.priority / 100) * 0.2;
       
-      if (relevanceScore > 0.4) {
+      // Lower threshold for better testing
+      if (relevanceScore > 0.2) {
+        const position = this.findBestInsertionPosition(input.context, matchedKeywords);
+        
         suggestions.push({
           linkId: link.id,
           anchorText: this.generateAnchorText(link, matchedKeywords),
-          position: Math.floor(Math.random() * Math.max(100, contentWords.length)),
+          position,
           confidence: Math.min(relevanceScore, 0.95),
-          reasoning: `Keyword match with: ${matchedKeywords.join(', ')}`,
-          contextMatch: matchedKeywords
+          reasoning: matchedKeywords.length > 0 
+            ? `Strong match: ${matchedKeywords.slice(0, 3).join(', ')}`
+            : `Priority-based suggestion for ${link.title}`,
+          contextMatch: matchedKeywords.slice(0, 5)
         });
+        
+        console.log(`Added suggestion for "${link.title}" with confidence ${relevanceScore.toFixed(2)}`);
       }
     }
+    
+    console.log(`Generated ${suggestions.length} rule-based suggestions`);
     
     return suggestions
       .sort((a, b) => b.confidence - a.confidence)
       .slice(0, 5);
   }
 
+  private findBestInsertionPosition(content: string, keywords: string[]): number {
+    if (keywords.length === 0) {
+      return Math.floor(content.length * 0.3); // 30% into content
+    }
+    
+    // Find position near the first keyword mention
+    const contentLower = content.toLowerCase();
+    for (const keyword of keywords) {
+      const index = contentLower.indexOf(keyword.toLowerCase());
+      if (index !== -1) {
+        // Find end of sentence after keyword
+        const afterKeyword = content.substring(index + keyword.length);
+        const sentenceEnd = afterKeyword.search(/[.!?]/);
+        if (sentenceEnd !== -1) {
+          return index + keyword.length + sentenceEnd + 1;
+        }
+        return index + keyword.length;
+      }
+    }
+    
+    return Math.floor(content.length * 0.4);
+  }
+
   private generateAnchorText(link: IntelligentLink, matchedKeywords: string[]): string {
+    if (matchedKeywords.length === 0) {
+      return link.title;
+    }
+
+    const firstKeyword = matchedKeywords[0].toLowerCase();
+    const linkTitle = link.title.toLowerCase();
+    
+    // Smart anchor text based on content and keywords
     const anchorOptions = [
       link.title,
-      `Learn more about ${matchedKeywords[0] || 'this product'}`,
-      `Check out ${link.title}`,
-      `${matchedKeywords[0] || 'This'} recommendation`,
-      `Best ${matchedKeywords[0] || 'option'} here`
+      `best ${firstKeyword}`,
+      `top ${firstKeyword}`,
+      `${firstKeyword} guide`,
+      `recommended ${firstKeyword}`,
+      `check out this ${firstKeyword}`,
+      `learn more about ${firstKeyword}`
     ];
     
-    return anchorOptions[Math.floor(Math.random() * anchorOptions.length)];
+    // Prefer shorter, more natural options
+    const filteredOptions = anchorOptions.filter(option => 
+      option.length <= 40 && option.length >= 10
+    );
+    
+    return filteredOptions.length > 0 
+      ? filteredOptions[Math.floor(Math.random() * filteredOptions.length)]
+      : link.title;
   }
 
   async analyzeContentContext(content: string): Promise<{

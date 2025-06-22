@@ -256,9 +256,9 @@ export default function IntelligentLinkTester() {
                 </Card>
               ))}
 
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-semibold mb-2">Test Instructions:</h4>
-                <ol className="list-decimal list-inside space-y-1 text-sm">
+              <div className="mt-4 p-4 bg-muted rounded-lg border">
+                <h4 className="font-semibold mb-2 text-foreground">Test Instructions:</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
                   <li>Navigate to /links/intelligent to see the full interface</li>
                   <li>Use the "AI Suggestions" tab to test with your own content</li>
                   <li>Switch to "Link Preview" tab to see visual placement</li>
