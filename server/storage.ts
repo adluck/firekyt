@@ -1317,6 +1317,90 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(linkInsertions)
       .where(eq(linkInsertions.contentId, contentId))
+      .orderBy(linkInsertions.position);
+  }
+
+  async createLinkInsertion(insertion: InsertLinkInsertion): Promise<LinkInsertion> {
+    const [created] = await db.insert(linkInsertions).values(insertion).returning();
+    return created;
+  }
+
+  async updateLinkInsertion(id: number, insertion: Partial<InsertLinkInsertion>): Promise<LinkInsertion> {
+    const [updated] = await db
+      .update(linkInsertions)
+      .set({ ...insertion, updatedAt: new Date() })
+      .where(eq(linkInsertions.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteLinkInsertion(id: number): Promise<void> {
+    await db.delete(linkInsertions).where(eq(linkInsertions.id, id));
+  }
+
+  // Link Tracking
+  async createLinkTracking(tracking: InsertLinkTracking): Promise<LinkTracking> {
+    const [created] = await db.insert(linkTracking).values(tracking).returning();
+    return created;
+  }
+
+  async getLinkTracking(linkId: number, startDate?: Date, endDate?: Date): Promise<LinkTracking[]> {
+    let conditions = [eq(linkTracking.linkId, linkId)];
+    
+    if (startDate) conditions.push(gte(linkTracking.timestamp, startDate));
+    if (endDate) conditions.push(lte(linkTracking.timestamp, endDate));
+
+    return await db
+      .select()
+      .from(linkTracking)
+      .where(and(...conditions))
+      .orderBy(desc(linkTracking.timestamp));
+  }
+
+  async getLinkPerformanceStats(linkId: number): Promise<{
+    totalClicks: number;
+    totalViews: number;
+    totalRevenue: number;
+    clickThroughRate: number;
+  }> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const tracking = await this.getLinkTracking(linkId, thirtyDaysAgo);
+    
+    const totalClicks = tracking.filter(t => t.eventType === 'click').length;
+    const totalViews = tracking.filter(t => t.eventType === 'view').length;
+    const totalRevenue = tracking
+      .filter(t => t.revenue)
+      .reduce((sum, t) => sum + parseFloat(t.revenue?.toString() || '0'), 0);
+    
+    return {
+      totalClicks,
+      totalViews,
+      totalRevenue,
+      clickThroughRate: totalViews > 0 ? (totalClicks / totalViews) * 100 : 0
+    };
+  }
+
+  async updateIntelligentLink(id: number, link: Partial<InsertIntelligentLink>): Promise<IntelligentLink> {
+    const [updated] = await db
+      .update(intelligentLinks)
+      .set({ ...link, updatedAt: new Date() })
+      .where(eq(intelligentLinks.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteIntelligentLink(id: number): Promise<void> {
+    await db.delete(intelligentLinks).where(eq(intelligentLinks.id, id));
+  }
+
+  // Link Insertions
+  async getContentLinkInsertions(contentId: number): Promise<LinkInsertion[]> {
+    return await db
+      .select()
+      .from(linkInsertions)
+      .where(eq(linkInsertions.contentId, contentId))
       .orderBy(desc(linkInsertions.createdAt));
   }
 
