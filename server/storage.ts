@@ -1496,6 +1496,34 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  // Link Suggestions
+  async getUserLinkSuggestions(userId: number, contentId?: number, siteId?: number): Promise<LinkSuggestion[]> {
+    let conditions = [eq(linkSuggestions.userId, userId)];
+    
+    if (contentId) conditions.push(eq(linkSuggestions.contentId, contentId));
+    if (siteId) conditions.push(eq(linkSuggestions.siteId, siteId));
+
+    return await db
+      .select()
+      .from(linkSuggestions)
+      .where(and(...conditions))
+      .orderBy(desc(linkSuggestions.confidence), desc(linkSuggestions.createdAt));
+  }
+
+  async createLinkSuggestion(suggestion: InsertLinkSuggestion): Promise<LinkSuggestion> {
+    const [created] = await db.insert(linkSuggestions).values(suggestion).returning();
+    return created;
+  }
+
+  async updateLinkSuggestion(id: number, suggestion: Partial<InsertLinkSuggestion>): Promise<LinkSuggestion> {
+    const [updated] = await db
+      .update(linkSuggestions)
+      .set({ ...suggestion, updatedAt: new Date() })
+      .where(eq(linkSuggestions.id, id))
+      .returning();
+    return updated;
+  }
+
   // Site Metrics
   async getSiteMetrics(siteId: number, startDate?: Date, endDate?: Date): Promise<SiteMetrics[]> {
     let conditions = [eq(siteMetrics.siteId, siteId)];
