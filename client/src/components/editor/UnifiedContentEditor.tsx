@@ -124,6 +124,19 @@ export function UnifiedContentEditor({
   console.log('🔍 UnifiedContentEditor initialized with siteId:', contentData.siteId);
   console.log('🔍 Initial content passed:', initialContent);
   
+  // Effect to update contentData when initialContent changes (for live updates)
+  useEffect(() => {
+    if (initialContent) {
+      console.log('🔍 initialContent changed, updating contentData:', initialContent);
+      setContentData(prev => ({
+        ...prev,
+        ...initialContent,
+        // Ensure siteId is properly updated
+        siteId: initialContent.siteId !== undefined ? initialContent.siteId : prev.siteId
+      }));
+    }
+  }, [initialContent]);
+  
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
@@ -328,12 +341,12 @@ export function UnifiedContentEditor({
     queryKey: ['/api/sites'],
   });
 
-  // Set default siteId when sites are loaded
+  // Set default siteId when sites are loaded (only if no initialContent siteId)
   useEffect(() => {
-    if (sites.length > 0 && contentData.siteId === 0) {
+    if (sites.length > 0 && contentData.siteId === 0 && !initialContent?.siteId) {
       setContentData(prev => ({ ...prev, siteId: sites[0].id }));
     }
-  }, [sites, contentData.siteId]);
+  }, [sites, contentData.siteId, initialContent?.siteId]);
 
   // Load existing content data - track if keywords have been manually updated
   const [keywordsManuallyUpdated, setKeywordsManuallyUpdated] = useState(false);

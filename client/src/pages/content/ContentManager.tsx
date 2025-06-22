@@ -293,7 +293,7 @@ export default function ContentManager() {
           
           // Use the updateContentMutation directly to ensure proper state handling
           try {
-            await updateContentMutation.mutateAsync({
+            const result = await updateContentMutation.mutateAsync({
               id: editingContent.id,
               data: {
                 title: data.title,
@@ -308,9 +308,20 @@ export default function ContentManager() {
               }
             });
             
-            // Close editor after successful save
-            setIsEditorOpen(false);
-            setEditingContent(null);
+            console.log('ContentManager save result:', result);
+            
+            // Update editingContent with the fresh data to prevent stale state
+            const updatedContent = {
+              ...editingContent,
+              ...result,
+              siteId: result.siteId || data.siteId
+            };
+            
+            console.log('ContentManager updating editingContent with:', updatedContent);
+            setEditingContent(updatedContent);
+            
+            // Return promise to indicate success
+            return Promise.resolve();
           } catch (error) {
             console.error('ContentManager save error:', error);
             throw error;
