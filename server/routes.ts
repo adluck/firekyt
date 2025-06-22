@@ -542,10 +542,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         word_count: validatedData.word_count
       };
 
-      // Create and save content to database
+      // Create and save content to database with proper siteId handling
       const content = await storage.createContent({
         userId: req.user!.id,
-        siteId: validatedData.siteId,
+        siteId: validatedData.siteId || null, // Ensure siteId is properly set or null
         title: `Generated Content - ${validatedData.keyword}`,
         content: 'Content generation in progress',
         contentType: validatedData.content_type,

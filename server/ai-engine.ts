@@ -376,7 +376,7 @@ export async function generateContent(
     contentQueue[contentId].response = response;
     contentQueue[contentId].completed_at = new Date();
     
-    // Update database content if callback provided
+    // Update database content if callback provided (preserving siteId)
     if (updateContentCallback && databaseContentId) {
       try {
         await updateContentCallback(databaseContentId, {
@@ -386,6 +386,7 @@ export async function generateContent(
           seoDescription: generatedContent.seo_description,
           // Keep status as draft - let user decide when to publish
           status: 'draft'
+          // Note: siteId is preserved by not including it in the update
         });
       } catch (dbError) {
         console.error('Failed to update database content:', dbError);

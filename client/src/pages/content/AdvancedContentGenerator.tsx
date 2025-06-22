@@ -375,10 +375,11 @@ export default function AdvancedContentGenerator() {
           onSave={async (data) => {
             const contentToSave = {
               ...data,
+              siteId: formData.siteId || null, // Include siteId from form
               originalGenerationId: generatedContent.content_id,
             };
             return new Promise((resolve, reject) => {
-              saveMutation.mutate(contentToSave, {
+              saveMutation.mutate(formData.siteId || null, {
                 onSuccess: resolve,
                 onError: reject
               });
