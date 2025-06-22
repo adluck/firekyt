@@ -10,6 +10,7 @@ import { tokenValidationService } from "./TokenValidationService";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { storage } from "./storage";
 import { insertUserSchema, insertSiteSchema, insertContentSchema, SUBSCRIPTION_LIMITS, type User } from "@shared/schema";
+import { linkTrackingService } from "./LinkTrackingService";
 import { AIEngineService } from "./AIEngineService";
 import { 
   addToQueue, 

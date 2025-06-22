@@ -19,6 +19,7 @@ import {
   FileText, Settings, Lightbulb
 } from 'lucide-react';
 import LinkInsertionPreview from '@/components/links/LinkInsertionPreview';
+import LinkPerformanceStats from '@/components/links/LinkPerformanceStats';
 import { parseContextMatch } from '@/utils/parseContextMatch';
 
 interface IntelligentLink {
@@ -635,7 +636,7 @@ export default function IntelligentLinkManager() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-green-600" />
-                Link Performance Analytics
+                Link Performance Overview
               </CardTitle>
               <CardDescription>
                 Track the effectiveness of your intelligent link strategy
@@ -648,7 +649,7 @@ export default function IntelligentLinkManager() {
                   <div className="text-sm text-muted-foreground">Total Intelligent Links</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600">0</div>
+                  <div className="text-3xl font-bold text-green-600">{suggestions.filter(s => s.status === 'accepted').length}</div>
                   <div className="text-sm text-muted-foreground">Active Insertions</div>
                 </div>
                 <div className="text-center">
@@ -658,6 +659,16 @@ export default function IntelligentLinkManager() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Individual Link Performance */}
+          {links.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Individual Link Performance</h3>
+              {links.slice(0, 3).map((link: any) => (
+                <LinkPerformanceStats key={link.id} linkId={link.id} days={30} />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
