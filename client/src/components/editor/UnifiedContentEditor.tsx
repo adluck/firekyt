@@ -915,7 +915,7 @@ export function UnifiedContentEditor({
                   <Select
                     value={contentData.siteId && contentData.siteId > 0 ? contentData.siteId.toString() : ""}
                     onValueChange={(value) => {
-                      const newSiteId = parseInt(value);
+                      const newSiteId = parseInt(value) || null;
                       console.log('🔍 Target site dropdown changed to:', newSiteId);
                       console.log('🔍 Current contentData.siteId before change:', contentData.siteId);
                       console.log('🔍 Available sites:', sites.map(s => ({ id: s.id, name: s.name })));
