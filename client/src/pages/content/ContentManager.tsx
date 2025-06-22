@@ -267,6 +267,7 @@ export default function ContentManager() {
   if (isEditorOpen && editingContent) {
     return (
       <UnifiedContentEditor
+        key={`editor-${editingContent.id}-${editingContent.siteId}`}
         mode="edit"
         contentId={editingContent.id}
         showHeader={true}
