@@ -926,41 +926,32 @@ export function UnifiedContentEditor({
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="site">Target Site (Optional)</Label>
-                  {isSaving ? (
-                    <div className="space-y-2">
-                      <div className="h-10 bg-muted/50 rounded-md animate-pulse border" />
-                      <div className="h-3 bg-muted/30 rounded w-2/3 animate-pulse" />
-                    </div>
-                  ) : (
-                    <Select
-                      key={`site-select-${contentData.siteId}-${Date.now()}`}
-                      value={contentData.siteId && contentData.siteId > 0 ? contentData.siteId.toString() : ""}
-                      onValueChange={(value) => {
-                        const newSiteId = parseInt(value) || null;
-                        console.log('🔍 Target site dropdown changed to:', newSiteId);
-                        console.log('🔍 Current contentData.siteId before change:', contentData.siteId);
-                        console.log('🔍 Available sites:', sites.map(s => ({ id: s.id, name: s.name })));
-                        
-                        updateContentData({ siteId: newSiteId });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a site" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sites.map(site => (
-                          <SelectItem key={site.id} value={site.id.toString()}>
-                            {site.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                  {!isSaving && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Selected: {sites.find(s => s.id === contentData.siteId)?.name || 'None'} (ID: {contentData.siteId})
-                    </p>
-                  )}
+                  <Select
+                    key={`site-select-${contentData.siteId}-${Date.now()}`}
+                    value={contentData.siteId && contentData.siteId > 0 ? contentData.siteId.toString() : ""}
+                    onValueChange={(value) => {
+                      const newSiteId = parseInt(value) || null;
+                      console.log('🔍 Target site dropdown changed to:', newSiteId);
+                      console.log('🔍 Current contentData.siteId before change:', contentData.siteId);
+                      console.log('🔍 Available sites:', sites.map(s => ({ id: s.id, name: s.name })));
+                      
+                      updateContentData({ siteId: newSiteId });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a site" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sites.map(site => (
+                        <SelectItem key={site.id} value={site.id.toString()}>
+                          {site.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Selected: {sites.find(s => s.id === contentData.siteId)?.name || 'None'} (ID: {contentData.siteId})
+                  </p>
                 </div>
 
                 <div>
