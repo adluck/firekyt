@@ -284,7 +284,7 @@ export default function ContentManager() {
           seoTitle: editingContent.seoTitle,
           seoDescription: editingContent.seoDescription,
           targetKeywords: editingContent.targetKeywords,
-          siteId: 1, // Default site ID - will be properly handled by the editor
+          siteId: editingContent.siteId, // Use the actual siteId from the content
         }}
         onSave={async (data) => {
           return new Promise((resolve, reject) => {

@@ -116,9 +116,13 @@ export function UnifiedContentEditor({
     content: '',
     contentType: 'blog_post',
     status: 'draft',
-    siteId: initialContent?.siteId || 0,
-    ...initialContent,
+    siteId: 0,
+    ...initialContent, // This will override siteId if provided
   });
+  
+  // Debug log the initial siteId
+  console.log('🔍 UnifiedContentEditor initialized with siteId:', contentData.siteId);
+  console.log('🔍 Initial content passed:', initialContent);
   
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
