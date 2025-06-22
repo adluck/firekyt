@@ -285,12 +285,36 @@ export default function ContentManager() {
           seoDescription: editingContent.seoDescription,
           targetKeywords: editingContent.targetKeywords,
           siteId: editingContent.siteId, // Use the actual siteId from the content
+          metaTags: editingContent.metaTags || [],
         }}
         onSave={async (data) => {
-          return new Promise((resolve, reject) => {
-            handleSaveEdit(data);
-            resolve();
-          });
+          console.log('ContentManager onSave called with data:', data);
+          console.log('ContentManager saving with siteId:', data.siteId);
+          
+          // Use the updateContentMutation directly to ensure proper state handling
+          try {
+            await updateContentMutation.mutateAsync({
+              id: editingContent.id,
+              data: {
+                title: data.title,
+                content: data.content,
+                contentType: data.contentType,
+                status: data.status,
+                siteId: data.siteId, // Preserve the siteId from the form
+                seoTitle: data.seoTitle,
+                seoDescription: data.seoDescription,
+                targetKeywords: data.targetKeywords,
+                metaTags: data.metaTags,
+              }
+            });
+            
+            // Close editor after successful save
+            setIsEditorOpen(false);
+            setEditingContent(null);
+          } catch (error) {
+            console.error('ContentManager save error:', error);
+            throw error;
+          }
         }}
         onClose={() => {
           setIsEditorOpen(false);
