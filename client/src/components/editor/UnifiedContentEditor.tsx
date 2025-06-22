@@ -66,6 +66,7 @@ interface UnifiedContentEditorProps {
   enableTables?: boolean;
   enableSEO?: boolean;
   enablePreview?: boolean;
+  enableSkeletonLoader?: boolean;
   
   // Validation
   requiredFields?: (keyof ContentData)[];

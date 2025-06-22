@@ -287,6 +287,7 @@ export default function ContentManager() {
         enableTables={true}
         enableSEO={true}
         enablePreview={true}
+        enableSkeletonLoader={true}
         requiredFields={['title', 'content']}
         initialContent={{
           id: editingContent.id,
