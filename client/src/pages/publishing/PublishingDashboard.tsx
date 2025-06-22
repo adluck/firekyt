@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { NetworkStatus, useNetworkStatus } from "@/components/ui/network-status";
 import { 
   Calendar, 
   Clock, 
@@ -403,6 +404,7 @@ export default function PublishingDashboard() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <NetworkStatus />
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Publishing Dashboard</h1>
