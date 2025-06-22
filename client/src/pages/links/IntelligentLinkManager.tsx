@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import LinkInsertionPreview from '@/components/links/LinkInsertionPreview';
 import LinkPerformanceStats from '@/components/links/LinkPerformanceStats';
+import RetroactiveConversion from '@/components/links/RetroactiveConversion';
 import { parseContextMatch } from '@/utils/parseContextMatch';
 
 interface IntelligentLink {
@@ -669,6 +670,10 @@ export default function IntelligentLinkManager() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="retroactive" className="space-y-6">
+          <RetroactiveConversion />
         </TabsContent>
       </Tabs>
     </div>

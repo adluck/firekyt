@@ -11,6 +11,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { storage } from "./storage";
 import { insertUserSchema, insertSiteSchema, insertContentSchema, SUBSCRIPTION_LIMITS, type User } from "@shared/schema";
 import { linkTrackingService } from "./LinkTrackingService";
+import { retroactiveTrackingService } from "./RetroactiveTrackingService";
 import { AIEngineService } from "./AIEngineService";
 import { 
   addToQueue, 
@@ -3460,6 +3461,70 @@ async function generateAILinkSuggestions(params: {
     } catch (error: any) {
       console.error('Tracking URL generation error:', error);
       res.status(500).json({ message: 'Failed to generate tracking URL' });
+    }
+  });
+
+  // Retroactive Tracking Conversion Routes
+  
+  // Get conversion status for user's content
+  app.get('/api/links/conversion-status', authenticateToken, async (req, res) => {
+    try {
+      const status = await retroactiveTrackingService.getConversionStatus(req.user!.id);
+      res.json(status);
+    } catch (error: any) {
+      console.error('Conversion status error:', error);
+      res.status(500).json({ message: 'Failed to get conversion status' });
+    }
+  });
+
+  // Preview conversion for a piece of content
+  app.get('/api/content/:contentId/conversion-preview', authenticateToken, async (req, res) => {
+    try {
+      const contentId = parseInt(req.params.contentId);
+      const preview = await retroactiveTrackingService.previewConversion(contentId, req.user!.id);
+      res.json(preview);
+    } catch (error: any) {
+      console.error('Conversion preview error:', error);
+      res.status(500).json({ message: 'Failed to generate conversion preview' });
+    }
+  });
+
+  // Convert a single piece of content to use tracking URLs
+  app.post('/api/content/:contentId/convert-tracking', authenticateToken, async (req, res) => {
+    try {
+      const contentId = parseInt(req.params.contentId);
+      const result = await retroactiveTrackingService.convertContentToTracking(contentId, req.user!.id);
+      res.json(result);
+    } catch (error: any) {
+      console.error('Content conversion error:', error);
+      res.status(500).json({ message: 'Failed to convert content to tracking' });
+    }
+  });
+
+  // Convert multiple pieces of content in batch
+  app.post('/api/content/batch-convert-tracking', authenticateToken, async (req, res) => {
+    try {
+      const { contentIds } = req.body;
+      
+      if (!Array.isArray(contentIds)) {
+        return res.status(400).json({ message: 'contentIds must be an array' });
+      }
+
+      const results = await retroactiveTrackingService.convertMultipleContent(contentIds, req.user!.id);
+      
+      const summary = {
+        totalProcessed: results.length,
+        successful: results.filter(r => r.status === 'success').length,
+        partial: results.filter(r => r.status === 'partial').length,
+        failed: results.filter(r => r.status === 'failed').length,
+        totalLinksConverted: results.reduce((sum, r) => sum + r.linksConverted, 0),
+        results
+      };
+      
+      res.json(summary);
+    } catch (error: any) {
+      console.error('Batch conversion error:', error);
+      res.status(500).json({ message: 'Failed to convert content batch' });
     }
   });
 
