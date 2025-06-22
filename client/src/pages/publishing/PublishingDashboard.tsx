@@ -83,6 +83,7 @@ const scheduleSchema = z.object({
 
 export default function PublishingDashboard() {
   const { toast } = useToast();
+  const isOnline = useNetworkStatus();
   const queryClient = useQueryClient();
   const [showConnectionDialog, setShowConnectionDialog] = useState(false);
   const [showAddConnectionDialog, setShowAddConnectionDialog] = useState(false);
@@ -164,6 +165,10 @@ export default function PublishingDashboard() {
   const publishNowMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest('POST', '/api/publishing/publish-now', data);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
       return response.json();
     },
     onSuccess: (data) => {
@@ -175,10 +180,26 @@ export default function PublishingDashboard() {
       });
     },
     onError: (error: any) => {
+      let title = "Failed to publish content";
+      let description = error?.message || "Failed to publish content";
+      
+      // Handle specific network connectivity errors
+      if (error?.technical?.includes('DNS resolution failed') || error?.message?.includes('Network connectivity issue')) {
+        title = "Network Issue - Publishing Failed";
+        description = error?.suggestion || "Unable to reach the external blog site. Please check the site URL and try again.";
+        
+        if (error?.retryRecommended) {
+          description += " You can try again in a few minutes.";
+        }
+      } else if (error?.suggestion) {
+        description = `${error.message}. ${error.suggestion}`;
+      }
+      
       toast({ 
-        title: "Failed to publish content", 
-        description: error?.message || "Failed to publish content",
-        variant: "destructive" 
+        title,
+        description,
+        variant: "destructive",
+        duration: 8000 // Longer duration for network errors
       });
     },
   });
@@ -339,6 +360,15 @@ export default function PublishingDashboard() {
   };
 
   const handlePublishNow = (contentId: number, connectionId: number) => {
+    if (!isOnline) {
+      toast({
+        title: "Network Required",
+        description: "You must be online to publish content to external platforms.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     publishNowMutation.mutate({
       contentId,
       platformConnectionId: connectionId,

@@ -2580,20 +2580,119 @@ Format your response as a JSON object with the following structure:
           
           console.log('📡 Making WordPress API request to:', apiUrl);
           
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          // Enhanced error handling with multiple retry attempts
+          const maxRetries = 3;
+          let lastError: any = null;
           
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`
-            },
-            body: JSON.stringify(wpPostData),
-            signal: controller.signal
-          });
+          for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
+              
+              const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`
+                },
+                body: JSON.stringify(wpPostData),
+                signal: controller.signal
+              });
+              
+              clearTimeout(timeoutId);
+              
+              // If we get here, the request succeeded
+              console.log('📡 WordPress API response status:', response.status);
+              
+              if (response.ok) {
+                const result = await response.json();
+                console.log('✅ WordPress publish success:', result.id);
+                
+                // Save publication history
+                await storage.createPublicationHistory({
+                  userId: req.user!.id,
+                  contentId: parseInt(contentId),
+                  platformConnectionId: parseInt(platformConnectionId),
+                  platform: connection.platform,
+                  platformPostId: result.id.toString(),
+                  publishedUrl: result.link,
+                  publishedAt: new Date()
+                });
+
+                // Update content status
+                await storage.updateContent(parseInt(contentId), req.user!.id, {
+                  status: 'published',
+                  publishedAt: new Date()
+                });
+
+                return res.json({
+                  success: true,
+                  message: "Content published successfully to WordPress",
+                  platformUrl: result.link,
+                  platformPostId: result.id
+                });
+              } else {
+                const errorText = await response.text();
+                console.error('❌ WordPress API error:', response.status, errorText);
+                
+                let errorMessage = `WordPress API error: ${response.status}`;
+                let suggestion = '';
+                
+                try {
+                  const errorData = JSON.parse(errorText);
+                  if (errorData.code === 'rest_cannot_create') {
+                    errorMessage = 'WordPress user permissions insufficient';
+                    suggestion = 'Your WordPress user needs "Editor" or "Administrator" role.';
+                  } else if (errorData.code === 'rest_not_logged_in') {
+                    errorMessage = 'WordPress authentication failed';
+                    suggestion = 'Please regenerate your application password in WordPress Admin.';
+                  }
+                } catch (e) {
+                  if (response.status === 401) {
+                    errorMessage = 'WordPress authentication failed';
+                    suggestion = 'Please verify your WordPress application password.';
+                  }
+                }
+                
+                return res.status(response.status).json({
+                  success: false,
+                  message: errorMessage,
+                  suggestion: suggestion,
+                  details: errorText
+                });
+              }
+            } catch (error: any) {
+              lastError = error;
+              console.error(`❌ WordPress publish attempt ${attempt} failed:`, error.message);
+              
+              // If this is a DNS/network error and we have retries left, wait and try again
+              if ((error.code === 'EAI_AGAIN' || error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') && attempt < maxRetries) {
+                console.log(`🔄 Retrying in ${attempt * 2} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+                continue;
+              }
+              
+              // If this is the last attempt or a non-network error, break
+              break;
+            }
+          }
           
-          clearTimeout(timeoutId);
+          // If we get here, all retries failed
+          if (lastError?.code === 'EAI_AGAIN' || lastError?.code === 'ENOTFOUND') {
+            return res.status(503).json({
+              success: false,
+              message: "Network connectivity issue - unable to reach WordPress site",
+              suggestion: "This appears to be a temporary network issue. Please try again in a few minutes, or check if the WordPress site URL is correct and accessible.",
+              technical: `DNS resolution failed for ${connection.blogUrl}`,
+              retryRecommended: true
+            });
+          } else {
+            return res.status(500).json({
+              success: false,
+              message: `WordPress publishing failed: ${lastError?.message || 'Unknown error'}`,
+              suggestion: "Please check your WordPress site configuration and try again."
+            });
+          }
           
           console.log('📡 WordPress API response status:', response.status);
           
