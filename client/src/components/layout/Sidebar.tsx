@@ -65,6 +65,7 @@ const navigation = [
     icon: Link2,
     submenu: [
       { name: 'Link Dashboard', href: '/links', icon: Link2 },
+      { name: 'Link Intelligence', href: '/links/intelligent', icon: Brain },
       { name: 'AI Link Inserter', href: '/links/inserter', icon: Brain },
       { name: 'Partner Networks', href: '/partner-networks', icon: Network }
     ]
