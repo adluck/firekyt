@@ -487,9 +487,16 @@ export function UnifiedContentEditor({
       console.log('🔍 FRONTEND targetKeywords from response:', JSON.stringify(result?.targetKeywords));
       console.log('🔍 FRONTEND siteId from response:', result?.siteId);
       
-      // Don't update state here since the component will re-render with fresh props
+      // Update the contentData state to reflect the saved siteId
+      if (result?.siteId !== undefined) {
+        console.log('🔍 FRONTEND Updating dropdown to show saved siteId:', result.siteId);
+        setContentData(prev => ({
+          ...prev,
+          siteId: result.siteId
+        }));
+      }
+      
       console.log('🔍 FRONTEND Save successful, server returned siteId:', result?.siteId);
-      console.log('🔍 FRONTEND Component will re-render with fresh data');
       
       toast({
         title: 'Content saved',
