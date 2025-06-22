@@ -378,8 +378,9 @@ export default function AdvancedContentGenerator() {
               siteId: formData.siteId || null, // Include siteId from form
               originalGenerationId: generatedContent.content_id,
             };
+            console.log('AdvancedContentGenerator onSave with data:', contentToSave);
             return new Promise((resolve, reject) => {
-              saveMutation.mutate(formData.siteId || null, {
+              saveMutation.mutate(contentToSave, {
                 onSuccess: resolve,
                 onError: reject
               });
@@ -410,7 +411,7 @@ export default function AdvancedContentGenerator() {
                 onClick={() => {
                   // If a site is already selected in the form, save directly with that site
                   if (formData.siteId) {
-                    saveMutation.mutate(formData.siteId);
+                    saveMutation.mutate({ siteId: formData.siteId });
                   } else {
                     setShowSiteDialog(true);
                   }

@@ -448,7 +448,15 @@ export function UnifiedContentEditor({
       const isUpdate = contentId && mode === 'edit';
       const url = saveEndpoint || (isUpdate ? `/api/content/${contentId}` : '/api/content');
       const method = customSaveMethod || (isUpdate ? 'PATCH' : 'POST');
-      const response = await apiRequest(method, url, data);
+      
+      // Ensure siteId is included in the request data
+      const requestData = {
+        ...data,
+        siteId: data.siteId || null
+      };
+      
+      console.log('UnifiedContentEditor saving with siteId:', requestData.siteId);
+      const response = await apiRequest(method, url, requestData);
       return await response.json();
     },
     onSuccess: async (result) => {
