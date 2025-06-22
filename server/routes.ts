@@ -2615,7 +2615,8 @@ Format your response as a JSON object with the following structure:
                   platformConnectionId: parseInt(platformConnectionId),
                   platform: connection.platform,
                   platformPostId: result.id.toString(),
-                  publishedUrl: result.link,
+                  platformUrl: result.link,
+                  status: 'published',
                   publishedAt: new Date()
                 });
 
