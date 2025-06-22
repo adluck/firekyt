@@ -265,6 +265,17 @@ export default function ContentManager() {
   };
 
   if (isEditorOpen && editingContent) {
+    if (isUpdatingEditor) {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+            <p className="text-muted-foreground">Updating editor with fresh data...</p>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <UnifiedContentEditor
         key={`editor-${editingContent.id}-${editingContent.siteId}`}
@@ -319,9 +330,18 @@ export default function ContentManager() {
             };
             
             console.log('ContentManager updating editingContent with:', updatedContent);
+            
+            // Show loader while updating
+            setIsUpdatingEditor(true);
+            
+            // Update content and allow component to re-render
             setEditingContent(updatedContent);
             
-            // Return promise to indicate success
+            // Hide loader after brief delay to allow re-render
+            setTimeout(() => {
+              setIsUpdatingEditor(false);
+            }, 100);
+            
             return Promise.resolve();
           } catch (error) {
             console.error('ContentManager save error:', error);
