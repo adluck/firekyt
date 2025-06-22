@@ -128,6 +128,7 @@ export function UnifiedContentEditor({
   useEffect(() => {
     if (initialContent) {
       console.log('🔍 initialContent changed, updating contentData:', initialContent);
+      console.log('🔍 Setting siteId to:', initialContent.siteId);
       setContentData(prev => ({
         ...prev,
         ...initialContent,
