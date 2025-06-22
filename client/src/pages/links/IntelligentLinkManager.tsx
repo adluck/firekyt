@@ -19,6 +19,7 @@ import {
   FileText, Settings, Lightbulb
 } from 'lucide-react';
 import LinkInsertionPreview from '@/components/links/LinkInsertionPreview';
+import { parseContextMatch } from '@/utils/parseContextMatch';
 
 interface IntelligentLink {
   id: number;
@@ -547,7 +548,7 @@ export default function IntelligentLinkManager() {
                   <CardContent>
                     <div className="flex items-center justify-between">
                       <div className="flex flex-wrap gap-1">
-                        {suggestion.contextMatch?.map((match, idx) => (
+                        {parseContextMatch(suggestion.contextMatch).map((match: string, idx: number) => (
                           <Badge key={idx} variant="outline" className="text-xs">
                             {match}
                           </Badge>

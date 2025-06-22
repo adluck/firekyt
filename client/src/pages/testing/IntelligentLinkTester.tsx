@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Brain, TestTube, Sparkles, CheckCircle, Target } from 'lucide-react';
+import { parseContextMatch } from '@/utils/parseContextMatch';
 
 const sampleContent = `Are you looking for the ultimate gaming experience? Today's gaming laptops have evolved tremendously, offering desktop-level performance in portable packages. Whether you're a competitive esports player or enjoy AAA titles, having the right gaming laptop can make all the difference.
 
@@ -242,9 +243,9 @@ export default function IntelligentLinkTester() {
                         <span>Status: {suggestion.status}</span>
                       </div>
 
-                      {suggestion.contextMatch && suggestion.contextMatch.length > 0 && (
+                      {suggestion.contextMatch && (
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {suggestion.contextMatch.map((match: string, idx: number) => (
+                          {parseContextMatch(suggestion.contextMatch).map((match: string, idx: number) => (
                             <Badge key={idx} variant="secondary" className="text-xs">
                               {match}
                             </Badge>

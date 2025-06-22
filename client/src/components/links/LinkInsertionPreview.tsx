@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle, XCircle, Eye, MousePointer, Target } from 'lucide-react';
+import { parseContextMatch } from '@/utils/parseContextMatch';
 
 interface LinkInsertionPreviewProps {
   content: string;
@@ -134,11 +135,11 @@ export default function LinkInsertionPreview({
                 </div>
 
                 {/* Context Matches */}
-                {suggestion.contextMatch && suggestion.contextMatch.length > 0 && (
+                {suggestion.contextMatch && (
                   <div>
                     <div className="text-sm font-medium mb-2">Matched Keywords:</div>
                     <div className="flex flex-wrap gap-1">
-                      {suggestion.contextMatch.map((match, idx) => (
+                      {parseContextMatch(suggestion.contextMatch).map((match: string, idx: number) => (
                         <Badge key={idx} variant="outline" className="text-xs">
                           {match}
                         </Badge>
