@@ -381,13 +381,8 @@ export default function AdvancedContentGenerator() {
             })(),
           }}
           onSave={async (data) => {
-            const contentToSave = {
-              ...data,
-              siteId: formData.siteId || null, // Include siteId from form
-              originalGenerationId: generatedContent.content_id,
-            };
-            console.log('AdvancedContentGenerator onSave with data:', contentToSave);
-            saveMutation.mutate(contentToSave);
+            console.log('AdvancedContentGenerator onSave callback called with data:', data);
+            // The UnifiedContentEditor will handle the API call, we just log here
             return Promise.resolve();
           }}
           onClose={() => setShowEditor(false)}

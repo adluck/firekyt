@@ -439,12 +439,7 @@ export function UnifiedContentEditor({
   // Default save mutation
   const defaultSaveMutation = useMutation({
     mutationFn: async (data: ContentData) => {
-      if (onSave) {
-        await onSave(data);
-        return { success: true };
-      }
-      
-      // Default API save behavior
+      // Always use default API save behavior - the onSave should handle its own mutation
       const isUpdate = contentId && mode === 'edit';
       const url = saveEndpoint || (isUpdate ? `/api/content/${contentId}` : '/api/content');
       const method = customSaveMethod || (isUpdate ? 'PATCH' : 'POST');
@@ -455,9 +450,17 @@ export function UnifiedContentEditor({
         siteId: data.siteId || null
       };
       
-      console.log('UnifiedContentEditor saving with siteId:', requestData.siteId);
+      console.log('UnifiedContentEditor API call with siteId:', requestData.siteId);
+      console.log('UnifiedContentEditor full requestData:', requestData);
       const response = await apiRequest(method, url, requestData);
-      return await response.json();
+      const result = await response.json();
+      
+      // Call onSave after successful API call if provided
+      if (onSave) {
+        await onSave(data);
+      }
+      
+      return result;
     },
     onSuccess: async (result) => {
       console.log('🔍 FRONTEND onSuccess called with result:', JSON.stringify(result));

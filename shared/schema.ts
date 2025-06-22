@@ -431,6 +431,8 @@ export const insertContentSchema = createInsertSchema(content).omit({
   userId: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  siteId: z.number().nullable().optional(), // Ensure siteId is properly handled
 });
 
 export const insertAnalyticsSchema = createInsertSchema(analytics).omit({

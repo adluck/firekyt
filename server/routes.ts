@@ -477,13 +477,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/content", authenticateToken, contentGenerationRateLimit, checkSubscriptionLimit('content_generation'), async (req, res) => {
     try {
+      console.log('POST /api/content - Request body:', JSON.stringify(req.body));
+      console.log('POST /api/content - siteId in request:', req.body.siteId);
+      
       const validatedData = insertContentSchema.parse(req.body);
+      console.log('POST /api/content - Validated data:', JSON.stringify(validatedData));
+      console.log('POST /api/content - Validated siteId:', validatedData.siteId);
+      
       const content = await storage.createContent({
         ...validatedData,
-        userId: req.user!.id
+        userId: req.user!.id,
+        siteId: validatedData.siteId || null // Ensure siteId is properly passed
       } as any);
+      
+      console.log('POST /api/content - Created content siteId:', content.siteId);
       res.json(content);
     } catch (error: any) {
+      console.error('POST /api/content - Error:', error);
       res.status(400).json({ message: error.message });
     }
   });
