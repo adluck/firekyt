@@ -487,13 +487,17 @@ export function UnifiedContentEditor({
       console.log('🔍 FRONTEND targetKeywords from response:', JSON.stringify(result?.targetKeywords));
       console.log('🔍 FRONTEND siteId from response:', result?.siteId);
       
-      // Update the contentData state to reflect the saved siteId
+      // Update the contentData state to reflect the saved siteId with a brief delay to ensure visibility
       if (result?.siteId !== undefined) {
         console.log('🔍 FRONTEND Updating dropdown to show saved siteId:', result.siteId);
-        setContentData(prev => ({
-          ...prev,
-          siteId: result.siteId
-        }));
+        
+        // Add a small delay to make the update more visible
+        setTimeout(() => {
+          setContentData(prev => ({
+            ...prev,
+            siteId: result.siteId
+          }));
+        }, 200);
       }
       
       console.log('🔍 FRONTEND Save successful, server returned siteId:', result?.siteId);
