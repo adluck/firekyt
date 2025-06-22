@@ -36,6 +36,8 @@ import LinkedInTest from "@/pages/publishing/LinkedInTest";
 import PinterestTest from "@/pages/publishing/PinterestTest";
 import SocialMediaTest from "@/pages/publishing/SocialMediaTest";
 import LinkDashboard from "@/pages/links/LinkDashboard";
+import IntelligentLinkManager from "@/pages/links/IntelligentLinkManager";
+import IntelligentLinkTester from "@/pages/testing/IntelligentLinkTester";
 import LinkInserter from "@/pages/links/LinkInserter";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
@@ -237,6 +239,22 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <LinkDashboard />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/links/intelligent">
+        <ProtectedRoute>
+          <AppLayout>
+            <IntelligentLinkManager />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/links/test">
+        <ProtectedRoute>
+          <AppLayout>
+            <IntelligentLinkTester />
           </AppLayout>
         </ProtectedRoute>
       </Route>

@@ -94,7 +94,7 @@ export default function LinkInsertionPreview({
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-red-100 border border-red-500"></div>
-              Low Confidence (<60%)
+              Low Confidence (&lt;60%)
             </div>
           </div>
         </CardContent>
