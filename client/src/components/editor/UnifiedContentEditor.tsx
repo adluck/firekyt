@@ -477,12 +477,13 @@ export function UnifiedContentEditor({
       setContentData(prev => {
         const updated = { 
           ...prev,
-          // Preserve the siteId from the server response
+          // Preserve the siteId from the server response - this is the authoritative value
           siteId: result?.siteId !== undefined ? result.siteId : prev.siteId,
           // Update keywords if present
           targetKeywords: result?.targetKeywords || prev.targetKeywords
         };
-        console.log('🔍 FRONTEND Updated contentData siteId:', updated.siteId);
+        console.log('🔍 FRONTEND Updated contentData siteId to:', updated.siteId);
+        console.log('🔍 FRONTEND Server returned siteId:', result?.siteId);
         return updated;
       });
       
