@@ -2561,24 +2561,17 @@ Format your response as a JSON object with the following structure:
             authLength: wpAuth.length
           });
           
-          // Format content for WordPress - ensure proper HTML structure
-          let formattedContent = postData.content || '';
-          
-          // If content doesn't have HTML tags, convert line breaks to paragraphs
-          if (!formattedContent.includes('<p>') && !formattedContent.includes('<div>')) {
-            formattedContent = formattedContent
-              .split('\n\n')
-              .filter(paragraph => paragraph.trim())
-              .map(paragraph => `<p>${paragraph.trim()}</p>`)
-              .join('\n');
-          }
+          // Format content for WordPress using content formatter
+          const { ContentFormatter } = await import('./utils/contentFormatter');
+          const formattedContent = ContentFormatter.formatForPublishing(postData.content || '');
           
           // WordPress REST API post data structure
           const wpPostData = {
             title: postData.title,
             content: formattedContent,
-            excerpt: postData.excerpt || '',
-            status: 'publish'
+            excerpt: ContentFormatter.generateExcerpt(formattedContent, 160),
+            status: 'publish',
+            format: 'standard'
           };
           
           console.log('📝 WordPress post data:', {
