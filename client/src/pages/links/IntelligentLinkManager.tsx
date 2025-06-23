@@ -200,6 +200,31 @@ export default function IntelligentLinkManager() {
     });
   };
 
+  const handleEditLink = (formData: FormData) => {
+    if (!editingLink) return;
+    
+    const linkData = {
+      id: editingLink.id,
+      title: formData.get('title'),
+      originalUrl: formData.get('originalUrl'),
+      description: formData.get('description'),
+      keywords: formData.get('keywords')?.toString().split(',').map(k => k.trim()) || [],
+      targetKeywords: formData.get('targetKeywords')?.toString().split(',').map(k => k.trim()) || [],
+      priority: parseInt(formData.get('priority')?.toString() || '50'),
+      insertionStrategy: formData.get('insertionStrategy') || 'manual',
+      categoryId: formData.get('categoryId') ? parseInt(formData.get('categoryId')?.toString() || '0') : null,
+      siteId: formData.get('siteId') ? parseInt(formData.get('siteId')?.toString() || '0') : null,
+    };
+    
+    updateLinkMutation.mutate(linkData);
+  };
+
+  const handleDeleteLink = (linkId: number) => {
+    if (confirm('Are you sure you want to delete this link?')) {
+      deleteLinkMutation.mutate(linkId);
+    }
+  };
+
   const filteredLinks = links.filter((link: IntelligentLink) => {
     const matchesSearch = link.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          link.description?.toLowerCase().includes(searchTerm.toLowerCase());
