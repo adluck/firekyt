@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { GlobalNavigationLoader } from "@/components/GlobalNavigationLoader";
+import { PageTransition } from "@/components/PageTransition";
 
 // Auth pages
 import Login from "@/pages/auth/Login";

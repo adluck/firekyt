@@ -30,7 +30,7 @@ import { cn } from '@/lib/utils';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
 import type { Site } from '@shared/schema';
 import { PageLoader } from '../PageLoader';
-import { useNavigationLoader } from '@/hooks/useNavigationLoader';
+import { useLocation } from 'wouter';
 
 interface ContentData {
   id?: number;
@@ -145,7 +145,8 @@ export function UnifiedContentEditor({
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
-  const { navigateWithLoader, isNavigating } = useNavigationLoader();
+  const [, setLocation] = useLocation();
+  const [isNavigating, setIsNavigating] = useState(false);
   const [currentKeywords, setCurrentKeywords] = useState<string[]>([]);
   
   // Update currentKeywords when contentData.targetKeywords changes
@@ -710,7 +711,9 @@ export function UnifiedContentEditor({
     enablePreview && { key: 'preview', label: 'Preview', icon: Eye },
   ].filter(Boolean) as Array<{ key: string; label: string; icon: any }>;
 
-  // Remove the local loading check since navigation loader handles it
+  if (isNavigating) {
+    return <PageLoader message="Loading Intelligent Links..." />;
+  }
 
   return (
     <div className={cn('max-w-7xl mx-auto space-y-6', className)}>
@@ -1054,7 +1057,12 @@ export function UnifiedContentEditor({
                   size="sm" 
                   className="w-full justify-start"
                   onClick={() => {
-                    navigateWithLoader('/links/intelligent', 'Loading Intelligent Links...');
+                    setIsNavigating(true);
+                    // Use wouter's navigation instead of window.location
+                    setTimeout(() => {
+                      setLocation('/links/intelligent');
+                      setIsNavigating(false);
+                    }, 50);
                   }}
                   disabled={isNavigating}
                 >
