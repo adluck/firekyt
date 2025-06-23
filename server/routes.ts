@@ -3144,11 +3144,28 @@ Format your response as a JSON object with the following structure:
 
       const createdLink = await storage.createIntelligentLink(linkData);
       
-      console.log('Intelligent link created:', createdLink.id);
+      // Generate tracking URL for the created link
+      const { linkTrackingService } = await import('./LinkTrackingService');
+      const trackingUrl = linkTrackingService.generateTrackingUrl(
+        createdLink.id,
+        createdLink.originalUrl,
+        {
+          userId,
+          siteId: createdLink.siteId
+        }
+      );
+      
+      // Update the link with the tracking URL
+      const updatedLink = await storage.updateIntelligentLink(createdLink.id, {
+        ...createdLink,
+        trackingUrl
+      });
+      
+      console.log('Intelligent link created with tracking URL:', createdLink.id);
       
       res.json({
         success: true,
-        link: createdLink,
+        link: updatedLink,
         message: 'Intelligent link created successfully'
       });
     } catch (error: any) {
