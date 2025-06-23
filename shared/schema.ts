@@ -289,6 +289,7 @@ export const intelligentLinks = pgTable("intelligent_links", {
   categoryId: integer("category_id").references(() => linkCategories.id, { onDelete: "set null" }),
   originalUrl: text("original_url").notNull(),
   shortenedUrl: text("shortened_url"),
+  trackingUrl: text("tracking_url"),
   title: text("title").notNull(),
   description: text("description"),
   keywords: text("keywords").array(),

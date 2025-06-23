@@ -16,7 +16,7 @@ import {
   Brain, Sparkles, Target, TrendingUp, BarChart3, 
   Plus, Edit, Trash2, Eye, MousePointer, DollarSign,
   Zap, Link, Filter, Search, Globe, CheckCircle, XCircle,
-  FileText, Settings, Lightbulb
+  FileText, Settings, Lightbulb, Copy
 } from 'lucide-react';
 import LinkInsertionPreview from '@/components/links/LinkInsertionPreview';
 import LinkPerformanceStats from '@/components/links/LinkPerformanceStats';
@@ -29,6 +29,7 @@ interface IntelligentLink {
   title: string;
   originalUrl: string;
   shortenedUrl?: string;
+  trackingUrl?: string;
   description?: string;
   keywords: string[];
   targetKeywords: string[];
@@ -466,9 +467,33 @@ export default function IntelligentLinkManager() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Globe className="h-4 w-4" />
-                        {link.originalUrl}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Globe className="h-4 w-4" />
+                          Original: {link.originalUrl}
+                        </div>
+                        {link.trackingUrl && (
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 text-sm text-blue-600 flex-1">
+                              <Link className="h-4 w-4" />
+                              Tracking: {link.trackingUrl}
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                navigator.clipboard.writeText(link.trackingUrl!);
+                                toast({
+                                  title: "Copied!",
+                                  description: "Tracking URL copied to clipboard",
+                                });
+                              }}
+                              className="h-6 px-2"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       
                       {link.keywords && link.keywords.length > 0 && (
