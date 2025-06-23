@@ -935,7 +935,10 @@ export default function PublishingDashboard() {
                       {getPlatformIcon(connection.platform)}
                       {connection.platform}
                     </CardTitle>
-                    <Badge variant={connection.isActive ? "default" : "secondary"}>
+                    <Badge 
+                      variant={connection.isActive ? "default" : "secondary"}
+                      className={connection.isActive ? "bg-green-600 hover:bg-green-700 text-white" : ""}
+                    >
                       {connection.isActive ? "Connected" : "Inactive"}
                     </Badge>
                   </CardHeader>
