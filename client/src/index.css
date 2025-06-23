@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent white flash during navigation */
+html, body {
+  background-color: hsl(var(--background)) !important;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Global navigation loading styles */
+.navigation-loading {
+  background-color: hsl(var(--background)) !important;
+}
+
 /* Page transition styles to prevent white flash */
 html {
   background-color: hsl(var(--background));

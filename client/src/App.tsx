@@ -8,6 +8,7 @@ import { SubscriptionProvider } from "@/components/subscription/SubscriptionProv
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { GlobalNavigationLoader } from "@/components/GlobalNavigationLoader";
 
 // Auth pages
 import Login from "@/pages/auth/Login";

@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
 import type { Site } from '@shared/schema';
 import { PageLoader } from '../PageLoader';
+import { useNavigationLoader } from '@/hooks/useNavigationLoader';
 
 interface ContentData {
   id?: number;
@@ -144,7 +145,7 @@ export function UnifiedContentEditor({
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
-  const [isPageLoading, setIsPageLoading] = useState(false);
+  const { navigateWithLoader, isNavigating } = useNavigationLoader();
   const [currentKeywords, setCurrentKeywords] = useState<string[]>([]);
   
   // Update currentKeywords when contentData.targetKeywords changes
@@ -709,9 +710,7 @@ export function UnifiedContentEditor({
     enablePreview && { key: 'preview', label: 'Preview', icon: Eye },
   ].filter(Boolean) as Array<{ key: string; label: string; icon: any }>;
 
-  if (isPageLoading) {
-    return <PageLoader message="Loading Intelligent Links..." />;
-  }
+  // Remove the local loading check since navigation loader handles it
 
   return (
     <div className={cn('max-w-7xl mx-auto space-y-6', className)}>
@@ -1055,17 +1054,12 @@ export function UnifiedContentEditor({
                   size="sm" 
                   className="w-full justify-start"
                   onClick={() => {
-                    setIsPageLoading(true);
-                    
-                    // Small delay to ensure state update renders
-                    setTimeout(() => {
-                      window.location.href = '/links/intelligent';
-                    }, 100);
+                    navigateWithLoader('/links/intelligent', 'Loading Intelligent Links...');
                   }}
-                  disabled={isPageLoading}
+                  disabled={isNavigating}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  {isPageLoading ? 'Loading...' : 'Add Affiliate Links'}
+                  {isNavigating ? 'Loading...' : 'Add Affiliate Links'}
                 </Button>
                 <Button 
                   variant="outline" 
