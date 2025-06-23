@@ -55,6 +55,7 @@ export default function IntelligentLinkManager() {
   const [selectedTab, setSelectedTab] = useState('links');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingLink, setEditingLink] = useState<IntelligentLink | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStrategy, setFilterStrategy] = useState<string>('all');
   const [aiSuggestContent, setAiSuggestContent] = useState('');
