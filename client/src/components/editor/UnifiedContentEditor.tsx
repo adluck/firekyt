@@ -143,6 +143,7 @@ export function UnifiedContentEditor({
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Fetch products for table data population
   const { data: products = [] } = useQuery<any[]>({
