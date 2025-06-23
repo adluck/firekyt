@@ -834,7 +834,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalClicks = linkTracking.filter(track => track.eventType === 'click').length;
       const realUserClicks = linkTracking.filter(track => track.eventType === 'click' && !track.userAgent?.includes('WordPress')).length;
       const totalViews = Math.max(content.reduce((sum, c) => sum + (c.views || 0), 0), totalClicks);
-      const estimatedRevenue = Math.round(realUserClicks * 0.05 * 25); // 5% conversion * $25 commission
+      const estimatedRevenue = 0; // Only actual tracked conversions should contribute to revenue
 
       res.json({
         overview: {
@@ -845,11 +845,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalRevenue: estimatedRevenue,
           totalViews: totalViews,
           totalClicks: totalClicks,
-          uniqueViews: Math.round(totalViews * 0.7),
-          totalConversions: Math.round(realUserClicks * 0.05),
-          conversionRate: realUserClicks > 0 ? ((Math.round(realUserClicks * 0.05) / realUserClicks) * 100).toFixed(1) + "%" : "0%",
+          uniqueViews: totalViews, // Use actual views, no calculations
+          totalConversions: 0, // Only real tracked conversions
+          conversionRate: "0%", // Real conversion rate from actual purchases
           clickThroughRate: totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) + "%" : "0%",
-          avgRevenuePerClick: totalClicks > 0 ? "$" + (estimatedRevenue / totalClicks).toFixed(2) : "$0.00",
+          avgRevenuePerClick: "$0.00", // Only real revenue calculations
           revenueGrowth: "0%", // Real growth calculation would need historical data
           monthlyViews: totalViews // Use the same total views as monthly views since we have tracking data
         },
@@ -863,7 +863,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         performance: {
           totalViews: totalViews,
           totalClicks: totalClicks,
-          conversionRate: realUserClicks > 0 ? parseFloat(((realUserClicks * 0.05 / realUserClicks) * 100).toFixed(1)) : 0
+          conversionRate: 0 // Only real conversions
         }
       });
     } catch (error: any) {
