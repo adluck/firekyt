@@ -1042,10 +1042,16 @@ export function UnifiedContentEditor({
                   variant="outline" 
                   size="sm" 
                   className="w-full justify-start"
-                  onClick={() => window.location.href = '/links/intelligent'}
+                  onClick={() => {
+                    setIsNavigating(true);
+                    setTimeout(() => {
+                      window.location.href = '/links/intelligent';
+                    }, 150);
+                  }}
+                  disabled={isNavigating}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  Add Affiliate Links
+                  {isNavigating ? 'Loading...' : 'Add Affiliate Links'}
                 </Button>
                 <Button 
                   variant="outline" 
