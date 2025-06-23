@@ -1446,6 +1446,24 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(linkTracking.timestamp));
   }
 
+  async getUserLinkTracking(userId: number, startDate?: Date, endDate?: Date): Promise<LinkTracking[]> {
+    let conditions = [eq(linkTracking.userId, userId)];
+    
+    if (startDate) {
+      conditions.push(gte(linkTracking.timestamp, startDate));
+    }
+    
+    if (endDate) {
+      conditions.push(lte(linkTracking.timestamp, endDate));
+    }
+    
+    return await db
+      .select()
+      .from(linkTracking)
+      .where(and(...conditions))
+      .orderBy(desc(linkTracking.timestamp));
+  }
+
   async getLinkPerformanceStats(linkId: number): Promise<{
     totalClicks: number;
     totalViews: number;
