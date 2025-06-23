@@ -3455,6 +3455,13 @@ async function generateAILinkSuggestions(params: {
         return res.status(400).json({ message: 'Original URL is required' });
       }
 
+      // Verify the link exists
+      const link = await storage.getIntelligentLink(linkId);
+      if (!link) {
+        console.log(`❌ Link ${linkId} not found`);
+        return res.status(404).json({ message: 'Link not found' });
+      }
+
       // Record the click in database
       const trackingData = {
         userId: userId ? parseInt(userId as string) : 1, // Default to user 1
