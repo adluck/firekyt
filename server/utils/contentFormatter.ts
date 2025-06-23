@@ -42,7 +42,13 @@ export class ContentFormatter {
           }
           
           if (matchingPlaceholder) {
-            formatted = formatted.replace(new RegExp(matchingPlaceholder, 'g'), link.trackingUrl);
+            // Add inline styling to tracking URLs for consistent appearance
+            const styledTrackingUrl = link.trackingUrl;
+            formatted = formatted.replace(
+              new RegExp(`href="${matchingPlaceholder}"`, 'g'), 
+              `href="${styledTrackingUrl}" style="color: #2563eb; text-decoration: underline; font-weight: 500;"`
+            );
+            formatted = formatted.replace(new RegExp(matchingPlaceholder, 'g'), styledTrackingUrl);
           }
         }
       }
@@ -95,8 +101,8 @@ export class ContentFormatter {
     // Convert italic text (but not list items)
     html = html.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
     
-    // Convert links
-    html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
+    // Convert links with proper styling
+    html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer nofollow" style="color: #2563eb; text-decoration: underline;">$1</a>');
     
     // Split into paragraphs first
     const paragraphs = html.split(/\n\s*\n/);

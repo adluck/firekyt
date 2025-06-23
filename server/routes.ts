@@ -3377,7 +3377,7 @@ Format your response as a JSON object with the following structure:
         userId: userId ? parseInt(userId as string) : 1,
         linkId: linkId,
         insertionId: insertionId ? parseInt(insertionId as string) : undefined,
-        siteId: siteId ? parseInt(siteId as string) : undefined,
+        siteId: siteId && siteId !== 'null' ? parseInt(siteId as string) : undefined,
         eventType: 'click' as const,
         sessionId: sessionId as string || req.sessionID || '',
         ipAddress: req.ip || req.connection.remoteAddress || '',
