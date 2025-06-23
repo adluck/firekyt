@@ -149,19 +149,19 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
           title="Total Content"
           value={siteContent.length.toString()}
           icon={FileText}
-          trend={{ value: "0", positive: true }}
+          trend={{ value: siteContent.length > 0 ? `+${siteContent.length}` : "0", positive: siteContent.length > 0 }}
         />
         <DashboardCard
           title="Published"
           value={publishedContent.length.toString()}
           icon={TrendingUp}
-          trend={{ value: "0", positive: true }}
+          trend={{ value: publishedContent.length > 0 ? `+${publishedContent.length}` : "0", positive: publishedContent.length > 0 }}
         />
         <DashboardCard
           title="Drafts"
           value={draftContent.length.toString()}
           icon={Edit}
-          trend={{ value: "0", positive: true }}
+          trend={{ value: draftContent.length > 0 ? `+${draftContent.length}` : "0", positive: draftContent.length > 0 }}
         />
         <DashboardCard
           title="Monthly Views"
@@ -324,14 +324,18 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <AnalyticsChart
               title="Traffic Trend"
-              data={analyticsData}
+              data={analytics ? [
+                { date: 'Current', value: analytics.views || 0 }
+              ] : []}
               dataKey="value"
               color="var(--primary-orange)"
             />
             
             <AnalyticsChart
               title="Revenue Trend"
-              data={analyticsData.map(item => ({ date: item.date, value: item.value * 0.1 }))}
+              data={analytics ? [
+                { date: 'Current', value: analytics.revenue || 0 }
+              ] : []}
               dataKey="value"
               color="var(--primary-pink)"
             />
@@ -344,15 +348,21 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">0%</div>
+                  <div className="text-2xl font-bold text-primary">
+                    {analytics?.clickRate || "0%"}
+                  </div>
                   <div className="text-sm text-muted-foreground">Click Rate</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">$0.00</div>
+                  <div className="text-2xl font-bold text-primary">
+                    ${analytics?.revenue?.toFixed(2) || "0.00"}
+                  </div>
                   <div className="text-sm text-muted-foreground">Revenue</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">0</div>
+                  <div className="text-2xl font-bold text-primary">
+                    {analytics?.conversions || "0"}
+                  </div>
                   <div className="text-sm text-muted-foreground">Conversions</div>
                 </div>
               </div>

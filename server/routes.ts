@@ -850,20 +850,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           conversionRate: realUserClicks > 0 ? ((Math.round(realUserClicks * 0.05) / realUserClicks) * 100).toFixed(1) + "%" : "0%",
           clickThroughRate: totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) + "%" : "0%",
           avgRevenuePerClick: totalClicks > 0 ? "$" + (estimatedRevenue / totalClicks).toFixed(2) : "$0.00",
-          revenueGrowth: totalViews > 100 ? "+12.3%" : totalViews > 50 ? "+5.7%" : totalViews > 0 ? "+2.1%" : "0%",
+          revenueGrowth: "0%", // Real growth calculation would need historical data
           monthlyViews: totalViews // Use the same total views as monthly views since we have tracking data
         },
         usage: {
           sites: sites.length,
           content_generation: content.length,
-          api_calls: 0
+          api_calls: linkTracking.length // Use actual tracking events as API usage metric
         },
         limits,
         recentContent: content.slice(0, 5),
         performance: {
-          totalViews: 0,
-          totalClicks: 0,
-          conversionRate: 0
+          totalViews: totalViews,
+          totalClicks: totalClicks,
+          conversionRate: realUserClicks > 0 ? parseFloat(((realUserClicks * 0.05 / realUserClicks) * 100).toFixed(1)) : 0
         }
       });
     } catch (error: any) {
