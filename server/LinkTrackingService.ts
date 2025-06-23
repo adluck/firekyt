@@ -191,7 +191,7 @@ export class LinkTrackingService {
    * Generate a tracking URL for a link
    */
   generateTrackingUrl(linkId: number, originalUrl: string, trackingParams?: any): string {
-    const baseUrl = process.env.APP_URL || 'http://localhost:5000';
+    const baseUrl = process.env.APP_URL || process.env.REPLIT_DEV_DOMAIN || 'https://c452b6e1-7450-487d-9a83-f5b3f95ecfa2-00-18lteac2m5pu5.worf.replit.dev';
     const trackingUrl = new URL(`${baseUrl}/api/track/click/${linkId}`);
     
     // Add the original URL as a parameter
