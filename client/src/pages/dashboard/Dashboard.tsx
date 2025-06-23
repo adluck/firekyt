@@ -47,14 +47,13 @@ export default function Dashboard() {
   const overview = dashboardData?.overview || {};
   const hasActivity = overview.totalSites > 0 || overview.totalContent > 0;
   
-  // Only show chart data if user has activity
-  const chartData = hasActivity ? [
-    { date: "Jan", value: overview.totalRevenue || 0 },
-    { date: "Feb", value: overview.totalRevenue || 0 },
-    { date: "Mar", value: overview.totalRevenue || 0 },
-    { date: "Apr", value: overview.totalRevenue || 0 },
-    { date: "May", value: overview.totalRevenue || 0 },
-    { date: "Jun", value: overview.totalRevenue || 0 },
+  // Use real tracking data for charts
+  const revenueData = hasActivity ? [
+    { date: "Current", value: overview.totalRevenue || 0 }
+  ] : [];
+  
+  const trafficData = hasActivity ? [
+    { date: "Current", value: overview.totalClicks || 0 }
   ] : [];
 
   return (
@@ -206,14 +205,14 @@ export default function Dashboard() {
           <>
             <AnalyticsChart
               title="Revenue Trend"
-              data={chartData}
+              data={revenueData}
               dataKey="value"
               color="var(--primary-orange)"
             />
             
             <AnalyticsChart
               title="Traffic Overview"
-              data={chartData.map(item => ({ ...item, value: item.value * 10 }))}
+              data={trafficData}
               dataKey="value"
               color="var(--primary-pink)"
             />
