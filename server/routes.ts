@@ -3446,40 +3446,43 @@ async function generateAILinkSuggestions(params: {
   app.get('/api/track/click/:linkId', async (req, res) => {
     try {
       const linkId = parseInt(req.params.linkId);
-      const { url, insertionId, siteId, sessionId } = req.query;
+      const { url, insertionId, siteId, sessionId, userId } = req.query;
+      
+      console.log(`🔗 Tracking click for link ${linkId}, URL: ${url}`);
       
       if (!url) {
+        console.log('❌ No URL provided for tracking');
         return res.status(400).json({ message: 'Original URL is required' });
       }
 
-      // Get tracking data from request
+      // Record the click in database
       const trackingData = {
+        userId: userId ? parseInt(userId as string) : 1, // Default to user 1
+        linkId: linkId,
         insertionId: insertionId ? parseInt(insertionId as string) : undefined,
         siteId: siteId ? parseInt(siteId as string) : undefined,
-        sessionId: sessionId as string,
-        ipAddress: req.ip || req.connection.remoteAddress,
-        userAgent: req.get('User-Agent'),
-        referrer: req.get('Referrer')
+        eventType: 'click' as const,
+        sessionId: sessionId as string || req.sessionID || '',
+        ipAddress: req.ip || req.connection.remoteAddress || '',
+        userAgent: req.get('User-Agent') || '',
+        referrer: req.get('Referrer') || ''
       };
-
-      // Import the LinkTrackingService
-      const { linkTrackingService } = await import('./LinkTrackingService');
       
-      // Process the tracked click (this will record the click)
-      const redirectUrl = await linkTrackingService.processTrackedClick(
-        linkId,
-        url as string,
-        trackingData
-      );
+      console.log('📊 Creating tracking record:', trackingData);
+      
+      const trackingRecord = await storage.createLinkTracking(trackingData);
+      console.log('✅ Tracking record created:', trackingRecord.id);
+
+      console.log(`✅ Click tracked successfully for link ${linkId}`);
 
       // Redirect to the original URL
-      res.redirect(302, redirectUrl);
+      res.redirect(302, decodeURIComponent(url as string));
     } catch (error: any) {
       console.error('Link tracking error:', error);
       // If tracking fails, still redirect to the original URL if possible
       const { url } = req.query;
       if (url) {
-        res.redirect(302, url as string);
+        res.redirect(302, decodeURIComponent(url as string));
       } else {
         res.status(500).json({ message: 'Link tracking failed' });
       }
