@@ -115,6 +115,32 @@ export default function IntelligentLinkManager() {
     }
   });
 
+  // Update link mutation
+  const updateLinkMutation = useMutation({
+    mutationFn: ({ id, ...linkData }: any) => apiRequest('PUT', `/api/links/intelligent/${id}`, linkData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/links/intelligent'] });
+      setIsEditDialogOpen(false);
+      setEditingLink(null);
+      toast({ title: 'Success', description: 'Link updated successfully' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  // Delete link mutation
+  const deleteLinkMutation = useMutation({
+    mutationFn: (id: number) => apiRequest('DELETE', `/api/links/intelligent/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/links/intelligent'] });
+      toast({ title: 'Success', description: 'Link deleted successfully' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  });
+
   // AI suggest mutation
   const aiSuggestMutation = useMutation({
     mutationFn: async (data: any) => {
