@@ -704,16 +704,6 @@ export function UnifiedContentEditor({
 
   return (
     <div className={cn('max-w-7xl mx-auto space-y-6', className)}>
-      {/* Navigation Loading Overlay */}
-      {isNavigating && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="flex items-center gap-3 bg-card p-6 rounded-lg shadow-lg border">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <span className="text-foreground font-medium">Navigating to Intelligent Links...</span>
-          </div>
-        </div>
-      )}
-      
       {/* Header */}
       {showHeader && (
         <div className="flex items-center justify-between">
@@ -1054,15 +1044,74 @@ export function UnifiedContentEditor({
                   size="sm" 
                   className="w-full justify-start"
                   onClick={() => {
-                    setIsNavigating(true);
+                    // Create full-screen overlay immediately
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      background: rgb(var(--background) / 0.9);
+                      backdrop-filter: blur(4px);
+                      z-index: 9999;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    `;
+                    
+                    const content = document.createElement('div');
+                    content.style.cssText = `
+                      display: flex;
+                      align-items: center;
+                      gap: 12px;
+                      background: rgb(var(--card));
+                      padding: 24px;
+                      border-radius: 8px;
+                      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+                      border: 1px solid rgb(var(--border));
+                    `;
+                    
+                    const spinner = document.createElement('div');
+                    spinner.style.cssText = `
+                      width: 24px;
+                      height: 24px;
+                      border: 2px solid rgb(var(--primary));
+                      border-top: 2px solid transparent;
+                      border-radius: 50%;
+                      animation: spin 1s linear infinite;
+                    `;
+                    
+                    const text = document.createElement('span');
+                    text.textContent = 'Navigating to Intelligent Links...';
+                    text.style.cssText = `
+                      color: rgb(var(--foreground));
+                      font-weight: 500;
+                    `;
+                    
+                    // Add spinner animation
+                    const style = document.createElement('style');
+                    style.textContent = `
+                      @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                      }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    content.appendChild(spinner);
+                    content.appendChild(text);
+                    overlay.appendChild(content);
+                    document.body.appendChild(overlay);
+                    
+                    // Navigate after a brief delay
                     setTimeout(() => {
                       window.location.href = '/links/intelligent';
-                    }, 150);
+                    }, 200);
                   }}
-                  disabled={isNavigating}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  {isNavigating ? 'Loading...' : 'Add Affiliate Links'}
+                  Add Affiliate Links
                 </Button>
                 <Button 
                   variant="outline" 
