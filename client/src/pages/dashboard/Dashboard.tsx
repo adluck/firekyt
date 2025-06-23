@@ -92,8 +92,8 @@ export default function Dashboard() {
           description="Active sites"
           icon={Globe}
           trend={{ 
-            value: overview.totalSites > 1 ? `+${overview.totalSites - 1} this month` : "0 this month", 
-            positive: overview.totalSites > 1 
+            value: `${overview.totalSites} total`, 
+            positive: overview.totalSites > 0 
           }}
         />
         
@@ -103,7 +103,7 @@ export default function Dashboard() {
           description="Published articles"
           icon={FileText}
           trend={{ 
-            value: overview.totalContent > 0 ? `+${overview.totalContent} this month` : "0 this month", 
+            value: `${overview.totalContent} created`, 
             positive: overview.totalContent > 0 
           }}
         />
