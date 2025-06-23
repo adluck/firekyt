@@ -29,6 +29,7 @@ import {
 import { cn } from '@/lib/utils';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
 import type { Site } from '@shared/schema';
+import { PageLoader } from '../PageLoader';
 
 interface ContentData {
   id?: number;
@@ -143,7 +144,7 @@ export function UnifiedContentEditor({
   const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
-  const [isNavigating, setIsNavigating] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(false);
 
   // Fetch products for table data population
   const { data: products = [] } = useQuery<any[]>({
@@ -702,6 +703,10 @@ export function UnifiedContentEditor({
     enablePreview && { key: 'preview', label: 'Preview', icon: Eye },
   ].filter(Boolean) as Array<{ key: string; label: string; icon: any }>;
 
+  if (isPageLoading) {
+    return <PageLoader message="Loading Intelligent Links..." />;
+  }
+
   return (
     <div className={cn('max-w-7xl mx-auto space-y-6', className)}>
       {/* Header */}
@@ -1044,80 +1049,17 @@ export function UnifiedContentEditor({
                   size="sm" 
                   className="w-full justify-start"
                   onClick={() => {
-                    // Prevent white flash by setting body background immediately
-                    document.body.style.background = 'hsl(var(--background))';
-                    document.documentElement.style.background = 'hsl(var(--background))';
+                    setIsPageLoading(true);
                     
-                    // Add global loading overlay styles
-                    const style = document.createElement('style');
-                    style.id = 'nav-loading-styles';
-                    style.textContent = `
-                      .nav-loading-overlay {
-                        position: fixed !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        width: 100vw !important;
-                        height: 100vh !important;
-                        background: hsl(var(--background)) !important;
-                        z-index: 99999 !important;
-                        display: flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        backdrop-filter: none !important;
-                      }
-                      .nav-loading-content {
-                        display: flex !important;
-                        align-items: center !important;
-                        gap: 12px !important;
-                        background: hsl(var(--card)) !important;
-                        padding: 24px !important;
-                        border-radius: 8px !important;
-                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-                        border: 1px solid hsl(var(--border)) !important;
-                        color: hsl(var(--foreground)) !important;
-                        font-weight: 500 !important;
-                      }
-                      .nav-loading-spinner {
-                        width: 24px !important;
-                        height: 24px !important;
-                        border: 2px solid hsl(var(--primary)) !important;
-                        border-top: 2px solid transparent !important;
-                        border-radius: 50% !important;
-                        animation: nav-spin 1s linear infinite !important;
-                      }
-                      @keyframes nav-spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                      }
-                    `;
-                    document.head.appendChild(style);
-                    
-                    // Create overlay with proper classes
-                    const overlay = document.createElement('div');
-                    overlay.className = 'nav-loading-overlay';
-                    
-                    const content = document.createElement('div');
-                    content.className = 'nav-loading-content';
-                    
-                    const spinner = document.createElement('div');
-                    spinner.className = 'nav-loading-spinner';
-                    
-                    const text = document.createElement('span');
-                    text.textContent = 'Loading Intelligent Links...';
-                    
-                    content.appendChild(spinner);
-                    content.appendChild(text);
-                    overlay.appendChild(content);
-                    
-                    // Insert overlay as first child of body to ensure it covers everything
-                    document.body.insertBefore(overlay, document.body.firstChild);
-                    
-                    // Navigate immediately with no delay
-                    window.location.href = '/links/intelligent';
+                    // Small delay to ensure state update renders
+                    setTimeout(() => {
+                      window.location.href = '/links/intelligent';
+                    }, 100);
                   }}
+                  disabled={isPageLoading}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  Add Affiliate Links
+                  {isPageLoading ? 'Loading...' : 'Add Affiliate Links'}
                 </Button>
                 <Button 
                   variant="outline" 
