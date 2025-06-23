@@ -3462,6 +3462,9 @@ async function generateAILinkSuggestions(params: {
         referrer: req.get('Referrer')
       };
 
+      // Import the LinkTrackingService
+      const { linkTrackingService } = await import('./LinkTrackingService');
+      
       // Process the tracked click (this will record the click)
       const redirectUrl = await linkTrackingService.processTrackedClick(
         linkId,
@@ -3492,6 +3495,8 @@ async function generateAILinkSuggestions(params: {
         return res.status(400).json({ message: 'Link ID is required' });
       }
 
+      const { linkTrackingService } = await import('./LinkTrackingService');
+      
       await linkTrackingService.trackView({
         linkId: parseInt(linkId),
         insertionId: insertionId ? parseInt(insertionId) : undefined,

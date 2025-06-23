@@ -105,6 +105,36 @@ export class LinkTrackingService {
   }
 
   /**
+   * Process a tracked click - records the click and returns the redirect URL
+   */
+  async processTrackedClick(
+    linkId: number, 
+    originalUrl: string, 
+    trackingData: any
+  ): Promise<string> {
+    try {
+      // Track the click event
+      await this.trackClick({
+        linkId,
+        insertionId: trackingData.insertionId,
+        siteId: trackingData.siteId,
+        userId: 1, // Default user for anonymous tracking
+        sessionId: trackingData.sessionId,
+        ipAddress: trackingData.ipAddress,
+        userAgent: trackingData.userAgent,
+        referrer: trackingData.referrer
+      });
+
+      // Return the original URL for redirect
+      return originalUrl;
+    } catch (error) {
+      console.error('Error processing tracked click:', error);
+      // Even if tracking fails, still redirect to the original URL
+      return originalUrl;
+    }
+  }
+
+  /**
    * Get comprehensive performance stats for a link
    */
   async getLinkPerformanceStats(linkId: number, days: number = 30): Promise<{
