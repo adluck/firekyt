@@ -1042,7 +1042,7 @@ export function UnifiedContentEditor({
                   variant="outline" 
                   size="sm" 
                   className="w-full justify-start"
-                  onClick={handleAddAffiliateLinks}
+                  onClick={() => window.open('/links/intelligent', '_blank')}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Add Affiliate Links
