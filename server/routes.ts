@@ -3157,7 +3157,6 @@ Format your response as a JSON object with the following structure:
       
       // Update the link with the tracking URL
       const updatedLink = await storage.updateIntelligentLink(createdLink.id, {
-        ...createdLink,
         trackingUrl
       });
       
