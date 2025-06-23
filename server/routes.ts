@@ -3440,6 +3440,8 @@ async function generateAILinkSuggestions(params: {
   return suggestions
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 5);
+}
+
   // Link Tracking Routes
   
   // Track link click and redirect
