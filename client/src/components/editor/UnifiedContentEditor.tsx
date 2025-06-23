@@ -1044,70 +1044,76 @@ export function UnifiedContentEditor({
                   size="sm" 
                   className="w-full justify-start"
                   onClick={() => {
-                    // Create full-screen overlay immediately
-                    const overlay = document.createElement('div');
-                    overlay.style.cssText = `
-                      position: fixed;
-                      top: 0;
-                      left: 0;
-                      width: 100%;
-                      height: 100%;
-                      background: rgb(var(--background) / 0.9);
-                      backdrop-filter: blur(4px);
-                      z-index: 9999;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                    `;
+                    // Prevent white flash by setting body background immediately
+                    document.body.style.background = 'hsl(var(--background))';
+                    document.documentElement.style.background = 'hsl(var(--background))';
                     
-                    const content = document.createElement('div');
-                    content.style.cssText = `
-                      display: flex;
-                      align-items: center;
-                      gap: 12px;
-                      background: rgb(var(--card));
-                      padding: 24px;
-                      border-radius: 8px;
-                      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-                      border: 1px solid rgb(var(--border));
-                    `;
-                    
-                    const spinner = document.createElement('div');
-                    spinner.style.cssText = `
-                      width: 24px;
-                      height: 24px;
-                      border: 2px solid rgb(var(--primary));
-                      border-top: 2px solid transparent;
-                      border-radius: 50%;
-                      animation: spin 1s linear infinite;
-                    `;
-                    
-                    const text = document.createElement('span');
-                    text.textContent = 'Navigating to Intelligent Links...';
-                    text.style.cssText = `
-                      color: rgb(var(--foreground));
-                      font-weight: 500;
-                    `;
-                    
-                    // Add spinner animation
+                    // Add global loading overlay styles
                     const style = document.createElement('style');
+                    style.id = 'nav-loading-styles';
                     style.textContent = `
-                      @keyframes spin {
+                      .nav-loading-overlay {
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        width: 100vw !important;
+                        height: 100vh !important;
+                        background: hsl(var(--background)) !important;
+                        z-index: 99999 !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        backdrop-filter: none !important;
+                      }
+                      .nav-loading-content {
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 12px !important;
+                        background: hsl(var(--card)) !important;
+                        padding: 24px !important;
+                        border-radius: 8px !important;
+                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+                        border: 1px solid hsl(var(--border)) !important;
+                        color: hsl(var(--foreground)) !important;
+                        font-weight: 500 !important;
+                      }
+                      .nav-loading-spinner {
+                        width: 24px !important;
+                        height: 24px !important;
+                        border: 2px solid hsl(var(--primary)) !important;
+                        border-top: 2px solid transparent !important;
+                        border-radius: 50% !important;
+                        animation: nav-spin 1s linear infinite !important;
+                      }
+                      @keyframes nav-spin {
                         0% { transform: rotate(0deg); }
                         100% { transform: rotate(360deg); }
                       }
                     `;
                     document.head.appendChild(style);
                     
+                    // Create overlay with proper classes
+                    const overlay = document.createElement('div');
+                    overlay.className = 'nav-loading-overlay';
+                    
+                    const content = document.createElement('div');
+                    content.className = 'nav-loading-content';
+                    
+                    const spinner = document.createElement('div');
+                    spinner.className = 'nav-loading-spinner';
+                    
+                    const text = document.createElement('span');
+                    text.textContent = 'Loading Intelligent Links...';
+                    
                     content.appendChild(spinner);
                     content.appendChild(text);
                     overlay.appendChild(content);
-                    document.body.appendChild(overlay);
                     
-                    // Navigate after a brief delay
-                    setTimeout(() => {
-                      window.location.href = '/links/intelligent';
-                    }, 200);
+                    // Insert overlay as first child of body to ensure it covers everything
+                    document.body.insertBefore(overlay, document.body.firstChild);
+                    
+                    // Navigate immediately with no delay
+                    window.location.href = '/links/intelligent';
                   }}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
