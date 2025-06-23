@@ -165,9 +165,9 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
         />
         <DashboardCard
           title="Monthly Views"
-          value="0"
+          value={analytics?.views?.toString() || "0"}
           icon={MousePointer}
-          trend={{ value: "0", positive: true }}
+          trend={{ value: analytics?.viewsChange?.toString() || "0", positive: true }}
         />
       </div>
 
