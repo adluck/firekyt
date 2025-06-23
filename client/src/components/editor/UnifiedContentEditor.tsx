@@ -704,6 +704,16 @@ export function UnifiedContentEditor({
 
   return (
     <div className={cn('max-w-7xl mx-auto space-y-6', className)}>
+      {/* Navigation Loading Overlay */}
+      {isNavigating && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex items-center gap-3 bg-card p-6 rounded-lg shadow-lg border">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            <span className="text-foreground font-medium">Navigating to Intelligent Links...</span>
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       {showHeader && (
         <div className="flex items-center justify-between">
