@@ -472,11 +472,11 @@ export default function IntelligentLinkManager() {
                           <Globe className="h-4 w-4" />
                           Original: {link.originalUrl}
                         </div>
-                        {link.trackingUrl && (
+                        {link.trackingUrl ? (
                           <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 text-sm text-blue-600 flex-1">
-                              <Link className="h-4 w-4" />
-                              Tracking: {link.trackingUrl}
+                            <div className="flex items-center gap-1 text-sm text-blue-600 flex-1 truncate">
+                              <Link className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">Tracking: {link.trackingUrl}</span>
                             </div>
                             <Button
                               size="sm"
@@ -488,10 +488,14 @@ export default function IntelligentLinkManager() {
                                   description: "Tracking URL copied to clipboard",
                                 });
                               }}
-                              className="h-6 px-2"
+                              className="h-6 px-2 flex-shrink-0"
                             >
                               <Copy className="h-3 w-3" />
                             </Button>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-500">
+                            No tracking URL available
                           </div>
                         )}
                       </div>
