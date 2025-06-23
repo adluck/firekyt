@@ -145,6 +145,12 @@ export function UnifiedContentEditor({
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [isPageLoading, setIsPageLoading] = useState(false);
+  const [currentKeywords, setCurrentKeywords] = useState<string[]>([]);
+  
+  // Update currentKeywords when contentData.targetKeywords changes
+  useEffect(() => {
+    setCurrentKeywords(contentData.targetKeywords || []);
+  }, [contentData.targetKeywords]);
 
   // Fetch products for table data population
   const { data: products = [] } = useQuery<any[]>({
@@ -333,7 +339,7 @@ export function UnifiedContentEditor({
   };
   
   // Use contentData.targetKeywords as the single source of truth for keywords
-  const currentKeywords = contentData.targetKeywords || [];
+  // currentKeywords state is already declared above
 
   // Fetch existing content if editing
   const { data: existingContent, isLoading: contentLoading } = useQuery({

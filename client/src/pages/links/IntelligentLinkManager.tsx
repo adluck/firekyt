@@ -22,6 +22,7 @@ import LinkInsertionPreview from '@/components/links/LinkInsertionPreview';
 import LinkPerformanceStats from '@/components/links/LinkPerformanceStats';
 import RetroactiveConversion from '@/components/links/RetroactiveConversion';
 import { parseContextMatch } from '@/utils/parseContextMatch';
+import { LoadingGate } from '@/components/LoadingGate';
 
 interface IntelligentLink {
   id: number;
@@ -222,7 +223,8 @@ export default function IntelligentLinkManager() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <LoadingGate minLoadTime={300}>
+      <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -676,6 +678,7 @@ export default function IntelligentLinkManager() {
           <RetroactiveConversion />
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </LoadingGate>
   );
 }
