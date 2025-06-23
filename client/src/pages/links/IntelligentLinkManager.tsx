@@ -56,6 +56,8 @@ export default function IntelligentLinkManager() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingLink, setEditingLink] = useState<IntelligentLink | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deletingLink, setDeletingLink] = useState<IntelligentLink | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStrategy, setFilterStrategy] = useState<string>('all');
   const [aiSuggestContent, setAiSuggestContent] = useState('');
@@ -246,9 +248,16 @@ export default function IntelligentLinkManager() {
     updateLinkMutation.mutate(linkData);
   };
 
-  const handleDeleteLink = (linkId: number) => {
-    if (confirm('Are you sure you want to delete this link?')) {
-      deleteLinkMutation.mutate(linkId);
+  const handleDeleteLink = (link: IntelligentLink) => {
+    setDeletingLink(link);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteLink = () => {
+    if (deletingLink) {
+      deleteLinkMutation.mutate(deletingLink.id);
+      setIsDeleteDialogOpen(false);
+      setDeletingLink(null);
     }
   };
 
@@ -502,7 +511,7 @@ export default function IntelligentLinkManager() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => handleDeleteLink(link.id)}
+                            onClick={() => handleDeleteLink(link)}
                             disabled={deleteLinkMutation.isPending}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -883,6 +892,39 @@ export default function IntelligentLinkManager() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Intelligent Link</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{deletingLink?.title}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setDeletingLink(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="button" 
+              variant="destructive"
+              onClick={confirmDeleteLink}
+              disabled={deleteLinkMutation.isPending}
+            >
+              {deleteLinkMutation.isPending ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       </div>
