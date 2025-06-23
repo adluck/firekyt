@@ -3089,6 +3089,98 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // Intelligent Links Management
+  app.get("/api/links/intelligent", authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const siteId = req.query.siteId ? parseInt(req.query.siteId as string) : undefined;
+      
+      const links = await storage.getUserIntelligentLinks(userId, siteId);
+      res.json(links);
+    } catch (error: any) {
+      console.error('Get intelligent links error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Create intelligent link
+  app.post("/api/links/intelligent", authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const {
+        title,
+        description,
+        originalUrl,
+        siteId,
+        categoryId,
+        keywords,
+        targetAudience,
+        insertionStrategy,
+        priority,
+        isActive
+      } = req.body;
+
+      // Validate required fields
+      if (!title || !originalUrl) {
+        return res.status(400).json({ 
+          message: 'Title and original URL are required' 
+        });
+      }
+
+      // Create the intelligent link
+      const linkData = {
+        userId,
+        title,
+        description: description || null,
+        originalUrl,
+        siteId: siteId ? parseInt(siteId) : null,
+        categoryId: categoryId ? parseInt(categoryId) : null,
+        keywords: keywords || [],
+        targetAudience: targetAudience || null,
+        insertionStrategy: insertionStrategy || 'ai-suggested',
+        priority: priority || 'medium',
+        isActive: isActive !== undefined ? isActive : true
+      };
+
+      const createdLink = await storage.createIntelligentLink(linkData);
+      
+      console.log('Intelligent link created:', createdLink.id);
+      
+      res.json({
+        success: true,
+        link: createdLink,
+        message: 'Intelligent link created successfully'
+      });
+    } catch (error: any) {
+      console.error('Create intelligent link error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Update intelligent link
+  app.put("/api/links/intelligent/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const link = await storage.updateIntelligentLink(parseInt(id), req.body);
+      res.json(link);
+    } catch (error: any) {
+      console.error('Update intelligent link error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Delete intelligent link
+  app.delete("/api/links/intelligent/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteIntelligentLink(parseInt(id));
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Delete intelligent link error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // AI-Powered Link Insertion Engine
   app.post("/api/links/ai-suggest", authenticateToken, async (req, res) => {
     try {
