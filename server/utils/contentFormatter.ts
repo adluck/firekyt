@@ -6,10 +6,47 @@ export class ContentFormatter {
   /**
    * Clean and format content for publishing (handles both HTML and Markdown)
    */
-  static formatForPublishing(content: string): string {
+  static formatForPublishing(content: string, intelligentLinks?: any[]): string {
     if (!content) return '';
     
     let formatted = content;
+    
+    // Replace placeholder affiliate links with actual tracking URLs
+    if (intelligentLinks && intelligentLinks.length > 0) {
+      for (const link of intelligentLinks) {
+        if (link.trackingUrl && link.title) {
+          // Create patterns to match placeholder links
+          const placeholderPatterns = [
+            `amazon-echo-affiliate-link`,
+            `simplisafe-affiliate-link`, 
+            `philips-hue-affiliate-link`,
+            `nest-affiliate-link`,
+            `homekit-affiliate-link`,
+            `google-home-affiliate-link`
+          ];
+          
+          // Find matching placeholder based on link title
+          let matchingPlaceholder = '';
+          if (link.title.toLowerCase().includes('echo') || link.title.toLowerCase().includes('alexa')) {
+            matchingPlaceholder = 'amazon-echo-affiliate-link';
+          } else if (link.title.toLowerCase().includes('simplisafe') || link.title.toLowerCase().includes('security')) {
+            matchingPlaceholder = 'simplisafe-affiliate-link';
+          } else if (link.title.toLowerCase().includes('philips') || link.title.toLowerCase().includes('hue')) {
+            matchingPlaceholder = 'philips-hue-affiliate-link';
+          } else if (link.title.toLowerCase().includes('nest') || link.title.toLowerCase().includes('thermostat')) {
+            matchingPlaceholder = 'nest-affiliate-link';
+          } else if (link.title.toLowerCase().includes('homekit') || link.title.toLowerCase().includes('apple')) {
+            matchingPlaceholder = 'homekit-affiliate-link';
+          } else if (link.title.toLowerCase().includes('google')) {
+            matchingPlaceholder = 'google-home-affiliate-link';
+          }
+          
+          if (matchingPlaceholder) {
+            formatted = formatted.replace(new RegExp(matchingPlaceholder, 'g'), link.trackingUrl);
+          }
+        }
+      }
+    }
     
     // Check if content is Markdown (contains # headers, * lists, [links](urls))
     const isMarkdown = /^#\s+/.test(formatted) || /^\*\s+/.test(formatted.split('\n').find(line => line.trim()) || '') || /\[.*\]\(.*\)/.test(formatted);

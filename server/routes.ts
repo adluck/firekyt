@@ -2561,9 +2561,12 @@ Format your response as a JSON object with the following structure:
             authLength: wpAuth.length
           });
           
+          // Get user's intelligent links for placeholder replacement
+          const intelligentLinks = await storage.getUserIntelligentLinks(req.user!.id);
+          
           // Format content for WordPress using content formatter
           const { ContentFormatter } = await import('./utils/contentFormatter');
-          const formattedContent = ContentFormatter.formatForPublishing(postData.content || '');
+          const formattedContent = ContentFormatter.formatForPublishing(postData.content || '', intelligentLinks);
           
           // WordPress REST API post data structure
           const wpPostData = {
@@ -2785,6 +2788,16 @@ Format your response as a JSON object with the following structure:
         });
 
         try {
+          // Get user's intelligent links for placeholder replacement
+          const intelligentLinks = await storage.getUserIntelligentLinks(req.user!.id);
+          
+          // Format content using content formatter
+          const { ContentFormatter } = await import('./utils/contentFormatter');
+          const formattedContent = ContentFormatter.formatForPublishing(postData.content || '', intelligentLinks);
+          
+          // Update post data with formatted content
+          postData.content = formattedContent;
+          
           const fetch = (await import('node-fetch')).default;
           
           console.log('📡 Making API request to:', apiUrl);
