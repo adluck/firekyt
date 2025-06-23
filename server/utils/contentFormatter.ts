@@ -4,25 +4,33 @@
 
 export class ContentFormatter {
   /**
-   * Clean and format HTML content for publishing
+   * Clean and format content for publishing (handles both HTML and Markdown)
    */
   static formatForPublishing(content: string): string {
     if (!content) return '';
     
     let formatted = content;
     
-    // Decode HTML entities that might have been double-encoded
-    formatted = formatted
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/""/g, '"')
-      .replace(/''/g, "'");
+    // Check if content is Markdown (contains # headers, * lists, [links](urls))
+    const isMarkdown = /^#\s+/.test(formatted) || /^\*\s+/.test(formatted.split('\n').find(line => line.trim()) || '') || /\[.*\]\(.*\)/.test(formatted);
     
-    // Ensure proper paragraph structure for content without HTML tags
-    if (!formatted.includes('<p>') && !formatted.includes('<div>')) {
+    if (isMarkdown) {
+      // Convert Markdown to HTML
+      formatted = this.convertMarkdownToHtml(formatted);
+    } else {
+      // Decode HTML entities that might have been double-encoded
+      formatted = formatted
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/""/g, '"')
+        .replace(/''/g, "'");
+    }
+    
+    // Ensure proper paragraph structure for plain text
+    if (!formatted.includes('<p>') && !formatted.includes('<div>') && !formatted.includes('<h')) {
       formatted = formatted
         .split('\n\n')
         .filter(paragraph => paragraph.trim())
@@ -31,6 +39,72 @@ export class ContentFormatter {
     }
     
     return formatted;
+  }
+
+  /**
+   * Convert Markdown to HTML
+   */
+  static convertMarkdownToHtml(markdown: string): string {
+    let html = markdown;
+    
+    // Convert headers
+    html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    
+    // Convert bold text
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert italic text
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Convert links
+    html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
+    
+    // Convert lists
+    const lines = html.split('\n');
+    let inList = false;
+    let processedLines: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      if (line.startsWith('* ')) {
+        if (!inList) {
+          processedLines.push('<ul>');
+          inList = true;
+        }
+        processedLines.push(`<li>${line.substring(2).trim()}</li>`);
+      } else {
+        if (inList) {
+          processedLines.push('</ul>');
+          inList = false;
+        }
+        if (line) {
+          processedLines.push(line);
+        } else {
+          processedLines.push('');
+        }
+      }
+    }
+    
+    if (inList) {
+      processedLines.push('</ul>');
+    }
+    
+    html = processedLines.join('\n');
+    
+    // Convert paragraphs (double line breaks)
+    html = html.replace(/\n\n+/g, '</p><p>');
+    html = html.replace(/^(?!<[hul])/gm, '<p>');
+    html = html.replace(/(?<!>)$/gm, '</p>');
+    
+    // Clean up malformed paragraphs around headers and lists
+    html = html.replace(/<p><\/p>/g, '');
+    html = html.replace(/<p>(<[hul][^>]*>)/g, '$1');
+    html = html.replace(/(<\/[hul][^>]*>)<\/p>/g, '$1');
+    
+    return html;
   }
 
   /**
