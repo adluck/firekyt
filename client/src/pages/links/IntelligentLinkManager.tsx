@@ -841,12 +841,12 @@ export default function IntelligentLinkManager() {
               </div>
               <div>
                 <Label htmlFor="edit-categoryId">Category</Label>
-                <Select name="categoryId" defaultValue={editingLink?.categoryId?.toString() || ''}>
+                <Select name="categoryId" defaultValue={editingLink?.categoryId?.toString() || 'none'}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Category</SelectItem>
+                    <SelectItem value="none">No Category</SelectItem>
                     {categories?.map((category) => (
                       <SelectItem key={category.id} value={category.id.toString()}>
                         {category.name}
