@@ -437,10 +437,22 @@ export default function IntelligentLinkManager() {
                         </div>
                         
                         <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setEditingLink(link);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDeleteLink(link.id)}
+                            disabled={deleteLinkMutation.isPending}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -678,6 +690,149 @@ export default function IntelligentLinkManager() {
           <RetroactiveConversion />
         </TabsContent>
       </Tabs>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Intelligent Link</DialogTitle>
+            <DialogDescription>
+              Update your affiliate link details and optimization settings.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target as HTMLFormElement);
+            handleEditLink(formData);
+          }} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label htmlFor="edit-title">Link Title</Label>
+                <Input 
+                  id="edit-title" 
+                  name="title" 
+                  defaultValue={editingLink?.title || ''}
+                  placeholder="Best Gaming Laptop 2024" 
+                  required 
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-originalUrl">Original URL</Label>
+                <Input 
+                  id="edit-originalUrl" 
+                  name="originalUrl" 
+                  type="url" 
+                  defaultValue={editingLink?.originalUrl || ''}
+                  placeholder="https://affiliate-link.com/product" 
+                  required 
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea 
+                  id="edit-description" 
+                  name="description" 
+                  defaultValue={editingLink?.description || ''}
+                  placeholder="Describe what this link is for..." 
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-keywords">Keywords (comma-separated)</Label>
+                <Input 
+                  id="edit-keywords" 
+                  name="keywords" 
+                  defaultValue={editingLink?.keywords?.join(', ') || ''}
+                  placeholder="gaming, laptop, review" 
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-targetKeywords">Target Keywords</Label>
+                <Input 
+                  id="edit-targetKeywords" 
+                  name="targetKeywords" 
+                  defaultValue={editingLink?.targetKeywords?.join(', ') || ''}
+                  placeholder="best gaming laptop, top gaming pc" 
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="edit-priority">Priority (1-100)</Label>
+                <Input 
+                  id="edit-priority" 
+                  name="priority" 
+                  type="number" 
+                  min="1" 
+                  max="100" 
+                  defaultValue={editingLink?.priority || 50}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-insertionStrategy">Insertion Strategy</Label>
+                <Select name="insertionStrategy" defaultValue={editingLink?.insertionStrategy || 'manual'}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="automatic">Automatic</SelectItem>
+                    <SelectItem value="ai-suggested">AI Suggested</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-categoryId">Category</Label>
+                <Select name="categoryId" defaultValue={editingLink?.categoryId?.toString() || ''}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No Category</SelectItem>
+                    {categories?.map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-siteId">Site</Label>
+              <Select name="siteId" defaultValue={editingLink?.siteId?.toString() || ''}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select site" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No Site</SelectItem>
+                  {sites?.map((site) => (
+                    <SelectItem key={site.id} value={site.id.toString()}>
+                      {site.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateLinkMutation.isPending}>
+                {updateLinkMutation.isPending ? 'Updating...' : 'Update Link'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       </div>
     </LoadingGate>
   );
