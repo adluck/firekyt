@@ -3397,10 +3397,6 @@ Format your response as a JSON object with the following structure:
     }
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
-}
-
 // AI-powered link suggestion helper function
 async function generateAILinkSuggestions(params: {
   contentId: number;
@@ -3492,62 +3488,6 @@ async function generateAILinkSuggestions(params: {
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 5);
 }
-
-  // Link Tracking Routes
-  
-  // Track link click and redirect
-  app.get('/api/track/click/:linkId', async (req, res) => {
-    try {
-      const linkId = parseInt(req.params.linkId);
-      const { url, insertionId, siteId, sessionId, userId } = req.query;
-      
-      console.log(`🔗 Tracking click for link ${linkId}, URL: ${url}`);
-      
-      if (!url) {
-        console.log('❌ No URL provided for tracking');
-        return res.status(400).json({ message: 'Original URL is required' });
-      }
-
-      // Verify the link exists
-      const link = await storage.getIntelligentLink(linkId);
-      if (!link) {
-        console.log(`❌ Link ${linkId} not found`);
-        return res.status(404).json({ message: 'Link not found' });
-      }
-
-      // Record the click in database
-      const trackingData = {
-        userId: userId ? parseInt(userId as string) : 1, // Default to user 1
-        linkId: linkId,
-        insertionId: insertionId ? parseInt(insertionId as string) : undefined,
-        siteId: siteId ? parseInt(siteId as string) : undefined,
-        eventType: 'click' as const,
-        sessionId: sessionId as string || req.sessionID || '',
-        ipAddress: req.ip || req.connection.remoteAddress || '',
-        userAgent: req.get('User-Agent') || '',
-        referrer: req.get('Referrer') || ''
-      };
-      
-      console.log('📊 Creating tracking record:', trackingData);
-      
-      const trackingRecord = await storage.createLinkTracking(trackingData);
-      console.log('✅ Tracking record created:', trackingRecord.id);
-
-      console.log(`✅ Click tracked successfully for link ${linkId}`);
-
-      // Redirect to the original URL
-      res.redirect(302, decodeURIComponent(url as string));
-    } catch (error: any) {
-      console.error('Link tracking error:', error);
-      // If tracking fails, still redirect to the original URL if possible
-      const { url } = req.query;
-      if (url) {
-        res.redirect(302, decodeURIComponent(url as string));
-      } else {
-        res.status(500).json({ message: 'Link tracking failed' });
-      }
-    }
-  });
 
   // Track link view
   app.post('/api/track/view', async (req, res) => {
