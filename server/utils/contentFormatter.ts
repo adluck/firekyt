@@ -47,7 +47,7 @@ export class ContentFormatter {
   static convertMarkdownToHtml(markdown: string): string {
     let html = markdown;
     
-    // Convert headers
+    // Convert headers first
     html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
     html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
@@ -55,56 +55,65 @@ export class ContentFormatter {
     // Convert bold text
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
-    // Convert italic text
-    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // Convert italic text (but not list items)
+    html = html.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
     
     // Convert links
     html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer nofollow">$1</a>');
     
-    // Convert lists
-    const lines = html.split('\n');
-    let inList = false;
-    let processedLines: string[] = [];
+    // Split into paragraphs first
+    const paragraphs = html.split(/\n\s*\n/);
+    let processedParagraphs: string[] = [];
     
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
+    for (const paragraph of paragraphs) {
+      const lines = paragraph.trim().split('\n');
       
-      if (line.startsWith('* ')) {
-        if (!inList) {
-          processedLines.push('<ul>');
-          inList = true;
+      if (lines.some(line => line.trim().startsWith('* '))) {
+        // This is a list paragraph
+        let listHtml = '<ul>';
+        let hasNonListContent = false;
+        let nonListContent = '';
+        
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('* ')) {
+            if (hasNonListContent) {
+              processedParagraphs.push(`<p>${nonListContent.trim()}</p>`);
+              nonListContent = '';
+              hasNonListContent = false;
+            }
+            listHtml += `<li>${trimmed.substring(2).trim()}</li>`;
+          } else if (trimmed) {
+            if (listHtml !== '<ul>') {
+              listHtml += '</ul>';
+              processedParagraphs.push(listHtml);
+              listHtml = '<ul>';
+            }
+            nonListContent += (nonListContent ? ' ' : '') + trimmed;
+            hasNonListContent = true;
+          }
         }
-        processedLines.push(`<li>${line.substring(2).trim()}</li>`);
+        
+        if (listHtml !== '<ul>') {
+          listHtml += '</ul>';
+          processedParagraphs.push(listHtml);
+        }
+        
+        if (hasNonListContent) {
+          processedParagraphs.push(`<p>${nonListContent.trim()}</p>`);
+        }
       } else {
-        if (inList) {
-          processedLines.push('</ul>');
-          inList = false;
-        }
-        if (line) {
-          processedLines.push(line);
-        } else {
-          processedLines.push('');
+        // Regular paragraph
+        const content = lines.join(' ').trim();
+        if (content && !content.startsWith('<h')) {
+          processedParagraphs.push(`<p>${content}</p>`);
+        } else if (content) {
+          processedParagraphs.push(content);
         }
       }
     }
     
-    if (inList) {
-      processedLines.push('</ul>');
-    }
-    
-    html = processedLines.join('\n');
-    
-    // Convert paragraphs (double line breaks)
-    html = html.replace(/\n\n+/g, '</p><p>');
-    html = html.replace(/^(?!<[hul])/gm, '<p>');
-    html = html.replace(/(?<!>)$/gm, '</p>');
-    
-    // Clean up malformed paragraphs around headers and lists
-    html = html.replace(/<p><\/p>/g, '');
-    html = html.replace(/<p>(<[hul][^>]*>)/g, '$1');
-    html = html.replace(/(<\/[hul][^>]*>)<\/p>/g, '$1');
-    
-    return html;
+    return processedParagraphs.join('\n\n');
   }
 
   /**
