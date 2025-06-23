@@ -114,8 +114,8 @@ export default function Dashboard() {
           description="Affiliate earnings"
           icon={DollarSign}
           trend={{ 
-            value: overview.revenueGrowth || "0%", 
-            positive: overview.revenueGrowth && overview.revenueGrowth.startsWith('+')
+            value: overview.totalRevenue > 0 ? `$${overview.totalRevenue}` : "$0", 
+            positive: overview.totalRevenue > 0
           }}
         />
         
@@ -125,7 +125,7 @@ export default function Dashboard() {
           description="Click to conversion"
           icon={TrendingUp}
           trend={{ 
-            value: overview.totalClicks > 0 ? `+${(parseFloat(overview.conversionRate || '0') * 0.1).toFixed(1)}%` : "0%", 
+            value: overview.totalClicks > 0 ? `${overview.totalClicks} clicks` : "0 clicks", 
             positive: overview.totalClicks > 0 
           }}
         />
