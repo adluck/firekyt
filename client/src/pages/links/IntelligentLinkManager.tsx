@@ -239,8 +239,8 @@ export default function IntelligentLinkManager() {
       targetKeywords: formData.get('targetKeywords')?.toString().split(',').map(k => k.trim()) || [],
       priority: parseInt(formData.get('priority')?.toString() || '50'),
       insertionStrategy: formData.get('insertionStrategy') || 'manual',
-      categoryId: formData.get('categoryId') ? parseInt(formData.get('categoryId')?.toString() || '0') : null,
-      siteId: formData.get('siteId') ? parseInt(formData.get('siteId')?.toString() || '0') : null,
+      categoryId: formData.get('categoryId') && formData.get('categoryId') !== 'none' ? parseInt(formData.get('categoryId')?.toString() || '0') : null,
+      siteId: formData.get('siteId') && formData.get('siteId') !== 'none' ? parseInt(formData.get('siteId')?.toString() || '0') : null,
     };
     
     updateLinkMutation.mutate(linkData);
@@ -859,12 +859,12 @@ export default function IntelligentLinkManager() {
             
             <div>
               <Label htmlFor="edit-siteId">Site</Label>
-              <Select name="siteId" defaultValue={editingLink?.siteId?.toString() || ''}>
+              <Select name="siteId" defaultValue={editingLink?.siteId?.toString() || 'none'}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select site" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No Site</SelectItem>
+                  <SelectItem value="none">No Site</SelectItem>
                   {sites?.map((site) => (
                     <SelectItem key={site.id} value={site.id.toString()}>
                       {site.name}
