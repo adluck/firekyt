@@ -1205,9 +1205,30 @@ export class DatabaseStorage implements IStorage {
 
   // Publication History operations
   async getUserPublicationHistory(userId: number): Promise<any[]> {
-    return await db.select().from(publicationHistory)
+    const result = await db
+      .select({
+        id: publicationHistory.id,
+        userId: publicationHistory.userId,
+        contentId: publicationHistory.contentId,
+        contentTitle: content.title,
+        contentType: content.contentType,
+        platform: publicationHistory.platform,
+        platformPostId: publicationHistory.platformPostId,
+        platformUrl: publicationHistory.platformUrl,
+        status: publicationHistory.status,
+        metrics: publicationHistory.metrics,
+        publishedAt: publicationHistory.publishedAt,
+        lastSyncAt: publicationHistory.lastSyncAt,
+        createdAt: publicationHistory.createdAt,
+        platformName: platformConnections.name
+      })
+      .from(publicationHistory)
+      .leftJoin(content, eq(publicationHistory.contentId, content.id))
+      .leftJoin(platformConnections, eq(publicationHistory.platformConnectionId, platformConnections.id))
       .where(eq(publicationHistory.userId, userId))
       .orderBy(desc(publicationHistory.publishedAt));
+    
+    return result;
   }
 
   async createPublicationHistory(history: any): Promise<any> {

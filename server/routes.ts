@@ -2631,7 +2631,8 @@ Format your response as a JSON object with the following structure:
   // Publishing history endpoint
   app.get("/api/publishing/history", authenticateToken, async (req, res) => {
     try {
-      res.json({ success: true, history: [] });
+      const history = await storage.getUserPublicationHistory(req.user!.id);
+      res.json({ success: true, history });
     } catch (error: any) {
       res.status(500).json({
         success: false,
