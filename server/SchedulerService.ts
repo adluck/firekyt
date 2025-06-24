@@ -126,6 +126,7 @@ export class SchedulerService {
           userId: publication.userId,
           contentId: publication.contentId,
           platformConnectionId: publication.platformConnectionId,
+          platform: connection.platform,
           platformPostId: success.postId,
           platformUrl: success.url,
           publishedAt: new Date(),
