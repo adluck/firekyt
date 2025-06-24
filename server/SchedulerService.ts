@@ -77,10 +77,21 @@ export class SchedulerService {
     // Get all pending scheduled publications from database
     const allScheduled = await storage.getAllScheduledPublications();
     
-    return allScheduled.filter((pub: any) => 
+    const filteredPublications = allScheduled.filter((pub: any) => 
       pub.status === 'pending' && 
       new Date(pub.scheduledAt) <= now
     );
+    
+    console.log(`📋 Found ${filteredPublications.length} publications ready to publish out of ${allScheduled.length} total scheduled`);
+    if (filteredPublications.length > 0) {
+      console.log('📋 Publications ready:', filteredPublications.map(p => ({ 
+        id: p.id, 
+        scheduledAt: p.scheduledAt, 
+        contentId: p.contentId 
+      })));
+    }
+    
+    return filteredPublications;
   }
 
   /**
@@ -104,7 +115,7 @@ export class SchedulerService {
       });
 
       // Get the content and platform connection
-      const content = await storage.getContent(publication.contentId);
+      const content = await storage.getContentById(publication.contentId);
       const connection = await storage.getPlatformConnection(publication.platformConnectionId);
 
       console.log(`📝 Retrieved content:`, content ? { id: content.id, title: content.title } : 'NOT FOUND');
