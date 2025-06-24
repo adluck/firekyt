@@ -598,17 +598,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Site not found" });
       }
 
-      // Get site content and real tracking data for metrics
+      // Get site content and real analytics data
       const content = await storage.getUserContent(req.user!.id);
       const siteContent = content.filter(c => c.siteId === siteId);
       
-      // Get real tracking data for this site
+      // Get real analytics data for this site
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30); // Last 30 days
+      
+      const siteAnalytics = await storage.getSiteAnalytics(siteId, startDate, endDate);
+      const pageViews = siteAnalytics.filter(a => a.metric === 'page_view');
+      const totalViews = pageViews.reduce((sum, view) => sum + Number(view.value), 0);
+      
+      // Get link tracking data for clicks
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
       const siteClicks = linkTracking.filter(track => track.siteId === siteId && track.eventType === 'click');
       const realUserClicks = siteClicks.filter(track => !track.userAgent?.includes('WordPress'));
       
-      // Calculate analytics from actual tracking data
-      const totalViews = Math.max(siteContent.reduce((sum, content) => sum + (content.views || 0), 0), siteClicks.length);
+      // Calculate metrics from actual analytics and tracking data
       const clickRate = totalViews > 0 ? ((siteClicks.length / totalViews) * 100) : 0;
       const revenue = Math.round(realUserClicks.length * 0.05 * 25); // 5% conversion * $25 commission
       
@@ -3779,6 +3787,39 @@ async function generateAILinkSuggestions(params: {
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 5);
 }
+
+  // Track site/page view
+  app.post('/api/track/page-view', async (req, res) => {
+    try {
+      const { siteId, contentId, pageUrl, userId } = req.body;
+      
+      if (!siteId) {
+        return res.status(400).json({ message: 'Site ID is required' });
+      }
+
+      // Record page view in analytics table
+      await storage.createAnalytics({
+        userId: userId || 1,
+        siteId: parseInt(siteId),
+        contentId: contentId ? parseInt(contentId) : null,
+        metric: 'page_view',
+        value: 1,
+        date: new Date(),
+        metadata: {
+          pageUrl: pageUrl,
+          sessionId: req.sessionID,
+          ipAddress: req.ip || req.connection.remoteAddress,
+          userAgent: req.get('User-Agent'),
+          referrer: req.get('Referrer')
+        }
+      });
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Page view tracking error:', error);
+      res.status(500).json({ message: 'Page view tracking failed' });
+    }
+  });
 
   // Track link view
   app.post('/api/track/view', async (req, res) => {
