@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import { format } from "date-fns";
 import { Link, useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { trackPageView } from '@/utils/analytics';
 import type { Site, Content } from "@shared/schema";
 
 interface SiteDetailsProps {
@@ -74,6 +75,18 @@ export default function SiteDetails({ siteId }: SiteDetailsProps) {
       });
     },
   });
+
+  // Track page view when viewing site details
+  useEffect(() => {
+    if (site?.id) {
+      trackPageView({
+        siteId: parseInt(siteId),
+        pageUrl: window.location.href,
+        userId: 1 // Current user ID
+      });
+      console.log('📊 Site view tracked for site:', site.id);
+    }
+  }, [site?.id, siteId]);
 
   // Use real analytics data from API
   const analyticsData = analytics ? [

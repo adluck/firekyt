@@ -4057,6 +4057,35 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Real-time page view tracking endpoint
+  app.post("/api/track/page-view", async (req, res) => {
+    try {
+      const { siteId, contentId, pageUrl, userId } = req.body;
+      
+      // Record page view in analytics table
+      await storage.recordAnalytics({
+        userId: userId || (req.user?.id),
+        siteId: siteId,
+        contentId: contentId || null,
+        metric: 'page_view',
+        value: '1',
+        date: new Date(),
+        metadata: {
+          pageUrl: pageUrl || '',
+          source: 'direct',
+          userAgent: req.get('User-Agent') || '',
+          ip: req.ip || ''
+        }
+      });
+      
+      console.log('📊 Page view tracked:', { siteId, contentId, pageUrl });
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Page view tracking error:', error);
+      res.status(500).json({ error: 'Failed to track page view' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
