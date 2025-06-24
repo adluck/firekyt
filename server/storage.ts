@@ -806,6 +806,26 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(analytics.date));
   }
 
+  async recordAnalytics(data: {
+    userId: number;
+    siteId: number;
+    contentId?: number | null;
+    metric: string;
+    value: string;
+    date: Date;
+    metadata?: any;
+  }): Promise<void> {
+    await db.insert(analytics).values({
+      userId: data.userId,
+      siteId: data.siteId,
+      contentId: data.contentId,
+      metric: data.metric,
+      value: data.value,
+      date: data.date,
+      metadata: data.metadata || {}
+    });
+  }
+
   // Usage tracking
   async getUsage(userId: number, feature: string, periodStart: Date, periodEnd: Date): Promise<Usage | undefined> {
     const [usageItem] = await db.select().from(usage)
