@@ -15,7 +15,7 @@ export class SchedulerService {
    */
   start(): void {
     if (this.isRunning) {
-      logger.warn("Scheduler is already running");
+      console.log("Scheduler is already running");
       return;
     }
 
@@ -29,7 +29,7 @@ export class SchedulerService {
       this.processScheduledPublications();
     }, 60 * 1000); // Check every minute
 
-    logger.info("Publication scheduler started - checking every minute");
+    console.log("Publication scheduler started - checking every minute");
   }
 
   /**

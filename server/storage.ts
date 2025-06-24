@@ -1206,7 +1206,6 @@ export class DatabaseStorage implements IStorage {
       .set({ status: 'cancelled', updatedAt: new Date() })
       .where(eq(scheduledPublications.id, id));
   }
-  }
 
   // Publication History operations
   async getUserPublicationHistory(userId: number): Promise<any[]> {

@@ -81,4 +81,21 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    log('SIGTERM received, shutting down gracefully');
+    schedulerService.stop();
+    server.close(() => {
+      log('Process terminated');
+    });
+  });
+
+  process.on('SIGINT', () => {
+    log('SIGINT received, shutting down gracefully');
+    schedulerService.stop();
+    server.close(() => {
+      log('Process terminated');
+    });
+  });
 })();
