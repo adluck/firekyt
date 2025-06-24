@@ -15,21 +15,24 @@ export class SchedulerService {
    */
   start(): void {
     if (this.isRunning) {
-      console.log("Scheduler is already running");
+      console.log("✅ Scheduler is already running");
       return;
     }
 
     this.isRunning = true;
     
+    console.log("🚀 Starting publication scheduler...");
+    
     // Check immediately on start
     this.processScheduledPublications();
     
-    // Then check every minute
+    // Then check every 30 seconds for better responsiveness
     this.intervalId = setInterval(() => {
+      console.log("⏰ Scheduler checking for pending publications...");
       this.processScheduledPublications();
-    }, 60 * 1000); // Check every minute
+    }, 30 * 1000); // Check every 30 seconds
 
-    console.log("Publication scheduler started - checking every minute");
+    console.log("✅ Publication scheduler started - checking every 30 seconds");
   }
 
   /**
