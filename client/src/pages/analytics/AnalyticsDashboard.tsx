@@ -230,9 +230,7 @@ export default function AnalyticsDashboard() {
   };
 
   const formatNumber = (num: number) => {
-    console.log('formatNumber called with:', num, 'type:', typeof num);
     if (num === undefined || num === null || isNaN(num)) {
-      console.log('formatNumber: invalid number, returning 0');
       return '0';
     }
     return new Intl.NumberFormat().format(num);
@@ -330,10 +328,10 @@ export default function AnalyticsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dashboardData ? formatNumber(dashboardData.overview.totalViews) : "0"}
+              {dashboardData?.overview ? formatNumber(dashboardData.overview.totalViews || 0) : "0"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {dashboardData ? formatNumber(dashboardData.overview.uniqueViews) : "0"} unique views
+              {dashboardData?.overview ? formatNumber(dashboardData.overview.uniqueViews || 0) : "0"} unique views
             </p>
           </CardContent>
         </Card>
@@ -348,7 +346,7 @@ export default function AnalyticsDashboard() {
               {dashboardData ? formatPercentage(dashboardData.overview.clickThroughRate) : "0%"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {dashboardData ? formatNumber(dashboardData.overview.totalClicks) : "0"} total clicks
+              {dashboardData?.overview ? formatNumber(dashboardData.overview.totalClicks || 0) : "0"} total clicks
             </p>
           </CardContent>
         </Card>
