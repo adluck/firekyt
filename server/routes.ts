@@ -654,13 +654,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const siteClicks = linkTracking.filter(track => track.siteId === site.id && track.eventType === 'click');
         const realUserClicks = siteClicks.filter(track => !track.userAgent?.includes('WordPress'));
         
-        // Calculate metrics from actual tracking data
-        const totalViews = siteContent.reduce((sum, content) => sum + (content.views || 0), 0);
+        // Get real analytics data for this site
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30); // Last 30 days
+        
+        const siteAnalytics = await storage.getSiteAnalytics(site.id, startDate, endDate);
+        const pageViews = siteAnalytics.filter(a => a.metric === 'page_view');
+        const totalViews = pageViews.reduce((sum, view) => sum + Number(view.value), 0);
+        
+        // Calculate metrics from analytics and tracking data
         const totalClicks = siteClicks.length;
         const estimatedRevenue = Math.round(realUserClicks.length * 0.05 * 25); // 5% conversion * $25 commission
         
         sitesAnalytics[site.id] = {
-          views: Math.max(totalViews, totalClicks), // Use tracking clicks as minimum views
+          views: totalViews, // Use real page view analytics data
           clicks: totalClicks,
           revenue: estimatedRevenue
         };
@@ -1019,11 +1027,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const limits = getSubscriptionLimits(user.subscriptionTier || 'free');
       
+      // Get real analytics data for views
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30); // Last 30 days
+      
+      const userAnalytics = await storage.getUserAnalytics(req.user!.id, startDate, endDate);
+      const pageViews = userAnalytics.filter(a => a.metric === 'page_view');
+      const totalViews = pageViews.reduce((sum, view) => sum + Number(view.value), 0);
+      
       // Calculate real metrics from link tracking data
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
       const totalClicks = linkTracking.filter(track => track.eventType === 'click').length;
       const realUserClicks = linkTracking.filter(track => track.eventType === 'click' && !track.userAgent?.includes('WordPress')).length;
-      const totalViews = totalClicks; // Use actual tracking clicks as views - 35 real events
       const estimatedRevenue = 0; // Only actual tracked conversions should contribute to revenue
 
       console.log('📊 Analytics Debug:', {
