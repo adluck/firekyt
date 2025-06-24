@@ -2726,6 +2726,44 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // Cancel scheduled publication endpoint
+  app.delete("/api/publishing/scheduled/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      
+      // Verify the scheduled publication exists and belongs to the user
+      const publication = await storage.getScheduledPublication(parseInt(id));
+      if (!publication) {
+        return res.status(404).json({
+          success: false,
+          message: "Scheduled publication not found"
+        });
+      }
+      
+      if (publication.userId !== userId) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied"
+        });
+      }
+      
+      // Cancel the publication
+      await storage.cancelScheduledPublication(parseInt(id));
+      
+      res.json({
+        success: true,
+        message: "Scheduled publication cancelled successfully"
+      });
+    } catch (error: any) {
+      console.error('Cancel scheduled publication error:', error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to cancel scheduled publication: " + error.message
+      });
+    }
+  });
+
   // Publish now endpoint
   app.post("/api/publishing/publish-now", authenticateToken, async (req, res) => {
     try {
