@@ -74,12 +74,13 @@ const connectionSchema = z.object({
 const scheduleSchema = z.object({
   contentId: z.string(),
   platformConnectionId: z.string(),
-  scheduledAt: z.string().refine((dateStr) => {
-    if (!dateStr) return false;
+  scheduledAt: z.string().min(1, "Scheduled time is required").refine((dateStr) => {
     const selectedDate = new Date(dateStr);
     const now = new Date();
     const minFutureTime = 5 * 60 * 1000; // 5 minutes in milliseconds
-    return selectedDate.getTime() >= (now.getTime() + minFutureTime);
+    const timeDiff = selectedDate.getTime() - now.getTime();
+    console.log('Time validation:', { selectedDate: selectedDate.toISOString(), now: now.toISOString(), timeDiff, minRequired: minFutureTime });
+    return timeDiff >= minFutureTime;
   }, {
     message: "Scheduled time must be at least 5 minutes in the future"
   }),
@@ -659,8 +660,7 @@ export default function PublishingDashboard() {
                         <FormControl>
                           <Input 
                             type="datetime-local" 
-                            {...field} 
-                            min={minDateTime}
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
