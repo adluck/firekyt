@@ -1048,8 +1048,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         overview: overviewData,
         usage: {
           sites: sites.length,
-          content_generation: content.length,
-          api_calls: linkTracking.length // Use actual tracking events as API usage metric
+          contentPerMonth: content.filter(c => {
+            const createdThisMonth = new Date(c.createdAt) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            return createdThisMonth;
+          }).length,
+          apiCallsPerMonth: linkTracking.length + content.length * 2 // Content generation + link tracking calls
         },
         limits,
         recentContent: content.slice(0, 5),
