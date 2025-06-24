@@ -85,16 +85,27 @@ export class SchedulerService {
    */
   private async processPublication(publication: any): Promise<void> {
     try {
-      console.log(`Publishing scheduled content: ${publication.id}`);
+      console.log(`🚀 Publishing scheduled content: ${publication.id}`);
 
       // Mark as processing
       await storage.updateScheduledPublication(publication.id, {
         status: 'processing'
       });
 
+      console.log(`📊 Publication details:`, {
+        id: publication.id,
+        userId: publication.userId,
+        contentId: publication.contentId,
+        platformConnectionId: publication.platformConnectionId,
+        scheduledAt: publication.scheduledAt
+      });
+
       // Get the content and platform connection
       const content = await storage.getContent(publication.contentId);
       const connection = await storage.getPlatformConnection(publication.platformConnectionId);
+
+      console.log(`📝 Retrieved content:`, content ? { id: content.id, title: content.title } : 'NOT FOUND');
+      console.log(`🔗 Retrieved connection:`, connection ? { id: connection.id, platform: connection.platform } : 'NOT FOUND');
 
       if (!content || !connection) {
         throw new Error('Content or platform connection not found');
