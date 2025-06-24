@@ -190,12 +190,29 @@ export class LinkTrackingService {
   /**
    * Generate a tracking URL for a link
    */
-  generateTrackingUrl(linkId: number, originalUrl: string, trackingParams?: any): string {
-    const baseUrl = process.env.APP_URL || process.env.REPLIT_DEV_DOMAIN || 'https://c452b6e1-7450-487d-9a83-f5b3f95ecfa2-00-18lteac2m5pu5.worf.replit.dev';
-    const trackingUrl = new URL(`${baseUrl}/api/track/click/${linkId}`);
+  generateTrackingUrl(linkId: number, originalUrl?: string, trackingParams?: any): string {
+    // Get base URL from environment variables, ensuring it has protocol
+    let baseUrl = process.env.APP_URL || process.env.REPLIT_DEV_DOMAIN;
     
-    // Add the original URL as a parameter
-    trackingUrl.searchParams.set('url', originalUrl);
+    if (!baseUrl) {
+      // Fallback to Replit domain with protocol
+      const replitDomain = process.env.REPLIT_DOMAINS 
+        ? process.env.REPLIT_DOMAINS.split(',')[0] 
+        : 'c452b6e1-7450-487d-9a83-f5b3f95ecfa2-00-18lteac2m5pu5.worf.replit.dev';
+      baseUrl = replitDomain.startsWith('http') ? replitDomain : `https://${replitDomain}`;
+    }
+    
+    // Ensure baseUrl has protocol if it doesn't already
+    if (!baseUrl.startsWith('http')) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    
+    const trackingUrl = new URL(`/api/track/click/${linkId}`, baseUrl);
+    
+    // Add the original URL as a parameter if provided
+    if (originalUrl) {
+      trackingUrl.searchParams.set('url', originalUrl);
+    }
     
     // Add any additional tracking parameters
     if (trackingParams) {
