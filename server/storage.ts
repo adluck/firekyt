@@ -758,6 +758,28 @@ export class DatabaseStorage implements IStorage {
     return await this.getUserContent(userId);
   }
 
+  async getContentById(id: number): Promise<Content | undefined> {
+    const [contentItem] = await db.select().from(content).where(eq(content.id, id));
+    
+    if (!contentItem) return undefined;
+    
+    // Convert PostgreSQL arrays to JavaScript arrays
+    if (contentItem.targetKeywords && typeof contentItem.targetKeywords === 'string') {
+      try {
+        const arrayString = contentItem.targetKeywords.replace(/^{/, '[').replace(/}$/, ']').replace(/"/g, '"');
+        contentItem.targetKeywords = JSON.parse(arrayString);
+      } catch {
+        contentItem.targetKeywords = contentItem.targetKeywords
+          .replace(/[{}]/g, '')
+          .split(',')
+          .map(keyword => keyword.replace(/"/g, '').trim())
+          .filter(keyword => keyword.length > 0);
+      }
+    }
+    
+    return contentItem;
+  }
+
   // Analytics
   async createAnalytics(analyticsData: InsertAnalytics): Promise<Analytics> {
     const [analyticsItem] = await db.insert(analytics).values(analyticsData).returning();

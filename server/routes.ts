@@ -2653,7 +2653,7 @@ Format your response as a JSON object with the following structure:
         scheduledPublications.map(async (pub: any) => {
           try {
             console.log('📝 Looking up content for publication:', { pubId: pub.id, contentId: pub.contentId });
-            const content = await storage.getContent(pub.contentId);
+            const content = await storage.getContentById(pub.contentId);
             console.log('📝 Content lookup result:', { contentId: pub.contentId, found: !!content, title: content?.title });
             
             const connection = await storage.getPlatformConnection(pub.platformConnectionId);
