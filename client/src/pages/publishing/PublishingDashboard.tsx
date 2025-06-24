@@ -638,7 +638,7 @@ export default function PublishingDashboard() {
                           <Input 
                             type="datetime-local" 
                             {...field} 
-                            min={new Date(Date.now() + 60000).toISOString().slice(0, 16)} // Minimum 1 minute from now
+                            min={new Date(Date.now() + 5 * 60000).toISOString().slice(0, 16)} // Minimum 5 minutes from now
                           />
                         </FormControl>
                         <FormMessage />
