@@ -2652,14 +2652,20 @@ Format your response as a JSON object with the following structure:
       const enrichedPublications = await Promise.all(
         scheduledPublications.map(async (pub: any) => {
           try {
+            console.log('📝 Looking up content for publication:', { pubId: pub.id, contentId: pub.contentId });
             const content = await storage.getContent(pub.contentId);
+            console.log('📝 Content lookup result:', { contentId: pub.contentId, found: !!content, title: content?.title });
+            
             const connection = await storage.getPlatformConnection(pub.platformConnectionId);
+            console.log('📝 Connection lookup result:', { connectionId: pub.platformConnectionId, found: !!connection, platform: connection?.platform });
+            
             return {
               ...pub,
               contentTitle: content?.title || 'Unknown Content',
               platform: connection?.platform || 'Unknown Platform'
             };
-          } catch {
+          } catch (error) {
+            console.log('📝 Error in publication enrichment:', error);
             return {
               ...pub,
               contentTitle: 'Unknown Content',
