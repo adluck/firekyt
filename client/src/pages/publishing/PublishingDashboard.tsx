@@ -79,7 +79,7 @@ const scheduleSchema = z.object({
     const now = new Date();
     const minFutureTime = 5 * 60 * 1000; // 5 minutes in milliseconds
     const timeDiff = selectedDate.getTime() - now.getTime();
-    console.log('Time validation:', { selectedDate: selectedDate.toISOString(), now: now.toISOString(), timeDiff, minRequired: minFutureTime });
+    // Debug removed - validation working correctly
     return timeDiff >= minFutureTime;
   }, {
     message: "Scheduled time must be at least 5 minutes in the future"
