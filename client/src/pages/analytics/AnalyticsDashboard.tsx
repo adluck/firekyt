@@ -23,6 +23,9 @@ interface DashboardData {
     clickThroughRate: string;
     avgRevenuePerClick: string;
     revenueGrowth: string;
+    publishedContent?: number;
+    draftContent?: number;
+    monthlyViews?: number;
   };
   contentPerformance: {
     topContent: Array<{
@@ -291,6 +294,7 @@ export default function AnalyticsDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">
               {dashboardData ? formatNumber(dashboardData.overview.totalViews) : "0"}
+              {dashboardData && console.log('Debug totalViews:', dashboardData.overview.totalViews)}
             </div>
             <p className="text-xs text-muted-foreground">
               {dashboardData ? formatNumber(dashboardData.overview.uniqueViews) : "0"} unique views
