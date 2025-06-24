@@ -21,160 +21,186 @@ export default function Documentation() {
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">FireKyt User Documentation</h1>
+        <h1 className="text-4xl font-bold">FireKyt Hands-On Tutorial</h1>
         <p className="text-xl text-muted-foreground">
-          Complete guide to mastering every feature of the FireKyt affiliate marketing platform
+          Follow along and actually use FireKyt to create your first profitable affiliate article
         </p>
-        <Badge variant="secondary" className="text-sm">
-          Updated June 2025
-        </Badge>
+        <div className="flex justify-center gap-2">
+          <Badge variant="default" className="text-sm">Interactive Tutorial</Badge>
+          <Badge variant="outline" className="text-sm">Follow Along</Badge>
+        </div>
+        <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800 max-w-2xl mx-auto">
+          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+            ⏱️ Time needed: 30-45 minutes | 🎯 Goal: Publish your first affiliate article and start earning
+          </p>
+        </div>
       </div>
 
-      {/* Table of Contents */}
-      <Card>
+      {/* Tutorial Overview */}
+      <Card className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 border-green-200 dark:border-green-800">
         <CardHeader>
-          <CardTitle>Table of Contents</CardTitle>
+          <CardTitle className="text-green-800 dark:text-green-200">What You'll Accomplish Today</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <a href="#dashboard" className="flex items-center gap-2 text-primary hover:underline">
-                <LayoutDashboard className="h-4 w-4" />
-                1. Dashboard Overview
-              </a>
-              <a href="#sites" className="flex items-center gap-2 text-primary hover:underline">
-                <Globe className="h-4 w-4" />
-                2. Sites Management
-              </a>
-              <a href="#content" className="flex items-center gap-2 text-primary hover:underline">
-                <FileText className="h-4 w-4" />
-                3. Content Creation
-              </a>
-              <a href="#research" className="flex items-center gap-2 text-primary hover:underline">
-                <Search className="h-4 w-4" />
-                4. Research Tools
-              </a>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold mb-3 text-green-700 dark:text-green-300">By the end of this tutorial:</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Connect your WordPress site to FireKyt
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Research and choose a profitable niche
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Generate your first AI article with affiliate links
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Publish the article to your site
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Set up analytics tracking
+                </li>
+              </ul>
             </div>
-            <div className="space-y-2">
-              <a href="#links" className="flex items-center gap-2 text-primary hover:underline">
-                <Link2 className="h-4 w-4" />
-                5. Link Management
-              </a>
-              <a href="#publishing" className="flex items-center gap-2 text-primary hover:underline">
-                <Send className="h-4 w-4" />
-                6. Publishing & Distribution
-              </a>
-              <a href="#analytics" className="flex items-center gap-2 text-primary hover:underline">
-                <BarChart3 className="h-4 w-4" />
-                7. Content Insight (Analytics)
-              </a>
-              <a href="#settings" className="flex items-center gap-2 text-primary hover:underline">
-                <Settings className="h-4 w-4" />
-                8. Settings & Account
-              </a>
+            <div>
+              <h4 className="font-semibold mb-3 text-blue-700 dark:text-blue-300">What you'll need:</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  A WordPress website (or blog platform)
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  Admin access to your site
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  An affiliate program account (Amazon Associates recommended)
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  30-45 minutes of focused time
+                </li>
+              </ul>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Dashboard Section */}
+      {/* Step 1: Getting Oriented */}
       <section id="dashboard">
-        <Card>
+        <Card className="border-l-4 border-l-purple-500">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <LayoutDashboard className="h-6 w-6" />
-              1. Dashboard Overview
+              <span className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">1</span>
+              First, Let's Get Our Bearings
             </CardTitle>
             <CardDescription>
-              Your command center for monitoring performance and accessing key features
+              Take 2 minutes to understand what you're looking at and what you can do
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Key Metrics Section</h3>
-              <div className="space-y-2 text-sm">
-                <p><strong>Total Sites:</strong> Number of connected publishing platforms (WordPress, Ghost, custom)</p>
-                <p><strong>Content Generated:</strong> Total articles created using AI content generator</p>
-                <p><strong>Published Content:</strong> Articles successfully published to your sites</p>
-                <p><strong>Draft Content:</strong> Unpublished articles saved for future editing</p>
-                <p><strong>Total Views/Clicks:</strong> Real-time tracking data from your published content</p>
-                <p><strong>Revenue Tracking:</strong> Estimated earnings based on affiliate link performance</p>
+          <CardContent className="space-y-4">
+            <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Look at your dashboard right now</h4>
+              <p className="text-sm mb-3">
+                You should see metrics showing your current status. Here's what each number means for YOU:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="font-medium">Your Sites: 3/∞</p>
+                  <p className="text-muted-foreground">You have 3 websites connected. We'll add your main site in the next step.</p>
+                </div>
+                <div>
+                  <p className="font-medium">Content: 5 articles</p>
+                  <p className="text-muted-foreground">You have 4 published, 1 draft. We'll create your next money-maker today.</p>
+                </div>
+                <div>
+                  <p className="font-medium">Traffic: 35 real clicks</p>
+                  <p className="text-muted-foreground">Real people have clicked your links. That's money potential!</p>
+                </div>
+                <div>
+                  <p className="font-medium">Revenue: $0</p>
+                  <p className="text-muted-foreground">No conversions yet, but 35 clicks is a great start. Let's optimize this.</p>
+                </div>
               </div>
             </div>
-
-            <Separator />
-
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Usage & Limits</h3>
-              <div className="space-y-2 text-sm">
-                <p><strong>Sites Usage:</strong> Shows current connected sites vs subscription limit</p>
-                <p><strong>ContentPerMonth:</strong> Articles generated in the last 30 days vs monthly allowance</p>
-                <p><strong>ApiCallsPerMonth:</strong> Total API usage including content generation and link processing</p>
-                <p><strong>Subscription Features:</strong> Lists available features based on your current plan</p>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
-              <ul className="space-y-1 text-sm">
-                <li>• Access recent content for quick editing</li>
-                <li>• View performance charts for traffic and revenue trends</li>
-                <li>• Navigate to content creation tools</li>
-                <li>• Monitor subscription status and upgrade options</li>
-              </ul>
+            
+            <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
+              <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">💡 What This Means for You</h4>
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                You're getting traffic (35 clicks) but no revenue yet. This tutorial will help you create content that converts those clicks into commissions. 
+                With proper optimization, 35 clicks could potentially generate $10-50 in affiliate commissions.
+              </p>
             </div>
           </CardContent>
         </Card>
       </section>
 
-      {/* Sites Management */}
+      {/* Step 2: Connect Your Site */}
       <section id="sites">
-        <Card>
+        <Card className="border-l-4 border-l-blue-500">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-6 w-6" />
-              2. Sites Management
+              <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">2</span>
+              Connect Your WordPress Site (5 minutes)
             </CardTitle>
             <CardDescription>
-              Connect and manage your publishing platforms for content distribution
+              Let's connect your site so you can publish and start earning
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Connecting New Sites</h3>
-              <div className="space-y-2 text-sm">
-                <p><strong>WordPress Integration:</strong> Connect using admin credentials or API keys</p>
-                <p><strong>Ghost Platform:</strong> Use admin API key for seamless publishing</p>
-                <p><strong>Custom Platforms:</strong> Manual publishing with export/import functionality</p>
-                <p><strong>Connection Testing:</strong> Verify publishing permissions before saving</p>
-              </div>
+          <CardContent className="space-y-4">
+            <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Right now, do this</h4>
+              <ol className="space-y-3 text-sm list-decimal ml-6">
+                <li>
+                  <strong>Click "Sites" in the left sidebar</strong>
+                  <p className="text-muted-foreground mt-1">You'll see your connected sites list</p>
+                </li>
+                <li>
+                  <strong>Click "Connect New Site" button</strong>
+                  <p className="text-muted-foreground mt-1">A form will pop up</p>
+                </li>
+                <li>
+                  <strong>Fill in YOUR site details:</strong>
+                  <div className="bg-white dark:bg-gray-800 p-3 rounded mt-2 border">
+                    <p className="font-mono text-sm">Site URL: https://yoursite.com</p>
+                    <p className="font-mono text-sm">Username: your_admin_username</p>
+                    <p className="font-mono text-sm">Password: your_admin_password</p>
+                  </div>
+                </li>
+                <li>
+                  <strong>Click "Test Connection"</strong>
+                  <p className="text-muted-foreground mt-1">Wait for the green checkmark</p>
+                </li>
+                <li>
+                  <strong>Click "Save Site"</strong>
+                  <p className="text-muted-foreground mt-1">Your site is now connected!</p>
+                </li>
+              </ol>
             </div>
 
-            <Separator />
-
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Site Management Features</h3>
-              <ul className="space-y-1 text-sm">
-                <li>• <strong>Site Details:</strong> View and edit connection settings, categories, and tags</li>
-                <li>• <strong>Publishing History:</strong> Track articles published to each site</li>
-                <li>• <strong>Performance Metrics:</strong> Monitor traffic and engagement per site</li>
-                <li>• <strong>Content Scheduling:</strong> Set up automated publishing calendars</li>
-                <li>• <strong>SEO Settings:</strong> Configure meta tags and optimization preferences</li>
+            <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg border border-red-200 dark:border-red-800">
+              <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2">⚠️ If connection fails</h4>
+              <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
+                <li>• Check your WordPress login credentials</li>
+                <li>• Make sure you're using an admin account</li>
+                <li>• Try disabling security plugins temporarily</li>
+                <li>• Use Application Passwords for better security</li>
               </ul>
             </div>
 
-            <Separator />
-
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Site-Specific Configuration</h3>
-              <div className="space-y-2 text-sm">
-                <p><strong>Categories & Tags:</strong> Set default categories and tags for automated publishing</p>
-                <p><strong>Author Settings:</strong> Configure author attribution and bio information</p>
-                <p><strong>Featured Images:</strong> Set up automatic image selection and optimization</p>
-                <p><strong>Publishing Preferences:</strong> Choose draft vs. immediate publishing options</p>
-              </div>
+            <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">✅ Success? Do this next</h4>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                Click on your connected site name and set your default category to "Reviews" or "Affiliate". 
+                This is where your articles will be published.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -194,55 +220,172 @@ export default function Documentation() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-3">AI Generator (Advanced)</h3>
-              <div className="space-y-2 text-sm">
-                <p><strong>Content Types:</strong> Product reviews, comparisons, buying guides, how-to articles</p>
-                <p><strong>Keyword Targeting:</strong> Input primary and secondary keywords for SEO optimization</p>
-                <p><strong>Brand Voice:</strong> Customize tone, style, and writing approach</p>
-                <p><strong>Length Control:</strong> Generate articles from 800 to 3000+ words</p>
-                <p><strong>Comparison Tables:</strong> Automatic product comparison generation with pros/cons</p>
-                <p><strong>Rich Content:</strong> Include images, videos, and interactive elements</p>
+              <h3 className="text-lg font-semibold mb-3">Tutorial: Creating Your First AI Article</h3>
+              <div className="space-y-4 text-sm">
+                <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-lg border-l-4 border-purple-500">
+                  <p className="font-medium mb-2">Step 1: Access the AI Generator</p>
+                  <ol className="space-y-1 ml-4 list-decimal">
+                    <li>Click <strong>"Content"</strong> in the sidebar menu</li>
+                    <li>Select <strong>"AI Generator"</strong> (the advanced option)</li>
+                    <li>You'll see the content creation interface with multiple options</li>
+                  </ol>
+                </div>
+
+                <div className="bg-indigo-50 dark:bg-indigo-950 p-4 rounded-lg border-l-4 border-indigo-500">
+                  <p className="font-medium mb-2">Step 2: Choose Content Type and Set Parameters</p>
+                  <ol className="space-y-2 ml-4 list-decimal">
+                    <li><strong>Select Content Type:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• <strong>Product Review:</strong> For single product analysis</li>
+                        <li>• <strong>Product Comparison:</strong> Compare 2-5 similar products</li>
+                        <li>• <strong>Buying Guide:</strong> Comprehensive category guides</li>
+                        <li>• <strong>How-to Article:</strong> Tutorial-style content</li>
+                      </ul>
+                    </li>
+                    <li><strong>Enter Keywords:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Primary keyword: "best smart home devices" (example)</li>
+                        <li>• Secondary keywords: "home automation, smart gadgets"</li>
+                        <li>• Use Research → Keyword Analytics first to find profitable keywords</li>
+                      </ul>
+                    </li>
+                    <li><strong>Set Article Length:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• 1000-1500 words: Quick reviews and comparisons</li>
+                        <li>• 2000-2500 words: Comprehensive guides (recommended)</li>
+                        <li>• 3000+ words: Authority pieces for competitive keywords</li>
+                      </ul>
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="bg-teal-50 dark:bg-teal-950 p-4 rounded-lg border-l-4 border-teal-500">
+                  <p className="font-medium mb-2">Step 3: Customize Brand Voice and Style</p>
+                  <ol className="space-y-2 ml-4 list-decimal">
+                    <li><strong>Tone Selection:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Professional: For B2B or technical products</li>
+                        <li>• Friendly: For consumer products and lifestyle items</li>
+                        <li>• Expert: For detailed technical reviews</li>
+                        <li>• Conversational: For broad consumer appeal</li>
+                      </ul>
+                    </li>
+                    <li><strong>Writing Style:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• First Person: "I tested this product for 30 days..."</li>
+                        <li>• Third Person: "This product offers excellent value..."</li>
+                        <li>• Question-Driven: "Looking for the best smartphone?"</li>
+                      </ul>
+                    </li>
+                    <li><strong>Target Audience:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Beginners: Simple explanations, basic features</li>
+                        <li>• Enthusiasts: Detailed specs, advanced features</li>
+                        <li>• Budget-Conscious: Price comparisons, value focus</li>
+                      </ul>
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg border-l-4 border-orange-500">
+                  <p className="font-medium mb-2">Step 4: Generate and Review</p>
+                  <ol className="space-y-1 ml-4 list-decimal">
+                    <li>Click <strong>"Generate Article"</strong> button</li>
+                    <li>Wait 30-60 seconds for AI processing</li>
+                    <li>Review the generated content in the preview window</li>
+                    <li>Check that it includes:
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Compelling introduction with the main keyword</li>
+                        <li>• Structured headings (H2, H3) for readability</li>
+                        <li>• Product features and benefits</li>
+                        <li>• Comparison table (if applicable)</li>
+                        <li>• Clear conclusion with call-to-action</li>
+                      </ul>
+                    </li>
+                    <li>Save as draft for editing or proceed to publish</li>
+                  </ol>
+                </div>
               </div>
             </div>
 
             <Separator />
 
             <div>
-              <h3 className="text-lg font-semibold mb-3">Content Manager</h3>
-              <ul className="space-y-1 text-sm">
-                <li>• <strong>Content Library:</strong> View all generated articles with status indicators</li>
-                <li>• <strong>Bulk Operations:</strong> Edit, publish, or delete multiple articles</li>
-                <li>• <strong>Search & Filter:</strong> Find content by keyword, status, or creation date</li>
-                <li>• <strong>Content Analytics:</strong> Performance metrics for each article</li>
-                <li>• <strong>Version Control:</strong> Track changes and revert to previous versions</li>
-              </ul>
-            </div>
+              <h3 className="text-lg font-semibold mb-3">Tutorial: Editing and Optimizing Your Content</h3>
+              <div className="space-y-4 text-sm">
+                <div className="bg-emerald-50 dark:bg-emerald-950 p-4 rounded-lg border-l-4 border-emerald-500">
+                  <p className="font-medium mb-2">Step 5: Using the Rich Editor</p>
+                  <ol className="space-y-2 ml-4 list-decimal">
+                    <li>After generating content, click <strong>"Edit Content"</strong> to open the rich editor</li>
+                    <li><strong>Personalize the Introduction:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Add your personal experience: "I've been testing smart home devices for 5 years..."</li>
+                        <li>• Include credibility indicators: "As a certified tech reviewer..."</li>
+                        <li>• Hook readers with a question: "Tired of complicated smart home setups?"</li>
+                      </ul>
+                    </li>
+                    <li><strong>Add Affiliate Links:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Highlight product name, click the link icon</li>
+                        <li>• Paste your affiliate URL</li>
+                        <li>• Set link to open in new tab</li>
+                        <li>• Add rel="nofollow sponsored" for SEO compliance</li>
+                      </ul>
+                    </li>
+                    <li><strong>Insert Comparison Tables:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Click "Insert Table" from the toolbar</li>
+                        <li>• Add columns: Product, Price, Rating, Key Features</li>
+                        <li>• Include affiliate links in product name column</li>
+                        <li>• Use color coding for better readability</li>
+                      </ul>
+                    </li>
+                  </ol>
+                </div>
 
-            <Separator />
+                <div className="bg-rose-50 dark:bg-rose-950 p-4 rounded-lg border-l-4 border-rose-500">
+                  <p className="font-medium mb-2">Step 6: Content Manager - Organizing Your Articles</p>
+                  <ol className="space-y-2 ml-4 list-decimal">
+                    <li>Navigate to <strong>Content → Content Manager</strong></li>
+                    <li><strong>Filter and Search:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Use status filter: Draft, Published, Scheduled</li>
+                        <li>• Search by keyword or title</li>
+                        <li>• Sort by creation date or performance</li>
+                      </ul>
+                    </li>
+                    <li><strong>Bulk Operations:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Select multiple articles with checkboxes</li>
+                        <li>• Bulk publish to specific sites</li>
+                        <li>• Update categories and tags simultaneously</li>
+                        <li>• Schedule publishing for optimal times</li>
+                      </ul>
+                    </li>
+                    <li><strong>Performance Tracking:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• View click-through rates for each article</li>
+                        <li>• Monitor conversion performance</li>
+                        <li>• Identify top-performing content for scaling</li>
+                      </ul>
+                    </li>
+                  </ol>
+                </div>
 
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Rich Editor</h3>
-              <div className="space-y-2 text-sm">
-                <p><strong>Visual Editing:</strong> WYSIWYG editor for real-time content customization</p>
-                <p><strong>SEO Optimization:</strong> Built-in SEO analysis and recommendations</p>
-                <p><strong>Affiliate Link Integration:</strong> Easy insertion and management of affiliate links</p>
-                <p><strong>Media Management:</strong> Upload and optimize images, videos, and documents</p>
-                <p><strong>Table Builder:</strong> Create and customize comparison tables</p>
-                <p><strong>Content Templates:</strong> Save and reuse successful content structures</p>
+                <div className="bg-violet-50 dark:bg-violet-950 p-4 rounded-lg border-l-4 border-violet-500">
+                  <p className="font-medium mb-2">Step 7: SEO Optimization Checklist</p>
+                  <ol className="space-y-1 ml-4 list-decimal">
+                    <li><strong>Title Optimization:</strong> Include primary keyword in first 60 characters</li>
+                    <li><strong>Meta Description:</strong> Write compelling 150-160 character summary</li>
+                    <li><strong>Header Structure:</strong> Use H1 for title, H2 for main sections, H3 for subsections</li>
+                    <li><strong>Keyword Density:</strong> Maintain 1-2% density for primary keyword</li>
+                    <li><strong>Internal Links:</strong> Link to related articles on your site</li>
+                    <li><strong>Image Alt Text:</strong> Add descriptive alt text with keywords</li>
+                    <li><strong>Content Length:</strong> Aim for 1500+ words for competitive keywords</li>
+                    <li><strong>Call-to-Action:</strong> Include clear CTAs throughout the article</li>
+                  </ol>
+                </div>
               </div>
-            </div>
-
-            <Separator />
-
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Content Optimization</h3>
-              <ul className="space-y-1 text-sm">
-                <li>• <strong>SEO Analysis:</strong> Real-time keyword density and optimization suggestions</li>
-                <li>• <strong>Readability Scoring:</strong> Ensure content is accessible to your audience</li>
-                <li>• <strong>Link Optimization:</strong> Automatic affiliate link placement recommendations</li>
-                <li>• <strong>Meta Data:</strong> Generate optimized titles, descriptions, and tags</li>
-                <li>• <strong>Content Structure:</strong> Improve heading hierarchy and paragraph flow</li>
-              </ul>
             </div>
           </CardContent>
         </Card>
@@ -262,13 +405,53 @@ export default function Documentation() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-3">Niche Insights</h3>
-              <div className="space-y-2 text-sm">
-                <p><strong>Competition Analysis:</strong> Evaluate niche difficulty and opportunity scores</p>
-                <p><strong>Trend Analysis:</strong> Identify growing markets and seasonal patterns</p>
-                <p><strong>Keyword Discovery:</strong> Find high-value, low-competition keywords</p>
-                <p><strong>Revenue Potential:</strong> Estimate earning potential based on market data</p>
-                <p><strong>Content Gaps:</strong> Discover underserved topics in your niche</p>
+              <h3 className="text-lg font-semibold mb-3">Tutorial: Finding Profitable Niches and Keywords</h3>
+              <div className="space-y-4 text-sm">
+                <div className="bg-cyan-50 dark:bg-cyan-950 p-4 rounded-lg border-l-4 border-cyan-500">
+                  <p className="font-medium mb-2">Step 1: Niche Research with AI Insights</p>
+                  <ol className="space-y-2 ml-4 list-decimal">
+                    <li>Navigate to <strong>Research → Niche Insights</strong></li>
+                    <li><strong>Enter Potential Niches:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• "Smart home devices" (tech niche)</li>
+                        <li>• "Fitness equipment" (health niche)</li>
+                        <li>• "Pet supplies" (lifestyle niche)</li>
+                      </ul>
+                    </li>
+                    <li><strong>Analyze the Results:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• <strong>Opportunity Score (1-100):</strong> Higher = more profit potential</li>
+                        <li>• <strong>Competition Level:</strong> Low/Medium preferred for beginners</li>
+                        <li>• <strong>Trend Direction:</strong> Growing/Stable markets are best</li>
+                        <li>• <strong>Revenue Estimate:</strong> Monthly earning potential</li>
+                      </ul>
+                    </li>
+                    <li>Choose niches with 70+ opportunity score and low-medium competition</li>
+                  </ol>
+                </div>
+
+                <div className="bg-lime-50 dark:bg-lime-950 p-4 rounded-lg border-l-4 border-lime-500">
+                  <p className="font-medium mb-2">Step 2: Keyword Research Strategy</p>
+                  <ol className="space-y-2 ml-4 list-decimal">
+                    <li>Go to <strong>Research → Keyword Analytics</strong></li>
+                    <li><strong>Start with Seed Keywords:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• Enter your chosen niche: "smart home"</li>
+                        <li>• Add specific categories: "smart speakers", "smart lights"</li>
+                        <li>• Include buying intent: "best", "review", "vs", "comparison"</li>
+                      </ul>
+                    </li>
+                    <li><strong>Evaluate Each Keyword:</strong>
+                      <ul className="ml-4 mt-1 space-y-1">
+                        <li>• <strong>Search Volume:</strong> 500-10,000 monthly searches ideal</li>
+                        <li>• <strong>Keyword Difficulty:</strong> Under 30 for new sites</li>
+                        <li>• <strong>Commercial Intent:</strong> High for affiliate content</li>
+                        <li>• <strong>Trend Stability:</strong> Consistent or growing</li>
+                      </ul>
+                    </li>
+                    <li>Export 15-20 target keywords for content planning</li>
+                  </ol>
+                </div>
               </div>
             </div>
 
