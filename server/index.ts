@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { configureApplicationSecurity, securityAuditMiddleware, ipSecurityMiddleware, botDetectionMiddleware } from "./securityConfig";
+import { schedulerService } from "./SchedulerService";
 
 const app = express();
 
@@ -48,6 +49,9 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+  
+  // Start the publication scheduler
+  schedulerService.start();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

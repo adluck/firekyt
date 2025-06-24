@@ -2647,7 +2647,29 @@ Format your response as a JSON object with the following structure:
     try {
       const userId = req.user!.id;
       const scheduledPublications = await storage.getUserScheduledPublications(userId);
-      res.json({ success: true, scheduled: scheduledPublications });
+      
+      // Include content titles for better UI display
+      const enrichedPublications = await Promise.all(
+        scheduledPublications.map(async (pub: any) => {
+          try {
+            const content = await storage.getContent(pub.contentId);
+            const connection = await storage.getPlatformConnection(pub.platformConnectionId);
+            return {
+              ...pub,
+              contentTitle: content?.title || 'Unknown Content',
+              platformName: connection?.platform || 'Unknown Platform'
+            };
+          } catch {
+            return {
+              ...pub,
+              contentTitle: 'Unknown Content',
+              platformName: 'Unknown Platform'
+            };
+          }
+        })
+      );
+      
+      res.json({ success: true, scheduled: enrichedPublications });
     } catch (error: any) {
       res.status(500).json({
         success: false,

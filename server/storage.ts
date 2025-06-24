@@ -1196,11 +1196,16 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async getAllScheduledPublications(): Promise<any[]> {
+    return await db.select().from(scheduledPublications);
+  }
+
   async cancelScheduledPublication(id: number): Promise<void> {
     await db
       .update(scheduledPublications)
       .set({ status: 'cancelled', updatedAt: new Date() })
       .where(eq(scheduledPublications.id, id));
+  }
   }
 
   // Publication History operations
