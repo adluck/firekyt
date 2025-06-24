@@ -609,7 +609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const siteAnalytics = await storage.getSiteAnalytics(siteId, startDate, endDate);
       const pageViews = siteAnalytics.filter(a => a.metric === 'page_view');
-      const totalViews = pageViews.reduce((sum, view) => sum + Number(view.value), 0);
+      const totalViews = Math.max(pageViews.reduce((sum, view) => sum + Number(view.value), 0), siteClicks.length);
       
       // Get link tracking data for clicks
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
@@ -814,18 +814,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const content = await storage.getUserContent(req.user!.id);
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
       
-      // Generate daily performance data for last 30 days
+      // Get real analytics data for last 30 days
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30);
+      
+      const userAnalytics = await storage.getUserAnalytics(req.user!.id, startDate, endDate);
+      const pageViews = userAnalytics.filter(a => a.metric === 'page_view');
+      const totalViews = pageViews.reduce((sum, view) => sum + Number(view.value), 0);
+      const totalClicks = linkTracking.filter(t => t.eventType === 'click').length;
+      
+      // Generate daily data based on actual analytics
       const dailyData = [];
-      const now = new Date();
+      const dailyViewsMap = new Map();
+      const dailyClicksMap = new Map();
+      
+      // Group analytics by date
+      pageViews.forEach(view => {
+        const date = view.date.toISOString().split('T')[0];
+        dailyViewsMap.set(date, (dailyViewsMap.get(date) || 0) + Number(view.value));
+      });
+      
+      // Group clicks by date
+      linkTracking.forEach(track => {
+        if (track.eventType === 'click' && track.timestamp) {
+          const date = track.timestamp.toISOString().split('T')[0];
+          dailyClicksMap.set(date, (dailyClicksMap.get(date) || 0) + 1);
+        }
+      });
+      
+      // Create daily data for last 30 days
       for (let i = 29; i >= 0; i--) {
-        const date = new Date(now);
+        const date = new Date();
         date.setDate(date.getDate() - i);
-        const dayViews = Math.floor(linkTracking.length / 30) + Math.floor(Math.random() * 5);
-        const dayClicks = Math.floor(dayViews * 0.8);
-        const dayConversions = Math.floor(dayClicks * 0.05);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const dayViews = dailyViewsMap.get(dateStr) || 0;
+        const dayClicks = dailyClicksMap.get(dateStr) || 0;
+        const dayConversions = Math.floor(dayClicks * 0.05); // 5% conversion rate
         
         dailyData.push({
-          date: date.toISOString().split('T')[0],
+          date: dateStr,
           views: dayViews,
           clicks: dayClicks,
           conversions: dayConversions
@@ -835,8 +864,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         daily: dailyData,
         summary: {
-          totalViews: linkTracking.length,
-          totalClicks: linkTracking.filter(t => t.eventType === 'click').length,
+          totalViews: totalViews,
+          totalClicks: totalClicks,
           avgBounceRate: 35.2,
           avgTimeOnPage: 145
         }
@@ -853,18 +882,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
       const affiliateClicks = linkTracking.filter(track => track.eventType === 'click');
       
-      // Generate daily data for last 30 days
+      // Generate daily data based on actual tracking data
       const dailyData = [];
-      const now = new Date();
+      const dailyClicksMap = new Map();
+      
+      // Group clicks by date
+      affiliateClicks.forEach(track => {
+        if (track.timestamp) {
+          const date = track.timestamp.toISOString().split('T')[0];
+          dailyClicksMap.set(date, (dailyClicksMap.get(date) || 0) + 1);
+        }
+      });
+      
+      // Create daily data for last 30 days
       for (let i = 29; i >= 0; i--) {
-        const date = new Date(now);
+        const date = new Date();
         date.setDate(date.getDate() - i);
-        const dailyClicks = Math.floor(affiliateClicks.length / 30) + Math.floor(Math.random() * 3);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const dailyClicks = dailyClicksMap.get(dateStr) || 0;
         const dailyConversions = Math.floor(dailyClicks * 0.05);
         const dailyRevenue = dailyConversions * 25;
         
         dailyData.push({
-          date: date.toISOString().split('T')[0],
+          date: dateStr,
           clicks: dailyClicks,
           conversions: dailyConversions,
           revenue: dailyRevenue
@@ -951,18 +992,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const clicks = linkTracking.filter(t => t.eventType === 'click').length;
       const estimatedRevenue = Math.floor(clicks * 0.05 * 25); // 5% conversion * $25 commission
       
-      // Generate daily revenue data
+      // Generate daily revenue data based on actual clicks
       const dailyData = [];
-      const now = new Date();
+      const dailyClicksMap = new Map();
+      
+      // Group clicks by date for revenue calculation
+      const clickEvents = linkTracking.filter(t => t.eventType === 'click');
+      clickEvents.forEach(track => {
+        if (track.timestamp) {
+          const date = track.timestamp.toISOString().split('T')[0];
+          dailyClicksMap.set(date, (dailyClicksMap.get(date) || 0) + 1);
+        }
+      });
+      
+      // Create daily revenue data for last 30 days
       for (let i = 29; i >= 0; i--) {
-        const date = new Date(now);
+        const date = new Date();
         date.setDate(date.getDate() - i);
-        const dailyAmount = Math.floor(estimatedRevenue / 30) + Math.floor(Math.random() * 10);
-        const dailyCommission = dailyAmount * 0.8;
-        const dailyTransactions = Math.floor(dailyAmount / 25) || 1;
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const dailyClicks = dailyClicksMap.get(dateStr) || 0;
+        const dailyConversions = Math.floor(dailyClicks * 0.05); // 5% conversion
+        const dailyAmount = dailyConversions * 25; // $25 per conversion
+        const dailyCommission = dailyAmount * 0.8; // 80% commission rate
+        const dailyTransactions = dailyConversions;
         
         dailyData.push({
-          date: date.toISOString().split('T')[0],
+          date: dateStr,
           amount: dailyAmount,
           commission: dailyCommission,
           transactions: dailyTransactions
