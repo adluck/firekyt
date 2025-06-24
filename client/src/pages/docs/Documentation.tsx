@@ -47,23 +47,23 @@ export default function Documentation() {
               <h4 className="font-semibold mb-3">By the end of this tutorial:</h4>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   Connect your WordPress site to FireKyt
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   Research and choose a profitable niche
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   Generate your first AI article with affiliate links
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   Publish the article to your site
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   Set up analytics tracking
                 </li>
               </ul>
@@ -72,19 +72,19 @@ export default function Documentation() {
               <h4 className="font-semibold mb-3">What you'll need:</h4>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   A WordPress website (or blog platform)
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   Admin access to your site
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   An affiliate program account (Amazon Associates recommended)
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   30-45 minutes of focused time
                 </li>
               </ul>
@@ -308,84 +308,107 @@ export default function Documentation() {
               </div>
             </div>
 
-            <Separator />
+      {/* Step 5: Add Your Affiliate Links */}
+      <section id="links">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">5</span>
+              Add Your Money-Making Links (5 minutes)
+            </CardTitle>
+            <CardDescription>
+              Insert your affiliate links so you can start earning commissions
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Insert affiliate links that convert</h4>
+              <ol className="space-y-3 text-sm list-decimal ml-6">
+                <li>
+                  <strong>Click "Edit Content" on your generated article</strong>
+                  <p className="text-muted-foreground mt-1">Opens the rich text editor</p>
+                </li>
+                <li>
+                  <strong>Find product names in your article</strong>
+                  <p className="text-muted-foreground mt-1">Look for any product mentions like "iPhone 15" or "Nike Air Max"</p>
+                </li>
+                <li>
+                  <strong>Highlight each product name and click the link icon</strong>
+                  <p className="text-muted-foreground mt-1">The link dialog will open</p>
+                </li>
+                <li>
+                  <strong>Paste your affiliate URL:</strong>
+                  <div className="bg-background p-3 rounded mt-2 border">
+                    <p className="text-sm">Example: https://amzn.to/your-affiliate-link</p>
+                  </div>
+                </li>
+                <li>
+                  <strong>Check "Open in new tab"</strong>
+                  <p className="text-muted-foreground mt-1">Keeps visitors on your site</p>
+                </li>
+                <li>
+                  <strong>Add 3-5 affiliate links throughout the article</strong>
+                  <p className="text-muted-foreground mt-1">Don't overdo it - focus on quality placement</p>
+                </li>
+              </ol>
+            </div>
 
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Tutorial: Editing and Optimizing Your Content</h3>
-              <div className="space-y-4 text-sm">
-                <div className="bg-emerald-50 dark:bg-emerald-950 p-4 rounded-lg border-l-4 border-emerald-500">
-                  <p className="font-medium mb-2">Step 5: Using the Rich Editor</p>
-                  <ol className="space-y-2 ml-4 list-decimal">
-                    <li>After generating content, click <strong>"Edit Content"</strong> to open the rich editor</li>
-                    <li><strong>Personalize the Introduction:</strong>
-                      <ul className="ml-4 mt-1 space-y-1">
-                        <li>• Add your personal experience: "I've been testing smart home devices for 5 years..."</li>
-                        <li>• Include credibility indicators: "As a certified tech reviewer..."</li>
-                        <li>• Hook readers with a question: "Tired of complicated smart home setups?"</li>
-                      </ul>
-                    </li>
-                    <li><strong>Add Affiliate Links:</strong>
-                      <ul className="ml-4 mt-1 space-y-1">
-                        <li>• Highlight product name, click the link icon</li>
-                        <li>• Paste your affiliate URL</li>
-                        <li>• Set link to open in new tab</li>
-                        <li>• Add rel="nofollow sponsored" for SEO compliance</li>
-                      </ul>
-                    </li>
-                    <li><strong>Insert Comparison Tables:</strong>
-                      <ul className="ml-4 mt-1 space-y-1">
-                        <li>• Click "Insert Table" from the toolbar</li>
-                        <li>• Add columns: Product, Price, Rating, Key Features</li>
-                        <li>• Include affiliate links in product name column</li>
-                        <li>• Use color coding for better readability</li>
-                      </ul>
-                    </li>
-                  </ol>
-                </div>
+            <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20">
+              <h4 className="font-semibold text-destructive mb-2">⚠️ Don't have affiliate links yet?</h4>
+              <p className="text-sm text-muted-foreground">
+                Sign up for Amazon Associates (free) at affiliate-program.amazon.com. 
+                You can add links later and still publish your article now.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
-                <div className="bg-rose-50 dark:bg-rose-950 p-4 rounded-lg border-l-4 border-rose-500">
-                  <p className="font-medium mb-2">Step 6: Content Manager - Organizing Your Articles</p>
-                  <ol className="space-y-2 ml-4 list-decimal">
-                    <li>Navigate to <strong>Content → Content Manager</strong></li>
-                    <li><strong>Filter and Search:</strong>
-                      <ul className="ml-4 mt-1 space-y-1">
-                        <li>• Use status filter: Draft, Published, Scheduled</li>
-                        <li>• Search by keyword or title</li>
-                        <li>• Sort by creation date or performance</li>
-                      </ul>
-                    </li>
-                    <li><strong>Bulk Operations:</strong>
-                      <ul className="ml-4 mt-1 space-y-1">
-                        <li>• Select multiple articles with checkboxes</li>
-                        <li>• Bulk publish to specific sites</li>
-                        <li>• Update categories and tags simultaneously</li>
-                        <li>• Schedule publishing for optimal times</li>
-                      </ul>
-                    </li>
-                    <li><strong>Performance Tracking:</strong>
-                      <ul className="ml-4 mt-1 space-y-1">
-                        <li>• View click-through rates for each article</li>
-                        <li>• Monitor conversion performance</li>
-                        <li>• Identify top-performing content for scaling</li>
-                      </ul>
-                    </li>
-                  </ol>
-                </div>
+      {/* Step 6: Publish to Your Site */}
+      <section id="publishing">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">6</span>
+              Publish and Start Earning (3 minutes)
+            </CardTitle>
+            <CardDescription>
+              Get your article live and start generating traffic and commissions
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Get your article live</h4>
+              <ol className="space-y-3 text-sm list-decimal ml-6">
+                <li>
+                  <strong>Click "Publishing" in the sidebar</strong>
+                  <p className="text-muted-foreground mt-1">Opens the publishing interface</p>
+                </li>
+                <li>
+                  <strong>Select your article from the list</strong>
+                  <p className="text-muted-foreground mt-1">Should show as "Draft" status</p>
+                </li>
+                <li>
+                  <strong>Choose your connected WordPress site</strong>
+                  <p className="text-muted-foreground mt-1">The site you connected in step 2</p>
+                </li>
+                <li>
+                  <strong>Set category to "Reviews" or "Affiliate"</strong>
+                  <p className="text-muted-foreground mt-1">Helps organize your content</p>
+                </li>
+                <li>
+                  <strong>Click "Publish Now"</strong>
+                  <p className="text-muted-foreground mt-1">Your article goes live in 30 seconds</p>
+                </li>
+              </ol>
+            </div>
 
-                <div className="bg-violet-50 dark:bg-violet-950 p-4 rounded-lg border-l-4 border-violet-500">
-                  <p className="font-medium mb-2">Step 7: SEO Optimization Checklist</p>
-                  <ol className="space-y-1 ml-4 list-decimal">
-                    <li><strong>Title Optimization:</strong> Include primary keyword in first 60 characters</li>
-                    <li><strong>Meta Description:</strong> Write compelling 150-160 character summary</li>
-                    <li><strong>Header Structure:</strong> Use H1 for title, H2 for main sections, H3 for subsections</li>
-                    <li><strong>Keyword Density:</strong> Maintain 1-2% density for primary keyword</li>
-                    <li><strong>Internal Links:</strong> Link to related articles on your site</li>
-                    <li><strong>Image Alt Text:</strong> Add descriptive alt text with keywords</li>
-                    <li><strong>Content Length:</strong> Aim for 1500+ words for competitive keywords</li>
-                    <li><strong>Call-to-Action:</strong> Include clear CTAs throughout the article</li>
-                  </ol>
-                </div>
-              </div>
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">🎉 Congratulations!</h4>
+              <p className="text-sm text-muted-foreground">
+                Your first affiliate article is now live and earning potential. 
+                Visit your site to see it published and share it on social media to get your first visitors.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -792,30 +815,17 @@ export default function Documentation() {
       {/* Getting Started Tips */}
       <Card className="bg-muted/50">
         <CardHeader>
-          <CardTitle>Getting Started Tips</CardTitle>
+          <CardTitle>Need Help Getting Started?</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <h4 className="font-semibold mb-2">For Beginners:</h4>
-              <ul className="space-y-1">
-                <li>• Start with the Dashboard to understand your current metrics</li>
-                <li>• Connect your first site in Sites Management</li>
-                <li>• Use Niche Insights to choose a profitable niche</li>
-                <li>• Generate your first article with the AI Content Generator</li>
-                <li>• Set up basic affiliate links using Link Intelligence</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">For Advanced Users:</h4>
-              <ul className="space-y-1">
-                <li>• Leverage Research Tools for competitive analysis</li>
-                <li>• Implement advanced Link Management strategies</li>
-                <li>• Use Publishing automation for content distribution</li>
-                <li>• Optimize using detailed Content Insight analytics</li>
-                <li>• Scale operations with API integrations</li>
-              </ul>
-            </div>
+          <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+            <h4 className="font-semibold text-primary mb-2">Ready to Make Money?</h4>
+            <p className="text-sm text-muted-foreground mb-3">
+              Follow this tutorial step-by-step and you'll have your first affiliate article published and earning potential within 45 minutes.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Questions? Check the sidebar navigation or contact support. Your success is our priority.
+            </p>
           </div>
         </CardContent>
       </Card>
