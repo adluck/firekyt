@@ -607,13 +607,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 30); // Last 30 days
       
-      const siteAnalytics = await storage.getSiteAnalytics(siteId, startDate, endDate);
-      const pageViews = siteAnalytics.filter(a => a.metric === 'page_view');
-      const totalViews = Math.max(pageViews.reduce((sum, view) => sum + Number(view.value), 0), siteClicks.length);
-      
       // Get link tracking data for clicks
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
       const siteClicks = linkTracking.filter(track => track.siteId === siteId && track.eventType === 'click');
+      
+      const siteAnalytics = await storage.getSiteAnalytics(siteId, startDate, endDate);
+      const pageViews = siteAnalytics.filter(a => a.metric === 'page_view');
+      const totalViews = Math.max(pageViews.reduce((sum, view) => sum + Number(view.value), 0), siteClicks.length);
       const realUserClicks = siteClicks.filter(track => !track.userAgent?.includes('WordPress'));
       
       // Calculate metrics from actual analytics and tracking data
