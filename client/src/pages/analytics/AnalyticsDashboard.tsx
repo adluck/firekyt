@@ -230,6 +230,11 @@ export default function AnalyticsDashboard() {
   };
 
   const formatNumber = (num: number) => {
+    console.log('formatNumber called with:', num, 'type:', typeof num);
+    if (num === undefined || num === null || isNaN(num)) {
+      console.log('formatNumber: invalid number, returning 0');
+      return '0';
+    }
     return new Intl.NumberFormat().format(num);
   };
 
