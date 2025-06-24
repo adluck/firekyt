@@ -74,7 +74,14 @@ const connectionSchema = z.object({
 const scheduleSchema = z.object({
   contentId: z.string(),
   platformConnectionId: z.string(),
-  scheduledAt: z.string(),
+  scheduledAt: z.string().refine((dateStr) => {
+    const selectedDate = new Date(dateStr);
+    const now = new Date();
+    const minFutureTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+    return selectedDate.getTime() >= (now.getTime() + minFutureTime);
+  }, {
+    message: "Scheduled time must be at least 5 minutes in the future"
+  }),
   publishSettings: z.object({
     title: z.string().optional(),
     excerpt: z.string().optional(),
