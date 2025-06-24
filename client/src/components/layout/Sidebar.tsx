@@ -72,7 +72,7 @@ const navigation = [
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Content insights', href: '/analytics', icon: BarChart3 },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
