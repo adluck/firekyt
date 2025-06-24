@@ -55,16 +55,17 @@ export class SchedulerService {
       const pendingPublications = await this.getPendingPublications();
       
       if (pendingPublications.length === 0) {
+        console.log("📋 No pending publications found");
         return;
       }
 
-      console.log(`Processing ${pendingPublications.length} scheduled publications`);
+      console.log(`🚀 Processing ${pendingPublications.length} scheduled publications`);
 
       for (const publication of pendingPublications) {
         await this.processPublication(publication);
       }
     } catch (error: any) {
-      console.error("Error processing scheduled publications:", error);
+      console.error("❌ Error processing scheduled publications:", error);
     }
   }
 
@@ -77,19 +78,20 @@ export class SchedulerService {
     // Get all pending scheduled publications from database
     const allScheduled = await storage.getAllScheduledPublications();
     
-    const filteredPublications = allScheduled.filter((pub: any) => 
-      pub.status === 'pending' && 
-      new Date(pub.scheduledAt) <= now
-    );
+    console.log(`📋 Total scheduled publications in database: ${allScheduled.length}`);
+    console.log(`📋 Current time: ${now.toISOString()}`);
     
-    console.log(`📋 Found ${filteredPublications.length} publications ready to publish out of ${allScheduled.length} total scheduled`);
-    if (filteredPublications.length > 0) {
-      console.log('📋 Publications ready:', filteredPublications.map(p => ({ 
-        id: p.id, 
-        scheduledAt: p.scheduledAt, 
-        contentId: p.contentId 
-      })));
-    }
+    const filteredPublications = allScheduled.filter((pub: any) => {
+      const scheduledTime = new Date(pub.scheduledAt);
+      const isPending = pub.status === 'pending';
+      const isTimeReached = scheduledTime <= now;
+      
+      console.log(`📋 Publication ${pub.id}: status=${pub.status}, scheduled=${scheduledTime.toISOString()}, timeReached=${isTimeReached}`);
+      
+      return isPending && isTimeReached;
+    });
+    
+    console.log(`📋 Found ${filteredPublications.length} publications ready to publish`);
     
     return filteredPublications;
   }
