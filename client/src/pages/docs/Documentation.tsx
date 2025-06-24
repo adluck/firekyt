@@ -191,19 +191,255 @@ export default function Documentation() {
         </Card>
       </section>
 
+      {/* Step 3: Niche Research */}
+      <section id="niche-research">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">3</span>
+              Research and Choose a Profitable Niche (15 minutes)
+            </CardTitle>
+            <CardDescription>
+              Find a niche that people are actively buying from
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Use the Niche Research tool</h4>
+              <p className="text-sm mb-3">
+                Navigate to the <strong>Niche Research</strong> section in your dashboard. Enter 3-5 topics you're interested in or have knowledge about.
+              </p>
+              <div className="space-y-2 text-sm">
+                <p><strong>Examples of profitable niches:</strong></p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
+                  <li>Home fitness equipment and accessories</li>
+                  <li>Pet care products and training tools</li>
+                  <li>Kitchen gadgets and cooking tools</li>
+                  <li>Tech accessories and productivity tools</li>
+                  <li>Beauty and skincare products</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">🔍 What the AI Analysis Shows You</h4>
+              <p className="text-sm text-muted-foreground">
+                The system will analyze search volume, competition level, and affiliate program availability. 
+                Look for niches with <strong>medium-high demand</strong> and <strong>moderate competition</strong> - 
+                these offer the best opportunity for new affiliates to succeed.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Step 4: AI Content Generation */}
+      <section id="content-generation">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</span>
+              Generate Your First AI Article with Affiliate Links (20 minutes)
+            </CardTitle>
+            <CardDescription>
+              Create content that converts visitors into buyers
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Create your money-making content</h4>
+              <p className="text-sm mb-3">
+                Go to <strong>Content Creation</strong> → <strong>New Article</strong>. Choose one of these high-converting article types:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Product Comparison</p>
+                  <p className="text-muted-foreground text-xs">"Best X vs Y for [specific use case]"</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Buying Guide</p>
+                  <p className="text-muted-foreground text-xs">"Complete Guide to Buying [product type]"</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Problem-Solution</p>
+                  <p className="text-muted-foreground text-xs">"How to [solve problem] with [product category]"</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Top Lists</p>
+                  <p className="text-muted-foreground text-xs">"7 Best [products] for [specific audience]"</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">🔗 ACTION: Add intelligent affiliate links</h4>
+              <p className="text-sm text-muted-foreground">
+                When creating your article, the AI will suggest optimal placement for affiliate links. 
+                Accept the suggested placements - they're based on conversion data from successful affiliates. 
+                The system automatically creates trackable links that monitor performance.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Step 5: Publishing */}
+      <section id="publishing">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">5</span>
+              Publish the Article to Your Site (10 minutes)
+            </CardTitle>
+            <CardDescription>
+              Get your content live and earning potential
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Connect and publish</h4>
+              <p className="text-sm mb-3">
+                Go to <strong>Publishing</strong> → <strong>Connected Sites</strong>. Choose your platform:
+              </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span><strong>WordPress:</strong> Enter your site URL and admin credentials</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span><strong>Ghost:</strong> Add your site URL and integration token</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span><strong>Medium:</strong> Connect via OAuth (one-click setup)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span><strong>Custom API:</strong> Enter your API endpoint details</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">📱 Bonus: Social Media Amplification</h4>
+              <p className="text-sm text-muted-foreground">
+                After publishing, automatically share to LinkedIn and Pinterest using the <strong>Social Integration</strong> feature. 
+                This can increase your traffic by 40-60% in the first week.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Step 6: Analytics */}
+      <section id="analytics-setup">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">6</span>
+              Set Up Analytics Tracking (5 minutes)
+            </CardTitle>
+            <CardDescription>
+              Monitor your earnings and optimize performance
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Enable tracking for your published content</h4>
+              <p className="text-sm mb-3">
+                Your affiliate links are automatically tracked, but you need to install the tracking code on your site for full analytics:
+              </p>
+              <div className="space-y-2 text-sm">
+                <p>1. Go to <strong>Analytics</strong> → <strong>Tracking Setup</strong></p>
+                <p>2. Copy the provided tracking code</p>
+                <p>3. Paste it in your website's header (before closing &lt;/head&gt; tag)</p>
+                <p>4. Click "Verify Installation" to confirm it's working</p>
+              </div>
+            </div>
+
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">📊 What You'll Track</h4>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="font-bold">Real-time Metrics</p>
+                  <p className="text-muted-foreground text-xs">Page views, clicks, time on page</p>
+                </div>
+                <div>
+                  <p className="font-bold">Conversion Data</p>
+                  <p className="text-muted-foreground text-xs">Link clicks to actual sales</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Step 7: Affiliate Programs */}
+      <section id="affiliate-programs">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">7</span>
+              Set Up Your Affiliate Program Account (15 minutes)
+            </CardTitle>
+            <CardDescription>
+              Join programs that pay you for successful referrals
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Join Amazon Associates (Recommended for Beginners)</h4>
+              <p className="text-sm mb-3">
+                Amazon Associates is the easiest to get approved and has products for every niche:
+              </p>
+              <div className="space-y-2 text-sm">
+                <p>1. Go to <strong>associate-program.amazon.com</strong></p>
+                <p>2. Click "Join Now for Free"</p>
+                <p>3. Enter your website URL (the one you just published to)</p>
+                <p>4. Choose your payment method (direct deposit recommended)</p>
+                <p>5. Get approved (usually within 24-48 hours)</p>
+              </div>
+            </div>
+
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">💰 Additional High-Paying Programs</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Impact Radius</p>
+                  <p className="text-muted-foreground text-xs">Higher commissions, tech/business products</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">ShareASale</p>
+                  <p className="text-muted-foreground text-xs">Fashion, home, lifestyle brands</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">ClickBank</p>
+                  <p className="text-muted-foreground text-xs">Digital products, courses, software</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">CJ Affiliate</p>
+                  <p className="text-muted-foreground text-xs">Major brands, consistent payouts</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
       {/* Getting Started Tips */}
       <Card className="bg-muted/50">
         <CardHeader>
-          <CardTitle>Need Help Getting Started?</CardTitle>
+          <CardTitle>Complete Tutorial Success</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
-            <h4 className="font-semibold text-primary mb-2">Ready to Make Money?</h4>
+            <h4 className="font-semibold text-primary mb-2">Congratulations! You're Ready to Earn</h4>
             <p className="text-sm text-muted-foreground mb-3">
-              Follow this tutorial step-by-step and you'll have your first affiliate article published and earning potential within 45 minutes.
+              You've now completed the full affiliate marketing setup: niche research, content creation, publishing, analytics tracking, and affiliate program enrollment. Your first commissions should start appearing within 1-2 weeks.
             </p>
             <p className="text-sm text-muted-foreground">
-              Questions? Check the sidebar navigation or contact support. Your success is our priority.
+              Next steps: Create 2-3 more articles in your chosen niche, promote on social media, and monitor your analytics for optimization opportunities.
             </p>
           </div>
         </CardContent>
