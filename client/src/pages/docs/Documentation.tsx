@@ -29,22 +29,22 @@ export default function Documentation() {
           <Badge variant="default" className="text-sm">Interactive Tutorial</Badge>
           <Badge variant="outline" className="text-sm">Follow Along</Badge>
         </div>
-        <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800 max-w-2xl mx-auto">
-          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+        <div className="bg-muted p-4 rounded-lg border max-w-2xl mx-auto">
+          <p className="text-sm font-medium">
             ⏱️ Time needed: 30-45 minutes | 🎯 Goal: Publish your first affiliate article and start earning
           </p>
         </div>
       </div>
 
       {/* Tutorial Overview */}
-      <Card className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950 border-green-200 dark:border-green-800">
+      <Card className="border-primary/20">
         <CardHeader>
-          <CardTitle className="text-green-800 dark:text-green-200">What You'll Accomplish Today</CardTitle>
+          <CardTitle>What You'll Accomplish Today</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-semibold mb-3 text-green-700 dark:text-green-300">By the end of this tutorial:</h4>
+              <h4 className="font-semibold mb-3">By the end of this tutorial:</h4>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -69,7 +69,7 @@ export default function Documentation() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-3 text-blue-700 dark:text-blue-300">What you'll need:</h4>
+              <h4 className="font-semibold mb-3">What you'll need:</h4>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -95,10 +95,10 @@ export default function Documentation() {
 
       {/* Step 1: Getting Oriented */}
       <section id="dashboard">
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">1</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">1</span>
               First, Let's Get Our Bearings
             </CardTitle>
             <CardDescription>
@@ -106,7 +106,7 @@ export default function Documentation() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-lg">
+            <div className="bg-muted p-4 rounded-lg">
               <h4 className="font-semibold mb-2">🎯 ACTION: Look at your dashboard right now</h4>
               <p className="text-sm mb-3">
                 You should see metrics showing your current status. Here's what each number means for YOU:
@@ -131,9 +131,9 @@ export default function Documentation() {
               </div>
             </div>
             
-            <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
-              <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">💡 What This Means for You</h4>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
+            <div className="bg-muted/50 p-4 rounded-lg border">
+              <h4 className="font-semibold mb-2">💡 What This Means for You</h4>
+              <p className="text-sm text-muted-foreground">
                 You're getting traffic (35 clicks) but no revenue yet. This tutorial will help you create content that converts those clicks into commissions. 
                 With proper optimization, 35 clicks could potentially generate $10-50 in affiliate commissions.
               </p>
@@ -144,10 +144,10 @@ export default function Documentation() {
 
       {/* Step 2: Connect Your Site */}
       <section id="sites">
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">2</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">2</span>
               Connect Your WordPress Site (5 minutes)
             </CardTitle>
             <CardDescription>
@@ -155,7 +155,7 @@ export default function Documentation() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+            <div className="bg-muted p-4 rounded-lg">
               <h4 className="font-semibold mb-2">🎯 ACTION: Right now, do this</h4>
               <ol className="space-y-3 text-sm list-decimal ml-6">
                 <li>
@@ -168,7 +168,7 @@ export default function Documentation() {
                 </li>
                 <li>
                   <strong>Fill in YOUR site details:</strong>
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded mt-2 border">
+                  <div className="bg-background p-3 rounded mt-2 border">
                     <p className="font-mono text-sm">Site URL: https://yoursite.com</p>
                     <p className="font-mono text-sm">Username: your_admin_username</p>
                     <p className="font-mono text-sm">Password: your_admin_password</p>
@@ -185,9 +185,9 @@ export default function Documentation() {
               </ol>
             </div>
 
-            <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg border border-red-200 dark:border-red-800">
-              <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2">⚠️ If connection fails</h4>
-              <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
+            <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20">
+              <h4 className="font-semibold text-destructive mb-2">⚠️ If connection fails</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Check your WordPress login credentials</li>
                 <li>• Make sure you're using an admin account</li>
                 <li>• Try disabling security plugins temporarily</li>
@@ -195,9 +195,9 @@ export default function Documentation() {
               </ul>
             </div>
 
-            <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
-              <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">✅ Success? Do this next</h4>
-              <p className="text-sm text-green-700 dark:text-green-300">
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">✅ Success? Do this next</h4>
+              <p className="text-sm text-muted-foreground">
                 Click on your connected site name and set your default category to "Reviews" or "Affiliate". 
                 This is where your articles will be published.
               </p>
