@@ -7,7 +7,7 @@ import { ContentEditor } from "@/components/content/ContentEditor";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Wand2, AlertCircle, CheckCircle, Clock, FileText, Sparkles, Globe, Save } from "lucide-react";
-import { apiRequest } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useLocation } from "wouter";

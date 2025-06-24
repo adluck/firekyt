@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SiteCard } from "@/components/sites/SiteCard";
 import { Plus, Globe, AlertCircle, Loader2 } from "lucide-react";
-import { apiRequest } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import type { Site, InsertSite } from "@shared/schema";

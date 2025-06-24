@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 import type { User } from "@shared/schema";
 
 interface AuthResponse {

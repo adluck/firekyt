@@ -353,10 +353,14 @@ export default function PublishingDashboard() {
   });
 
   const onSchedulePublication = (values: z.infer<typeof scheduleSchema>) => {
+    // Ensure the scheduled time is in ISO format
+    const scheduledDate = new Date(values.scheduledAt);
+    
     schedulePublicationMutation.mutate({
       ...values,
       contentId: parseInt(values.contentId),
       platformConnectionId: parseInt(values.platformConnectionId),
+      scheduledAt: scheduledDate.toISOString(),
     });
   };
 
@@ -631,7 +635,11 @@ export default function PublishingDashboard() {
                       <FormItem>
                         <FormLabel>Scheduled Date & Time</FormLabel>
                         <FormControl>
-                          <Input type="datetime-local" {...field} />
+                          <Input 
+                            type="datetime-local" 
+                            {...field} 
+                            min={new Date(Date.now() + 60000).toISOString().slice(0, 16)} // Minimum 1 minute from now
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

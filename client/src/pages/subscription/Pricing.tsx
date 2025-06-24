@@ -8,7 +8,7 @@ import { PricingCard } from "@/components/subscription/PricingCard";
 import { Check, Crown, Zap, Star, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { apiRequest } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Pricing() {

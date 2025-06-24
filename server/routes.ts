@@ -2691,7 +2691,11 @@ Format your response as a JSON object with the following structure:
       }
 
       const scheduleDate = new Date(scheduledAt);
-      if (scheduleDate <= new Date()) {
+      const now = new Date();
+      // Allow scheduling up to 30 seconds in the past to account for timezone/delay issues
+      const bufferTime = 30 * 1000; // 30 seconds
+      
+      if (scheduleDate.getTime() < (now.getTime() - bufferTime)) {
         return res.status(400).json({ 
           success: false,
           message: "Scheduled time must be in the future" 

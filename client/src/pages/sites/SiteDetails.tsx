@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Link, useLocation } from "wouter";
-import { apiRequest } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Site, Content } from "@shared/schema";
 
