@@ -98,20 +98,20 @@ export default function Documentation() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="font-medium">Your Sites: 3/∞</p>
-                  <p className="text-muted-foreground">You have 3 websites connected. We'll add your main site in the next step.</p>
+                  <p className="font-medium">Your Sites</p>
+                  <p className="text-muted-foreground">Shows how many websites you have connected. If you need to add or manage sites, we'll do that in the next step.</p>
                 </div>
                 <div>
-                  <p className="font-medium">Content: 5 articles</p>
-                  <p className="text-muted-foreground">You have 4 published, 1 draft. We'll create your next money-maker today.</p>
+                  <p className="font-medium">Content Created</p>
+                  <p className="text-muted-foreground">Total articles you've generated. Split between published (earning potential) and drafts (need finishing).</p>
                 </div>
                 <div>
-                  <p className="font-medium">Traffic: 35 real clicks</p>
-                  <p className="text-muted-foreground">Real people have clicked your links. That's money potential!</p>
+                  <p className="font-medium">Traffic & Clicks</p>
+                  <p className="text-muted-foreground">Real people clicking your affiliate links. Even small numbers represent money potential!</p>
                 </div>
                 <div>
-                  <p className="font-medium">Revenue: $0</p>
-                  <p className="text-muted-foreground">No conversions yet, but 35 clicks is a great start. Let's optimize this.</p>
+                  <p className="font-medium">Revenue Generated</p>
+                  <p className="text-muted-foreground">Your earnings so far. If it's $0, don't worry - this tutorial will help you start converting clicks to commissions.</p>
                 </div>
               </div>
             </div>
@@ -119,8 +119,8 @@ export default function Documentation() {
             <div className="bg-muted/50 p-4 rounded-lg border">
               <h4 className="font-semibold mb-2">💡 What This Means for You</h4>
               <p className="text-sm text-muted-foreground">
-                You're getting traffic (35 clicks) but no revenue yet. This tutorial will help you create content that converts those clicks into commissions. 
-                With proper optimization, 35 clicks could potentially generate $10-50 in affiliate commissions.
+                Whatever your current numbers show, this tutorial will help you improve them. If you have traffic but no revenue, we'll optimize for conversions. 
+                If you're just starting, we'll build everything from scratch. Even modest traffic can generate meaningful income with the right approach.
               </p>
             </div>
           </CardContent>
