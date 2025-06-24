@@ -146,7 +146,13 @@ export default function AnalyticsDashboard() {
   const { data: dashboardData, isLoading: isDashboardLoading } = useQuery<DashboardData>({
     queryKey: ["/api/analytics/dashboard", period],
     queryFn: async () => {
-      const response = await fetch(`/api/analytics/dashboard?period=${period}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/analytics/dashboard?period=${period}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error("Failed to fetch dashboard data");
       const data = await response.json();
       console.log('📊 Frontend received dashboard data:', data.overview);
@@ -159,7 +165,13 @@ export default function AnalyticsDashboard() {
   const { data: contentPerformance, isLoading: isContentLoading } = useQuery<ContentPerformanceData>({
     queryKey: ["/api/analytics/content-performance", period],
     queryFn: async () => {
-      const response = await fetch(`/api/analytics/content-performance?period=${period}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/analytics/content-performance?period=${period}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error("Failed to fetch content performance");
       return response.json();
     },
@@ -168,7 +180,13 @@ export default function AnalyticsDashboard() {
   const { data: affiliatePerformance, isLoading: isAffiliateLoading } = useQuery<AffiliatePerformanceData>({
     queryKey: ["/api/analytics/affiliate-performance", period],
     queryFn: async () => {
-      const response = await fetch(`/api/analytics/affiliate-performance?period=${period}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/analytics/affiliate-performance?period=${period}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error("Failed to fetch affiliate performance");
       return response.json();
     },
@@ -177,7 +195,13 @@ export default function AnalyticsDashboard() {
   const { data: seoRankings, isLoading: isSeoLoading } = useQuery<SeoRankingsData>({
     queryKey: ["/api/analytics/seo-rankings", period],
     queryFn: async () => {
-      const response = await fetch(`/api/analytics/seo-rankings?period=${period}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/analytics/seo-rankings?period=${period}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error("Failed to fetch SEO rankings");
       return response.json();
     },
@@ -186,7 +210,13 @@ export default function AnalyticsDashboard() {
   const { data: revenueData, isLoading: isRevenueLoading } = useQuery<RevenueData>({
     queryKey: ["/api/analytics/revenue", period],
     queryFn: async () => {
-      const response = await fetch(`/api/analytics/revenue?period=${period}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/analytics/revenue?period=${period}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error("Failed to fetch revenue data");
       return response.json();
     },
