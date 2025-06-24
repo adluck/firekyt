@@ -45,6 +45,7 @@ import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
 import SubscribeSimple from "@/pages/subscription/SubscribeSimple";
 import Settings from "@/pages/settings/Settings";
+import Documentation from "@/pages/docs/Documentation";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -297,6 +298,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <Settings />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/docs">
+        <ProtectedRoute>
+          <AppLayout>
+            <Documentation />
           </AppLayout>
         </ProtectedRoute>
       </Route>

@@ -20,7 +20,8 @@ import {
   Brain,
   FolderOpen,
   Network,
-  Lightbulb
+  Lightbulb,
+  BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -72,8 +73,9 @@ const navigation = [
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },
-  { name: 'Content insights', href: '/analytics', icon: BarChart3 },
+  { name: 'Content Insight', href: '/analytics', icon: BarChart3 },
   { name: 'Billing', href: '/billing', icon: CreditCard },
+  { name: 'Documentation', href: '/docs', icon: BookOpen },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
