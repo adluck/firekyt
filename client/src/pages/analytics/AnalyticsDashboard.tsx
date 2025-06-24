@@ -146,7 +146,7 @@ export default function AnalyticsDashboard() {
   const { data: dashboardData, isLoading: isDashboardLoading } = useQuery<DashboardData>({
     queryKey: ["/api/analytics/dashboard", period],
     queryFn: async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/analytics/dashboard?period=${period}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -165,7 +165,7 @@ export default function AnalyticsDashboard() {
   const { data: contentPerformance, isLoading: isContentLoading } = useQuery<ContentPerformanceData>({
     queryKey: ["/api/analytics/content-performance", period],
     queryFn: async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/analytics/content-performance?period=${period}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -180,7 +180,7 @@ export default function AnalyticsDashboard() {
   const { data: affiliatePerformance, isLoading: isAffiliateLoading } = useQuery<AffiliatePerformanceData>({
     queryKey: ["/api/analytics/affiliate-performance", period],
     queryFn: async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/analytics/affiliate-performance?period=${period}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -195,7 +195,7 @@ export default function AnalyticsDashboard() {
   const { data: seoRankings, isLoading: isSeoLoading } = useQuery<SeoRankingsData>({
     queryKey: ["/api/analytics/seo-rankings", period],
     queryFn: async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/analytics/seo-rankings?period=${period}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -210,7 +210,7 @@ export default function AnalyticsDashboard() {
   const { data: revenueData, isLoading: isRevenueLoading } = useQuery<RevenueData>({
     queryKey: ["/api/analytics/revenue", period],
     queryFn: async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/analytics/revenue?period=${period}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -326,7 +326,6 @@ export default function AnalyticsDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">
               {dashboardData ? formatNumber(dashboardData.overview.totalViews) : "0"}
-              {dashboardData && console.log('Debug totalViews:', dashboardData.overview.totalViews)}
             </div>
             <p className="text-xs text-muted-foreground">
               {dashboardData ? formatNumber(dashboardData.overview.uniqueViews) : "0"} unique views
