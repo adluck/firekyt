@@ -792,7 +792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analytics dashboard
+  // Analytics dashboard - main endpoint
   app.get("/api/analytics/dashboard", authenticateToken, analyticsRateLimit, async (req, res) => {
     try {
       const sites = await storage.getUserSites(req.user!.id);
@@ -835,6 +835,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const realUserClicks = linkTracking.filter(track => track.eventType === 'click' && !track.userAgent?.includes('WordPress')).length;
       const totalViews = totalClicks; // Use actual tracking clicks as views - 35 real events
       const estimatedRevenue = 0; // Only actual tracked conversions should contribute to revenue
+
+      console.log('📊 Analytics Debug:', {
+        totalClicks,
+        totalViews,
+        linkTrackingCount: linkTracking.length,
+        realUserClicks
+      });
 
       res.json({
         overview: {

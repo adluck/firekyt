@@ -145,7 +145,9 @@ export default function AnalyticsDashboard() {
     queryFn: async () => {
       const response = await fetch(`/api/analytics/dashboard?period=${period}`);
       if (!response.ok) throw new Error("Failed to fetch dashboard data");
-      return response.json();
+      const data = await response.json();
+      console.log('📊 Frontend received dashboard data:', data.overview);
+      return data;
     },
   });
 
