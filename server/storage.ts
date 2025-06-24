@@ -1205,30 +1205,36 @@ export class DatabaseStorage implements IStorage {
 
   // Publication History operations
   async getUserPublicationHistory(userId: number): Promise<any[]> {
-    const result = await db
-      .select({
-        id: publicationHistory.id,
-        userId: publicationHistory.userId,
-        contentId: publicationHistory.contentId,
-        contentTitle: content.title,
-        contentType: content.contentType,
-        platform: publicationHistory.platform,
-        platformPostId: publicationHistory.platformPostId,
-        platformUrl: publicationHistory.platformUrl,
-        status: publicationHistory.status,
-        metrics: publicationHistory.metrics,
-        publishedAt: publicationHistory.publishedAt,
-        lastSyncAt: publicationHistory.lastSyncAt,
-        createdAt: publicationHistory.createdAt,
-        platformName: platformConnections.name
-      })
-      .from(publicationHistory)
-      .leftJoin(content, eq(publicationHistory.contentId, content.id))
-      .leftJoin(platformConnections, eq(publicationHistory.platformConnectionId, platformConnections.id))
-      .where(eq(publicationHistory.userId, userId))
-      .orderBy(desc(publicationHistory.publishedAt));
-    
-    return result;
+    try {
+      const result = await db
+        .select({
+          id: publicationHistory.id,
+          userId: publicationHistory.userId,
+          contentId: publicationHistory.contentId,
+          contentTitle: content.title,
+          contentType: content.contentType,
+          platform: publicationHistory.platform,
+          platformPostId: publicationHistory.platformPostId,
+          platformUrl: publicationHistory.platformUrl,
+          status: publicationHistory.status,
+          metrics: publicationHistory.metrics,
+          publishedAt: publicationHistory.publishedAt,
+          lastSyncAt: publicationHistory.lastSyncAt,
+          createdAt: publicationHistory.createdAt
+        })
+        .from(publicationHistory)
+        .leftJoin(content, eq(publicationHistory.contentId, content.id))
+        .where(eq(publicationHistory.userId, userId))
+        .orderBy(desc(publicationHistory.publishedAt));
+      
+      return result;
+    } catch (error) {
+      console.error('Database error in getUserPublicationHistory:', error);
+      // Fallback to simple query if join fails
+      return await db.select().from(publicationHistory)
+        .where(eq(publicationHistory.userId, userId))
+        .orderBy(desc(publicationHistory.publishedAt));
+    }
   }
 
   async createPublicationHistory(history: any): Promise<any> {

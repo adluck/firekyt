@@ -2634,9 +2634,10 @@ Format your response as a JSON object with the following structure:
       const history = await storage.getUserPublicationHistory(req.user!.id);
       res.json({ success: true, history });
     } catch (error: any) {
+      console.error('Publication history error:', error);
       res.status(500).json({
         success: false,
-        message: "Failed to fetch history: " + error.message
+        message: "Failed to load publication history: " + error.message
       });
     }
   });
