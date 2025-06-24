@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { ComparisonTableBuilder } from '@/components/editor/ComparisonTableBuilder';
+import { trackPageView } from '@/utils/analytics';
 import { ComparisonTableRenderer } from '@/components/editor/ComparisonTableRenderer';
 import { KeywordModal } from '@/components/editor/KeywordModal';
 import { apiRequest } from '@/lib/queryClient';
