@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,7 @@ const scheduleSchema = z.object({
   contentId: z.string(),
   platformConnectionId: z.string(),
   scheduledAt: z.string().refine((dateStr) => {
+    if (!dateStr) return false;
     const selectedDate = new Date(dateStr);
     const now = new Date();
     const minFutureTime = 5 * 60 * 1000; // 5 minutes in milliseconds
@@ -100,6 +101,20 @@ export default function PublishingDashboard() {
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [selectedConnection, setSelectedConnection] = useState<any>(null);
   const [isEditingConnection, setIsEditingConnection] = useState(false);
+  const [minDateTime, setMinDateTime] = useState("");
+
+  // Update minimum datetime every minute
+  useEffect(() => {
+    const updateMinDateTime = () => {
+      const minTime = new Date(Date.now() + 5 * 60000); // 5 minutes from now
+      setMinDateTime(minTime.toISOString().slice(0, 16));
+    };
+    
+    updateMinDateTime(); // Set initial value
+    const interval = setInterval(updateMinDateTime, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch platform connections
   const { data: connectionsData, isLoading: connectionsLoading } = useQuery({
@@ -645,7 +660,7 @@ export default function PublishingDashboard() {
                           <Input 
                             type="datetime-local" 
                             {...field} 
-                            min={new Date(Date.now() + 5 * 60000).toISOString().slice(0, 16)} // Minimum 5 minutes from now
+                            min={minDateTime}
                           />
                         </FormControl>
                         <FormMessage />
