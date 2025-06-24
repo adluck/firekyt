@@ -106,7 +106,7 @@ export class SchedulerService {
         content,
         [{
           platform: connection.platform,
-          accountId: connection.platformAccountId || connection.id.toString(),
+          accountId: connection.id.toString(),
           settings: publication.publishSettings || {}
         }]
       );
