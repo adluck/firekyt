@@ -150,6 +150,8 @@ export default function AnalyticsDashboard() {
       if (!response.ok) throw new Error("Failed to fetch dashboard data");
       const data = await response.json();
       console.log('📊 Frontend received dashboard data:', data.overview);
+      console.log('📊 Frontend totalViews value:', data.overview?.totalViews);
+      console.log('📊 Frontend totalClicks value:', data.overview?.totalClicks);
       return data;
     },
   });

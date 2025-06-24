@@ -843,23 +843,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         realUserClicks
       });
 
+      const overviewData = {
+        totalSites: sites.length,
+        totalContent: content.length,
+        publishedContent: content.filter(c => c.status === 'published').length,
+        draftContent: content.filter(c => c.status === 'draft').length,
+        totalRevenue: estimatedRevenue,
+        totalViews: totalViews,
+        totalClicks: totalClicks,
+        uniqueViews: totalViews, // Use actual views, no calculations
+        totalConversions: 0, // Only real tracked conversions
+        conversionRate: "0%", // Real conversion rate from actual purchases
+        clickThroughRate: totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) + "%" : "0%",
+        avgRevenuePerClick: "$0.00", // Only real revenue calculations
+        revenueGrowth: "0%", // Real growth calculation would need historical data
+        monthlyViews: totalViews // Use the same total views as monthly views since we have tracking data
+      };
+
+      console.log('📊 Overview Data Being Sent:', JSON.stringify(overviewData, null, 2));
+
       res.json({
-        overview: {
-          totalSites: sites.length,
-          totalContent: content.length,
-          publishedContent: content.filter(c => c.status === 'published').length,
-          draftContent: content.filter(c => c.status === 'draft').length,
-          totalRevenue: estimatedRevenue,
-          totalViews: totalViews,
-          totalClicks: totalClicks,
-          uniqueViews: totalViews, // Use actual views, no calculations
-          totalConversions: 0, // Only real tracked conversions
-          conversionRate: "0%", // Real conversion rate from actual purchases
-          clickThroughRate: totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) + "%" : "0%",
-          avgRevenuePerClick: "$0.00", // Only real revenue calculations
-          revenueGrowth: "0%", // Real growth calculation would need historical data
-          monthlyViews: totalViews // Use the same total views as monthly views since we have tracking data
-        },
+        overview: overviewData,
         usage: {
           sites: sites.length,
           content_generation: content.length,
