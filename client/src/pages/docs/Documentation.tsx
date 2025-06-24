@@ -127,76 +127,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 2: Connect Your Site */}
-      <section id="sites">
-        <Card className="border-l-4 border-l-primary">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">2</span>
-              Connect Your WordPress Site (5 minutes)
-            </CardTitle>
-            <CardDescription>
-              Let's connect your site so you can publish and start earning
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-muted p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">🎯 ACTION: Right now, do this</h4>
-              <ol className="space-y-3 text-sm list-decimal ml-6">
-                <li>
-                  <strong>Click "Sites" in the left sidebar</strong>
-                  <p className="text-muted-foreground mt-1">You'll see your connected sites list</p>
-                </li>
-                <li>
-                  <strong>Click "Connect New Site" button</strong>
-                  <p className="text-muted-foreground mt-1">A form will pop up</p>
-                </li>
-                <li>
-                  <strong>Fill in YOUR site details:</strong>
-                  <div className="bg-background p-3 rounded mt-2 border">
-                    <p className="font-mono text-sm">Site URL: https://yoursite.com</p>
-                    <p className="font-mono text-sm">Username: your_admin_username</p>
-                    <p className="font-mono text-sm">Password: your_admin_password</p>
-                  </div>
-                </li>
-                <li>
-                  <strong>Click "Test Connection"</strong>
-                  <p className="text-muted-foreground mt-1">Wait for the green checkmark</p>
-                </li>
-                <li>
-                  <strong>Click "Save Site"</strong>
-                  <p className="text-muted-foreground mt-1">Your site is now connected!</p>
-                </li>
-              </ol>
-            </div>
-
-            <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20">
-              <h4 className="font-semibold text-destructive mb-2">⚠️ If connection fails</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Check your WordPress login credentials</li>
-                <li>• Make sure you're using an admin account</li>
-                <li>• Try disabling security plugins temporarily</li>
-                <li>• Use Application Passwords for better security</li>
-              </ul>
-            </div>
-
-            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
-              <h4 className="font-semibold text-primary mb-2">✅ Success? Do this next</h4>
-              <p className="text-sm text-muted-foreground">
-                Click on your connected site name and set your default category to "Reviews" or "Affiliate". 
-                This is where your articles will be published.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Step 3: Niche Research */}
+      {/* Step 2: Niche Research */}
       <section id="niche-research">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">3</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">2</span>
               Research and Choose a Profitable Niche (15 minutes)
             </CardTitle>
             <CardDescription>
@@ -233,12 +169,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 4: AI Content Generation */}
+      {/* Step 3: AI Content Generation */}
       <section id="content-generation">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">3</span>
               Generate Your First AI Article with Affiliate Links (20 minutes)
             </CardTitle>
             <CardDescription>
@@ -283,21 +219,21 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 5: Publishing */}
+      {/* Step 4: Connect Site and Publish */}
       <section id="publishing">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">5</span>
-              Publish the Article to Your Site (10 minutes)
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</span>
+              Connect Your Site and Publish the Article (15 minutes)
             </CardTitle>
             <CardDescription>
-              Get your content live and earning potential
+              Connect your platform and get your content live
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-muted p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">🎯 ACTION: Connect and publish</h4>
+              <h4 className="font-semibold mb-2">🎯 ACTION: Connect your publishing platform</h4>
               <p className="text-sm mb-3">
                 Go to <strong>Publishing</strong> → <strong>Connected Sites</strong>. Choose your platform:
               </p>
@@ -321,6 +257,13 @@ export default function Documentation() {
               </div>
             </div>
 
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Publish your article</h4>
+              <p className="text-sm mb-3">
+                Once connected, select your article and click <strong>Publish Now</strong>. Choose appropriate categories like "Reviews" or "Affiliate Marketing".
+              </p>
+            </div>
+
             <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
               <h4 className="font-semibold text-primary mb-2">📱 Bonus: Social Media Amplification</h4>
               <p className="text-sm text-muted-foreground">
@@ -332,12 +275,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 6: Analytics */}
+      {/* Step 5: Analytics */}
       <section id="analytics-setup">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">6</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">5</span>
               Set Up Analytics Tracking (5 minutes)
             </CardTitle>
             <CardDescription>
@@ -375,12 +318,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 7: Affiliate Programs */}
+      {/* Step 6: Affiliate Programs */}
       <section id="affiliate-programs">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">7</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">6</span>
               Set Up Your Affiliate Program Account (15 minutes)
             </CardTitle>
             <CardDescription>
