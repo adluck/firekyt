@@ -2657,13 +2657,13 @@ Format your response as a JSON object with the following structure:
             return {
               ...pub,
               contentTitle: content?.title || 'Unknown Content',
-              platformName: connection?.platform || 'Unknown Platform'
+              platform: connection?.platform || 'Unknown Platform'
             };
           } catch {
             return {
               ...pub,
               contentTitle: 'Unknown Content',
-              platformName: 'Unknown Platform'
+              platform: 'Unknown Platform'
             };
           }
         })
