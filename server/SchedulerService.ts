@@ -141,11 +141,19 @@ export class SchedulerService {
       if (publishResult.successes.length > 0) {
         // Publication successful
         const success = publishResult.successes[0];
+        const publishedAt = new Date();
+        
         await storage.updateScheduledPublication(publication.id, {
           status: 'published',
-          publishedAt: new Date(),
+          publishedAt: publishedAt,
           platformPostId: success.postId,
           platformUrl: success.url
+        });
+
+        // Update the content status to 'published' and set publishedAt timestamp
+        await storage.updateContent(publication.contentId, publication.userId, {
+          status: 'published',
+          publishedAt: publishedAt
         });
 
         // Add to publication history
@@ -156,11 +164,11 @@ export class SchedulerService {
           platform: connection.platform,
           platformPostId: success.postId,
           platformUrl: success.url,
-          publishedAt: new Date(),
+          publishedAt: publishedAt,
           status: 'published'
         });
 
-        console.log(`Successfully published scheduled content ${publication.id} to ${connection.platform}`);
+        console.log(`Successfully published scheduled content ${publication.id} to ${connection.platform} and updated content status to 'published'`);
       } else {
         // Publication failed
         const failure = publishResult.failures[0];

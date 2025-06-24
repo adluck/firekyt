@@ -2664,8 +2664,7 @@ Format your response as a JSON object with the following structure:
               contentTitle: content?.title || 'Unknown Content',
               platform: connection?.platform || 'Unknown Platform'
             };
-          } catch (error) {
-            console.log('📝 Error in publication enrichment:', error);
+          } catch {
             return {
               ...pub,
               contentTitle: 'Unknown Content',
