@@ -98,19 +98,19 @@ export default function Documentation() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="font-medium">Your Sites</p>
+                  <p className="font-bold">Your Sites</p>
                   <p className="text-muted-foreground">Shows how many websites you have connected. If you need to add or manage sites, we'll do that in the next step.</p>
                 </div>
                 <div>
-                  <p className="font-medium">Content Created</p>
+                  <p className="font-bold">Content Created</p>
                   <p className="text-muted-foreground">Total articles you've generated. Split between published (earning potential) and drafts (need finishing).</p>
                 </div>
                 <div>
-                  <p className="font-medium">Traffic & Clicks</p>
+                  <p className="font-bold">Traffic & Clicks</p>
                   <p className="text-muted-foreground">Real people clicking your affiliate links. Even small numbers represent money potential!</p>
                 </div>
                 <div>
-                  <p className="font-medium">Revenue Generated</p>
+                  <p className="font-bold">Revenue Generated</p>
                   <p className="text-muted-foreground">Your earnings so far. If it's $0, don't worry - this tutorial will help you start converting clicks to commissions.</p>
                 </div>
               </div>
