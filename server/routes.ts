@@ -833,7 +833,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
       const totalClicks = linkTracking.filter(track => track.eventType === 'click').length;
       const realUserClicks = linkTracking.filter(track => track.eventType === 'click' && !track.userAgent?.includes('WordPress')).length;
-      const totalViews = Math.max(content.reduce((sum, c) => sum + (c.views || 0), 0), totalClicks);
+      const totalViews = totalClicks; // Use actual tracking clicks as views - 35 real events
       const estimatedRevenue = 0; // Only actual tracked conversions should contribute to revenue
 
       res.json({
