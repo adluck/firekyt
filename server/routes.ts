@@ -1140,16 +1140,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('📊 Overview Data Being Sent:', JSON.stringify(overviewData, null, 2));
 
+      // Get real usage data from database
+      const usage = await storage.getUserCurrentUsage(req.user!.id);
+      console.log(`📊 Dashboard Usage Query: Found ${usage.length} usage records for user ${req.user!.id}`);
+      usage.forEach(u => console.log(`📊 Usage: ${u.feature} = ${u.count}`));
+
+      // Build usage summary from real database data
+      const usageSummary = usage.reduce((acc, u) => {
+        acc[u.feature] = u.count;
+        return acc;
+      }, {} as Record<string, number>);
+
       res.json({
         overview: overviewData,
-        usage: {
-          sites: sites.length,
-          contentPerMonth: content.filter(c => {
-            const createdThisMonth = new Date(c.createdAt) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-            return createdThisMonth;
-          }).length,
-          apiCallsPerMonth: linkTracking.length + content.length * 2 // Content generation + link tracking calls
-        },
+        usage: usageSummary,
         limits,
         recentContent: content.slice(0, 5),
         performance: {
