@@ -4161,13 +4161,16 @@ async function generateAILinkSuggestions(params: {
       
       // Create performance data for each intelligent link
       const linkPerformance = intelligentLinks.map(link => {
+        // Match tracking events by link_id
         const trackingEvents = linkTracking.filter(track => 
-          track.destinationUrl === link.originalUrl
+          track.linkId === link.id
         );
         
         const clicks = trackingEvents.filter(t => t.eventType === 'click').length;
         const conversions = trackingEvents.filter(t => t.eventType === 'conversion').length;
         const revenue = trackingEvents.reduce((sum, t) => sum + (t.revenue || 0), 0);
+        
+        console.log(`📊 Link ${link.id} (${link.title}): ${clicks} clicks from ${trackingEvents.length} events`);
         
         // Create a meaningful title from the link data
         let displayTitle = 'Untitled Link';
@@ -4213,6 +4216,10 @@ async function generateAILinkSuggestions(params: {
       const totalClicks = linkPerformance.reduce((sum, link) => sum + link.clicks, 0);
       const totalConversions = linkPerformance.reduce((sum, link) => sum + link.conversions, 0);
       const totalRevenue = linkPerformance.reduce((sum, link) => sum + link.revenue, 0);
+
+      console.log(`📊 Total intelligent links: ${intelligentLinks.length}`);
+      console.log(`📊 Total link tracking events: ${linkTracking.length}`);
+      console.log(`📊 Click events: ${linkTracking.filter(t => t.eventType === 'click').length}`);
 
       // Generate daily performance data from tracking events
       const dailyData = [];
