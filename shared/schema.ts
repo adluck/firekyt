@@ -411,6 +411,19 @@ export const affiliateNetworks = pgTable("affiliate_networks", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// User activity tracking
+export const userActivity = pgTable("user_activity", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  activityType: text("activity_type").notNull(),
+  entityType: text("entity_type"),
+  entityId: integer("entity_id"),
+  title: text("title"),
+  description: text("description"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -699,6 +712,13 @@ export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSc
 // Affiliate network types
 export type AffiliateNetwork = typeof affiliateNetworks.$inferSelect;
 export type InsertAffiliateNetwork = z.infer<typeof insertAffiliateNetworkSchema>;
+export type UserActivity = typeof userActivity.$inferSelect;
+
+export const insertUserActivitySchema = createInsertSchema(userActivity).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertUserActivity = z.infer<typeof insertUserActivitySchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {
