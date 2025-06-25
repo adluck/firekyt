@@ -1139,6 +1139,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(revenueTracking.transactionDate));
   }
 
+  async getUserSeoRankings(userId: number): Promise<SeoRanking[]> {
+    return await db
+      .select()
+      .from(seoRankings)
+      .where(eq(seoRankings.userId, userId))
+      .orderBy(desc(seoRankings.date));
+  }
+
   async getLatestSeoRankings(userId: number): Promise<SeoRanking[]> {
     return await db
       .select()

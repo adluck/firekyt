@@ -4301,6 +4301,8 @@ async function generateAILinkSuggestions(params: {
 
       const seoRankings = await storage.getUserSeoRankings(userId);
       
+      console.log(`📊 SEO Database Query Result: Found ${seoRankings.length} rankings for user ${userId}`);
+      
       const keywordData = seoRankings.slice(0, 20).map(ranking => ({
         keyword: ranking.keyword,
         currentPosition: ranking.position,
