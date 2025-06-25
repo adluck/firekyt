@@ -29,6 +29,10 @@ export default function Dashboard() {
     queryKey: ["/api/analytics/dashboard"],
   });
 
+  const { data: activityData } = useQuery({
+    queryKey: ["/api/activity/recent"],
+  });
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -179,20 +183,42 @@ export default function Dashboard() {
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            {hasActivity ? (
-              <div className="space-y-4">
-                {/* This would be populated with real user activity */}
-                <div className="text-center py-8 text-muted-foreground">
-                  <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>No recent activity</p>
-                  <p className="text-sm">Start creating content to see your activity here</p>
-                </div>
+            {activityData?.activities?.length > 0 ? (
+              <div className="space-y-3">
+                {activityData.activities.map((activity: any, index: number) => (
+                  <div key={activity.id || index} className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                    <div className="flex-shrink-0">
+                      {activity.activityType === 'content_created' && <FileText className="h-4 w-4 text-blue-600" />}
+                      {activity.activityType === 'site_created' && <Globe className="h-4 w-4 text-green-600" />}
+                      {activity.activityType === 'content_published' && <TrendingUp className="h-4 w-4 text-purple-600" />}
+                      {activity.activityType === 'platform_connected' && <Users className="h-4 w-4 text-orange-600" />}
+                      {activity.activityType === 'link_created' && <MousePointer className="h-4 w-4 text-pink-600" />}
+                      {!['content_created', 'site_created', 'content_published', 'platform_connected', 'link_created'].includes(activity.activityType) && <Clock className="h-4 w-4 text-gray-600" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {activity.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {activity.description}
+                      </p>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(activity.createdAt).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No activity yet</p>
-                <p className="text-sm">Create your first site or content to get started</p>
+                <p>No recent activity</p>
+                <p className="text-sm">Start creating content to see your activity here</p>
               </div>
             )}
           </CardContent>
