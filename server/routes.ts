@@ -4171,8 +4171,8 @@ async function generateAILinkSuggestions(params: {
         
         return {
           id: link.id,
-          url: link.destinationUrl,
-          title: link.anchor || link.destinationUrl.split('/').pop() || 'Untitled',
+          url: link.destinationUrl || '',
+          title: link.anchor || (link.destinationUrl ? link.destinationUrl.split('/').pop() : '') || 'Untitled',
           clicks: clicks,
           conversions: conversions,
           revenue: revenue,
