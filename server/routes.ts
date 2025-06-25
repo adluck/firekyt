@@ -4162,17 +4162,42 @@ async function generateAILinkSuggestions(params: {
       // Create performance data for each intelligent link
       const linkPerformance = intelligentLinks.map(link => {
         const trackingEvents = linkTracking.filter(track => 
-          track.destinationUrl === link.destinationUrl
+          track.destinationUrl === link.originalUrl
         );
         
         const clicks = trackingEvents.filter(t => t.eventType === 'click').length;
         const conversions = trackingEvents.filter(t => t.eventType === 'conversion').length;
         const revenue = trackingEvents.reduce((sum, t) => sum + (t.revenue || 0), 0);
         
+        // Create a meaningful title from the link data
+        let displayTitle = 'Untitled Link';
+        if (link.title && link.title.trim()) {
+          displayTitle = link.title;
+        } else if (link.originalUrl) {
+          // Extract domain name or create title from URL
+          try {
+            const url = new URL(link.originalUrl);
+            const hostname = url.hostname.replace('www.', '');
+            const pathname = url.pathname.split('/').filter(Boolean);
+            
+            if (pathname.length > 0) {
+              // Use last path segment as title
+              displayTitle = pathname[pathname.length - 1]
+                .replace(/[-_]/g, ' ')
+                .replace(/\b\w/g, l => l.toUpperCase());
+            } else {
+              // Use domain name
+              displayTitle = hostname.split('.')[0].replace(/\b\w/g, l => l.toUpperCase());
+            }
+          } catch {
+            displayTitle = link.originalUrl.substring(0, 50) + '...';
+          }
+        }
+
         return {
           id: link.id,
-          url: link.destinationUrl || '',
-          title: link.anchor || (link.destinationUrl ? link.destinationUrl.split('/').pop() : '') || 'Untitled',
+          url: link.originalUrl || '',
+          title: displayTitle,
           clicks: clicks,
           conversions: conversions,
           revenue: revenue,
