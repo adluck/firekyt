@@ -845,9 +845,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserRevenueTracking(userId: number): Promise<RevenueTracking[]> {
-    return await db.select().from(revenueTracking)
-      .where(eq(revenueTracking.userId, userId))
-      .orderBy(desc(revenueTracking.date));
+    // Since revenueTracking table doesn't exist yet, return empty array
+    return [];
   }
 
   // Usage tracking
