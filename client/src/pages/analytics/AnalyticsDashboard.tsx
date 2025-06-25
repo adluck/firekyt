@@ -447,7 +447,7 @@ export default function AnalyticsDashboard() {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Total Clicks</p>
-                        <p className="text-2xl font-bold">{formatNumber(contentPerformance.summary.totalClicks)}</p>
+                        <p className="text-2xl font-bold">{formatNumber(contentPerformance?.summary?.totalClicks || 0)}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Avg Bounce Rate</p>
@@ -455,7 +455,7 @@ export default function AnalyticsDashboard() {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Avg Time on Page</p>
-                        <p className="text-2xl font-bold">{Math.round(contentPerformance.summary.avgTimeOnPage)}s</p>
+                        <p className="text-2xl font-bold">{Math.round(contentPerformance?.summary?.avgTimeOnPage || 0)}s</p>
                       </div>
                     </div>
                   </>
