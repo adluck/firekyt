@@ -203,7 +203,61 @@ export default function Billing() {
         </CardContent>
       </Card>
 
-      
+      {/* Usage Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Usage This Month</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Content Generation</span>
+              <span className="text-sm text-muted-foreground">
+                {getUsage('content_generation')}/{getLimit('content_generation') === -1 ? '∞' : getLimit('content_generation')}
+              </span>
+            </div>
+            <Progress 
+              value={getLimit('content_generation') === -1 ? 0 : (getUsage('content_generation') / getLimit('content_generation')) * 100} 
+              className="h-2"
+            />
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">API Calls</span>
+              <span className="text-sm text-muted-foreground">
+                {getUsage('api_calls')}/{getLimit('api_calls') === -1 ? '∞' : getLimit('api_calls')}
+              </span>
+            </div>
+            <Progress 
+              value={getLimit('api_calls') === -1 ? 0 : (getUsage('api_calls') / getLimit('api_calls')) * 100} 
+              className="h-2"
+            />
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Active Sites</span>
+              <span className="text-sm text-muted-foreground">
+                {subscription?.overview?.totalSites || 0}/{getLimit('sites') === -1 ? '∞' : getLimit('sites')}
+              </span>
+            </div>
+            <Progress 
+              value={getLimit('sites') === -1 ? 0 : ((subscription?.overview?.totalSites || 0) / getLimit('sites')) * 100} 
+              className="h-2"
+            />
+          </div>
+          
+          {(getUsage('content_generation') / getLimit('content_generation')) > 0.8 && getLimit('content_generation') !== -1 && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                You're approaching your monthly content generation limit. Consider upgrading your plan to avoid interruptions.
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Billing History */}
       <Card>
