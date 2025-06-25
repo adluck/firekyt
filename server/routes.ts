@@ -4155,33 +4155,85 @@ async function generateAILinkSuggestions(params: {
       const userId = req.user!.id;
       const period = parseInt(req.query.period as string) || 30;
       
-      // Get affiliate link performance
+      // Get intelligent links and their tracking data
+      const intelligentLinks = await storage.getIntelligentLinks(userId);
       const linkTracking = await storage.getUserLinkTracking(userId);
       
-      const topLinks = linkTracking.slice(0, 10).map(link => ({
-        id: link.id,
-        url: link.destinationUrl,
-        clicks: link.clicks || 0,
-        conversions: link.conversions || 0,
-        revenue: parseFloat(link.revenue || '0'),
-        conversionRate: link.clicks > 0 ? ((link.conversions || 0) / link.clicks * 100).toFixed(1) + '%' : '0%'
-      }));
+      // Create performance data for each intelligent link
+      const linkPerformance = intelligentLinks.map(link => {
+        const trackingEvents = linkTracking.filter(track => 
+          track.destinationUrl === link.destinationUrl || track.linkId === link.id
+        );
+        
+        const clicks = trackingEvents.filter(t => t.eventType === 'click').length;
+        const conversions = trackingEvents.filter(t => t.eventType === 'conversion').length;
+        const revenue = trackingEvents.reduce((sum, t) => sum + (t.revenue || 0), 0);
+        
+        return {
+          id: link.id,
+          url: link.destinationUrl,
+          title: link.anchor || link.destinationUrl.split('/').pop() || 'Untitled',
+          clicks: clicks,
+          conversions: conversions,
+          revenue: revenue,
+          conversionRate: clicks > 0 ? ((conversions / clicks) * 100).toFixed(1) + '%' : '0%'
+        };
+      });
 
-      const totalClicks = linkTracking.reduce((sum, link) => sum + (link.clicks || 0), 0);
-      const totalConversions = linkTracking.reduce((sum, link) => sum + (link.conversions || 0), 0);
-      const totalRevenue = linkTracking.reduce((sum, link) => sum + parseFloat(link.revenue || '0'), 0);
+      // Sort by clicks descending and take top 10
+      const topLinks = linkPerformance
+        .sort((a, b) => b.clicks - a.clicks)
+        .slice(0, 10);
+
+      const totalClicks = linkPerformance.reduce((sum, link) => sum + link.clicks, 0);
+      const totalConversions = linkPerformance.reduce((sum, link) => sum + link.conversions, 0);
+      const totalRevenue = linkPerformance.reduce((sum, link) => sum + link.revenue, 0);
+
+      // Generate daily performance data from tracking events
+      const dailyData = [];
+      const dailyMap = new Map();
+      
+      linkTracking.forEach(track => {
+        if (track.timestamp) {
+          const date = track.timestamp.toISOString().split('T')[0];
+          if (!dailyMap.has(date)) {
+            dailyMap.set(date, { date, clicks: 0, conversions: 0, revenue: 0 });
+          }
+          const dayData = dailyMap.get(date);
+          if (track.eventType === 'click') dayData.clicks++;
+          if (track.eventType === 'conversion') {
+            dayData.conversions++;
+            dayData.revenue += track.revenue || 0;
+          }
+        }
+      });
+
+      // Fill in missing days with zero data for the last 30 days
+      for (let i = period - 1; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        if (!dailyMap.has(dateStr)) {
+          dailyMap.set(dateStr, { date: dateStr, clicks: 0, conversions: 0, revenue: 0 });
+        }
+      }
+
+      dailyData.push(...Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date)));
 
       const response = {
-        topLinks,
+        daily: dailyData,
+        topLinks: topLinks,
+        byUrl: topLinks, // Compatibility with existing frontend
         summary: {
-          totalLinks: linkTracking.length,
+          totalLinks: intelligentLinks.length,
           totalClicks,
           totalConversions,
           totalRevenue,
           avgConversionRate: totalClicks > 0 ? (totalConversions / totalClicks * 100).toFixed(1) + '%' : '0%',
-          avgRevenuePerClick: totalClicks > 0 ? (totalRevenue / totalClicks).toFixed(2) : '0.00'
-        },
-        daily: [] // Simplified for now
+          avgRevenuePerClick: totalClicks > 0 ? (totalRevenue / totalClicks).toFixed(2) : '0.00',
+          conversionRate: totalClicks > 0 ? (totalConversions / totalClicks * 100).toFixed(1) + '%' : '0%'
+        }
       };
 
       res.json(response);
