@@ -571,19 +571,19 @@ export default function AnalyticsDashboard() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Tracked Keywords</p>
-                      <p className="text-2xl font-bold">{seoRankings.summary.trackedKeywords}</p>
+                      <p className="text-2xl font-bold">{formatNumber(seoRankings?.summary?.trackedKeywords || 0)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Avg Position</p>
-                      <p className="text-2xl font-bold">{seoRankings.summary.avgPosition.toFixed(1)}</p>
+                      <p className="text-2xl font-bold">{(seoRankings?.summary?.avgPosition || 0).toFixed(1)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Improvements</p>
-                      <p className="text-2xl font-bold text-green-600">{seoRankings.summary.improvements}</p>
+                      <p className="text-2xl font-bold text-green-600">{formatNumber(seoRankings?.summary?.improvements || 0)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Declines</p>
-                      <p className="text-2xl font-bold text-red-600">{seoRankings.summary.declines}</p>
+                      <p className="text-2xl font-bold text-red-600">{formatNumber(seoRankings?.summary?.declines || 0)}</p>
                     </div>
                   </div>
                 ) : (
