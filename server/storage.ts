@@ -45,6 +45,12 @@ export interface IStorage {
   createAnalytics(analytics: InsertAnalytics): Promise<Analytics>;
   getSiteAnalytics(siteId: number, startDate: Date, endDate: Date): Promise<Analytics[]>;
   getUserAnalytics(userId: number, startDate: Date, endDate: Date): Promise<Analytics[]>;
+  recordAnalytics(data: { userId: number; siteId: number; contentId?: number | null; metric: string; value: string; date: Date; metadata?: any; }): Promise<void>;
+
+  // Additional analytics methods
+  getUserLinkTracking(userId: number): Promise<LinkTracking[]>;
+  getUserSeoRankings(userId: number): Promise<SeoRanking[]>;
+  getUserRevenueTracking(userId: number): Promise<RevenueTracking[]>;
 
   // Usage tracking
   getUsage(userId: number, feature: string, periodStart: Date, periodEnd: Date): Promise<Usage | undefined>;
@@ -824,6 +830,24 @@ export class DatabaseStorage implements IStorage {
       date: data.date,
       metadata: data.metadata || {}
     });
+  }
+
+  async getUserLinkTracking(userId: number): Promise<LinkTracking[]> {
+    return await db.select().from(linkTracking)
+      .where(eq(linkTracking.userId, userId))
+      .orderBy(desc(linkTracking.createdAt));
+  }
+
+  async getUserSeoRankings(userId: number): Promise<SeoRanking[]> {
+    return await db.select().from(seoRankings)
+      .where(eq(seoRankings.userId, userId))
+      .orderBy(desc(seoRankings.date));
+  }
+
+  async getUserRevenueTracking(userId: number): Promise<RevenueTracking[]> {
+    return await db.select().from(revenueTracking)
+      .where(eq(revenueTracking.userId, userId))
+      .orderBy(desc(revenueTracking.date));
   }
 
   // Usage tracking
