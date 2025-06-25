@@ -875,10 +875,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Content performance error:', error);
       res.status(500).json({ error: 'Failed to fetch content performance data' });
     }
-  });
+  });*/
 
-  // Analytics affiliate performance
-  app.get("/api/analytics/affiliate-performance", authenticateToken, analyticsRateLimit, async (req, res) => {
+  // Remove duplicate endpoint - handled by newer implementation below
+  /*app.get("/api/analytics/affiliate-performance", authenticateToken, analyticsRateLimit, async (req, res) => {
     try {
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
       const affiliateClicks = linkTracking.filter(track => track.eventType === 'click');
@@ -944,10 +944,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Affiliate performance error:', error);
       res.status(500).json({ error: 'Failed to fetch affiliate performance data' });
     }
-  });
+  });*/
 
-  // Analytics SEO rankings
-  app.get("/api/analytics/seo-rankings", authenticateToken, analyticsRateLimit, async (req, res) => {
+  // Remove duplicate endpoint - handled by newer implementation below  
+  /*app.get("/api/analytics/seo-rankings", authenticateToken, analyticsRateLimit, async (req, res) => {
     try {
       const content = await storage.getUserContent(req.user!.id);
       const publishedContent = content.filter(c => c.status === 'published');
@@ -1045,7 +1045,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Revenue data error:', error);
       res.status(500).json({ error: 'Failed to fetch revenue data' });
     }
-  });
+  });*/
 
   // Analytics dashboard - main endpoint
   app.get("/api/analytics/dashboard", authenticateToken, analyticsRateLimit, async (req, res) => {
@@ -4088,7 +4088,7 @@ async function generateAILinkSuggestions(params: {
   });
 
   // Analytics: Content Performance
-  app.get("/api/analytics/content-performance", requireAuth, async (req, res) => {
+  app.get("/api/analytics/content-performance", authenticateToken, async (req, res) => {
     try {
       const userId = req.user!.id;
       const period = parseInt(req.query.period as string) || 30;
@@ -4142,7 +4142,7 @@ async function generateAILinkSuggestions(params: {
   });
 
   // Analytics: Affiliate Performance
-  app.get("/api/analytics/affiliate-performance", requireAuth, async (req, res) => {
+  app.get("/api/analytics/affiliate-performance", authenticateToken, async (req, res) => {
     try {
       const userId = req.user!.id;
       const period = parseInt(req.query.period as string) || 30;
@@ -4184,7 +4184,7 @@ async function generateAILinkSuggestions(params: {
   });
 
   // Analytics: SEO Rankings
-  app.get("/api/analytics/seo-rankings", requireAuth, async (req, res) => {
+  app.get("/api/analytics/seo-rankings", authenticateToken, async (req, res) => {
     try {
       const userId = req.user!.id;
       const period = parseInt(req.query.period as string) || 30;
@@ -4235,7 +4235,7 @@ async function generateAILinkSuggestions(params: {
   });
 
   // Analytics: Revenue Data
-  app.get("/api/analytics/revenue", requireAuth, async (req, res) => {
+  app.get("/api/analytics/revenue", authenticateToken, async (req, res) => {
     try {
       const userId = req.user!.id;
       const period = parseInt(req.query.period as string) || 30;
