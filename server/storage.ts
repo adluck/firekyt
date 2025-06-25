@@ -1785,6 +1785,28 @@ export class DatabaseStorage implements IStorage {
   async getScheduledPublishing(userId: number): Promise<any[]> {
     return [];
   }
+
+  // User activity tracking
+  async createUserActivity(activity: InsertUserActivity): Promise<UserActivity> {
+    const results = await db.insert(userActivity).values(activity).returning();
+    return results[0];
+  }
+
+  async getUserActivity(userId: number, limit: number = 50): Promise<UserActivity[]> {
+    return await db.select()
+      .from(userActivity)
+      .where(eq(userActivity.userId, userId))
+      .orderBy(desc(userActivity.createdAt))
+      .limit(limit);
+  }
+
+  async getRecentActivity(userId: number, limit: number = 10): Promise<UserActivity[]> {
+    return await db.select()
+      .from(userActivity)
+      .where(eq(userActivity.userId, userId))
+      .orderBy(desc(userActivity.createdAt))
+      .limit(limit);
+  }
 }
 
 export const storage = new DatabaseStorage();

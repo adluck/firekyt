@@ -1062,6 +1062,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });*/
 
+  // Get recent user activity
+  app.get("/api/activity/recent", authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      console.log(`🔍 Fetching recent activity for user ${userId}, limit: ${limit}`);
+      const activities = await storage.getRecentActivity(userId, limit);
+      console.log(`📋 Found ${activities.length} activities:`, activities);
+      
+      res.json({ success: true, activities });
+    } catch (error: any) {
+      console.error('Recent activity error:', error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch recent activity: " + error.message
+      });
+    }
+  });
+
   // Analytics dashboard - main endpoint
   app.get("/api/analytics/dashboard", authenticateToken, analyticsRateLimit, async (req, res) => {
     try {
