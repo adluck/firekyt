@@ -79,6 +79,15 @@ interface AffiliatePerformanceData {
     conversions: number;
     revenue: number;
   }>;
+  topLinks: Array<{
+    id: number;
+    url: string;
+    title: string;
+    clicks: number;
+    conversions: number;
+    revenue: number;
+    conversionRate: string;
+  }>;
   byUrl: Array<{
     url: string;
     clicks: number;
@@ -86,9 +95,12 @@ interface AffiliatePerformanceData {
     revenue: number;
   }>;
   summary: {
+    totalLinks: number;
     totalClicks: number;
     totalConversions: number;
     totalRevenue: number;
+    avgConversionRate: string;
+    avgRevenuePerClick: string;
     conversionRate: string;
   };
 }
@@ -180,15 +192,21 @@ export default function AnalyticsDashboard() {
   const { data: affiliatePerformance, isLoading: isAffiliateLoading } = useQuery<AffiliatePerformanceData>({
     queryKey: ["/api/analytics/affiliate-performance", period],
     queryFn: async () => {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       const response = await fetch(`/api/analytics/affiliate-performance?period=${period}`, {
+        credentials: 'include',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      if (!response.ok) throw new Error("Failed to fetch affiliate performance");
-      return response.json();
+      if (!response.ok) {
+        console.error('Affiliate performance fetch failed:', response.status, await response.text());
+        throw new Error("Failed to fetch affiliate performance");
+      }
+      const data = await response.json();
+      console.log('📊 Affiliate performance data:', data);
+      return data;
     },
   });
 
@@ -501,24 +519,25 @@ export default function AnalyticsDashboard() {
                 <CardTitle>Top Performing URLs</CardTitle>
               </CardHeader>
               <CardContent>
-                {affiliatePerformance?.byUrl ? (
+                {affiliatePerformance?.topLinks && affiliatePerformance.topLinks.length > 0 ? (
                   <div className="space-y-3">
-                    {affiliatePerformance.byUrl.slice(0, 5).map((url, index) => (
-                      <div key={index} className="flex items-center justify-between">
+                    {affiliatePerformance.topLinks.slice(0, 5).map((link, index) => (
+                      <div key={link.id} className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{url.url}</p>
+                          <p className="text-sm font-medium truncate">{link.title}</p>
+                          <p className="text-xs text-muted-foreground truncate">{link.url}</p>
                           <p className="text-xs text-muted-foreground">
-                            {url.clicks} clicks • {url.conversions} conversions
+                            {link.clicks} clicks • {link.conversions} conversions • {link.conversionRate} CTR
                           </p>
                         </div>
                         <Badge variant="secondary">
-                          {formatCurrency(url.revenue)}
+                          {formatCurrency(link.revenue)}
                         </Badge>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-muted-foreground">No affiliate URL data available</p>
+                  <p className="text-center text-muted-foreground">No affiliate link data available</p>
                 )}
               </CardContent>
             </Card>

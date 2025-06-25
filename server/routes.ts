@@ -4156,13 +4156,13 @@ async function generateAILinkSuggestions(params: {
       const period = parseInt(req.query.period as string) || 30;
       
       // Get intelligent links and their tracking data
-      const intelligentLinks = await storage.getIntelligentLinks(userId);
+      const intelligentLinks = await storage.getUserIntelligentLinks(userId);
       const linkTracking = await storage.getUserLinkTracking(userId);
       
       // Create performance data for each intelligent link
       const linkPerformance = intelligentLinks.map(link => {
         const trackingEvents = linkTracking.filter(track => 
-          track.destinationUrl === link.destinationUrl || track.linkId === link.id
+          track.destinationUrl === link.destinationUrl
         );
         
         const clicks = trackingEvents.filter(t => t.eventType === 'click').length;
@@ -4228,7 +4228,7 @@ async function generateAILinkSuggestions(params: {
         summary: {
           totalLinks: intelligentLinks.length,
           totalClicks,
-          totalConversions,
+          totalConversions, 
           totalRevenue,
           avgConversionRate: totalClicks > 0 ? (totalConversions / totalClicks * 100).toFixed(1) + '%' : '0%',
           avgRevenuePerClick: totalClicks > 0 ? (totalRevenue / totalClicks).toFixed(2) : '0.00',
