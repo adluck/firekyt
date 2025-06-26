@@ -72,24 +72,24 @@ export default function Dashboard() {
     queryKey: ['/api/analytics/revenue'],
   });
 
-  console.log('📊 Frontend received dashboard data:', dashboardData?.overview);
-  console.log('📊 Frontend totalViews value:', dashboardData?.overview?.totalViews);
-  console.log('📊 Frontend totalClicks value:', dashboardData?.overview?.totalClicks);
+  console.log('📊 Frontend received dashboard data:', (dashboardData as any)?.overview);
+  console.log('📊 Frontend totalViews value:', (dashboardData as any)?.overview?.totalViews);
+  console.log('📊 Frontend totalClicks value:', (dashboardData as any)?.overview?.totalClicks);
   console.log('📊 Affiliate performance data:', affiliatePerformance);
 
   // SEO ranking distribution data
-  const rankingDistributionData = seoRankings?.summary ? [
-    { name: 'Top 10', value: seoRankings.summary.top10 || 0, color: '#10b981' },
-    { name: 'Top 20', value: seoRankings.summary.top20 || 0, color: '#3b82f6' },
-    { name: 'Top 50', value: seoRankings.summary.top50 || 0, color: '#f59e0b' },
-    { name: 'Below 50', value: seoRankings.summary.below50 || 0, color: '#ef4444' }
+  const rankingDistributionData = (seoRankings as any)?.summary ? [
+    { name: 'Top 10', value: (seoRankings as any).summary.top10 || 0, color: '#10b981' },
+    { name: 'Top 20', value: (seoRankings as any).summary.top20 || 0, color: '#3b82f6' },
+    { name: 'Top 50', value: (seoRankings as any).summary.top50 || 0, color: '#f59e0b' },
+    { name: 'Below 50', value: (seoRankings as any).summary.below50 || 0, color: '#ef4444' }
   ].filter(item => item.value > 0) : [];
 
   // Revenue by status data
-  const revenueStatusData = revenueAnalytics?.summary ? [
-    { name: 'Confirmed', value: revenueAnalytics.summary.confirmed || 0, color: '#10b981' },
-    { name: 'Pending', value: revenueAnalytics.summary.pending || 0, color: '#f59e0b' },
-    { name: 'Cancelled', value: revenueAnalytics.summary.cancelled || 0, color: '#ef4444' }
+  const revenueStatusData = (revenueAnalytics as any)?.summary ? [
+    { name: 'Confirmed', value: (revenueAnalytics as any).summary.confirmed || 0, color: '#10b981' },
+    { name: 'Pending', value: (revenueAnalytics as any).summary.pending || 0, color: '#f59e0b' },
+    { name: 'Cancelled', value: (revenueAnalytics as any).summary.cancelled || 0, color: '#ef4444' }
   ].filter(item => item.value > 0) : [];
 
   if (isLoading) {
@@ -107,7 +107,7 @@ export default function Dashboard() {
     );
   }
 
-  const overview = dashboardData?.overview || {};
+  const overview = (dashboardData as any)?.overview || {};
   const hasActivity = overview.totalSites > 0 || overview.totalContent > 0;
 
   return (
