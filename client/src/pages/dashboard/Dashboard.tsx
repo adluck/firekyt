@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Globe, 
   FileText, 
@@ -15,11 +16,32 @@ import {
   Plus,
   Crown,
   Clock,
-  BarChart3
+  BarChart3,
+  LineChart,
+  PieChart,
+  Eye,
+  Activity
 } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useSubscription } from "@/components/subscription/SubscriptionProvider";
+import { formatCurrency, formatNumber, formatPercentage } from "@/lib/utils";
+import { 
+  ResponsiveContainer, 
+  LineChart as RechartsLineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  AreaChart, 
+  Area, 
+  BarChart, 
+  Bar,
+  PieChart as RechartsPieChart, 
+  Pie, 
+  Cell 
+} from "recharts";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -29,9 +51,46 @@ export default function Dashboard() {
     queryKey: ["/api/analytics/dashboard"],
   });
 
-  const { data: activityData } = useQuery({
+  const { data: activityData, isLoading: isActivityLoading } = useQuery({
     queryKey: ["/api/activity/recent"],
   });
+
+  // Analytics data queries
+  const { data: contentPerformance, isLoading: isContentLoading } = useQuery({
+    queryKey: ['/api/analytics/content-performance'],
+  });
+
+  const { data: affiliatePerformance, isLoading: isAffiliateLoading } = useQuery({
+    queryKey: ['/api/analytics/affiliate-performance'],
+  });
+
+  const { data: seoRankings, isLoading: isSeoLoading } = useQuery({
+    queryKey: ['/api/analytics/seo-rankings'],
+  });
+
+  const { data: revenueAnalytics, isLoading: isRevenueLoading } = useQuery({
+    queryKey: ['/api/analytics/revenue'],
+  });
+
+  console.log('📊 Frontend received dashboard data:', dashboardData?.overview);
+  console.log('📊 Frontend totalViews value:', dashboardData?.overview?.totalViews);
+  console.log('📊 Frontend totalClicks value:', dashboardData?.overview?.totalClicks);
+  console.log('📊 Affiliate performance data:', affiliatePerformance);
+
+  // SEO ranking distribution data
+  const rankingDistributionData = seoRankings?.summary ? [
+    { name: 'Top 10', value: seoRankings.summary.top10 || 0, color: '#10b981' },
+    { name: 'Top 20', value: seoRankings.summary.top20 || 0, color: '#3b82f6' },
+    { name: 'Top 50', value: seoRankings.summary.top50 || 0, color: '#f59e0b' },
+    { name: 'Below 50', value: seoRankings.summary.below50 || 0, color: '#ef4444' }
+  ].filter(item => item.value > 0) : [];
+
+  // Revenue by status data
+  const revenueStatusData = revenueAnalytics?.summary ? [
+    { name: 'Confirmed', value: revenueAnalytics.summary.confirmed || 0, color: '#10b981' },
+    { name: 'Pending', value: revenueAnalytics.summary.pending || 0, color: '#f59e0b' },
+    { name: 'Cancelled', value: revenueAnalytics.summary.cancelled || 0, color: '#ef4444' }
+  ].filter(item => item.value > 0) : [];
 
   if (isLoading) {
     return (
@@ -50,15 +109,6 @@ export default function Dashboard() {
 
   const overview = dashboardData?.overview || {};
   const hasActivity = overview.totalSites > 0 || overview.totalContent > 0;
-  
-  // Use real tracking data for charts
-  const revenueData = hasActivity ? [
-    { date: "Current", value: overview.totalRevenue || 0 }
-  ] : [];
-  
-  const trafficData = hasActivity ? [
-    { date: "Current", value: overview.totalClicks || 0 }
-  ] : [];
 
   return (
     <div className="space-y-6">
