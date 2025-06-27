@@ -134,6 +134,55 @@ export default function Dashboard() {
         />
       </div>
 
+      {/* Performance Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {hasActivity ? (
+          <>
+            <AnalyticsChart
+              title="Revenue Trend"
+              data={revenueData}
+              dataKey="value"
+              color="var(--primary-orange)"
+            />
+            
+            <AnalyticsChart
+              title="Traffic Overview"
+              data={trafficData}
+              dataKey="value"
+              color="var(--primary-pink)"
+            />
+          </>
+        ) : (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">No revenue data yet</p>
+                  <p className="text-sm">Start creating content and adding affiliate links to track your earnings</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Traffic Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">No traffic data yet</p>
+                  <p className="text-sm">Create and publish content to start tracking your site traffic</p>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
+
       {/* Usage and Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Usage Limits */}
@@ -223,55 +272,6 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
-      </div>
-
-      {/* Performance Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {hasActivity ? (
-          <>
-            <AnalyticsChart
-              title="Revenue Trend"
-              data={revenueData}
-              dataKey="value"
-              color="var(--primary-orange)"
-            />
-            
-            <AnalyticsChart
-              title="Traffic Overview"
-              data={trafficData}
-              dataKey="value"
-              color="var(--primary-pink)"
-            />
-          </>
-        ) : (
-          <>
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Trend</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="font-medium">No revenue data yet</p>
-                  <p className="text-sm">Start creating content and adding affiliate links to track your earnings</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Traffic Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="font-medium">No traffic data yet</p>
-                  <p className="text-sm">Create and publish content to start tracking your site traffic</p>
-                </div>
-              </CardContent>
-            </Card>
-          </>
-        )}
       </div>
     </div>
   );
