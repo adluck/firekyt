@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Link, ExternalLink, TrendingUp, BarChart3, Target, 
   Plus, Edit, Trash2, Eye, MousePointer, DollarSign,
-  Zap, Brain, Filter, Search, Globe, Sparkles
+  Zap, Brain, Filter, Search, Globe, Sparkles, FolderOpen
 } from 'lucide-react';
 
 interface IntelligentLink {
@@ -584,29 +584,45 @@ export default function LinkDashboard() {
         </TabsContent>
 
         <TabsContent value="categories" className="space-y-6">
-          <div className="grid gap-4">
-            {categories.map((category: LinkCategory) => (
-              <Card key={category.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <div>
-                        <h3 className="font-semibold">{category.name}</h3>
-                        <p className="text-sm text-muted-foreground">{category.description}</p>
+          {categories && categories.length > 0 ? (
+            <div className="grid gap-4">
+              {categories.map((category: LinkCategory) => (
+                <Card key={category.id}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        <div>
+                          <h3 className="font-semibold">{category.name}</h3>
+                          <p className="text-sm text-muted-foreground">{category.description}</p>
+                        </div>
                       </div>
+                      <Badge variant={category.isActive ? 'default' : 'secondary'}>
+                        {category.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
                     </div>
-                    <Badge variant={category.isActive ? 'default' : 'secondary'}>
-                      {category.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Categories Yet</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm">
+                  Organize your affiliate links by creating categories. Categories help you group similar links together for better management.
+                </p>
+                <Button onClick={() => setIsCreateCategoryOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Category
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-6">
