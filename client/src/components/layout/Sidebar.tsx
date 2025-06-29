@@ -45,7 +45,6 @@ const navigation = [
     icon: FileText,
     submenu: [
       { name: 'AI Generator', href: '/content', icon: FileText },
-      { name: 'Basic Generator', href: '/content/basic', icon: FileText },
       { name: 'Content Manager', href: '/content/manage', icon: FileText },
       { name: 'Rich Editor', href: '/content/editor', icon: FileText }
     ]
