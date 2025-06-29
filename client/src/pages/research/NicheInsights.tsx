@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { AlertTriangle, TrendingUp, Target, Users, DollarSign, Lightbulb } from 'lucide-react';
+import { AlertTriangle, TrendingUp, BarChart3, Users, DollarSign, Lightbulb } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -115,7 +115,7 @@ export default function NicheInsights() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
+            <BarChart3 className="h-5 w-5" />
             Market Analysis
           </CardTitle>
           <CardDescription>
