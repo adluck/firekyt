@@ -3992,18 +3992,97 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
-  // Get link performance stats
+  // Get link performance stats with detailed information
   app.get('/api/links/:linkId/stats', authenticateToken, async (req, res) => {
     try {
       const linkId = parseInt(req.params.linkId);
       const { days } = req.query;
+      const daysPeriod = days ? parseInt(days as string) : 30;
       
-      const stats = await linkTrackingService.getLinkPerformanceStats(
-        linkId, 
-        days ? parseInt(days as string) : 30
-      );
+      // Get basic performance stats
+      const stats = await linkTrackingService.getLinkPerformanceStats(linkId, daysPeriod);
       
-      res.json(stats);
+      // Get detailed link information
+      const linkDetails = await storage.getIntelligentLinkById(linkId);
+      if (!linkDetails) {
+        return res.status(404).json({ message: 'Link not found' });
+      }
+      
+      // Get sites where this link is used
+      const linkInsertions = await storage.getLinkInsertions(linkId);
+      const sites = [];
+      
+      for (const insertion of linkInsertions) {
+        try {
+          // Get content information
+          const content = await storage.getContentById(insertion.contentId);
+          if (content) {
+            // Get site information
+            const site = await storage.getSiteById(content.siteId);
+            if (site) {
+              sites.push({
+                siteName: site.siteName,
+                siteUrl: site.siteUrl,
+                contentTitle: content.title,
+                contentId: content.id
+              });
+            }
+          }
+        } catch (err) {
+          console.warn(`Failed to fetch site/content for insertion ${insertion.id}:`, err);
+        }
+      }
+      
+      // Get enhanced recent activity with content context
+      const recentActivity = await storage.getLinkActivity(linkId, daysPeriod);
+      const enhancedActivity = [];
+      
+      for (const activity of recentActivity) {
+        try {
+          let contentTitle = '';
+          if (activity.metadata?.contentId) {
+            const content = await storage.getContentById(activity.metadata.contentId);
+            contentTitle = content?.title || '';
+          }
+          
+          enhancedActivity.push({
+            eventType: activity.eventType || 'click',
+            timestamp: activity.timestamp,
+            revenue: activity.revenue || 0,
+            sessionId: activity.sessionId,
+            referrer: activity.metadata?.referrer,
+            contentTitle
+          });
+        } catch (err) {
+          // Fallback for activities without content context
+          enhancedActivity.push({
+            eventType: activity.eventType || 'click',
+            timestamp: activity.timestamp,
+            revenue: activity.revenue || 0,
+            sessionId: activity.sessionId
+          });
+        }
+      }
+      
+      // Combine all data for the collapsible component
+      const enhancedStats = {
+        ...stats,
+        linkDetails: {
+          id: linkDetails.id,
+          title: linkDetails.title,
+          originalUrl: linkDetails.originalUrl,
+          shortenedUrl: linkDetails.shortenedUrl,
+          description: linkDetails.description,
+          keywords: linkDetails.keywords || [],
+          targetKeywords: linkDetails.targetKeywords || [],
+          priority: linkDetails.priority,
+          isActive: linkDetails.isActive,
+          sites: sites
+        },
+        recentActivity: enhancedActivity
+      };
+      
+      res.json(enhancedStats);
     } catch (error: any) {
       console.error('Performance stats error:', error);
       res.status(500).json({ message: 'Failed to get performance stats' });
