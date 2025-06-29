@@ -1397,6 +1397,11 @@ export class DatabaseStorage implements IStorage {
     return link;
   }
 
+  async getIntelligentLinkById(id: number): Promise<IntelligentLink | undefined> {
+    const [link] = await db.select().from(intelligentLinks).where(eq(intelligentLinks.id, id));
+    return link;
+  }
+
   async createIntelligentLink(link: InsertIntelligentLink): Promise<IntelligentLink> {
     const [created] = await db.insert(intelligentLinks).values(link).returning();
     return created;
