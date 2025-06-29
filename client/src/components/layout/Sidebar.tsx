@@ -21,7 +21,9 @@ import {
   FolderOpen,
   Network,
   Lightbulb,
-  BookOpen
+  BookOpen,
+  Key,
+  SearchCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,8 +58,8 @@ const navigation = [
     submenu: [
       { name: 'Niche Insights', href: '/research/niche', icon: Brain },
       { name: 'Product Research', href: '/research', icon: Search },
-      { name: 'SEO Analysis', href: '/research/seo', icon: Search },
-      { name: 'Keyword Analytics', href: '/research/keywords', icon: BarChart3 }
+      { name: 'SEO Analysis', href: '/research/seo', icon: SearchCheck },
+      { name: 'Keyword Analytics', href: '/research/keywords', icon: Key }
     ]
   },
   { 
