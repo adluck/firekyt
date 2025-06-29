@@ -547,7 +547,7 @@ export default function LinkDashboard() {
                           <ExternalLink className="w-3 h-3" />
                           View Link
                         </a>
-                        {link.keywords.length > 0 && (
+                        {link.keywords && link.keywords.length > 0 && (
                           <div className="flex items-center gap-1">
                             <span className="text-muted-foreground">Keywords:</span>
                             <span>{link.keywords.slice(0, 3).join(', ')}</span>
