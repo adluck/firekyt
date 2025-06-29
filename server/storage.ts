@@ -1812,6 +1812,40 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(userActivity.createdAt))
       .limit(limit);
   }
+
+  // Enhanced link performance methods
+  async getLinkInsertions(linkId: number): Promise<LinkInsertion[]> {
+    return await db
+      .select()
+      .from(linkInsertions)
+      .where(eq(linkInsertions.linkId, linkId))
+      .orderBy(desc(linkInsertions.createdAt));
+  }
+
+  async getLinkActivity(linkId: number, days: number = 30): Promise<any[]> {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    
+    return await db
+      .select()
+      .from(linkTracking)
+      .where(
+        and(
+          eq(linkTracking.linkId, linkId),
+          gte(linkTracking.timestamp, startDate)
+        )
+      )
+      .orderBy(desc(linkTracking.timestamp))
+      .limit(50);
+  }
+
+  async getSiteById(siteId: number): Promise<any> {
+    const [site] = await db
+      .select()
+      .from(sites)
+      .where(eq(sites.id, siteId));
+    return site;
+  }
 }
 
 export const storage = new DatabaseStorage();
