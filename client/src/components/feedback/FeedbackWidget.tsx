@@ -71,11 +71,11 @@ export function FeedbackWidget() {
     submitFeedback.mutate(data);
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
+  const getTypeIcon = (category: string) => {
+    switch (category) {
       case "bug":
         return <Bug className="h-4 w-4 text-red-500" />;
-      case "feature":
+      case "feature_request":
         return <Lightbulb className="h-4 w-4 text-yellow-500" />;
       case "improvement":
         return <AlertTriangle className="h-4 w-4 text-blue-500" />;
@@ -204,27 +204,6 @@ export function FeedbackWidget() {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="userEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email (Optional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="your.email@example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <div className="text-xs text-muted-foreground">
-                      Provide your email if you want us to follow up with you
-                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
