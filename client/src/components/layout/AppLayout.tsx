@@ -27,10 +27,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         onToggleCollapse={handleToggleCollapse}
       />
       
-      <main className={cn(
-        "flex-1 overflow-auto transition-all duration-300 ease-in-out",
-        isSidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
-      )}>
+      <main className="flex-1 overflow-auto">
         <div className="w-full p-6">
           {children}
         </div>
