@@ -140,13 +140,13 @@ export function Sidebar({ user, subscription }: SidebarProps) {
       )}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="logo-section relative inline-block">
+          <div className="logo-section flex items-center gap-2">
             <img 
               src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
               alt="FireKyt" 
               className="h-8 w-auto"
             />
-            <span className="absolute -top-2 -right-6 bg-orange-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
+            <span className="bg-slate-600 text-white text-xs font-semibold px-2 py-0.5 rounded-md shadow-sm">
               BETA
             </span>
           </div>
