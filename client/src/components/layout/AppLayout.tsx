@@ -31,8 +31,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         "flex-1 overflow-auto transition-all duration-300 ease-in-out",
         isSidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
       )}>
-        <div className="p-6">
-          {children}
+        <div className="flex justify-center min-h-full">
+          <div className="w-full max-w-7xl p-6">
+            {children}
+          </div>
         </div>
       </main>
 
