@@ -46,6 +46,7 @@ import Billing from "@/pages/subscription/Billing";
 import SubscribeSimple from "@/pages/subscription/SubscribeSimple";
 import Settings from "@/pages/settings/Settings";
 import Documentation from "@/pages/docs/Documentation";
+import FeedbackDashboard from "@/pages/admin/FeedbackDashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -306,6 +307,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <Documentation />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/admin/feedback">
+        <ProtectedRoute>
+          <AppLayout>
+            <FeedbackDashboard />
           </AppLayout>
         </ProtectedRoute>
       </Route>

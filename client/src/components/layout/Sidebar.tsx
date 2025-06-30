@@ -24,7 +24,8 @@ import {
   BookOpen,
   Key,
   SearchCheck,
-  Telescope
+  Telescope,
+  MessageSquareMore
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +80,11 @@ const navigation = [
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Documentation', href: '/docs', icon: BookOpen },
   { name: 'Settings', href: '/settings', icon: Settings },
+];
+
+// Admin-only navigation items
+const adminNavigation = [
+  { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
 ];
 
 export function Sidebar({ user, subscription }: SidebarProps) {
@@ -215,6 +221,30 @@ export function Sidebar({ user, subscription }: SidebarProps) {
                 </WouterLink>
               );
             })}
+
+            {/* Admin navigation - only show for admin users */}
+            {user?.role === 'admin' && (
+              <div className="pt-4 border-t border-sidebar-border/50">
+                <div className="text-xs font-medium text-sidebar-foreground/50 mb-2 px-3">
+                  ADMIN
+                </div>
+                {adminNavigation.map((item) => {
+                  const isActive = location === item.href;
+                  
+                  return (
+                    <WouterLink key={item.name} href={item.href}>
+                      <div 
+                        className={cn("nav-link", isActive && "active")}
+                        onClick={() => setIsMobileOpen(false)}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        {item.name}
+                      </div>
+                    </WouterLink>
+                  );
+                })}
+              </div>
+            )}
           </nav>
 
           {/* User info & controls */}
