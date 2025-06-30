@@ -4503,6 +4503,142 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Admin middleware to check for admin role
+  const requireAdmin = (req: any, res: any, next: any) => {
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+    next();
+  };
+
+  // Feedback System Routes (Admin Only)
+  
+  // Get all feedback for admin review
+  app.get('/api/admin/feedback', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const { status, userId } = req.query;
+      const feedbackItems = await storage.getFeedback(
+        userId ? parseInt(userId as string) : undefined,
+        status as string
+      );
+      
+      res.json({
+        success: true,
+        feedback: feedbackItems
+      });
+    } catch (error: any) {
+      console.error('Get feedback error:', error);
+      res.status(500).json({ message: 'Failed to fetch feedback' });
+    }
+  });
+
+  // Get feedback comments
+  app.get('/api/admin/feedback/:id/comments', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id);
+      const comments = await storage.getFeedbackComments(feedbackId);
+      
+      res.json({
+        success: true,
+        comments
+      });
+    } catch (error: any) {
+      console.error('Get feedback comments error:', error);
+      res.status(500).json({ message: 'Failed to fetch comments' });
+    }
+  });
+
+  // Update feedback status (admin only)
+  app.put('/api/admin/feedback/:id', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      // Add resolved timestamp if status is being changed to resolved
+      if (updates.status === 'resolved' && !updates.resolvedAt) {
+        updates.resolvedAt = new Date();
+        updates.resolvedById = req.user!.id;
+      }
+      
+      const updated = await storage.updateFeedback(feedbackId, updates);
+      
+      res.json({
+        success: true,
+        feedback: updated
+      });
+    } catch (error: any) {
+      console.error('Update feedback error:', error);
+      res.status(500).json({ message: 'Failed to update feedback' });
+    }
+  });
+
+  // Add comment to feedback (admin only)
+  app.post('/api/admin/feedback/:id/comments', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id);
+      const { comment, isInternal = false } = req.body;
+      
+      const newComment = await storage.createFeedbackComment({
+        feedbackId,
+        userId: req.user!.id,
+        comment,
+        isInternal
+      });
+      
+      res.json({
+        success: true,
+        comment: newComment
+      });
+    } catch (error: any) {
+      console.error('Add feedback comment error:', error);
+      res.status(500).json({ message: 'Failed to add comment' });
+    }
+  });
+
+  // Submit feedback (all users)
+  app.post('/api/feedback', authenticateToken, async (req, res) => {
+    try {
+      const { title, description, category, priority = 'medium', pageUrl, errorDetails } = req.body;
+      
+      const feedbackData = {
+        userId: req.user!.id,
+        title,
+        description,
+        category,
+        priority,
+        pageUrl,
+        userAgent: req.get('User-Agent'),
+        errorDetails: errorDetails ? JSON.stringify(errorDetails) : null
+      };
+      
+      const feedback = await storage.createFeedback(feedbackData);
+      
+      res.json({
+        success: true,
+        feedback,
+        message: 'Feedback submitted successfully'
+      });
+    } catch (error: any) {
+      console.error('Submit feedback error:', error);
+      res.status(500).json({ message: 'Failed to submit feedback' });
+    }
+  });
+
+  // Get user's own feedback
+  app.get('/api/feedback/my', authenticateToken, async (req, res) => {
+    try {
+      const userFeedback = await storage.getFeedback(req.user!.id);
+      
+      res.json({
+        success: true,
+        feedback: userFeedback
+      });
+    } catch (error: any) {
+      console.error('Get user feedback error:', error);
+      res.status(500).json({ message: 'Failed to fetch your feedback' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

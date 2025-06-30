@@ -1,6 +1,6 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, passwordResetTokens, affiliateNetworks, userActivity, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, desc } from "drizzle-orm";
+import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
   // User management
@@ -1845,6 +1845,74 @@ export class DatabaseStorage implements IStorage {
       .from(sites)
       .where(eq(sites.id, siteId));
     return site;
+  }
+
+  // Feedback System Methods
+  async createFeedback(feedbackData: InsertFeedback): Promise<Feedback> {
+    const [created] = await db.insert(feedback).values(feedbackData).returning();
+    return created;
+  }
+
+  async getFeedback(userId?: number, status?: string): Promise<Feedback[]> {
+    let query = db.select().from(feedback);
+    
+    if (userId) {
+      query = query.where(eq(feedback.userId, userId));
+    }
+    
+    if (status) {
+      query = query.where(eq(feedback.status, status));
+    }
+    
+    return await query.orderBy(desc(feedback.createdAt));
+  }
+
+  async getFeedbackById(id: number): Promise<Feedback | null> {
+    const [feedbackItem] = await db
+      .select()
+      .from(feedback)
+      .where(eq(feedback.id, id));
+    return feedbackItem || null;
+  }
+
+  async updateFeedback(id: number, updates: Partial<InsertFeedback>): Promise<Feedback> {
+    const [updated] = await db
+      .update(feedback)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(feedback.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteFeedback(id: number): Promise<void> {
+    await db.delete(feedback).where(eq(feedback.id, id));
+  }
+
+  async createFeedbackComment(commentData: InsertFeedbackComment): Promise<FeedbackComment> {
+    const [created] = await db.insert(feedbackComments).values(commentData).returning();
+    return created;
+  }
+
+  async getFeedbackComments(feedbackId: number): Promise<any[]> {
+    return await db
+      .select({
+        id: feedbackComments.id,
+        feedbackId: feedbackComments.feedbackId,
+        userId: feedbackComments.userId,
+        comment: feedbackComments.comment,
+        isInternal: feedbackComments.isInternal,
+        createdAt: feedbackComments.createdAt,
+        user: {
+          username: users.username,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          role: users.role
+        }
+      })
+      .from(feedbackComments)
+      .leftJoin(users, eq(feedbackComments.userId, users.id))
+      .where(eq(feedbackComments.feedbackId, feedbackId))
+      .orderBy(asc(feedbackComments.createdAt));
   }
 }
 
