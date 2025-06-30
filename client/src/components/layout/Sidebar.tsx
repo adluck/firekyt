@@ -159,23 +159,6 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                 BETA
               </span>
             </div>
-            
-            {/* Toggle button - only show on desktop */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleCollapse}
-              className={cn(
-                "hidden lg:flex h-8 w-8 shrink-0",
-                isCollapsed && "mx-auto"
-              )}
-            >
-              {isCollapsed ? (
-                <PanelLeft className="h-4 w-4" />
-              ) : (
-                <PanelLeftClose className="h-4 w-4" />
-              )}
-            </Button>
           </div>
 
           {/* Navigation */}
@@ -393,6 +376,30 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
             >
               <LogOut className="h-4 w-4" />
               {!isCollapsed && <span>Logout</span>}
+            </Button>
+
+            {/* Toggle button - only show on desktop */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCollapse}
+              className={cn(
+                "hidden lg:flex w-full text-sidebar-foreground hover:bg-sidebar-accent",
+                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
+              )}
+              title={isCollapsed ? (isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar') : undefined}
+            >
+              {isCollapsed ? (
+                <>
+                  <PanelLeft className="h-4 w-4" />
+                  {!isCollapsed && <span>Expand</span>}
+                </>
+              ) : (
+                <>
+                  <PanelLeftClose className="h-4 w-4" />
+                  {!isCollapsed && <span>Collapse</span>}
+                </>
+              )}
             </Button>
           </div>
         </div>
