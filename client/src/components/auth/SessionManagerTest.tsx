@@ -86,7 +86,7 @@ export function SessionManagerTest({ onSessionExpired }: SessionManagerTestProps
   const handleSessionExpire = () => {
     setIsWarningOpen(false);
     onSessionExpired?.();
-    alert('TEST: Session would expire here. In production, user would be logged out.');
+    console.log('TEST: Session expired - would log out user in production');
     // Uncomment for real logout: logout();
   };
 

@@ -86,6 +86,7 @@ export function SessionManager({ onSessionExpired }: SessionManagerProps) {
   const handleSessionExpire = () => {
     setIsWarningOpen(false);
     onSessionExpired?.();
+    console.log('Session expired - logging out user');
     logout();
   };
 

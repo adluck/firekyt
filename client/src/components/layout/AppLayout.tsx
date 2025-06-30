@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Sidebar } from "./Sidebar";
-import { SessionManagerTest } from "../auth/SessionManagerTest";
+import { SessionManager } from "../auth/SessionManager";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { cn } from "@/lib/utils";
@@ -38,7 +38,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Session Manager - Only active when user is logged in */}
       {user && (
-        <SessionManagerTest 
+        <SessionManager 
           onSessionExpired={() => {
             console.log('Session expired due to inactivity');
           }}
