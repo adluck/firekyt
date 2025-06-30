@@ -188,30 +188,78 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                 const isExpanded = expandedMenus.includes(item.name) && !isCollapsed;
                 const hasActiveSubmenu = item.submenu.some(subItem => location === subItem.href);
                 
+                if (isCollapsed) {
+                  // Collapsed state - show dropdown menu on hover/click
+                  return (
+                    <div key={item.name} className="relative group">
+                      <button 
+                        className={cn(
+                          "nav-link w-full justify-center px-0",
+                          (isActive || hasActiveSubmenu) && "active"
+                        )}
+                        onClick={() => toggleMenu(item.name)}
+                        title={item.name}
+                      >
+                        <item.icon className="h-5 w-5" />
+                      </button>
+                      
+                      {/* Dropdown menu for collapsed state */}
+                      <div className={cn(
+                        "absolute left-full top-0 ml-2 w-48 bg-sidebar-background border border-sidebar-border rounded-md shadow-lg z-50 transition-all duration-200",
+                        expandedMenus.includes(item.name) ? "opacity-100 visible" : "opacity-0 invisible"
+                      )}>
+                        <div className="py-2">
+                          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            {item.name}
+                          </div>
+                          {item.submenu.map((subItem) => {
+                            const isSubActive = location === subItem.href;
+                            return (
+                              <WouterLink 
+                                key={subItem.name} 
+                                href={subItem.href}
+                                className="no-underline"
+                              >
+                                <div 
+                                  className={cn(
+                                    "flex items-center gap-3 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer",
+                                    isSubActive && "bg-accent text-accent-foreground"
+                                  )}
+                                  onClick={() => {
+                                    setIsMobileOpen(false);
+                                    setExpandedMenus([]);
+                                  }}
+                                >
+                                  <subItem.icon className="h-4 w-4" />
+                                  {subItem.name}
+                                </div>
+                              </WouterLink>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                // Expanded state - original behavior
                 return (
                   <div key={item.name} className="space-y-1">
                     <button 
                       className={cn(
-                        "nav-link w-full",
-                        isCollapsed ? "justify-center px-0" : "justify-between",
+                        "nav-link w-full justify-between",
                         (isActive || hasActiveSubmenu) && "active"
                       )}
-                      onClick={() => !isCollapsed && toggleMenu(item.name)}
-                      title={isCollapsed ? item.name : undefined}
+                      onClick={() => toggleMenu(item.name)}
                     >
-                      <div className={cn(
-                        "flex items-center",
-                        isCollapsed ? "justify-center" : "gap-3"
-                      )}>
+                      <div className="flex items-center gap-3">
                         <item.icon className="h-5 w-5" />
-                        {!isCollapsed && <span>{item.name}</span>}
+                        <span>{item.name}</span>
                       </div>
-                      {!isCollapsed && (
-                        isExpanded ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
                       )}
                     </button>
                     <div className={cn(
