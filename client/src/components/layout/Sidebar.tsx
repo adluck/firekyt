@@ -140,12 +140,15 @@ export function Sidebar({ user, subscription }: SidebarProps) {
       )}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="logo-section">
+          <div className="logo-section relative">
             <img 
               src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
               alt="FireKyt" 
               className="h-8 w-auto"
             />
+            <span className="absolute -top-1 -right-2 bg-gradient-to-r from-orange-400 to-pink-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full transform rotate-12 shadow-sm">
+              BETA
+            </span>
           </div>
 
           {/* Navigation */}
