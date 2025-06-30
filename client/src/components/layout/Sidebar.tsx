@@ -378,16 +378,16 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
               {!isCollapsed && <span>Logout</span>}
             </Button>
 
-            {/* Toggle button - only show on desktop */}
+            {/* Toggle button */}
             <Button
               variant="ghost"
               size="sm"
               onClick={onToggleCollapse}
               className={cn(
-                "hidden lg:flex w-full text-sidebar-foreground hover:bg-sidebar-accent",
+                "flex w-full text-sidebar-foreground hover:bg-sidebar-accent",
                 isCollapsed ? "justify-center px-0" : "justify-start gap-2"
               )}
-              title={isCollapsed ? (isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar') : undefined}
+              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             >
               {isCollapsed ? (
                 <>
