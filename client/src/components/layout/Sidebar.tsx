@@ -91,7 +91,7 @@ const adminNavigation = [
   { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
 ];
 
-export function Sidebar({ user, subscription }: SidebarProps) {
+export function Sidebar({ user, subscription, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const [location, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
@@ -139,49 +139,79 @@ export function Sidebar({ user, subscription }: SidebarProps) {
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar-background border-r border-sidebar-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
-        isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        "fixed inset-y-0 left-0 z-50 bg-sidebar-background border-r border-sidebar-border transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full",
+        isCollapsed ? "w-16" : "w-64"
       )}>
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="logo-section flex items-center gap-2">
-            <img 
-              src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
-              alt="FireKyt" 
-              className="h-8 w-auto"
-            />
-            <span className="bg-slate-600 text-white text-xs font-semibold px-2 py-0.5 rounded-md shadow-sm">
-              BETA
-            </span>
+          {/* Header with logo and toggle button */}
+          <div className="flex items-center justify-between px-4 py-4 border-b border-sidebar-border">
+            <div className={cn(
+              "logo-section flex items-center gap-2 transition-opacity duration-200",
+              isCollapsed && "opacity-0 pointer-events-none"
+            )}>
+              <img 
+                src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
+                alt="FireKyt" 
+                className="h-8 w-auto"
+              />
+              <span className="bg-slate-600 text-white text-xs font-semibold px-2 py-0.5 rounded-md shadow-sm">
+                BETA
+              </span>
+            </div>
+            
+            {/* Toggle button - only show on desktop */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleCollapse}
+              className={cn(
+                "hidden lg:flex h-8 w-8 shrink-0",
+                isCollapsed && "mx-auto"
+              )}
+            >
+              {isCollapsed ? (
+                <PanelLeft className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </Button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
+          <nav className={cn("flex-1 py-6 space-y-2", isCollapsed ? "px-2" : "px-4")}>
             {navigation.map((item) => {
               const isActive = location === item.href || 
                 (item.href !== '/dashboard' && location.startsWith(item.href));
               
               if (item.submenu) {
-                const isExpanded = expandedMenus.includes(item.name);
+                const isExpanded = expandedMenus.includes(item.name) && !isCollapsed;
                 const hasActiveSubmenu = item.submenu.some(subItem => location === subItem.href);
                 
                 return (
                   <div key={item.name} className="space-y-1">
                     <button 
                       className={cn(
-                        "nav-link w-full justify-between",
+                        "nav-link w-full",
+                        isCollapsed ? "justify-center px-0" : "justify-between",
                         (isActive || hasActiveSubmenu) && "active"
                       )}
-                      onClick={() => toggleMenu(item.name)}
+                      onClick={() => !isCollapsed && toggleMenu(item.name)}
+                      title={isCollapsed ? item.name : undefined}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "flex items-center",
+                        isCollapsed ? "justify-center" : "gap-3"
+                      )}>
                         <item.icon className="h-5 w-5" />
-                        {item.name}
+                        {!isCollapsed && <span>{item.name}</span>}
                       </div>
-                      {isExpanded ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
+                      {!isCollapsed && (
+                        isExpanded ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )
                       )}
                     </button>
                     <div className={cn(
@@ -219,11 +249,16 @@ export function Sidebar({ user, subscription }: SidebarProps) {
               return (
                 <WouterLink key={item.name} href={item.href}>
                   <div 
-                    className={cn("nav-link", isActive && "active")}
+                    className={cn(
+                      "nav-link",
+                      isCollapsed ? "justify-center px-0" : "",
+                      isActive && "active"
+                    )}
                     onClick={() => setIsMobileOpen(false)}
+                    title={isCollapsed ? item.name : undefined}
                   >
                     <item.icon className="h-5 w-5" />
-                    {item.name}
+                    {!isCollapsed && <span>{item.name}</span>}
                   </div>
                 </WouterLink>
               );
@@ -232,20 +267,27 @@ export function Sidebar({ user, subscription }: SidebarProps) {
             {/* Admin navigation - only show for admin users */}
             {user?.role === 'admin' && (
               <div className="pt-4 border-t border-sidebar-border/50">
-                <div className="text-xs font-medium text-sidebar-foreground/50 mb-2 px-3">
-                  ADMIN
-                </div>
+                {!isCollapsed && (
+                  <div className="text-xs font-medium text-sidebar-foreground/50 mb-2 px-3">
+                    ADMIN
+                  </div>
+                )}
                 {adminNavigation.map((item) => {
                   const isActive = location === item.href;
                   
                   return (
                     <WouterLink key={item.name} href={item.href}>
                       <div 
-                        className={cn("nav-link", isActive && "active")}
+                        className={cn(
+                          "nav-link",
+                          isCollapsed ? "justify-center px-0" : "",
+                          isActive && "active"
+                        )}
                         onClick={() => setIsMobileOpen(false)}
+                        title={isCollapsed ? item.name : undefined}
                       >
                         <item.icon className="h-5 w-5" />
-                        {item.name}
+                        {!isCollapsed && <span>{item.name}</span>}
                       </div>
                     </WouterLink>
                   );
@@ -255,9 +297,9 @@ export function Sidebar({ user, subscription }: SidebarProps) {
           </nav>
 
           {/* User info & controls */}
-          <div className="p-4 border-t border-sidebar-border space-y-4">
+          <div className={cn("border-t border-sidebar-border space-y-4", isCollapsed ? "p-2" : "p-4")}>
             {/* User info with subscription badge */}
-            {user && (
+            {user && !isCollapsed && (
               <div className="text-xs text-sidebar-foreground/70">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium">{user.firstName || user.username}</span>
@@ -273,17 +315,21 @@ export function Sidebar({ user, subscription }: SidebarProps) {
               variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="w-full justify-start gap-2 text-sidebar-foreground hover:bg-sidebar-accent"
+              className={cn(
+                "w-full text-sidebar-foreground hover:bg-sidebar-accent",
+                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
+              )}
+              title={isCollapsed ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : undefined}
             >
               {theme === 'dark' ? (
                 <>
                   <Sun className="h-4 w-4" />
-                  Light Mode
+                  {!isCollapsed && <span>Light Mode</span>}
                 </>
               ) : (
                 <>
                   <Moon className="h-4 w-4" />
-                  Dark Mode
+                  {!isCollapsed && <span>Dark Mode</span>}
                 </>
               )}
             </Button>
@@ -293,10 +339,14 @@ export function Sidebar({ user, subscription }: SidebarProps) {
               variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="w-full justify-start gap-2 text-sidebar-foreground hover:bg-sidebar-accent"
+              className={cn(
+                "w-full text-sidebar-foreground hover:bg-sidebar-accent",
+                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
+              )}
+              title={isCollapsed ? 'Logout' : undefined}
             >
               <LogOut className="h-4 w-4" />
-              Logout
+              {!isCollapsed && <span>Logout</span>}
             </Button>
           </div>
         </div>
