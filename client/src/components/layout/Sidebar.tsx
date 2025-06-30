@@ -36,6 +36,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { User } from "@shared/schema";
+import iconPath from "@/assets/firekyt-icon.png";
 
 interface SidebarProps {
   user?: User;
@@ -145,20 +146,29 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
       )}>
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className={cn(
-              "logo-section flex items-center gap-2 transition-opacity duration-200",
-              isCollapsed && "opacity-0 pointer-events-none"
-            )}>
-              <img 
-                src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
-                alt="FireKyt" 
-                className="h-8 w-auto"
-              />
-              <span className="bg-slate-600 text-white text-xs font-semibold px-2 py-0.5 rounded-md shadow-sm">
-                BETA
-              </span>
-            </div>
+          <div className="flex items-center justify-center px-4 py-4">
+            {isCollapsed ? (
+              /* Collapsed state - show icon only */
+              <div className="flex justify-center">
+                <img 
+                  src={iconPath}
+                  alt="FireKyt" 
+                  className="h-8 w-8"
+                />
+              </div>
+            ) : (
+              /* Expanded state - show full logo and beta badge */
+              <div className="logo-section flex items-center gap-2">
+                <img 
+                  src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
+                  alt="FireKyt" 
+                  className="h-8 w-auto"
+                />
+                <span className="bg-slate-600 text-white text-xs font-semibold px-2 py-0.5 rounded-md shadow-sm">
+                  BETA
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Navigation */}
