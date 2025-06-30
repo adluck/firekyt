@@ -172,7 +172,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
           </div>
 
           {/* Navigation */}
-          <nav className={cn("flex-1 py-6 space-y-2", isCollapsed ? "px-2" : "px-4")}>
+          <nav className={cn("flex-1 py-6 space-y-1", isCollapsed ? "px-2" : "px-4")}>
             {navigation.map((item) => {
               const isActive = location === item.href || 
                 (item.href !== '/dashboard' && location.startsWith(item.href));
