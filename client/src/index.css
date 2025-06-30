@@ -367,24 +367,44 @@ a[href="/affiliate-networks"]:focus {
   -moz-text-decoration-line: none !important;
 }
 
-/* Fix sidebar navigation spacing */
+/* Fix sidebar navigation spacing - comprehensive solution */
+.sidebar nav {
+  padding: 1rem 0 !important;
+}
+
 .sidebar nav > div {
-  padding: 0.5rem 0 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.sidebar nav > div:last-child {
+  margin-bottom: 0 !important;
 }
 
 .sidebar .nav-link {
-  padding: 0.75rem 1rem !important;
-  margin: 0.125rem 0 !important;
+  padding: 0.625rem 1rem !important;
+  margin: 0 !important;
   display: flex !important;
   align-items: center !important;
   gap: 0.75rem !important;
-  min-height: 2.5rem !important;
+  min-height: 2.25rem !important;
   border-radius: 0.375rem !important;
+  line-height: 1 !important;
 }
 
 .sidebar .nav-link.justify-center {
   justify-content: center !important;
-  padding: 0.75rem 0 !important;
+  padding: 0.625rem 0 !important;
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+}
+
+/* Ensure consistent spacing for submenu containers */
+.sidebar .space-y-1 > div {
+  margin-bottom: 0.25rem !important;
+}
+
+.sidebar .space-y-1 > div:last-child {
+  margin-bottom: 0 !important;
 }
 
 /* Override all Tailwind underline utilities in sidebar */
