@@ -206,7 +206,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                       {/* Dropdown menu for collapsed state */}
                       <div className={cn(
                         "absolute left-full top-0 ml-2 w-48 bg-sidebar-background border border-sidebar-border rounded-md shadow-lg z-50 transition-all duration-200",
-                        expandedMenus.includes(item.name) ? "opacity-100 visible" : "opacity-0 invisible"
+                        expandedMenus.includes(item.name) ? "block" : "hidden"
                       )}>
                         <div className="py-2">
                           <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
