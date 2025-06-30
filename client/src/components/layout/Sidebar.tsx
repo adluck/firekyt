@@ -25,7 +25,9 @@ import {
   Key,
   SearchCheck,
   Telescope,
-  MessageSquareMore
+  MessageSquareMore,
+  PanelLeftClose,
+  PanelLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +40,8 @@ import type { User } from "@shared/schema";
 interface SidebarProps {
   user?: User;
   subscription?: any;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 const navigation = [

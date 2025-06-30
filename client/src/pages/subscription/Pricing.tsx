@@ -128,12 +128,7 @@ export default function Pricing() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold">AffiliateAI</span>
-          </div>
+          
           
           <h1 className="text-4xl font-bold mb-4">
             Choose Your Plan
