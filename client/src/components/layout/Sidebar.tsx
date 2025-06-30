@@ -37,6 +37,8 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { User } from "@shared/schema";
 import iconPath from "@/assets/firekyt-icon.png";
+import logoPath from "@/assets/firekyt-logo.png";
+import logoDarkPath from "@/assets/firekyt-logo-dark.png";
 
 interface SidebarProps {
   user?: User;
@@ -160,7 +162,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
               /* Expanded state - show full logo and beta badge */
               <div className="logo-section flex items-center gap-2">
                 <img 
-                  src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
+                  src={theme === 'dark' ? logoPath : logoDarkPath}
                   alt="FireKyt" 
                   className="h-8 w-auto"
                 />
