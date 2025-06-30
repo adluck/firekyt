@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { GlobalNavigationLoader } from "@/components/GlobalNavigationLoader";
 import { PageTransition } from "@/components/PageTransition";
+import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 
 // Auth pages
 import Login from "@/pages/auth/Login";
@@ -334,6 +335,7 @@ function App() {
             <TooltipProvider>
               <Toaster />
               <Router />
+              <FeedbackWidget />
             </TooltipProvider>
           </SubscriptionProvider>
         </AuthProvider>
