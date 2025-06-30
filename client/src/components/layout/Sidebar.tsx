@@ -225,14 +225,12 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                             key={subItem.name} 
                             href={subItem.href}
                             className="no-underline"
-                            style={{ textDecoration: 'none', textDecorationLine: 'none' }}
                           >
                             <div 
                               className={cn(
-                                "nav-link text-sm ml-0 no-underline",
+                                "nav-link text-sm ml-0",
                                 isSubActive && "active"
                               )}
-                              style={{ textDecoration: 'none', textDecorationLine: 'none' }}
                               onClick={() => setIsMobileOpen(false)}
                             >
                               <subItem.icon className="h-4 w-4" />

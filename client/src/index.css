@@ -148,6 +148,21 @@ div[dangerouslySetInnerHTML] a *,
   text-decoration-style: none !important;
 }
 
+/* Remove underlines from all WouterLink components in sidebar */
+.sidebar a,
+.sidebar a:link,
+.sidebar a:visited,
+.sidebar a:hover,
+.sidebar a:active,
+.sidebar a:focus {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: none !important;
+  text-underline-offset: unset !important;
+}
+
 .sidebar .submenu a:hover,
 .sidebar .submenu button:hover,
 .sidebar .submenu [role="button"]:hover,
