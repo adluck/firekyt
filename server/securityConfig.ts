@@ -46,8 +46,9 @@ export function configureApplicationSecurity(app: express.Application): void {
   // Rate limiting for different endpoint categories - more permissive in development
   const isDevelopment = process.env.NODE_ENV === 'development';
   
-  // Apply CSRF protection to state-changing operations (disabled in development)
-  if (!isDevelopment) {
+  // Apply CSRF protection to state-changing operations (disabled in development and Replit environment)
+  const isReplit = !!process.env.REPL_ID;
+  if (!isDevelopment && !isReplit) {
     app.use(csrfProtectionMiddleware);
   }
   
