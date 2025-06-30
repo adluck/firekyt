@@ -145,7 +145,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
       )}>
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
-          <div className="flex items-center justify-between px-4 py-4 border-b border-sidebar-border">
+          <div className="flex items-center justify-between px-4 py-4">
             <div className={cn(
               "logo-section flex items-center gap-2 transition-opacity duration-200",
               isCollapsed && "opacity-0 pointer-events-none"

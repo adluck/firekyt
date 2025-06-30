@@ -163,6 +163,42 @@ div[dangerouslySetInnerHTML] a *,
   text-underline-offset: unset !important;
 }
 
+/* Specifically target logo section to remove any underlines */
+.sidebar .logo-section,
+.sidebar .logo-section *,
+.sidebar .logo-section a,
+.sidebar .logo-section a:link,
+.sidebar .logo-section a:visited,
+.sidebar .logo-section a:hover,
+.sidebar .logo-section a:active,
+.sidebar .logo-section img,
+.sidebar .logo-section span {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
+  text-decoration-color: transparent !important;
+  border-bottom: none !important;
+  text-underline-offset: unset !important;
+}
+
+/* Remove any pseudo-element underlines and borders from sidebar header */
+.sidebar .logo-section::before,
+.sidebar .logo-section::after,
+.sidebar .logo-section *::before,
+.sidebar .logo-section *::after {
+  border-bottom: none !important;
+  text-decoration: none !important;
+  content: none !important;
+}
+
+/* Target the specific header div in sidebar */
+.sidebar div:first-child,
+.sidebar .flex.items-center.justify-between,
+.sidebar .px-4.py-4.border-b {
+  border-bottom: 1px solid hsl(var(--sidebar-border)) !important;
+  text-decoration: none !important;
+}
+
 .sidebar .submenu a:hover,
 .sidebar .submenu button:hover,
 .sidebar .submenu [role="button"]:hover,
