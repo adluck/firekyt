@@ -23,7 +23,8 @@ import {
   Lightbulb,
   BookOpen,
   Key,
-  SearchCheck
+  SearchCheck,
+  Telescope
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -74,7 +75,7 @@ const navigation = [
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },
-  { name: 'Content Insight', href: '/analytics', icon: BarChart3 },
+  { name: 'Content Insight', href: '/analytics', icon: Telescope },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Documentation', href: '/docs', icon: BookOpen },
   { name: 'Settings', href: '/settings', icon: Settings },

@@ -171,3 +171,4 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 
 Preferred communication style: Simple, everyday language.
 Documentation format: Hands-on interactive tutorial with actionable steps rather than glossary format.
+UI/UX preferences: Use telescope icon for Content Insight feature instead of bar charts.

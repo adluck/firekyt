@@ -720,6 +720,57 @@ export const insertUserActivitySchema = createInsertSchema(userActivity).omit({
 });
 export type InsertUserActivity = z.infer<typeof insertUserActivitySchema>;
 
+// Feedback system for admin users
+export const feedback = pgTable("feedback", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // bug, feature_request, improvement, general
+  priority: text("priority").notNull().default("medium"), // low, medium, high, critical
+  status: text("status").notNull().default("open"), // open, in_progress, resolved, closed
+  tags: text("tags").array(),
+  assignedToId: integer("assigned_to_id").references(() => users.id),
+  // User context
+  userAgent: text("user_agent"),
+  pageUrl: text("page_url"),
+  errorDetails: jsonb("error_details"),
+  screenshotUrl: text("screenshot_url"),
+  // Admin responses
+  adminNotes: text("admin_notes"),
+  resolution: text("resolution"),
+  resolvedAt: timestamp("resolved_at"),
+  resolvedById: integer("resolved_by_id").references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const feedbackComments = pgTable("feedback_comments", {
+  id: serial("id").primaryKey(),
+  feedbackId: integer("feedback_id").notNull().references(() => feedback.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  comment: text("comment").notNull(),
+  isInternal: boolean("is_internal").notNull().default(false), // admin-only comments
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Feedback schemas
+export const insertFeedbackSchema = createInsertSchema(feedback).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertFeedbackCommentSchema = createInsertSchema(feedbackComments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Feedback = typeof feedback.$inferSelect;
+export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
+export type FeedbackComment = typeof feedbackComments.$inferSelect;
+export type InsertFeedbackComment = z.infer<typeof insertFeedbackCommentSchema>;
+
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {
   free: {

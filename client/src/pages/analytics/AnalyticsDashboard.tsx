@@ -385,32 +385,7 @@ export default function AnalyticsDashboard() {
         </Card>
       </div>
 
-      {/* Usage Limits */}
-      {dashboardData && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Usage & Limits</CardTitle>
-            <CardDescription>Your current usage against subscription limits</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {Object.entries(dashboardData.limits).map(([feature, limit]) => {
-                const usage = dashboardData.usage[feature] || 0;
-                const percentage = limit > 0 ? (usage / limit) * 100 : 0;
-                return (
-                  <div key={feature} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="capitalize">{feature.replace('_', ' ')}</span>
-                      <span>{usage}/{limit === -1 ? '∞' : limit}</span>
-                    </div>
-                    <Progress value={limit === -1 ? 0 : percentage} className="h-2" />
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
 
       {/* Detailed Analytics Tabs */}
       <Tabs defaultValue="content" className="space-y-4">
