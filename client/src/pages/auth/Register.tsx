@@ -65,7 +65,7 @@ export default function Register() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src={theme === 'dark' ? "/src/assets/firekyt-logo.png" : "/src/assets/firekyt-logo-dark.png"}
+              src={theme === 'dark' ? "/firekyt-logo.png" : "/firekyt-logo-dark.png"}
               alt="FireKyt" 
               className="h-12 w-auto"
             />

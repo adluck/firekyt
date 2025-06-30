@@ -40,7 +40,7 @@ export default function Login() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src="/src/assets/firekyt-logo-universal.png"
+              src="/firekyt-logo-universal.png"
               alt="FireKyt" 
               className="h-16 w-auto"
             />

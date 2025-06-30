@@ -36,9 +36,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { User } from "@shared/schema";
-import iconPath from "@/assets/firekyt-icon.png";
-import logoPath from "@/assets/firekyt-logo.png";
-import logoDarkPath from "@/assets/firekyt-logo-dark.png";
+// Use direct paths to public assets for better production compatibility
+const iconPath = "/firekyt-icon.png";
+const logoPath = "/firekyt-logo.png";
+const logoDarkPath = "/firekyt-logo-dark.png";
 
 interface SidebarProps {
   user?: User;
