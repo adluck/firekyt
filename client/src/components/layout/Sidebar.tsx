@@ -172,7 +172,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
           </div>
 
           {/* Navigation */}
-          <nav className={cn("flex-1 py-6 space-y-1", isCollapsed ? "px-2" : "px-4")}>
+          <nav className={cn("flex-1 py-6", isCollapsed ? "px-2" : "px-4")} style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
             {navigation.map((item) => {
               const isActive = location === item.href || 
                 (item.href !== '/dashboard' && location.startsWith(item.href));
@@ -237,7 +237,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                 
                 // Expanded state - original behavior
                 return (
-                  <div key={item.name} className="space-y-1">
+                  <div key={item.name}>
                     <button 
                       className={cn(
                         "nav-link w-full justify-between",
@@ -255,10 +255,13 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         <ChevronRight className="h-4 w-4" />
                       )}
                     </button>
-                    <div className={cn(
-                      "ml-8 space-y-1 overflow-hidden transition-all duration-200",
-                      isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                    )}>
+                    <div 
+                      className={cn(
+                        "ml-8 overflow-hidden transition-all duration-200",
+                        isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                      )}
+                      style={{display: 'flex', flexDirection: 'column', gap: '4px'}}
+                    >
                       {item.submenu.map((subItem) => {
                         const isSubActive = location === subItem.href;
                         return (
