@@ -58,7 +58,8 @@ const navigation = [
     submenu: [
       { name: 'AI Generator', href: '/content', icon: FileText },
       { name: 'Rich Editor', href: '/content/editor', icon: FileText },
-      { name: 'Content Manager', href: '/content/manage', icon: FileText }
+      { name: 'Content Manager', href: '/content/manage', icon: FileText },
+      { name: 'Content Insights', href: '/analytics', icon: Telescope }
     ]
   },
   { 
@@ -84,7 +85,6 @@ const navigation = [
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },
-  { name: 'Content Insight', href: '/analytics', icon: Telescope },
   { name: 'Billing', href: '/billing', icon: CreditCard },
   { name: 'Documentation', href: '/docs', icon: BookOpen },
   { name: 'Settings', href: '/settings', icon: Settings },
