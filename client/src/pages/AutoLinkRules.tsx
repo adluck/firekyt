@@ -431,7 +431,7 @@ export default function AutoLinkRules() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">All sites</SelectItem>
+                            <SelectItem value="all">All sites</SelectItem>
                             {sites?.sites?.map((site: any) => (
                               <SelectItem key={site.id} value={site.id.toString()}>
                                 {site.name}
