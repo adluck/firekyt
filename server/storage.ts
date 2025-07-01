@@ -177,6 +177,14 @@ export interface IStorage {
   getUserLinkSuggestions(userId: number, contentId?: number, siteId?: number): Promise<LinkSuggestion[]>;
   createLinkSuggestion(suggestion: InsertLinkSuggestion): Promise<LinkSuggestion>;
   updateLinkSuggestion(id: number, suggestion: Partial<InsertLinkSuggestion>): Promise<LinkSuggestion>;
+
+  // Auto-Link Rules
+  getUserAutoLinkRules(userId: number, siteId?: number): Promise<AutoLinkRule[]>;
+  createAutoLinkRule(rule: InsertAutoLinkRule): Promise<AutoLinkRule>;
+  updateAutoLinkRule(id: number, rule: Partial<InsertAutoLinkRule>): Promise<AutoLinkRule>;
+  deleteAutoLinkRule(id: number): Promise<void>;
+  getAutoLinkRuleById(id: number): Promise<AutoLinkRule | undefined>;
+  getActiveAutoLinkRules(userId: number, siteId?: number): Promise<AutoLinkRule[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -1730,6 +1738,75 @@ export class DatabaseStorage implements IStorage {
       .where(eq(linkSuggestions.id, id))
       .returning();
     return updated;
+  }
+
+  // Auto-Link Rules Implementation
+  async getUserAutoLinkRules(userId: number, siteId?: number): Promise<AutoLinkRule[]> {
+    try {
+      let conditions = [eq(autoLinkRules.userId, userId)];
+      
+      if (siteId) {
+        conditions.push(eq(autoLinkRules.siteId, siteId));
+      }
+
+      return await db
+        .select()
+        .from(autoLinkRules)
+        .where(and(...conditions))
+        .orderBy(desc(autoLinkRules.priority), desc(autoLinkRules.createdAt));
+    } catch (error) {
+      console.error('Error fetching auto-link rules:', error);
+      return [];
+    }
+  }
+
+  async createAutoLinkRule(rule: InsertAutoLinkRule): Promise<AutoLinkRule> {
+    const [created] = await db.insert(autoLinkRules).values(rule).returning();
+    return created;
+  }
+
+  async updateAutoLinkRule(id: number, rule: Partial<InsertAutoLinkRule>): Promise<AutoLinkRule> {
+    const [updated] = await db
+      .update(autoLinkRules)
+      .set({ ...rule, updatedAt: new Date() })
+      .where(eq(autoLinkRules.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteAutoLinkRule(id: number): Promise<void> {
+    await db.delete(autoLinkRules).where(eq(autoLinkRules.id, id));
+  }
+
+  async getAutoLinkRuleById(id: number): Promise<AutoLinkRule | undefined> {
+    const [rule] = await db
+      .select()
+      .from(autoLinkRules)
+      .where(eq(autoLinkRules.id, id))
+      .limit(1);
+    return rule;
+  }
+
+  async getActiveAutoLinkRules(userId: number, siteId?: number): Promise<AutoLinkRule[]> {
+    try {
+      let conditions = [
+        eq(autoLinkRules.userId, userId),
+        eq(autoLinkRules.isActive, true)
+      ];
+      
+      if (siteId) {
+        conditions.push(eq(autoLinkRules.siteId, siteId));
+      }
+
+      return await db
+        .select()
+        .from(autoLinkRules)
+        .where(and(...conditions))
+        .orderBy(desc(autoLinkRules.priority), desc(autoLinkRules.createdAt));
+    } catch (error) {
+      console.error('Error fetching active auto-link rules:', error);
+      return [];
+    }
   }
 
   // Affiliate network management

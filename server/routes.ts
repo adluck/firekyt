@@ -4639,6 +4639,128 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // ===== AUTO-LINK RULES API ROUTES =====
+
+  // Get user's auto-link rules
+  app.get('/api/auto-link-rules', authenticateToken, async (req, res) => {
+    try {
+      const { siteId } = req.query;
+      const rules = await storage.getUserAutoLinkRules(
+        req.user!.id, 
+        siteId ? parseInt(siteId as string) : undefined
+      );
+      
+      res.json({
+        success: true,
+        rules
+      });
+    } catch (error: any) {
+      console.error('Get auto-link rules error:', error);
+      res.status(500).json({ message: 'Failed to fetch auto-link rules' });
+    }
+  });
+
+  // Create auto-link rule
+  app.post('/api/auto-link-rules', authenticateToken, async (req, res) => {
+    try {
+      const ruleData = {
+        userId: req.user!.id,
+        ...req.body
+      };
+      
+      const rule = await storage.createAutoLinkRule(ruleData);
+      
+      res.status(201).json({
+        success: true,
+        rule
+      });
+    } catch (error: any) {
+      console.error('Create auto-link rule error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Update auto-link rule
+  app.put('/api/auto-link-rules/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const rule = await storage.updateAutoLinkRule(parseInt(id), req.body);
+      
+      res.json({
+        success: true,
+        rule
+      });
+    } catch (error: any) {
+      console.error('Update auto-link rule error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Delete auto-link rule
+  app.delete('/api/auto-link-rules/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteAutoLinkRule(parseInt(id));
+      
+      res.json({
+        success: true,
+        message: 'Auto-link rule deleted successfully'
+      });
+    } catch (error: any) {
+      console.error('Delete auto-link rule error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get active auto-link rules (for content processing)
+  app.get('/api/auto-link-rules/active', authenticateToken, async (req, res) => {
+    try {
+      const { siteId } = req.query;
+      const rules = await storage.getActiveAutoLinkRules(
+        req.user!.id, 
+        siteId ? parseInt(siteId as string) : undefined
+      );
+      
+      res.json({
+        success: true,
+        rules
+      });
+    } catch (error: any) {
+      console.error('Get active auto-link rules error:', error);
+      res.status(500).json({ message: 'Failed to fetch active auto-link rules' });
+    }
+  });
+
+  // Process content with auto-link rules
+  app.post('/api/auto-link-rules/process-content', authenticateToken, async (req, res) => {
+    try {
+      const { content, siteId } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ message: 'Content is required' });
+      }
+
+      // Get active rules for the user/site
+      const rules = await storage.getActiveAutoLinkRules(
+        req.user!.id, 
+        siteId ? parseInt(siteId) : undefined
+      );
+
+      // Process content with auto-link rules
+      const processedContent = await processContentWithAutoLinks(content, rules);
+      
+      res.json({
+        success: true,
+        originalContent: content,
+        processedContent,
+        appliedRules: processedContent.appliedRules
+      });
+    } catch (error: any) {
+      console.error('Process content with auto-link rules error:', error);
+      res.status(500).json({ message: 'Failed to process content with auto-link rules' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
