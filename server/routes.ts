@@ -13,6 +13,7 @@ import { insertUserSchema, insertSiteSchema, insertContentSchema, SUBSCRIPTION_L
 import { linkTrackingService } from "./LinkTrackingService";
 import { retroactiveTrackingService } from "./RetroactiveTrackingService";
 import { AIEngineService } from "./AIEngineService";
+import { processContentWithAutoLinks } from "./autoLinkProcessor";
 import { 
   addToQueue, 
   getQueueStatus, 

@@ -42,6 +42,7 @@ import LinkDashboard from "@/pages/links/LinkDashboard";
 import IntelligentLinkManager from "@/pages/links/IntelligentLinkManager";
 import IntelligentLinkTester from "@/pages/testing/IntelligentLinkTester";
 import LinkInserter from "@/pages/links/LinkInserter";
+import AutoLinkRules from "@/pages/AutoLinkRules";
 import Pricing from "@/pages/subscription/Pricing";
 import Billing from "@/pages/subscription/Billing";
 import SubscribeSimple from "@/pages/subscription/SubscribeSimple";
@@ -268,6 +269,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <LinkInserter />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/auto-link-rules">
+        <ProtectedRoute>
+          <AppLayout>
+            <AutoLinkRules />
           </AppLayout>
         </ProtectedRoute>
       </Route>

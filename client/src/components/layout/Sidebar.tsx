@@ -81,6 +81,7 @@ const navigation = [
       { name: 'Link Dashboard', href: '/links', icon: Link2 },
       { name: 'Link Intelligence', href: '/links/intelligent', icon: Lightbulb },
       { name: 'AI Link Inserter', href: '/links/inserter', icon: Brain },
+      { name: 'Auto-Link Rules', href: '/auto-link-rules', icon: Zap },
       { name: 'Partner Networks', href: '/partner-networks', icon: Network }
     ]
   },
