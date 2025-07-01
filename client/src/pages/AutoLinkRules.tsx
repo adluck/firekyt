@@ -81,11 +81,10 @@ export default function AutoLinkRules() {
   // Fetch auto-link rules
   const { data: rulesData, isLoading } = useQuery({
     queryKey: ['/api/auto-link-rules', selectedSiteId],
-    queryFn: () => {
+    queryFn: async () => {
       const params = selectedSiteId ? `?siteId=${selectedSiteId}` : '';
-      return fetch(`/api/auto-link-rules${params}`, {
-        credentials: 'include'
-      }).then(res => res.json());
+      const response = await apiRequest('GET', `/api/auto-link-rules${params}`);
+      return response.json();
     }
   });
 
@@ -163,13 +162,24 @@ export default function AutoLinkRules() {
   const form = useForm<AutoLinkRuleFormData>({
     resolver: zodResolver(autoLinkRuleSchema),
     defaultValues: {
+      keyword: "",
+      affiliateUrl: "",
+      anchorText: "",
+      linkTitle: "",
       caseSensitive: false,
       matchWholeWords: true,
       maxInsertions: 1,
       priority: 50,
       isActive: true,
       targetAttribute: "_blank",
-      relAttribute: "nofollow"
+      relAttribute: "nofollow",
+      utmParams: {
+        utm_source: "",
+        utm_medium: "",
+        utm_campaign: "",
+        utm_term: "",
+        utm_content: ""
+      }
     }
   });
 
