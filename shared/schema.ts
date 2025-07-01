@@ -385,6 +385,30 @@ export const linkSuggestions = pgTable("link_suggestions", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Auto-Link Rules for Smart Affiliate Link Insertion
+export const autoLinkRules = pgTable("auto_link_rules", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  siteId: integer("site_id").references(() => sites.id, { onDelete: "cascade" }),
+  keyword: text("keyword").notNull(), // The keyword/phrase to match
+  affiliateUrl: text("affiliate_url").notNull(), // The affiliate URL to insert
+  anchorText: text("anchor_text"), // Custom anchor text (optional, uses keyword if not set)
+  linkTitle: text("link_title"), // Link title for SEO
+  targetAttribute: text("target_attribute").default("_blank"), // Link target
+  relAttribute: text("rel_attribute").default("nofollow"), // Link rel attribute
+  caseSensitive: boolean("case_sensitive").notNull().default(false), // Case sensitive matching
+  matchWholeWords: boolean("match_whole_words").notNull().default(true), // Match whole words only
+  maxInsertions: integer("max_insertions").default(1), // Max insertions per content piece
+  priority: integer("priority").notNull().default(50), // 1-100 priority for insertion order
+  isActive: boolean("is_active").notNull().default(true),
+  utmParams: jsonb("utm_params"), // UTM tracking parameters
+  lastUsed: timestamp("last_used"),
+  usageCount: integer("usage_count").notNull().default(0),
+  performanceData: jsonb("performance_data"), // CTR, conversions, revenue tracking
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Password reset tokens
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: serial("id").primaryKey(),
@@ -649,6 +673,12 @@ export const insertLinkSuggestionSchema = createInsertSchema(linkSuggestions).om
   updatedAt: true,
 });
 
+export const insertAutoLinkRuleSchema = createInsertSchema(autoLinkRules).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -694,6 +724,8 @@ export type SiteMetrics = typeof siteMetrics.$inferSelect;
 export type InsertSiteMetrics = z.infer<typeof insertSiteMetricsSchema>;
 export type LinkSuggestion = typeof linkSuggestions.$inferSelect;
 export type InsertLinkSuggestion = z.infer<typeof insertLinkSuggestionSchema>;
+export type AutoLinkRule = typeof autoLinkRules.$inferSelect;
+export type InsertAutoLinkRule = z.infer<typeof insertAutoLinkRuleSchema>;
 
 // Password reset token types
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
