@@ -96,7 +96,10 @@ export default function AutoLinkRules() {
     mutationFn: (data: AutoLinkRuleFormData) =>
       apiRequest('POST', '/api/auto-link-rules', data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auto-link-rules'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === '/api/auto-link-rules'
+      });
+      form.reset();
       setIsCreateDialogOpen(false);
       toast({
         title: "Success",
@@ -117,7 +120,9 @@ export default function AutoLinkRules() {
     mutationFn: ({ id, data }: { id: number; data: Partial<AutoLinkRuleFormData> }) =>
       apiRequest('PUT', `/api/auto-link-rules/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auto-link-rules'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === '/api/auto-link-rules'
+      });
       setEditingRule(null);
       toast({
         title: "Success",
@@ -138,7 +143,9 @@ export default function AutoLinkRules() {
     mutationFn: (id: number) =>
       apiRequest('DELETE', `/api/auto-link-rules/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auto-link-rules'] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === '/api/auto-link-rules'
+      });
       toast({
         title: "Success",
         description: "Auto-link rule deleted successfully"
