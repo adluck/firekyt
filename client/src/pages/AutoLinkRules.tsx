@@ -167,10 +167,16 @@ export default function AutoLinkRules() {
   });
 
   const onSubmit = (data: AutoLinkRuleFormData) => {
+    // Convert "none" to empty string for rel attribute
+    const processedData = {
+      ...data,
+      relAttribute: data.relAttribute === "none" ? "" : data.relAttribute
+    };
+    
     if (editingRule) {
-      updateRuleMutation.mutate({ id: editingRule.id, data });
+      updateRuleMutation.mutate({ id: editingRule.id, data: processedData });
     } else {
-      createRuleMutation.mutate(data);
+      createRuleMutation.mutate(processedData);
     }
   };
 
@@ -197,7 +203,7 @@ export default function AutoLinkRules() {
       anchorText: rule.anchorText || "",
       linkTitle: rule.linkTitle || "",
       targetAttribute: rule.targetAttribute || "_blank",
-      relAttribute: rule.relAttribute || "nofollow",
+      relAttribute: rule.relAttribute === "" ? "none" : (rule.relAttribute || "nofollow"),
       caseSensitive: rule.caseSensitive,
       matchWholeWords: rule.matchWholeWords,
       maxInsertions: rule.maxInsertions,
@@ -635,7 +641,7 @@ export default function AutoLinkRules() {
                             <SelectItem value="nofollow">nofollow</SelectItem>
                             <SelectItem value="nofollow sponsored">nofollow sponsored</SelectItem>
                             <SelectItem value="sponsored">sponsored</SelectItem>
-                            <SelectItem value="">None</SelectItem>
+                            <SelectItem value="none">None</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
