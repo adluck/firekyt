@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Edit, Trash2, Link, Settings, Target, Eye, BarChart3 } from "lucide-react";
+import { Plus, Link, Settings } from "lucide-react";
 
 const autoLinkRuleSchema = z.object({
   keyword: z.string().min(1, "Keyword is required"),
@@ -320,7 +320,6 @@ export default function AutoLinkRules() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="flex items-center gap-2">
-                      <Target className="w-5 h-5" />
                       <span className="font-mono text-blue-600 dark:text-blue-400">
                         "{rule.keyword}"
                       </span>
@@ -341,21 +340,21 @@ export default function AutoLinkRules() {
                       size="sm"
                       onClick={() => toggleRuleStatus(rule)}
                     >
-                      <Eye className="w-4 h-4" />
+                      Toggle
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => openEditDialog(rule)}
                     >
-                      <Edit className="w-4 h-4" />
+                      Edit
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteRuleMutation.mutate(rule.id)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      Delete
                     </Button>
                   </div>
                 </div>
@@ -372,8 +371,7 @@ export default function AutoLinkRules() {
                   </div>
                   <div>
                     <span className="text-gray-500 dark:text-gray-400">Usage Count:</span>
-                    <p className="font-medium flex items-center gap-1">
-                      <BarChart3 className="w-3 h-3" />
+                    <p className="font-medium">
                       {rule.usageCount}
                     </p>
                   </div>
