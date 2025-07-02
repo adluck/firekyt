@@ -149,54 +149,73 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
     setIsSaving(true);
     
     try {
-      // Update content by replacing the specific link
       let updatedContent = content;
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(content, 'text/html');
-      const linkElements = doc.querySelectorAll('a[href]');
       
-      if (linkElements[originalLink.position]) {
-        const linkElement = linkElements[originalLink.position];
+      // Check if content is Markdown
+      const isMarkdown = content.includes('[') && content.includes('](');
+      
+      if (isMarkdown) {
+        // Handle Markdown content
+        const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        let currentIndex = 0;
         
-        // Update the link attributes
-        linkElement.setAttribute('href', editForm.url);
-        linkElement.textContent = editForm.text;
-        if (editForm.title) {
-          linkElement.setAttribute('title', editForm.title);
-        } else {
-          linkElement.removeAttribute('title');
-        }
-        
-        // Get the updated HTML
-        updatedContent = doc.body.innerHTML;
-        
-        // Update the content in the editor
-        onContentUpdate(updatedContent);
-        
-        // Save to database if contentId is provided
-        if (contentId) {
-          const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
-            content: updatedContent
-          });
-          
-          if (response.ok) {
-            // Invalidate queries to refresh data
-            queryClient.invalidateQueries({ queryKey: ['/api/content'] });
-            queryClient.invalidateQueries({ queryKey: [`/api/content/${contentId}`] });
-            
-            toast({
-              title: "Link Updated & Saved",
-              description: "The link has been updated in your content and saved to the database.",
-            });
-          } else {
-            throw new Error('Failed to save content');
+        updatedContent = content.replace(markdownLinkRegex, (match, text, url) => {
+          if (currentIndex === originalLink.position) {
+            currentIndex++;
+            return `[${editForm.text}](${editForm.url})`;
           }
-        } else {
-          toast({
-            title: "Link Updated",
-            description: "The link has been updated in your content.",
-          });
+          currentIndex++;
+          return match;
+        });
+      } else {
+        // Handle HTML content
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        const linkElements = doc.querySelectorAll('a[href]');
+        
+        if (linkElements[originalLink.position]) {
+          const linkElement = linkElements[originalLink.position];
+          
+          // Update the link attributes
+          linkElement.setAttribute('href', editForm.url);
+          linkElement.textContent = editForm.text;
+          if (editForm.title) {
+            linkElement.setAttribute('title', editForm.title);
+          } else {
+            linkElement.removeAttribute('title');
+          }
+          
+          // Get the updated HTML
+          updatedContent = doc.body.innerHTML;
         }
+      }
+      
+      // Update the content in the editor
+      onContentUpdate(updatedContent);
+      
+      // Save to database if contentId is provided
+      if (contentId) {
+        const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
+          content: updatedContent
+        });
+        
+        if (response.ok) {
+          // Invalidate queries to refresh data
+          queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+          queryClient.invalidateQueries({ queryKey: [`/api/content/${contentId}`] });
+          
+          toast({
+            title: "Link Updated & Saved",
+            description: "The link has been updated in your content and saved to the database.",
+          });
+        } else {
+          throw new Error('Failed to save content');
+        }
+      } else {
+        toast({
+          title: "Link Updated",
+          description: "The link has been updated in your content.",
+        });
       }
     } catch (error) {
       console.error('Error saving link:', error);
@@ -221,42 +240,63 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
     
     try {
       let updatedContent = content;
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(content, 'text/html');
-      const linkElements = doc.querySelectorAll('a[href]');
       
-      if (linkElements[originalLink.position]) {
-        const linkElement = linkElements[originalLink.position];
-        const textNode = doc.createTextNode(linkElement.textContent || '');
-        linkElement.parentNode?.replaceChild(textNode, linkElement);
+      // Check if content is Markdown
+      const isMarkdown = content.includes('[') && content.includes('](');
+      
+      if (isMarkdown) {
+        // Handle Markdown content
+        const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        let currentIndex = 0;
         
-        updatedContent = doc.body.innerHTML;
-        onContentUpdate(updatedContent);
-        
-        // Save to database if contentId is provided
-        if (contentId) {
-          const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
-            content: updatedContent
-          });
-          
-          if (response.ok) {
-            // Invalidate queries to refresh data
-            queryClient.invalidateQueries({ queryKey: ['/api/content'] });
-            queryClient.invalidateQueries({ queryKey: [`/api/content/${contentId}`] });
-            
-            toast({
-              title: "Link Removed & Saved",
-              description: "The link has been removed and changes saved to the database.",
-            });
-          } else {
-            throw new Error('Failed to save content');
+        updatedContent = content.replace(markdownLinkRegex, (match, text, url) => {
+          if (currentIndex === originalLink.position) {
+            currentIndex++;
+            return text; // Replace link with just the text
           }
-        } else {
-          toast({
-            title: "Link Removed",
-            description: "The link has been converted to plain text.",
-          });
+          currentIndex++;
+          return match;
+        });
+      } else {
+        // Handle HTML content
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        const linkElements = doc.querySelectorAll('a[href]');
+        
+        if (linkElements[originalLink.position]) {
+          const linkElement = linkElements[originalLink.position];
+          const textNode = doc.createTextNode(linkElement.textContent || '');
+          linkElement.parentNode?.replaceChild(textNode, linkElement);
+          
+          updatedContent = doc.body.innerHTML;
         }
+      }
+      
+      onContentUpdate(updatedContent);
+      
+      // Save to database if contentId is provided
+      if (contentId) {
+        const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
+          content: updatedContent
+        });
+        
+        if (response.ok) {
+          // Invalidate queries to refresh data
+          queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+          queryClient.invalidateQueries({ queryKey: [`/api/content/${contentId}`] });
+          
+          toast({
+            title: "Link Removed & Saved",
+            description: "The link has been removed and changes saved to the database.",
+          });
+        } else {
+          throw new Error('Failed to save content');
+        }
+      } else {
+        toast({
+          title: "Link Removed",
+          description: "The link has been converted to plain text.",
+        });
       }
     } catch (error) {
       console.error('Error removing link:', error);
