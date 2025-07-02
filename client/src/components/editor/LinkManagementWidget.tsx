@@ -149,6 +149,9 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
 
   const saveLink = async (linkId: string) => {
     console.log('🔗 LinkWidget: saveLink called for linkId:', linkId);
+    console.log('🔗 LinkWidget: Current content length:', content.length);
+    console.log('🔗 LinkWidget: Current editForm:', editForm);
+    
     const linkIndex = links.findIndex(l => l.id === linkId);
     if (linkIndex === -1) {
       console.log('🔗 LinkWidget: Link not found for id:', linkId);
@@ -157,13 +160,22 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
 
     const originalLink = links[linkIndex];
     console.log('🔗 LinkWidget: Found link to save:', originalLink);
-    console.log('🔗 LinkWidget: Edit form data:', editForm);
+    console.log('🔗 LinkWidget: Original link position:', originalLink.position);
     setIsSaving(true);
 
-    // Immediately update content for real-time sync
+    // Test the updateLinkInContent function
+    console.log('🔗 LinkWidget: Testing updateLinkInContent function...');
     const updatedContent = updateLinkInContent(content, linkId, editForm);
-    console.log('🔗 LinkWidget: Immediately calling onContentUpdate for real-time sync');
-    onContentUpdate(updatedContent);
+    console.log('🔗 LinkWidget: Original content preview:', content.substring(0, 200));
+    console.log('🔗 LinkWidget: Updated content preview:', updatedContent.substring(0, 200));
+    console.log('🔗 LinkWidget: Content changed?', content !== updatedContent);
+    
+    if (content !== updatedContent) {
+      console.log('🔗 LinkWidget: Calling onContentUpdate with new content');
+      onContentUpdate(updatedContent);
+    } else {
+      console.log('🔗 LinkWidget: ERROR - Content was not updated by updateLinkInContent');
+    }
     
     try {
       let updatedContent = content;
@@ -499,7 +511,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                               e.stopPropagation();
                               console.log('🔗 LinkWidget: NATIVE BUTTON CLICKED - Link ID:', link.id);
                               console.log('🔗 LinkWidget: Edit form:', editForm);
-                              alert(`Testing button click for link ${link.id} with text: ${editForm.text}`);
+
                               saveLink(link.id);
                             }}
                           >
