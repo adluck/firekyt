@@ -39,6 +39,7 @@ interface RichTextEditorProps {
   editable?: boolean;
   onEditorReady?: (editor: any) => void;
   previewMode?: boolean;
+  isUpdatingFromWidget?: boolean;
 }
 
 export function RichTextEditor({
@@ -49,6 +50,7 @@ export function RichTextEditor({
   editable = true,
   onEditorReady,
   previewMode = false,
+  isUpdatingFromWidget = false,
 }: RichTextEditorProps) {
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -115,7 +117,7 @@ export function RichTextEditor({
   const [isUserEditing, setIsUserEditing] = useState(false);
   
   useEffect(() => {
-    if (editor && processedContent && !isUserEditing) {
+    if (editor && processedContent && !isUserEditing && !isUpdatingFromWidget) {
       const currentContent = editor.getHTML();
       const normalizedCurrent = currentContent.trim();
       const normalizedNew = processedContent.trim();
@@ -125,8 +127,10 @@ export function RichTextEditor({
         console.log('🔄 RichTextEditor syncing content:', { current: normalizedCurrent, new: normalizedNew });
         editor.commands.setContent(processedContent);
       }
+    } else if (isUpdatingFromWidget) {
+      console.log('🔒 RichTextEditor: Skipping sync due to widget update lock');
     }
-  }, [editor, processedContent, isUserEditing]);
+  }, [editor, processedContent, isUserEditing, isUpdatingFromWidget]);
 
   // Expose editor instance globally for table insertion and notify parent
   useEffect(() => {

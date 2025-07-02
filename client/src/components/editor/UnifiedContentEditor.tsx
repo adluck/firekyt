@@ -150,6 +150,7 @@ export function UnifiedContentEditor({
   const [, setLocation] = useLocation();
   const [isNavigating, setIsNavigating] = useState(false);
   const [currentKeywords, setCurrentKeywords] = useState<string[]>([]);
+  const [isUpdatingFromWidget, setIsUpdatingFromWidget] = useState(false);
   
   // Update currentKeywords when contentData.targetKeywords changes
   useEffect(() => {
@@ -805,6 +806,7 @@ export function UnifiedContentEditor({
                       placeholder="Start writing your content..."
                       className="min-h-[500px]"
                       onEditorReady={setEditorInstance}
+                      isUpdatingFromWidget={isUpdatingFromWidget}
                     />
                   </div>
                 </TabsContent>
@@ -1027,21 +1029,28 @@ export function UnifiedContentEditor({
               contentId={contentId}
               onContentUpdate={(newContent) => {
                 console.log('🔗 LinkWidget updating content:', newContent.substring(0, 100) + '...');
+                
+                // Set update lock to prevent revert cycle
+                setIsUpdatingFromWidget(true);
+                
+                // First update the content data state
                 updateContentData({ content: newContent });
-                // Update the editor instance if available
+                
+                // Update editor content if available
                 if (editorInstance) {
-                  console.log('🔗 Updating rich text editor with new content');
-                  // Clear the editor first to avoid conflicts
-                  editorInstance.commands.clearContent();
-                  // Set the new content
-                  editorInstance.commands.setContent(newContent);
-                  // Force focus to refresh the view
-                  setTimeout(() => {
-                    editorInstance.commands.focus();
-                    // Trigger a manual update to ensure synchronization
-                    editorInstance.view.updateState(editorInstance.view.state);
-                  }, 150);
+                  console.log('🔗 Updating editor content with lock enabled');
+                  
+                  // Update content directly without triggering onChange
+                  editorInstance.commands.setContent(newContent, false);
                 }
+                
+                // Release lock after a brief delay
+                setTimeout(() => {
+                  setIsUpdatingFromWidget(false);
+                  console.log('🔗 Content update lock released');
+                }, 100);
+                
+                console.log('🔗 Content update completed with lock protection');
               }}
             />
 
