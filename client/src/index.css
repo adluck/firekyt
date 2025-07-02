@@ -599,13 +599,13 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   --radius: 0.5rem;
   
   /* Sidebar colors */
-  --sidebar-background: #ffffff;
+  --sidebar-background: #f1f5f9;
   --sidebar-foreground: #475569;
   --sidebar-primary: #f97316;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
+  --sidebar-accent: #e2e8f0;
   --sidebar-accent-foreground: #1e293b;
-  --sidebar-border: #e2e8f0;
+  --sidebar-border: #cbd5e1;
   --sidebar-ring: #f97316;
 }
 
@@ -632,13 +632,13 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   --ring: #f97316;
   
   /* Dark sidebar colors */
-  --sidebar-background: #0f172a;
+  --sidebar-background: #1e293b;
   --sidebar-foreground: #cbd5e1;
   --sidebar-primary: #f97316;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e293b;
+  --sidebar-accent: #334155;
   --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: #334155;
+  --sidebar-border: #475569;
   --sidebar-ring: #f97316;
 }
 
