@@ -1095,6 +1095,7 @@ export function UnifiedContentEditor({
             {/* Link Management Widget */}
             <LinkManagementWidget
               content={contentData.content || ''}
+              contentId={contentId}
               onContentUpdate={(newContent) => {
                 updateContentData({ content: newContent });
                 // Update the editor instance if available

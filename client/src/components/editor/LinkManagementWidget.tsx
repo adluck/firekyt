@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link2, ExternalLink, Save, RefreshCw } from 'lucide-react';
 
 interface LinkData {
@@ -21,13 +23,16 @@ interface LinkData {
 interface LinkManagementWidgetProps {
   content: string;
   onContentUpdate: (newContent: string) => void;
+  contentId?: string | number;
   className?: string;
 }
 
-export function LinkManagementWidget({ content, onContentUpdate, className }: LinkManagementWidgetProps) {
+export function LinkManagementWidget({ content, onContentUpdate, contentId, className }: LinkManagementWidgetProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [links, setLinks] = useState<LinkData[]>([]);
   const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [editForm, setEditForm] = useState({
     url: '',
     text: '',
@@ -36,9 +41,56 @@ export function LinkManagementWidget({ content, onContentUpdate, className }: Li
 
   // Extract links from HTML content
   const extractLinksFromContent = (htmlContent: string): LinkData[] => {
+    if (!htmlContent || htmlContent.trim() === '') {
+      console.log('🔗 LinkWidget: No content to parse');
+      return [];
+    }
+
+    console.log('🔗 LinkWidget: Parsing content:', htmlContent.substring(0, 200) + '...');
+    
+    // Check if content is Markdown by looking for Markdown link syntax
+    const isMarkdown = htmlContent.includes('[') && htmlContent.includes('](');
+    console.log('🔗 LinkWidget: Content appears to be Markdown:', isMarkdown);
+    
+    if (isMarkdown) {
+      // Extract Markdown links using regex
+      const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+      const extractedLinks: LinkData[] = [];
+      let match;
+      let index = 0;
+      
+      while ((match = markdownLinkRegex.exec(htmlContent)) !== null) {
+        const text = match[1];
+        const url = match[2];
+        
+        // Check if it's likely an affiliate link
+        const isAffiliate = url.includes('tag=') || 
+                           url.includes('affiliate') || 
+                           url.includes('ref=') ||
+                           url.includes('utm_') ||
+                           url.includes('?id=');
+        
+        extractedLinks.push({
+          id: `link-${index}`,
+          url,
+          text,
+          title: '',
+          isAffiliate,
+          position: index,
+        });
+        index++;
+      }
+      
+      console.log('🔗 LinkWidget: Found Markdown links:', extractedLinks);
+      return extractedLinks;
+    }
+    
+    // Parse as HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
     const linkElements = doc.querySelectorAll('a[href]');
+    
+    console.log('🔗 LinkWidget: Found HTML link elements:', linkElements.length);
     
     const extractedLinks: LinkData[] = [];
     
@@ -64,6 +116,7 @@ export function LinkManagementWidget({ content, onContentUpdate, className }: Li
       });
     });
     
+    console.log('🔗 LinkWidget: Extracted HTML links:', extractedLinks);
     return extractedLinks;
   };
 
@@ -88,69 +141,132 @@ export function LinkManagementWidget({ content, onContentUpdate, className }: Li
     setEditForm({ url: '', text: '', title: '' });
   };
 
-  const saveLink = (linkId: string) => {
+  const saveLink = async (linkId: string) => {
     const linkIndex = links.findIndex(l => l.id === linkId);
     if (linkIndex === -1) return;
 
     const originalLink = links[linkIndex];
+    setIsSaving(true);
     
-    // Update content by replacing the specific link
-    let updatedContent = content;
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(content, 'text/html');
-    const linkElements = doc.querySelectorAll('a[href]');
-    
-    if (linkElements[originalLink.position]) {
-      const linkElement = linkElements[originalLink.position];
+    try {
+      // Update content by replacing the specific link
+      let updatedContent = content;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'text/html');
+      const linkElements = doc.querySelectorAll('a[href]');
       
-      // Update the link attributes
-      linkElement.setAttribute('href', editForm.url);
-      linkElement.textContent = editForm.text;
-      if (editForm.title) {
-        linkElement.setAttribute('title', editForm.title);
-      } else {
-        linkElement.removeAttribute('title');
+      if (linkElements[originalLink.position]) {
+        const linkElement = linkElements[originalLink.position];
+        
+        // Update the link attributes
+        linkElement.setAttribute('href', editForm.url);
+        linkElement.textContent = editForm.text;
+        if (editForm.title) {
+          linkElement.setAttribute('title', editForm.title);
+        } else {
+          linkElement.removeAttribute('title');
+        }
+        
+        // Get the updated HTML
+        updatedContent = doc.body.innerHTML;
+        
+        // Update the content in the editor
+        onContentUpdate(updatedContent);
+        
+        // Save to database if contentId is provided
+        if (contentId) {
+          const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
+            content: updatedContent
+          });
+          
+          if (response.ok) {
+            // Invalidate queries to refresh data
+            queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+            queryClient.invalidateQueries({ queryKey: [`/api/content/${contentId}`] });
+            
+            toast({
+              title: "Link Updated & Saved",
+              description: "The link has been updated in your content and saved to the database.",
+            });
+          } else {
+            throw new Error('Failed to save content');
+          }
+        } else {
+          toast({
+            title: "Link Updated",
+            description: "The link has been updated in your content.",
+          });
+        }
       }
-      
-      // Get the updated HTML
-      updatedContent = doc.body.innerHTML;
-      
-      // Update the content
-      onContentUpdate(updatedContent);
-      
+    } catch (error) {
+      console.error('Error saving link:', error);
       toast({
-        title: "Link Updated",
-        description: "The link has been successfully updated in your content.",
+        title: "Error",
+        description: "Failed to save the link update. Please try again.",
+        variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
+      cancelEditing();
     }
-    
-    cancelEditing();
   };
 
   // Remove a link (convert to plain text)
-  const removeLink = (linkId: string) => {
+  const removeLink = async (linkId: string) => {
     const linkIndex = links.findIndex(l => l.id === linkId);
     if (linkIndex === -1) return;
 
     const originalLink = links[linkIndex];
+    setIsSaving(true);
     
-    let updatedContent = content;
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(content, 'text/html');
-    const linkElements = doc.querySelectorAll('a[href]');
-    
-    if (linkElements[originalLink.position]) {
-      const linkElement = linkElements[originalLink.position];
-      const textNode = doc.createTextNode(linkElement.textContent || '');
-      linkElement.parentNode?.replaceChild(textNode, linkElement);
+    try {
+      let updatedContent = content;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'text/html');
+      const linkElements = doc.querySelectorAll('a[href]');
       
-      updatedContent = doc.body.innerHTML;
-      onContentUpdate(updatedContent);
-      
+      if (linkElements[originalLink.position]) {
+        const linkElement = linkElements[originalLink.position];
+        const textNode = doc.createTextNode(linkElement.textContent || '');
+        linkElement.parentNode?.replaceChild(textNode, linkElement);
+        
+        updatedContent = doc.body.innerHTML;
+        onContentUpdate(updatedContent);
+        
+        // Save to database if contentId is provided
+        if (contentId) {
+          const response = await apiRequest('PATCH', `/api/content/${contentId}`, {
+            content: updatedContent
+          });
+          
+          if (response.ok) {
+            // Invalidate queries to refresh data
+            queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+            queryClient.invalidateQueries({ queryKey: [`/api/content/${contentId}`] });
+            
+            toast({
+              title: "Link Removed & Saved",
+              description: "The link has been removed and changes saved to the database.",
+            });
+          } else {
+            throw new Error('Failed to save content');
+          }
+        } else {
+          toast({
+            title: "Link Removed",
+            description: "The link has been converted to plain text.",
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error removing link:', error);
       toast({
-        title: "Link Removed",
-        description: "The link has been converted to plain text.",
+        title: "Error",
+        description: "Failed to remove the link. Please try again.",
+        variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -273,9 +389,10 @@ export function LinkManagementWidget({ content, onContentUpdate, className }: Li
                             size="sm"
                             onClick={() => saveLink(link.id)}
                             className="flex-1"
+                            disabled={isSaving}
                           >
                             <Save className="h-3 w-3 mr-1" />
-                            Save
+                            {isSaving ? 'Saving...' : 'Save'}
                           </Button>
                           <Button
                             size="sm"
