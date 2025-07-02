@@ -406,6 +406,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                     
                     {editingLinkId === link.id ? (
                       <div className="space-y-2">
+                        <div className="text-xs text-green-600 dark:text-green-400">EDIT MODE ACTIVE FOR: {link.id}</div>
                         <div>
                           <Label htmlFor={`url-${link.id}`} className="text-xs">
                             URL
