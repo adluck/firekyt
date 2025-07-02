@@ -323,7 +323,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
   if (links.length === 0) {
     return (
       <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden ${className}`}>
-        <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
+        <CardHeader className="py-3 mb-4 bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
           <CardTitle className="text-base flex items-center gap-2">
             <Link2 className="h-4 w-4" />
             Link Management
@@ -350,7 +350,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
 
   return (
     <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden ${className}`}>
-      <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
+      <CardHeader className="py-3 mb-4 bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
         <CardTitle className="text-base flex items-center gap-2">
           <Link2 className="h-4 w-4" />
           Link Management

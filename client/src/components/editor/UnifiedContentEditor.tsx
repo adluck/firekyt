@@ -938,7 +938,7 @@ export function UnifiedContentEditor({
           <div className="space-y-4">
             {/* Basic Settings */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
-              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
                 <CardTitle className="text-base">Publication Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 bg-white dark:bg-slate-900 rounded-b-lg">
@@ -1036,7 +1036,7 @@ export function UnifiedContentEditor({
 
             {/* Content Stats */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
-              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
                 <CardTitle className="text-base">Content Statistics</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 bg-white dark:bg-slate-900 rounded-b-lg">
@@ -1063,7 +1063,7 @@ export function UnifiedContentEditor({
 
             {/* Quick Actions */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
-              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
                 <CardTitle className="text-base">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 bg-white dark:bg-slate-900 rounded-b-lg">
