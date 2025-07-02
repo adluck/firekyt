@@ -543,6 +543,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Track usage for content generation
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      
+      const currentUsage = await storage.getUsage(req.user!.id, 'content_generation', monthStart, monthEnd);
+      await storage.createOrUpdateUsage({
+        userId: req.user!.id,
+        feature: 'content_generation',
+        count: (currentUsage?.count || 0) + 1,
+        periodStart: monthStart,
+        periodEnd: monthEnd,
+      });
+
       // Create AI content request with correct field names
       const aiRequest = {
         keyword: validatedData.keyword,
