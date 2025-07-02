@@ -322,14 +322,14 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
 
   if (links.length === 0) {
     return (
-      <Card className={className}>
-        <CardHeader className="pb-3">
+      <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 ${className}`}>
+        <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <Link2 className="h-4 w-4" />
             Link Management
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-white dark:bg-slate-900">
           <div className="text-center py-6 text-muted-foreground">
             <Link2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No links found in content</p>
@@ -349,12 +349,12 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
   }
 
   return (
-    <Card className={className}>
-      <CardHeader className="pb-3">
+    <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 ${className}`}>
+      <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <Link2 className="h-4 w-4" />
           Link Management
-          <Badge variant="secondary" className="ml-auto">
+          <Badge variant="secondary" className="ml-auto bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
             {links.length}
           </Badge>
         </CardTitle>
@@ -368,11 +368,11 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
           Refresh Links
         </Button>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="p-0 bg-white dark:bg-slate-900">
         <ScrollArea className="h-96">
           <div className="p-4 space-y-3">
             {links.map((link, index) => (
-              <div key={link.id} className="border rounded-lg p-3 space-y-2">
+              <div key={link.id} className="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-2">
                 <div className="flex items-start gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
