@@ -63,7 +63,7 @@ export default function CreateWidget() {
   const form = useForm<WidgetFormData>({
     resolver: zodResolver(widgetSchema),
     defaultValues: {
-      name: "",
+      name: "Gaming Gear Widget",
       size: "300x250",
       theme: {
         bgColor: "#ffffff",
@@ -74,12 +74,12 @@ export default function CreateWidget() {
       rotationInterval: 5,
       ads: [
         {
-          title: "",
-          description: "",
-          imageUrl: "",
+          title: "HyperX Cloud Alpha Wireless",
+          description: "Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red",
+          imageUrl: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500&h=300&fit=crop",
           ctaText: "Buy Now",
-          url: "",
-          tags: [],
+          url: "https://amazon.com/hyperx-cloud-alpha-wireless",
+          tags: ["gaming", "headset", "wireless"],
         },
       ],
     },
@@ -114,12 +114,12 @@ export default function CreateWidget() {
     form.setValue("ads", [
       ...currentAds,
       {
-        title: "",
-        description: "",
-        imageUrl: "",
+        title: "HyperX Cloud Alpha Wireless",
+        description: "Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red",
+        imageUrl: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500&h=300&fit=crop",
         ctaText: "Buy Now",
-        url: "",
-        tags: [],
+        url: "https://amazon.com/hyperx-cloud-alpha-wireless",
+        tags: ["gaming", "headset", "wireless"],
       },
     ]);
     setCurrentAdIndex(currentAds.length);
@@ -153,6 +153,77 @@ export default function CreateWidget() {
         return { width: "100%", height: "250px", maxWidth: "500px" };
       default:
         return { width: "300px", height: "250px" };
+    }
+  };
+
+  // Get optimized content styling based on ad size
+  const getContentStyling = (size: string) => {
+    switch (size) {
+      case "728x90": // Leaderboard - horizontal layout
+        return {
+          layout: 'flex-row',
+          padding: '8px 12px',
+          titleSize: 'text-sm font-semibold',
+          descriptionSize: 'text-xs',
+          descriptionLines: 'line-clamp-2',
+          imageSize: 'w-12 h-12',
+          buttonSize: 'px-3 py-1 text-xs',
+          spacing: 'gap-3',
+          textAlign: 'text-left',
+          maxDescription: 80
+        };
+      case "160x600": // Skyscraper - vertical, compact
+        return {
+          layout: 'flex-col',
+          padding: 'p-2',
+          titleSize: 'text-xs font-semibold',
+          descriptionSize: 'text-[10px]',
+          descriptionLines: 'line-clamp-4',
+          imageSize: 'w-full h-16',
+          buttonSize: 'px-2 py-1 text-[10px]',
+          spacing: 'gap-2',
+          textAlign: 'text-center',
+          maxDescription: 120
+        };
+      case "300x250": // Medium Rectangle - balanced
+        return {
+          layout: 'flex-col',
+          padding: 'p-3',
+          titleSize: 'text-sm font-semibold',
+          descriptionSize: 'text-xs',
+          descriptionLines: 'line-clamp-3',
+          imageSize: 'w-full h-20',
+          buttonSize: 'px-4 py-2 text-xs',
+          spacing: 'gap-2',
+          textAlign: 'text-center',
+          maxDescription: 100
+        };
+      case "100%": // Responsive - flexible
+        return {
+          layout: 'flex-col',
+          padding: 'p-4',
+          titleSize: 'text-base font-semibold',
+          descriptionSize: 'text-sm',
+          descriptionLines: 'line-clamp-3',
+          imageSize: 'w-full h-24',
+          buttonSize: 'px-6 py-2 text-sm',
+          spacing: 'gap-3',
+          textAlign: 'text-center',
+          maxDescription: 150
+        };
+      default:
+        return {
+          layout: 'flex-col',
+          padding: 'p-3',
+          titleSize: 'text-sm font-semibold',
+          descriptionSize: 'text-xs',
+          descriptionLines: 'line-clamp-3',
+          imageSize: 'w-full h-20',
+          buttonSize: 'px-4 py-2 text-xs',
+          spacing: 'gap-2',
+          textAlign: 'text-center',
+          maxDescription: 100
+        };
     }
   };
 
@@ -503,19 +574,14 @@ export default function CreateWidget() {
               {previewMode === 'preview' ? (
                 <div className="flex justify-center">
                   <div
+                    className={`border rounded-lg overflow-hidden ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'flex-row' : 'flex-col'} ${getContentStyling(watchedValues.size).padding} ${getContentStyling(watchedValues.size).spacing} ${getContentStyling(watchedValues.size).textAlign}`}
                     style={{
                       ...getSizeStyle(watchedValues.size),
                       backgroundColor: watchedValues.theme.bgColor,
                       color: watchedValues.theme.textColor,
                       fontFamily: watchedValues.theme.font,
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      padding: '16px',
                       display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
                       position: 'relative',
-                      overflow: 'hidden',
                     }}
                   >
                     {currentAd && (
@@ -524,49 +590,42 @@ export default function CreateWidget() {
                           <img
                             src={currentAd.imageUrl}
                             alt={currentAd.title}
-                            style={{
-                              width: '100%',
-                              height: '60%',
-                              objectFit: 'cover',
-                              borderRadius: '4px',
-                              marginBottom: '8px',
-                            }}
+                            className={`${getContentStyling(watchedValues.size).imageSize} object-cover rounded flex-shrink-0`}
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}
                           />
                         )}
-                        <h3 style={{ 
-                          fontSize: watchedValues.size === '728x90' ? '14px' : '16px',
-                          fontWeight: 'bold',
-                          margin: '0 0 4px 0',
-                          lineHeight: '1.2',
-                        }}>
-                          {currentAd.title || 'Product Title'}
-                        </h3>
-                        <p style={{ 
-                          fontSize: watchedValues.size === '728x90' ? '12px' : '14px',
-                          margin: '0 0 8px 0',
-                          lineHeight: '1.3',
-                          opacity: 0.8,
-                        }}>
-                          {currentAd.description || 'Product description goes here...'}
-                        </p>
-                        <button
-                          style={{
-                            backgroundColor: watchedValues.theme.ctaColor,
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            padding: '8px 16px',
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            marginTop: 'auto',
-                          }}
-                        >
-                          {currentAd.ctaText || 'Buy Now'}
-                        </button>
+                        <div className={`flex-1 flex flex-col ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'justify-center' : 'items-center'}`}>
+                          <h3 className={`${getContentStyling(watchedValues.size).titleSize} mb-1 leading-tight`}>
+                            {(() => {
+                              const title = currentAd.title || 'HyperX Cloud Alpha Wireless';
+                              const maxTitleLength = watchedValues.size === '160x600' ? 25 : 
+                                                   watchedValues.size === '728x90' ? 35 : 50;
+                              return title.length > maxTitleLength 
+                                ? title.substring(0, maxTitleLength) + '...'
+                                : title;
+                            })()}
+                          </h3>
+                          <p className={`${getContentStyling(watchedValues.size).descriptionSize} ${getContentStyling(watchedValues.size).descriptionLines} mb-2 opacity-80 leading-tight`}>
+                            {(() => {
+                              const maxLength = getContentStyling(watchedValues.size).maxDescription;
+                              const description = currentAd.description || 'Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red';
+                              return description.length > maxLength 
+                                ? description.substring(0, maxLength) + '...'
+                                : description;
+                            })()}
+                          </p>
+                          <button
+                            className={`${getContentStyling(watchedValues.size).buttonSize} rounded font-semibold transition-colors mt-auto`}
+                            style={{
+                              backgroundColor: watchedValues.theme.ctaColor,
+                              color: 'white',
+                            }}
+                          >
+                            {currentAd.ctaText || 'Buy Now'}
+                          </button>
+                        </div>
                       </>
                     )}
                   </div>
