@@ -210,6 +210,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Increased Link Management Widget height to 600px with scrolling to accommodate all links properly
 ✓ Moved Quick Actions widget below Content Statistics per user preference
 ✓ Moved Content Statistics widget below Quick Actions per updated user preference
+✓ Made sidebar widgets sticky with scroll behavior to remain visible when page is scrolled
 
 ## User Preferences
 
