@@ -324,7 +324,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
     return (
       <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 ${className}`}>
         <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
+          <CardTitle className="text-sm flex items-center gap-2">
             <Link2 className="h-4 w-4" />
             Link Management
           </CardTitle>
@@ -351,7 +351,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
   return (
     <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 ${className}`}>
       <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
+        <CardTitle className="text-sm flex items-center gap-2">
           <Link2 className="h-4 w-4" />
           Link Management
           <Badge variant="secondary" className="ml-auto bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
