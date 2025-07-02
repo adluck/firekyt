@@ -194,6 +194,11 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
       console.log('🔗 LinkWidget: Calling onContentUpdate with:', updatedContent.substring(0, 100) + '...');
       onContentUpdate(updatedContent);
       
+      // Force refresh of links after content update
+      setTimeout(() => {
+        refreshLinks();
+      }, 100);
+      
       // Save to database if contentId is provided
       if (contentId) {
         const response = await apiRequest('PATCH', `/api/content/${contentId}`, {

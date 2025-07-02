@@ -1031,11 +1031,16 @@ export function UnifiedContentEditor({
                 // Update the editor instance if available
                 if (editorInstance) {
                   console.log('🔗 Updating rich text editor with new content');
+                  // Clear the editor first to avoid conflicts
+                  editorInstance.commands.clearContent();
+                  // Set the new content
                   editorInstance.commands.setContent(newContent);
-                  // Trigger a re-render of the editor
+                  // Force focus to refresh the view
                   setTimeout(() => {
                     editorInstance.commands.focus();
-                  }, 100);
+                    // Trigger a manual update to ensure synchronization
+                    editorInstance.view.updateState(editorInstance.view.state);
+                  }, 150);
                 }
               }}
             />
