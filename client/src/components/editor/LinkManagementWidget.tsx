@@ -322,14 +322,14 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
 
   if (links.length === 0) {
     return (
-      <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 ${className}`}>
-        <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50">
+      <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden ${className}`}>
+        <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
           <CardTitle className="text-base flex items-center gap-2">
             <Link2 className="h-4 w-4" />
             Link Management
           </CardTitle>
         </CardHeader>
-        <CardContent className="bg-white dark:bg-slate-900">
+        <CardContent className="bg-white dark:bg-slate-900 rounded-b-lg">
           <div className="text-center py-6 text-muted-foreground">
             <Link2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No links found in content</p>
@@ -349,8 +349,8 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
   }
 
   return (
-    <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 ${className}`}>
-      <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50">
+    <Card className={`bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden ${className}`}>
+      <CardHeader className="pb-3 bg-slate-100 dark:bg-slate-800/50 rounded-t-lg">
         <CardTitle className="text-base flex items-center gap-2">
           <Link2 className="h-4 w-4" />
           Link Management
@@ -368,7 +368,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
           Refresh Links
         </Button>
       </CardHeader>
-      <CardContent className="p-0 bg-white dark:bg-slate-900">
+      <CardContent className="p-0 bg-white dark:bg-slate-900 rounded-b-lg">
         <ScrollArea className="h-96">
           <div className="p-4 space-y-3">
             {links.map((link, index) => (
