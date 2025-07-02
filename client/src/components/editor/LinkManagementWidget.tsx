@@ -142,10 +142,16 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
   };
 
   const saveLink = async (linkId: string) => {
+    console.log('🔗 LinkWidget: saveLink called for linkId:', linkId);
     const linkIndex = links.findIndex(l => l.id === linkId);
-    if (linkIndex === -1) return;
+    if (linkIndex === -1) {
+      console.log('🔗 LinkWidget: Link not found for id:', linkId);
+      return;
+    }
 
     const originalLink = links[linkIndex];
+    console.log('🔗 LinkWidget: Found link to save:', originalLink);
+    console.log('🔗 LinkWidget: Edit form data:', editForm);
     setIsSaving(true);
     
     try {
