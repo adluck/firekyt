@@ -533,23 +533,35 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                             onMouseDown={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              console.log('🔗 LinkWidget: NATIVE BUTTON CLICKED - Link ID:', link.id);
-                              console.log('🔗 LinkWidget: Edit form:', editForm);
-
-                              saveLink(link.id);
+                              console.log('🔗 LinkWidget: SAVE BUTTON CLICKED');
+                              
+                              // Simple direct update test
+                              const simpleUpdate = content.replace(
+                                `[${link.text}](${link.url})`,
+                                `[${editForm.text}](${editForm.url})`
+                              );
+                              
+                              console.log('🔗 LinkWidget: Calling onContentUpdate directly...');
+                              onContentUpdate(simpleUpdate);
+                              
+                              setEditingLinkId(null);
+                              setEditForm({ url: '', text: '', title: '' });
                             }}
                           >
                             <Save className="h-3 w-3" />
                             {isSaving ? 'Saving...' : 'Save'}
                           </button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={cancelEditing}
-                            className="flex-1"
+                          <button
+                            type="button"
+                            className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              console.log('🔗 LinkWidget: Cancel clicked');
+                              cancelEditing();
+                            }}
                           >
                             Cancel
-                          </Button>
+                          </button>
                         </div>
                       </div>
                     ) : (
