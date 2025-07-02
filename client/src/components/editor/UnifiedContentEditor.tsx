@@ -766,41 +766,6 @@ export function UnifiedContentEditor({
         </div>
       )}
 
-      {/* Link Management Widget - Full Width when sidebar is shown */}
-      {showSidebar && (
-        <div className="mb-6">
-          <LinkManagementWidget
-            content={contentData.content || ''}
-            contentId={contentId}
-            onContentUpdate={(newContent) => {
-              console.log('🔗 LinkWidget updating content:', newContent.substring(0, 100) + '...');
-              
-              // Set update lock to prevent revert cycle
-              setIsUpdatingFromWidget(true);
-              
-              // First update the content data state
-              updateContentData({ content: newContent });
-              
-              // Update editor content if available
-              if (editorInstance) {
-                console.log('🔗 Updating editor content with lock enabled');
-                
-                // Update content directly without triggering onChange
-                editorInstance.commands.setContent(newContent, false);
-              }
-              
-              // Release lock after a brief delay
-              setTimeout(() => {
-                setIsUpdatingFromWidget(false);
-                console.log('🔗 Content update lock released');
-              }, 100);
-              
-              console.log('🔗 Content update completed with lock protection');
-            }}
-          />
-        </div>
-      )}
-
       {/* Main Content */}
       <div className={cn(
         "grid gap-6",
@@ -1101,6 +1066,37 @@ export function UnifiedContentEditor({
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Link Management Widget */}
+            <LinkManagementWidget
+              content={contentData.content || ''}
+              contentId={contentId}
+              onContentUpdate={(newContent) => {
+                console.log('🔗 LinkWidget updating content:', newContent.substring(0, 100) + '...');
+                
+                // Set update lock to prevent revert cycle
+                setIsUpdatingFromWidget(true);
+                
+                // First update the content data state
+                updateContentData({ content: newContent });
+                
+                // Update editor content if available
+                if (editorInstance) {
+                  console.log('🔗 Updating editor content with lock enabled');
+                  
+                  // Update content directly without triggering onChange
+                  editorInstance.commands.setContent(newContent, false);
+                }
+                
+                // Release lock after a brief delay
+                setTimeout(() => {
+                  setIsUpdatingFromWidget(false);
+                  console.log('🔗 Content update lock released');
+                }, 100);
+                
+                console.log('🔗 Content update completed with lock protection');
+              }}
+            />
 
             {/* Content Stats */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">

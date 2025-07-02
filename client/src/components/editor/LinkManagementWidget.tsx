@@ -447,7 +447,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
         </Button>
       </CardHeader>
       <CardContent className="p-0 bg-white dark:bg-slate-900 rounded-b-lg">
-        <ScrollArea className="h-96">
+        <ScrollArea className="h-[600px]">
           <div className="p-4 space-y-3">
             {links.map((link, index) => (
               <div key={link.id} className="border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-2">
