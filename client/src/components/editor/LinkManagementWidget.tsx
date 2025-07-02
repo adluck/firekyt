@@ -444,22 +444,20 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                           />
                         </div>
                         <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              console.log('🔗 LinkWidget: Save button clicked for link:', link.id);
-                              console.log('🔗 LinkWidget: isSaving state:', isSaving);
-                              console.log('🔗 LinkWidget: editForm state:', editForm);
-                              saveLink(link.id);
+                          <div 
+                            className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 cursor-pointer"
+                            onMouseDown={() => {
+                              console.log('🔗 LinkWidget: SAVE MOUSEDOWN - Link ID:', link.id);
+                              console.log('🔗 LinkWidget: SAVE MOUSEDOWN - isSaving:', isSaving);
+                              console.log('🔗 LinkWidget: SAVE MOUSEDOWN - editForm:', editForm);
+                              if (!isSaving) {
+                                saveLink(link.id);
+                              }
                             }}
-                            className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
-                            disabled={isSaving}
                           >
                             <Save className="h-3 w-3 mr-1" />
                             {isSaving ? 'Saving...' : 'Save'}
-                          </button>
+                          </div>
                           <Button
                             size="sm"
                             variant="outline"
