@@ -159,6 +159,11 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
     console.log('🔗 LinkWidget: Found link to save:', originalLink);
     console.log('🔗 LinkWidget: Edit form data:', editForm);
     setIsSaving(true);
+
+    // Immediately update content for real-time sync
+    const updatedContent = updateLinkInContent(content, linkId, editForm);
+    console.log('🔗 LinkWidget: Immediately calling onContentUpdate for real-time sync');
+    onContentUpdate(updatedContent);
     
     try {
       let updatedContent = content;
@@ -326,6 +331,47 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const updateLinkInContent = (currentContent: string, linkId: string, formData: { url: string; text: string; title: string }) => {
+    console.log('🔗 LinkWidget: updateLinkInContent called for:', linkId, formData);
+    
+    const linkIndex = parseInt(linkId.replace('link-', ''));
+    
+    if (currentContent.includes('<')) {
+      // HTML content
+      const doc = new DOMParser().parseFromString(currentContent, 'text/html');
+      const linkElements = doc.querySelectorAll('a');
+      
+      if (linkElements[linkIndex]) {
+        linkElements[linkIndex].href = formData.url;
+        linkElements[linkIndex].textContent = formData.text;
+        if (formData.title) {
+          linkElements[linkIndex].title = formData.title;
+        }
+        return doc.body.innerHTML;
+      }
+    } else {
+      // Markdown content
+      const lines = currentContent.split('\n');
+      let linkCount = 0;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        lines[i] = lines[i].replace(linkRegex, (match, text, url) => {
+          if (linkCount === linkIndex) {
+            linkCount++;
+            return `[${formData.text}](${formData.url})`;
+          }
+          linkCount++;
+          return match;
+        });
+      }
+      
+      return lines.join('\n');
+    }
+    
+    return currentContent;
   };
 
   // Refresh links from content
