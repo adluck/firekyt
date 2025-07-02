@@ -1021,6 +1021,19 @@ export function UnifiedContentEditor({
               </CardContent>
             </Card>
 
+            {/* Link Management Widget */}
+            <LinkManagementWidget
+              content={contentData.content || ''}
+              contentId={contentId}
+              onContentUpdate={(newContent) => {
+                updateContentData({ content: newContent });
+                // Update the editor instance if available
+                if (editorInstance) {
+                  editorInstance.commands.setContent(newContent);
+                }
+              }}
+            />
+
             {/* Content Stats */}
             <Card>
               <CardHeader>
@@ -1091,19 +1104,6 @@ export function UnifiedContentEditor({
                 </Button>
               </CardContent>
             </Card>
-
-            {/* Link Management Widget */}
-            <LinkManagementWidget
-              content={contentData.content || ''}
-              contentId={contentId}
-              onContentUpdate={(newContent) => {
-                updateContentData({ content: newContent });
-                // Update the editor instance if available
-                if (editorInstance) {
-                  editorInstance.commands.setContent(newContent);
-                }
-              }}
-            />
           </div>
         )}
       </div>
