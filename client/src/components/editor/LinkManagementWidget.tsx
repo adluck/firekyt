@@ -490,12 +490,14 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                           />
                         </div>
                         <div className="flex gap-2">
-                          <div 
-                            className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 cursor-pointer"
-                            onMouseDown={() => {
-                              console.log('🔗 LinkWidget: SAVE MOUSEDOWN - Link ID:', link.id);
-                              console.log('🔗 LinkWidget: SAVE MOUSEDOWN - isSaving:', isSaving);
-                              console.log('🔗 LinkWidget: SAVE MOUSEDOWN - editForm:', editForm);
+                          <Button
+                            size="sm"
+                            className="flex-1"
+                            disabled={isSaving}
+                            onClick={() => {
+                              console.log('🔗 LinkWidget: SAVE CLICKED - Link ID:', link.id);
+                              console.log('🔗 LinkWidget: SAVE CLICKED - isSaving:', isSaving);
+                              console.log('🔗 LinkWidget: SAVE CLICKED - editForm:', editForm);
                               if (!isSaving) {
                                 saveLink(link.id);
                               }
@@ -503,7 +505,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                           >
                             <Save className="h-3 w-3 mr-1" />
                             {isSaving ? 'Saving...' : 'Save'}
-                          </div>
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
