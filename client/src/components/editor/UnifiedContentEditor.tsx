@@ -1023,50 +1023,6 @@ export function UnifiedContentEditor({
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
-              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
-                <CardTitle className="text-base">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 bg-white dark:bg-slate-900 rounded-b-lg">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start"
-                  onClick={() => {
-                    setIsNavigating(true);
-                    // Use wouter's navigation instead of window.location
-                    setTimeout(() => {
-                      setLocation('/links/intelligent');
-                      setIsNavigating(false);
-                    }, 50);
-                  }}
-                  disabled={isNavigating}
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  {isNavigating ? 'Loading...' : 'Add Affiliate Links'}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start"
-                  onClick={handleSEOAnalysis}
-                >
-                  <Tag className="w-4 h-4 mr-2" />
-                  SEO Analysis
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start"
-                  onClick={handleSchedulePost}
-                >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Schedule Post
-                </Button>
-              </CardContent>
-            </Card>
-
             {/* Link Management Widget */}
             <LinkManagementWidget
               content={contentData.content || ''}
@@ -1122,6 +1078,50 @@ export function UnifiedContentEditor({
                     <span>1</span>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
+                <CardTitle className="text-base">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 bg-white dark:bg-slate-900 rounded-b-lg">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setIsNavigating(true);
+                    // Use wouter's navigation instead of window.location
+                    setTimeout(() => {
+                      setLocation('/links/intelligent');
+                      setIsNavigating(false);
+                    }, 50);
+                  }}
+                  disabled={isNavigating}
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  {isNavigating ? 'Loading...' : 'Add Affiliate Links'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={handleSEOAnalysis}
+                >
+                  <Tag className="w-4 h-4 mr-2" />
+                  SEO Analysis
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={handleSchedulePost}
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Schedule Post
+                </Button>
               </CardContent>
             </Card>
           </div>
