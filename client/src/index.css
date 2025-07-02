@@ -615,7 +615,7 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #cbd5e1;
   --sidebar-accent-foreground: #1e293b;
-  --sidebar-border: #f1f5f9;
+  --sidebar-border: #cbd5e1;
   --sidebar-ring: #f97316;
 }
 
