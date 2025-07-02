@@ -766,6 +766,41 @@ export function UnifiedContentEditor({
         </div>
       )}
 
+      {/* Link Management Widget - Full Width when sidebar is shown */}
+      {showSidebar && (
+        <div className="mb-6">
+          <LinkManagementWidget
+            content={contentData.content || ''}
+            contentId={contentId}
+            onContentUpdate={(newContent) => {
+              console.log('🔗 LinkWidget updating content:', newContent.substring(0, 100) + '...');
+              
+              // Set update lock to prevent revert cycle
+              setIsUpdatingFromWidget(true);
+              
+              // First update the content data state
+              updateContentData({ content: newContent });
+              
+              // Update editor content if available
+              if (editorInstance) {
+                console.log('🔗 Updating editor content with lock enabled');
+                
+                // Update content directly without triggering onChange
+                editorInstance.commands.setContent(newContent, false);
+              }
+              
+              // Release lock after a brief delay
+              setTimeout(() => {
+                setIsUpdatingFromWidget(false);
+                console.log('🔗 Content update lock released');
+              }, 100);
+              
+              console.log('🔗 Content update completed with lock protection');
+            }}
+          />
+        </div>
+      )}
+
       {/* Main Content */}
       <div className={cn(
         "grid gap-6",
@@ -1023,64 +1058,6 @@ export function UnifiedContentEditor({
               </CardContent>
             </Card>
 
-            {/* Link Management Widget */}
-            <LinkManagementWidget
-              content={contentData.content || ''}
-              contentId={contentId}
-              onContentUpdate={(newContent) => {
-                console.log('🔗 LinkWidget updating content:', newContent.substring(0, 100) + '...');
-                
-                // Set update lock to prevent revert cycle
-                setIsUpdatingFromWidget(true);
-                
-                // First update the content data state
-                updateContentData({ content: newContent });
-                
-                // Update editor content if available
-                if (editorInstance) {
-                  console.log('🔗 Updating editor content with lock enabled');
-                  
-                  // Update content directly without triggering onChange
-                  editorInstance.commands.setContent(newContent, false);
-                }
-                
-                // Release lock after a brief delay
-                setTimeout(() => {
-                  setIsUpdatingFromWidget(false);
-                  console.log('🔗 Content update lock released');
-                }, 100);
-                
-                console.log('🔗 Content update completed with lock protection');
-              }}
-            />
-
-            {/* Content Stats */}
-            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
-              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
-                <CardTitle className="text-base">Content Statistics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 bg-white dark:bg-slate-900 rounded-b-lg">
-                <div className="flex justify-between text-sm">
-                  <span>Word Count:</span>
-                  <span>{generatePreview().split(/\s+/).filter(Boolean).length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Character Count:</span>
-                  <span>{contentData.content?.length || 0}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Reading Time:</span>
-                  <span>~{Math.ceil(generatePreview().split(/\s+/).filter(Boolean).length / 200)} min</span>
-                </div>
-                {comparisonTableConfig && (
-                  <div className="flex justify-between text-sm">
-                    <span>Comparison Tables:</span>
-                    <span>1</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Quick Actions */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
               <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
@@ -1122,6 +1099,33 @@ export function UnifiedContentEditor({
                   <Calendar className="w-4 h-4 mr-2" />
                   Schedule Post
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Content Stats */}
+            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
+                <CardTitle className="text-base">Content Statistics</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 bg-white dark:bg-slate-900 rounded-b-lg">
+                <div className="flex justify-between text-sm">
+                  <span>Word Count:</span>
+                  <span>{generatePreview().split(/\s+/).filter(Boolean).length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Character Count:</span>
+                  <span>{contentData.content?.length || 0}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Reading Time:</span>
+                  <span>~{Math.ceil(generatePreview().split(/\s+/).filter(Boolean).length / 200)} min</span>
+                </div>
+                {comparisonTableConfig && (
+                  <div className="flex justify-between text-sm">
+                    <span>Comparison Tables:</span>
+                    <span>1</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
