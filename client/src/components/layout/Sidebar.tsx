@@ -113,11 +113,15 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
   };
 
   const toggleMenu = (menuName: string) => {
-    setExpandedMenus(prev => 
-      prev.includes(menuName) 
-        ? prev.filter(name => name !== menuName)
-        : [...prev, menuName]
-    );
+    setExpandedMenus(prev => {
+      if (prev.includes(menuName)) {
+        // Close the menu if it's already open
+        return prev.filter(name => name !== menuName);
+      } else {
+        // Close all other menus and open only this one
+        return [menuName];
+      }
+    });
   };
 
   return (
