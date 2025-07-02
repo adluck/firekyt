@@ -27,7 +27,9 @@ import {
   Telescope,
   MessageSquareMore,
   PanelLeftClose,
-  PanelLeft
+  PanelLeft,
+  Monitor,
+  Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,6 +85,16 @@ const navigation = [
       { name: 'AI Link Inserter', href: '/links/inserter', icon: Brain },
       { name: 'Auto-Link Rules', href: '/auto-link-rules', icon: Zap },
       { name: 'Partner Networks', href: '/partner-networks', icon: Network }
+    ]
+  },
+  { 
+    name: 'Ad Widgets', 
+    href: '/ads-widgets', 
+    icon: Monitor,
+    submenu: [
+      { name: 'Create Widget', href: '/ads-widgets/create', icon: Plus },
+      { name: 'Manage Widgets', href: '/ads-widgets', icon: Monitor },
+      { name: 'Widget Analytics', href: '/ads-widgets/analytics', icon: BarChart3 }
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },

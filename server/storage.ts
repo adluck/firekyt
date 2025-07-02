@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, adWidgets, adWidgetAnalytics, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment, type AdWidget, type InsertAdWidget, type AdWidgetAnalytics, type InsertAdWidgetAnalytics } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 
@@ -185,6 +185,18 @@ export interface IStorage {
   deleteAutoLinkRule(id: number): Promise<void>;
   getAutoLinkRuleById(id: number): Promise<AutoLinkRule | undefined>;
   getActiveAutoLinkRules(userId: number, siteId?: number): Promise<AutoLinkRule[]>;
+
+  // Ad Widget management
+  createAdWidget(widget: InsertAdWidget): Promise<AdWidget>;
+  getAdWidget(id: number): Promise<AdWidget | null>;
+  getUserAdWidgets(userId: number): Promise<AdWidget[]>;
+  updateAdWidget(id: number, updates: Partial<InsertAdWidget>): Promise<AdWidget>;
+  deleteAdWidget(id: number): Promise<void>;
+  
+  // Ad Widget Analytics
+  createAdWidgetAnalytics(analytics: InsertAdWidgetAnalytics): Promise<AdWidgetAnalytics>;
+  getWidgetAnalytics(widgetId: number, startDate?: Date, endDate?: Date): Promise<AdWidgetAnalytics[]>;
+  getWidgetStats(widgetId: number): Promise<{ views: number; clicks: number; ctr: number }>;
 }
 
 export class MemStorage implements IStorage {
@@ -1990,6 +2002,68 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(users, eq(feedbackComments.userId, users.id))
       .where(eq(feedbackComments.feedbackId, feedbackId))
       .orderBy(asc(feedbackComments.createdAt));
+  }
+
+  // Ad Widget management
+  async createAdWidget(widget: InsertAdWidget): Promise<AdWidget> {
+    const [created] = await db.insert(adWidgets).values(widget).returning();
+    return created;
+  }
+
+  async getAdWidget(id: number): Promise<AdWidget | null> {
+    const [widget] = await db.select().from(adWidgets).where(eq(adWidgets.id, id));
+    return widget || null;
+  }
+
+  async getUserAdWidgets(userId: number): Promise<AdWidget[]> {
+    return await db.select().from(adWidgets)
+      .where(eq(adWidgets.userId, userId))
+      .orderBy(desc(adWidgets.createdAt));
+  }
+
+  async updateAdWidget(id: number, updates: Partial<InsertAdWidget>): Promise<AdWidget> {
+    const [updated] = await db
+      .update(adWidgets)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(adWidgets.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteAdWidget(id: number): Promise<void> {
+    await db.delete(adWidgets).where(eq(adWidgets.id, id));
+  }
+
+  // Ad Widget Analytics
+  async createAdWidgetAnalytics(analytics: InsertAdWidgetAnalytics): Promise<AdWidgetAnalytics> {
+    const [created] = await db.insert(adWidgetAnalytics).values(analytics).returning();
+    return created;
+  }
+
+  async getWidgetAnalytics(widgetId: number, startDate?: Date, endDate?: Date): Promise<AdWidgetAnalytics[]> {
+    let query = db.select().from(adWidgetAnalytics).where(eq(adWidgetAnalytics.widgetId, widgetId));
+    
+    if (startDate && endDate) {
+      query = query.where(
+        and(
+          eq(adWidgetAnalytics.widgetId, widgetId),
+          gte(adWidgetAnalytics.timestamp, startDate),
+          lte(adWidgetAnalytics.timestamp, endDate)
+        )
+      );
+    }
+    
+    return await query.orderBy(desc(adWidgetAnalytics.timestamp));
+  }
+
+  async getWidgetStats(widgetId: number): Promise<{ views: number; clicks: number; ctr: number }> {
+    const analytics = await this.getWidgetAnalytics(widgetId);
+    
+    const views = analytics.filter(a => a.eventType === 'view').length;
+    const clicks = analytics.filter(a => a.eventType === 'click').length;
+    const ctr = views > 0 ? (clicks / views) * 100 : 0;
+    
+    return { views, clicks, ctr: Math.round(ctr * 100) / 100 };
   }
 }
 

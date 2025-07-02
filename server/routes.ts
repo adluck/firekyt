@@ -4776,6 +4776,369 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // ===== DYNAMIC AFFILIATE ADS WIDGET SYSTEM =====
+
+  // Create widget
+  app.post('/api/widgets', authenticateToken, async (req, res) => {
+    try {
+      const { name, size, theme, rotationInterval, ads } = req.body;
+      
+      // Input validation and sanitization
+      if (!name || !size || !theme || !ads || ads.length === 0) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+
+      // Validate and sanitize ad content
+      const sanitizedAds = ads.map((ad: any) => ({
+        title: ad.title?.substring(0, 100).trim() || '',
+        description: ad.description?.substring(0, 200).trim() || '',
+        imageUrl: ad.imageUrl || '',
+        ctaText: ad.ctaText?.substring(0, 30).trim() || 'Learn More',
+        url: ad.url || '',
+        tags: ad.tags || []
+      }));
+
+      // Validate HTTPS URLs
+      for (const ad of sanitizedAds) {
+        if (ad.url && !ad.url.startsWith('https://')) {
+          return res.status(400).json({ message: 'All affiliate URLs must use HTTPS' });
+        }
+      }
+
+      const widgetData = {
+        userId: req.user!.id,
+        name: name.substring(0, 100).trim(),
+        size,
+        theme,
+        rotationInterval: Math.max(3, Math.min(60, rotationInterval || 5)),
+        ads: sanitizedAds,
+        isActive: true
+      };
+
+      const widget = await storage.createAdWidget(widgetData);
+      
+      res.status(201).json({
+        success: true,
+        widget,
+        embedCode: `<script src="${req.protocol}://${req.get('host')}/widgets/${widget.id}/embed.js"></script>`
+      });
+    } catch (error: any) {
+      console.error('Create widget error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get user's widgets
+  app.get('/api/widgets', authenticateToken, async (req, res) => {
+    try {
+      const widgets = await storage.getUserAdWidgets(req.user!.id);
+      
+      // Add stats for each widget
+      const widgetsWithStats = await Promise.all(
+        widgets.map(async (widget) => {
+          const stats = await storage.getWidgetStats(widget.id);
+          return { ...widget, stats };
+        })
+      );
+      
+      res.json({
+        success: true,
+        widgets: widgetsWithStats
+      });
+    } catch (error: any) {
+      console.error('Get widgets error:', error);
+      res.status(500).json({ message: 'Failed to fetch widgets' });
+    }
+  });
+
+  // Get widget by ID
+  app.get('/api/widgets/:id', authenticateToken, async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const widget = await storage.getAdWidget(widgetId);
+      
+      if (!widget || widget.userId !== req.user!.id) {
+        return res.status(404).json({ message: 'Widget not found' });
+      }
+      
+      const stats = await storage.getWidgetStats(widgetId);
+      
+      res.json({
+        success: true,
+        widget: { ...widget, stats }
+      });
+    } catch (error: any) {
+      console.error('Get widget error:', error);
+      res.status(500).json({ message: 'Failed to fetch widget' });
+    }
+  });
+
+  // Update widget
+  app.put('/api/widgets/:id', authenticateToken, async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const widget = await storage.getAdWidget(widgetId);
+      
+      if (!widget || widget.userId !== req.user!.id) {
+        return res.status(404).json({ message: 'Widget not found' });
+      }
+
+      const updates = { ...req.body };
+      delete updates.userId; // Prevent userId modification
+      
+      const updatedWidget = await storage.updateAdWidget(widgetId, updates);
+      
+      res.json({
+        success: true,
+        widget: updatedWidget
+      });
+    } catch (error: any) {
+      console.error('Update widget error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Delete widget
+  app.delete('/api/widgets/:id', authenticateToken, async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const widget = await storage.getAdWidget(widgetId);
+      
+      if (!widget || widget.userId !== req.user!.id) {
+        return res.status(404).json({ message: 'Widget not found' });
+      }
+      
+      await storage.deleteAdWidget(widgetId);
+      
+      res.json({
+        success: true,
+        message: 'Widget deleted successfully'
+      });
+    } catch (error: any) {
+      console.error('Delete widget error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Serve widget data (for embed script)
+  app.get('/widgets/:id/data', async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const widget = await storage.getAdWidget(widgetId);
+      
+      if (!widget || !widget.isActive) {
+        return res.status(404).json({ error: 'Widget not found or inactive' });
+      }
+
+      // Track view
+      await storage.createAdWidgetAnalytics({
+        widgetId,
+        eventType: 'view',
+        referrer: req.get('Referer') || null,
+        userAgent: req.get('User-Agent') || null,
+        ipAddress: req.ip || null
+      });
+      
+      res.json({
+        success: true,
+        widget: {
+          id: widget.id,
+          name: widget.name,
+          size: widget.size,
+          theme: widget.theme,
+          rotationInterval: widget.rotationInterval,
+          ads: widget.ads
+        }
+      });
+    } catch (error: any) {
+      console.error('Get widget data error:', error);
+      res.status(500).json({ error: 'Failed to load widget data' });
+    }
+  });
+
+  // Serve widget embed script
+  app.get('/widgets/:id/embed.js', async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const widget = await storage.getAdWidget(widgetId);
+      
+      if (!widget || !widget.isActive) {
+        return res.status(404).send('// Widget not found or inactive');
+      }
+
+      const embedScript = `
+(function() {
+  var widgetId = ${widgetId};
+  var baseUrl = '${req.protocol}://${req.get('host')}';
+  
+  // Create widget container
+  var container = document.createElement('div');
+  container.id = 'affiliate-widget-' + widgetId;
+  container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);';
+  
+  // Insert container where script is loaded
+  var currentScript = document.currentScript || document.scripts[document.scripts.length - 1];
+  currentScript.parentNode.insertBefore(container, currentScript);
+  
+  // Load widget data
+  fetch(baseUrl + '/widgets/' + widgetId + '/data')
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      if (!data.success) throw new Error('Failed to load widget');
+      
+      var widget = data.widget;
+      var currentAdIndex = 0;
+      
+      // Apply size styles
+      var sizeStyles = {
+        '300x250': 'width: 300px; height: 250px;',
+        '728x90': 'width: 728px; height: 90px;',
+        '160x600': 'width: 160px; height: 600px;',
+        '100%': 'width: 100%; height: 250px; max-width: 500px;'
+      };
+      
+      container.style.cssText += sizeStyles[widget.size] || sizeStyles['300x250'];
+      container.style.backgroundColor = widget.theme.bgColor;
+      container.style.color = widget.theme.textColor;
+      container.style.fontFamily = widget.theme.font;
+      container.style.padding = '16px';
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.justifyContent = 'center';
+      
+      function renderAd(ad, index) {
+        var isCompact = widget.size === '728x90';
+        
+        container.innerHTML = 
+          (ad.imageUrl ? '<img src="' + ad.imageUrl + '" style="width: 100%; height: ' + (isCompact ? '50%' : '60%') + '; object-fit: cover; border-radius: 4px; margin-bottom: 8px;" onerror="this.style.display=\\'none\\'">' : '') +
+          '<h3 style="font-size: ' + (isCompact ? '14px' : '16px') + '; font-weight: bold; margin: 0 0 4px 0; line-height: 1.2;">' + (ad.title || 'Product Title') + '</h3>' +
+          '<p style="font-size: ' + (isCompact ? '12px' : '14px') + '; margin: 0 0 8px 0; line-height: 1.3; opacity: 0.8;">' + (ad.description || 'Product description') + '</p>' +
+          '<button onclick="window.open(\\'' + ad.url + '\\', \\'_blank\\'); fetch(\\'' + baseUrl + '/widgets/' + widgetId + '/track-click\\', {method: \\'POST\\', headers: {\\'Content-Type\\': \\'application/json\\'}, body: JSON.stringify({adIndex: ' + index + '})});" style="background-color: ' + widget.theme.ctaColor + '; color: white; border: none; border-radius: 4px; padding: 8px 16px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: auto;">' + (ad.ctaText || 'Buy Now') + '</button>';
+      }
+      
+      // Render first ad
+      if (widget.ads.length > 0) {
+        renderAd(widget.ads[0], 0);
+        
+        // Setup rotation if multiple ads
+        if (widget.ads.length > 1) {
+          setInterval(function() {
+            currentAdIndex = (currentAdIndex + 1) % widget.ads.length;
+            renderAd(widget.ads[currentAdIndex], currentAdIndex);
+          }, widget.rotationInterval * 1000);
+        }
+      }
+    })
+    .catch(function(error) {
+      console.error('Affiliate widget error:', error);
+      container.innerHTML = '<p style="color: #999; font-size: 12px; text-align: center;">Ad unavailable</p>';
+    });
+})();
+`;
+
+      res.setHeader('Content-Type', 'application/javascript');
+      res.send(embedScript);
+    } catch (error: any) {
+      console.error('Serve embed script error:', error);
+      res.status(500).send('// Error loading widget script');
+    }
+  });
+
+  // Track widget click
+  app.post('/widgets/:id/track-click', async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const { adIndex } = req.body;
+
+      await storage.createAdWidgetAnalytics({
+        widgetId,
+        eventType: 'click',
+        adIndex: adIndex || 0,
+        referrer: req.get('Referer') || null,
+        userAgent: req.get('User-Agent') || null,
+        ipAddress: req.ip || null
+      });
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Track click error:', error);
+      res.status(500).json({ error: 'Failed to track click' });
+    }
+  });
+
+  // Track widget view
+  app.post('/widgets/:id/track-view', async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+
+      await storage.createAdWidgetAnalytics({
+        widgetId,
+        eventType: 'view',
+        referrer: req.get('Referer') || null,
+        userAgent: req.get('User-Agent') || null,
+        ipAddress: req.ip || null
+      });
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Track view error:', error);
+      res.status(500).json({ error: 'Failed to track view' });
+    }
+  });
+
+  // Get widget analytics/stats
+  app.get('/api/widgets/:id/stats', authenticateToken, async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const widget = await storage.getAdWidget(widgetId);
+      
+      if (!widget || widget.userId !== req.user!.id) {
+        return res.status(404).json({ message: 'Widget not found' });
+      }
+
+      const stats = await storage.getWidgetStats(widgetId);
+      const analytics = await storage.getWidgetAnalytics(widgetId);
+      
+      // Generate daily analytics for last 30 days
+      const dailyStats = [];
+      const now = new Date();
+      
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const dayViews = analytics.filter(a => 
+          a.eventType === 'view' && 
+          a.timestamp.toISOString().split('T')[0] === dateStr
+        ).length;
+        
+        const dayClicks = analytics.filter(a => 
+          a.eventType === 'click' && 
+          a.timestamp.toISOString().split('T')[0] === dateStr
+        ).length;
+        
+        dailyStats.push({
+          date: dateStr,
+          views: dayViews,
+          clicks: dayClicks,
+          ctr: dayViews > 0 ? (dayClicks / dayViews * 100).toFixed(2) : '0.00'
+        });
+      }
+      
+      res.json({
+        success: true,
+        stats: {
+          ...stats,
+          daily: dailyStats
+        }
+      });
+    } catch (error: any) {
+      console.error('Get widget stats error:', error);
+      res.status(500).json({ message: 'Failed to fetch widget stats' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

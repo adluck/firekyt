@@ -842,3 +842,44 @@ export const SUBSCRIPTION_LIMITS = {
     features: ['content_generation', 'advanced_content_generation', 'seo_optimization', 'affiliate_links', 'analytics', 'brand_voice', 'white_label', 'priority_support', 'site_creation', 'api_access', 'admin_panel', 'user_management'],
   },
 } as const;
+
+// Dynamic Affiliate Ads Widget System
+export const adWidgets = pgTable("ad_widgets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  size: varchar("size", { length: 50 }).notNull(), // "300x250", "728x90", "160x600", "100%"
+  theme: jsonb("theme").notNull(), // {bgColor, textColor, ctaColor, font}
+  rotationInterval: integer("rotation_interval").notNull().default(5), // seconds
+  ads: jsonb("ads").notNull(), // array of ad objects
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const adWidgetAnalytics = pgTable("ad_widget_analytics", {
+  id: serial("id").primaryKey(),
+  widgetId: integer("widget_id").notNull().references(() => adWidgets.id, { onDelete: "cascade" }),
+  eventType: varchar("event_type", { length: 20 }).notNull(), // "view", "click"
+  adIndex: integer("ad_index"), // which ad in the rotation was shown/clicked
+  referrer: varchar("referrer", { length: 500 }),
+  userAgent: varchar("user_agent", { length: 500 }),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
+export const insertAdWidgetSchema = createInsertSchema(adWidgets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAdWidgetAnalyticsSchema = createInsertSchema(adWidgetAnalytics).omit({
+  id: true,
+  timestamp: true,
+});
+
+export type AdWidget = typeof adWidgets.$inferSelect;
+export type InsertAdWidget = z.infer<typeof insertAdWidgetSchema>;
+export type AdWidgetAnalytics = typeof adWidgetAnalytics.$inferSelect;
+export type InsertAdWidgetAnalytics = z.infer<typeof insertAdWidgetAnalyticsSchema>;

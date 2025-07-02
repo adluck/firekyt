@@ -49,6 +49,7 @@ import SubscribeSimple from "@/pages/subscription/SubscribeSimple";
 import Settings from "@/pages/settings/Settings";
 import Documentation from "@/pages/docs/Documentation";
 import FeedbackDashboard from "@/pages/admin/FeedbackDashboard";
+import CreateWidget from "@/pages/ads-widgets/CreateWidget";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -277,6 +278,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <AutoLinkRules />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/ads-widgets/create">
+        <ProtectedRoute>
+          <AppLayout>
+            <CreateWidget />
           </AppLayout>
         </ProtectedRoute>
       </Route>
