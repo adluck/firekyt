@@ -217,6 +217,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Made dark mode sidebar background darker for improved contrast and visual depth
 ✓ Made light mode sidebar background lighter for softer, cleaner appearance
 ✓ Implemented auto-closing submenu behavior - only one submenu can be open at a time
+✓ Repositioned site card action buttons to bottom for consistent alignment across all cards
 
 ## User Preferences
 

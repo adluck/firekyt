@@ -27,7 +27,7 @@ export function SiteCard({
   onDelete 
 }: SiteCardProps) {
   return (
-    <Card className="card-hover">
+    <Card className="card-hover flex flex-col h-full">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div className="space-y-1">
           <CardTitle className="text-lg">{site.name}</CardTitle>
@@ -60,31 +60,33 @@ export function SiteCard({
         </DropdownMenu>
       </CardHeader>
       
-      <CardContent className="space-y-4">
-        {site.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {site.description}
-          </p>
-        )}
-        
-        {site.niche && (
-          <Badge variant="secondary" className="text-xs">
-            {site.niche}
-          </Badge>
-        )}
-        
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <FileText className="h-3 w-3" />
-            {contentCount} articles
-          </div>
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <TrendingUp className="h-3 w-3" />
-            {totalViews.toLocaleString()} views
+      <CardContent className="flex flex-col flex-1 space-y-4">
+        <div className="flex-1 space-y-4">
+          {site.description && (
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {site.description}
+            </p>
+          )}
+          
+          {site.niche && (
+            <Badge variant="secondary" className="text-xs">
+              {site.niche}
+            </Badge>
+          )}
+          
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <FileText className="h-3 w-3" />
+              {contentCount} articles
+            </div>
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <TrendingUp className="h-3 w-3" />
+              {totalViews.toLocaleString()} views
+            </div>
           </div>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-auto">
           <Link href={`/sites/${site.id}`} className="flex-1">
             <Button variant="outline" className="w-full">
               View Details
