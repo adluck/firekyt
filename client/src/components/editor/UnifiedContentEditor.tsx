@@ -937,7 +937,7 @@ export function UnifiedContentEditor({
 
         {/* Sidebar */}
         {showSidebar && (
-          <div className="space-y-4 sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto bg-slate-50/80 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
+          <div className="space-y-4 sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto bg-slate-100 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
             {/* Basic Settings */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
               <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
