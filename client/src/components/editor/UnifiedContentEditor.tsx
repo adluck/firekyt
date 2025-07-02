@@ -14,6 +14,7 @@ import { ComparisonTableBuilder } from '@/components/editor/ComparisonTableBuild
 import { trackPageView } from '@/utils/analytics';
 import { ComparisonTableRenderer } from '@/components/editor/ComparisonTableRenderer';
 import { KeywordModal } from '@/components/editor/KeywordModal';
+import { LinkManagementWidget } from '@/components/editor/LinkManagementWidget';
 import { apiRequest } from '@/lib/queryClient';
 import {
   Save,
@@ -1090,6 +1091,18 @@ export function UnifiedContentEditor({
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Link Management Widget */}
+            <LinkManagementWidget
+              content={contentData.content || ''}
+              onContentUpdate={(newContent) => {
+                updateContentData({ content: newContent });
+                // Update the editor instance if available
+                if (editorInstance) {
+                  editorInstance.commands.setContent(newContent);
+                }
+              }}
+            />
           </div>
         )}
       </div>
