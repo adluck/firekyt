@@ -1054,33 +1054,6 @@ export function UnifiedContentEditor({
               }}
             />
 
-            {/* Content Stats */}
-            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
-              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
-                <CardTitle className="text-base">Content Statistics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 bg-white dark:bg-slate-900 rounded-b-lg">
-                <div className="flex justify-between text-sm">
-                  <span>Word Count:</span>
-                  <span>{generatePreview().split(/\s+/).filter(Boolean).length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Character Count:</span>
-                  <span>{contentData.content?.length || 0}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Reading Time:</span>
-                  <span>~{Math.ceil(generatePreview().split(/\s+/).filter(Boolean).length / 200)} min</span>
-                </div>
-                {comparisonTableConfig && (
-                  <div className="flex justify-between text-sm">
-                    <span>Comparison Tables:</span>
-                    <span>1</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Quick Actions */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
               <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
@@ -1122,6 +1095,33 @@ export function UnifiedContentEditor({
                   <Calendar className="w-4 h-4 mr-2" />
                   Schedule Post
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Content Stats */}
+            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50 rounded-t-lg py-3 mb-4">
+                <CardTitle className="text-base">Content Statistics</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 bg-white dark:bg-slate-900 rounded-b-lg">
+                <div className="flex justify-between text-sm">
+                  <span>Word Count:</span>
+                  <span>{generatePreview().split(/\s+/).filter(Boolean).length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Character Count:</span>
+                  <span>{contentData.content?.length || 0}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Reading Time:</span>
+                  <span>~{Math.ceil(generatePreview().split(/\s+/).filter(Boolean).length / 200)} min</span>
+                </div>
+                {comparisonTableConfig && (
+                  <div className="flex justify-between text-sm">
+                    <span>Comparison Tables:</span>
+                    <span>1</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
