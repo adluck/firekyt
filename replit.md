@@ -215,6 +215,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Enhanced main navigation sidebar background with slate theme for better visual distinction in both light and dark modes
 ✓ Adjusted sidebar borders - kept dark mode subtle, made light mode slightly more visible for better definition
 ✓ Made dark mode sidebar background darker for improved contrast and visual depth
+✓ Made light mode sidebar background lighter for softer, cleaner appearance
 
 ## User Preferences
 

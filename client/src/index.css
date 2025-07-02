@@ -243,7 +243,7 @@ div[dangerouslySetInnerHTML] a *,
 
 /* Force sidebar background visibility */
 .bg-sidebar-background {
-  background-color: #e2e8f0 !important;
+  background-color: #f1f5f9 !important;
 }
 
 .dark .bg-sidebar-background,
@@ -609,11 +609,11 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   --radius: 0.5rem;
   
   /* Sidebar colors */
-  --sidebar-background: #e2e8f0;
+  --sidebar-background: #f1f5f9;
   --sidebar-foreground: #475569;
   --sidebar-primary: #f97316;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #cbd5e1;
+  --sidebar-accent: #e2e8f0;
   --sidebar-accent-foreground: #1e293b;
   --sidebar-border: #cbd5e1;
   --sidebar-ring: #f97316;
