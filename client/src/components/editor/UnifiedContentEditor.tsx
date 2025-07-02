@@ -937,11 +937,11 @@ export function UnifiedContentEditor({
         {showSidebar && (
           <div className="space-y-4">
             {/* Basic Settings */}
-            <Card>
-              <CardHeader>
+            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50">
                 <CardTitle>Publication Settings</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 bg-white dark:bg-slate-900">
                 <div>
                   <Label htmlFor="site">Target Site (Optional)</Label>
                   {enableSkeletonLoader && isSaving ? (
@@ -1035,11 +1035,11 @@ export function UnifiedContentEditor({
             />
 
             {/* Content Stats */}
-            <Card>
-              <CardHeader>
+            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50">
                 <CardTitle>Content Statistics</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2 bg-white dark:bg-slate-900">
                 <div className="flex justify-between text-sm">
                   <span>Word Count:</span>
                   <span>{generatePreview().split(/\s+/).filter(Boolean).length}</span>
@@ -1062,11 +1062,11 @@ export function UnifiedContentEditor({
             </Card>
 
             {/* Quick Actions */}
-            <Card>
-              <CardHeader>
+            <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700">
+              <CardHeader className="bg-slate-100 dark:bg-slate-800/50">
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2 bg-white dark:bg-slate-900">
                 <Button 
                   variant="outline" 
                   size="sm" 
