@@ -191,6 +191,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
       }
       
       // Update the content in the editor
+      console.log('🔗 LinkWidget: Calling onContentUpdate with:', updatedContent.substring(0, 100) + '...');
       onContentUpdate(updatedContent);
       
       // Save to database if contentId is provided

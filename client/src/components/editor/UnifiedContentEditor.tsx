@@ -1026,10 +1026,16 @@ export function UnifiedContentEditor({
               content={contentData.content || ''}
               contentId={contentId}
               onContentUpdate={(newContent) => {
+                console.log('🔗 LinkWidget updating content:', newContent.substring(0, 100) + '...');
                 updateContentData({ content: newContent });
                 // Update the editor instance if available
                 if (editorInstance) {
+                  console.log('🔗 Updating rich text editor with new content');
                   editorInstance.commands.setContent(newContent);
+                  // Trigger a re-render of the editor
+                  setTimeout(() => {
+                    editorInstance.commands.focus();
+                  }, 100);
                 }
               }}
             />
