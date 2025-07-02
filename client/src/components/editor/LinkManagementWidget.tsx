@@ -445,8 +445,12 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
                               console.log('🔗 LinkWidget: Save button clicked for link:', link.id);
+                              console.log('🔗 LinkWidget: isSaving state:', isSaving);
+                              console.log('🔗 LinkWidget: editForm state:', editForm);
                               saveLink(link.id);
                             }}
                             className="flex-1"
