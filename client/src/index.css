@@ -248,7 +248,7 @@ div[dangerouslySetInnerHTML] a *,
 
 .dark .bg-sidebar-background,
 [data-theme="dark"] .bg-sidebar-background {
-  background-color: #334155 !important;
+  background-color: #1e293b !important;
 }
 
 /* Specifically override any Tailwind underline classes */
@@ -642,13 +642,13 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   --ring: #f97316;
   
   /* Dark sidebar colors */
-  --sidebar-background: #334155;
+  --sidebar-background: #1e293b;
   --sidebar-foreground: #cbd5e1;
   --sidebar-primary: #f97316;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #475569;
+  --sidebar-accent: #334155;
   --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: #3f4b5a;
+  --sidebar-border: #334155;
   --sidebar-ring: #f97316;
 }
 
