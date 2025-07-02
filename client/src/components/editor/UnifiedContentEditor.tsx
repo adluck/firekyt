@@ -939,7 +939,7 @@ export function UnifiedContentEditor({
             {/* Basic Settings */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700">
               <CardHeader className="bg-slate-100 dark:bg-slate-800/50">
-                <CardTitle className="text-sm">Publication Settings</CardTitle>
+                <CardTitle className="text-base">Publication Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 bg-white dark:bg-slate-900">
                 <div>
@@ -1037,7 +1037,7 @@ export function UnifiedContentEditor({
             {/* Content Stats */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700">
               <CardHeader className="bg-slate-100 dark:bg-slate-800/50">
-                <CardTitle className="text-sm">Content Statistics</CardTitle>
+                <CardTitle className="text-base">Content Statistics</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 bg-white dark:bg-slate-900">
                 <div className="flex justify-between text-sm">
@@ -1064,7 +1064,7 @@ export function UnifiedContentEditor({
             {/* Quick Actions */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700">
               <CardHeader className="bg-slate-100 dark:bg-slate-800/50">
-                <CardTitle className="text-sm">Quick Actions</CardTitle>
+                <CardTitle className="text-base">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 bg-white dark:bg-slate-900">
                 <Button 
