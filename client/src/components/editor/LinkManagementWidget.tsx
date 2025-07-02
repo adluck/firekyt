@@ -126,29 +126,7 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
     setLinks(extractedLinks);
   }, [content]);
 
-  // Test function to verify content updates work
-  const testContentUpdate = () => {
-    console.log('🧪 Testing content update functionality...');
-    console.log('🧪 Current content preview:', content.substring(0, 100));
-    
-    // Simple test - add timestamp to content
-    const testContent = content + `\n\n<!-- Test update at ${new Date().getTime()} -->`;
-    console.log('🧪 Calling onContentUpdate with test content...');
-    onContentUpdate(testContent);
-    console.log('🧪 Test content update called');
-  };
 
-  // Run test when component mounts with content
-  useEffect(() => {
-    if (content && content.length > 0) {
-      console.log('🧪 Link Management Widget loaded, will test content update in 3 seconds...');
-      const timer = setTimeout(() => {
-        testContentUpdate();
-      }, 3000); // Wait 3 seconds then test
-      
-      return () => clearTimeout(timer);
-    }
-  }, [content]);
 
   // Handle link editing
   const startEditing = (link: LinkData) => {
