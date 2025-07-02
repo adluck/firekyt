@@ -444,8 +444,8 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                           />
                         </div>
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
+                          <button
+                            type="button"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -454,12 +454,12 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                               console.log('🔗 LinkWidget: editForm state:', editForm);
                               saveLink(link.id);
                             }}
-                            className="flex-1"
+                            className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
                             disabled={isSaving}
                           >
                             <Save className="h-3 w-3 mr-1" />
                             {isSaving ? 'Saving...' : 'Save'}
-                          </Button>
+                          </button>
                           <Button
                             size="sm"
                             variant="outline"
