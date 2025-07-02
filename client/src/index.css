@@ -241,6 +241,16 @@ div[dangerouslySetInnerHTML] a *,
   -moz-text-decoration: none !important;
 }
 
+/* Force sidebar background visibility */
+.bg-sidebar-background {
+  background-color: #e2e8f0 !important;
+}
+
+.dark .bg-sidebar-background,
+[data-theme="dark"] .bg-sidebar-background {
+  background-color: #334155 !important;
+}
+
 /* Specifically override any Tailwind underline classes */
 .sidebar .underline,
 .sidebar .decoration-slice,
