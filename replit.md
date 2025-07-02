@@ -213,6 +213,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Made sidebar widgets sticky with scroll behavior to remain visible when page is scrolled
 ✓ Reverted content editor sidebar background changes per user feedback
 ✓ Enhanced main navigation sidebar background with slate theme for better visual distinction in both light and dark modes
+✓ Reduced sidebar border visibility with subtle colors for cleaner appearance
 
 ## User Preferences
 

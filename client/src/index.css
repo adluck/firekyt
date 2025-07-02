@@ -615,7 +615,7 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #cbd5e1;
   --sidebar-accent-foreground: #1e293b;
-  --sidebar-border: #94a3b8;
+  --sidebar-border: #f1f5f9;
   --sidebar-ring: #f97316;
 }
 
@@ -648,7 +648,7 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #475569;
   --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: #64748b;
+  --sidebar-border: #3f4b5a;
   --sidebar-ring: #f97316;
 }
 
