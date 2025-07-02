@@ -128,11 +128,17 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
 
   // Handle link editing
   const startEditing = (link: LinkData) => {
+    console.log('🔗 LinkWidget: Starting edit for link:', link);
     setEditingLinkId(link.id);
     setEditForm({
       url: link.url,
       text: link.text,
       title: link.title || '',
+    });
+    console.log('🔗 LinkWidget: Edit form set to:', {
+      url: link.url,
+      text: link.text,
+      title: link.title || ''
     });
   };
 
@@ -439,7 +445,10 @@ export function LinkManagementWidget({ content, onContentUpdate, contentId, clas
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            onClick={() => saveLink(link.id)}
+                            onClick={() => {
+                              console.log('🔗 LinkWidget: Save button clicked for link:', link.id);
+                              saveLink(link.id);
+                            }}
                             className="flex-1"
                             disabled={isSaving}
                           >
