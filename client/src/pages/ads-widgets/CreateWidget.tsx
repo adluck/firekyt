@@ -920,7 +920,7 @@ export default function CreateWidget() {
                           <div className="flex-1 min-w-0">
                             <h3 className={`${getContentStyling(watchedValues.size).titleSize} mb-1 leading-tight`}>
                               {(() => {
-                                const title = previewAd.title || 'HyperX Cloud Alpha Wireless';
+                                const title = previewAd.title || 'Product Title';
                                 const maxTitleLength = watchedValues.size === '160x600' ? 25 : 
                                                      watchedValues.size === '728x90' ? 35 : 50;
                                 return title.length > maxTitleLength 
@@ -931,7 +931,7 @@ export default function CreateWidget() {
                             <p className={`${getContentStyling(watchedValues.size).descriptionSize} ${getContentStyling(watchedValues.size).descriptionLines} opacity-80 leading-tight`}>
                               {(() => {
                                 const maxLength = getContentStyling(watchedValues.size).maxDescription;
-                                const description = previewAd.description || 'Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red';
+                                const description = previewAd.description || 'Enter your product description here...';
                                 return description.length > maxLength 
                                   ? description.substring(0, maxLength) + '...'
                                   : description;
