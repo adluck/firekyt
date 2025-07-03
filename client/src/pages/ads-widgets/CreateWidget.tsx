@@ -773,7 +773,7 @@ export default function CreateWidget() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="pt-6 space-y-4">
                   {/* Ad Tabs */}
                   <div className="flex flex-wrap gap-2">
                     {fields.map((field, index) => (
