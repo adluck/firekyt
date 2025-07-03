@@ -952,7 +952,7 @@ export default function CreateWidget() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {previewMode === 'preview' ? (
                 <div className="flex justify-center">
                   <div
