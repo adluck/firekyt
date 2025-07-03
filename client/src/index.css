@@ -43,6 +43,48 @@
   background: linear-gradient(90deg, #f97316 0%, #ef4444 100%);
 }
 
+/* Curved decorative elements for ad widgets */
+.curved-decoration {
+  position: relative;
+  overflow: hidden;
+}
+
+.curved-decoration::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: rotate(45deg);
+  z-index: 1;
+}
+
+.curved-decoration::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -30%;
+  width: 120%;
+  height: 120%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* Enhanced circular image styling */
+.circular-image-frame {
+  position: relative;
+  z-index: 2;
+}
+
+.circular-image-frame img {
+  position: relative;
+  z-index: 3;
+}
+
 /* Prevent white flash during navigation */
 html, body {
   background-color: hsl(var(--background)) !important;

@@ -129,6 +129,21 @@ const templateOptions = [
       imageStyle: "rounded",
       layout: "ecommerce"
     }
+  },
+  {
+    id: "curved-modern",
+    name: "Curved Modern",
+    description: "Google Ads inspired design with curved elements and circular image frames",
+    preview: "bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800",
+    theme: {
+      bgColor: "linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%)",
+      textColor: "#ffffff",
+      ctaColor: "#60a5fa",
+      font: "sans-serif",
+      borderRadius: "12px",
+      imageStyle: "circular",
+      layout: "curved"
+    }
   }
 ];
 
@@ -699,7 +714,7 @@ export default function CreateWidget() {
               {previewMode === 'preview' ? (
                 <div className="flex justify-center">
                   <div
-                    className={`border rounded-lg overflow-hidden ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'flex-row' : 'flex-col'} ${getContentStyling(watchedValues.size).padding} ${getContentStyling(watchedValues.size).spacing} ${getContentStyling(watchedValues.size).textAlign}`}
+                    className={`border rounded-lg overflow-hidden curved-decoration ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'flex-row' : 'flex-col'} ${getContentStyling(watchedValues.size).padding} ${getContentStyling(watchedValues.size).spacing} ${getContentStyling(watchedValues.size).textAlign}`}
                     style={{
                       ...getSizeStyle(watchedValues.size),
                       background: watchedValues.theme.bgColor.includes('gradient') 
@@ -714,14 +729,17 @@ export default function CreateWidget() {
                     {currentAd && (
                       <>
                         {currentAd.imageUrl && (
-                          <img
-                            src={currentAd.imageUrl}
-                            alt={currentAd.title}
-                            className={`${getContentStyling(watchedValues.size).imageSize} object-cover rounded flex-shrink-0`}
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
+                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 relative overflow-hidden circular-image-frame`}>
+                            <img
+                              src={currentAd.imageUrl}
+                              alt={currentAd.title}
+                              className="w-full h-full object-cover rounded-full border-4 border-white/20 shadow-lg"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-transparent to-black/10" />
+                          </div>
                         )}
                         <div className={`flex-1 flex flex-col ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'justify-center' : 'items-center'}`}>
                           <h3 className={`${getContentStyling(watchedValues.size).titleSize} mb-1 leading-tight`}>
