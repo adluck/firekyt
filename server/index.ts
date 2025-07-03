@@ -66,17 +66,18 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       justify-content: center;
       background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
-      padding: ${isCompact ? '8px' : '16px'};
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: ${isCompact ? '12px 16px' : '20px'};
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     .image { 
-      width: ${isCompact ? '60px' : '80px'}; 
-      height: ${isCompact ? '40px' : '80px'}; 
+      width: ${isCompact ? '80px' : '120px'}; 
+      height: ${isCompact ? '60px' : '120px'}; 
       object-fit: cover; 
-      border-radius: 4px; 
-      margin: ${isCompact ? '0 12px 0 0' : '0 0 12px 0'}; 
+      border-radius: 8px; 
+      margin: ${isCompact ? '0 16px 0 0' : '0 0 16px 0'}; 
       flex-shrink: 0;
       background: #f3f4f6;
+      border: 2px solid rgba(255,255,255,0.2);
     }
     .content { 
       flex: 1; 
@@ -112,17 +113,19 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       background: linear-gradient(135deg, ${theme?.ctaColor || '#10b981'}, ${theme?.ctaColor || '#059669'}); 
       color: white; 
       border: none; 
-      border-radius: 6px; 
-      padding: ${isCompact ? '8px 16px' : '10px 20px'}; 
-      font-size: ${isCompact ? '12px' : '14px'}; 
-      font-weight: 600; 
+      border-radius: 8px; 
+      padding: ${isCompact ? '10px 20px' : '12px 24px'}; 
+      font-size: ${isCompact ? '13px' : '15px'}; 
+      font-weight: 700; 
       cursor: pointer; 
       margin-top: auto; 
       width: fit-content; 
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       text-decoration: none;
       display: inline-block;
       text-align: center;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+      letter-spacing: 0.5px;
     }
     .button:hover { 
       transform: translateY(-1px); 
