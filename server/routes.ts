@@ -5012,6 +5012,73 @@ async function generateAILinkSuggestions(params: {
     res.sendFile(path.join(currentDir, '../external-widget-test.html'));
   });
 
+  // Serve widget as iframe (WordPress-compatible alternative)
+  app.get('/widgets/:id/iframe', async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const widget = await storage.getAdWidget(widgetId);
+      
+      if (!widget || !widget.isActive) {
+        return res.status(404).send('<html><body>Widget not found</body></html>');
+      }
+
+      // Track view
+      await storage.createAdWidgetAnalytics({
+        widgetId,
+        eventType: 'view',
+        referrer: req.get('Referer') || null,
+        userAgent: req.get('User-Agent') || null,
+        ipAddress: req.ip || null
+      });
+
+      const sizeStyles = {
+        '300x250': 'width: 300px; height: 250px;',
+        '728x90': 'width: 728px; height: 90px;',
+        '160x600': 'width: 160px; height: 600px;',
+        '100%': 'width: 100%; height: 250px;'
+      };
+
+      const currentAd = widget.ads[0] || {};
+      const isCompact = widget.size === '728x90';
+      
+      const iframeHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; padding: 16px; font-family: Arial, sans-serif; background: ${widget.theme.bgColor}; color: ${widget.theme.textColor}; ${sizeStyles[widget.size] || sizeStyles['300x250']} overflow: hidden; }
+    .widget { display: flex; flex-direction: ${isCompact ? 'row' : 'column'}; height: 100%; align-items: ${isCompact ? 'center' : 'stretch'}; }
+    .image { width: ${isCompact ? '60px' : '80px'}; height: ${isCompact ? '40px' : '80px'}; object-fit: cover; border-radius: 4px; margin: ${isCompact ? '0 8px 0 0' : '0 0 8px 0'}; flex-shrink: 0; }
+    .content { flex: 1; display: flex; flex-direction: column; }
+    .title { font-size: ${isCompact ? '14px' : '16px'}; font-weight: bold; margin: 0 0 4px 0; line-height: 1.2; color: #1f2937; }
+    .description { font-size: ${isCompact ? '11px' : '14px'}; margin: 0 0 8px 0; line-height: 1.3; color: #4b5563; }
+    .button { background-color: ${widget.theme.ctaColor}; color: white; border: none; border-radius: 4px; padding: ${isCompact ? '6px 12px' : '8px 16px'}; font-size: ${isCompact ? '12px' : '14px'}; font-weight: bold; cursor: pointer; margin-top: auto; width: fit-content; transition: background-color 0.2s; }
+    .button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    ${currentAd.imageUrl ? `<img src="${currentAd.imageUrl}" class="image" onerror="this.style.display='none'">` : ''}
+    <div class="content">
+      <h3 class="title">${currentAd.title || 'Premium Product'}</h3>
+      <p class="description">${currentAd.description || 'High-quality product with excellent features'}</p>
+      <button class="button" onclick="window.open('${currentAd.url}', '_blank')">${currentAd.ctaText || 'Shop Now'}</button>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('X-Frame-Options', 'ALLOWALL');
+      res.send(iframeHtml);
+    } catch (error: any) {
+      console.error('Serve iframe widget error:', error);
+      res.status(500).send('<html><body>Error loading widget</body></html>');
+    }
+  });
+
   // Serve widget embed script
   app.get('/widgets/:id/embed.js', async (req, res) => {
     try {
@@ -5055,16 +5122,30 @@ async function generateAILinkSuggestions(params: {
   var widget = ${JSON.stringify(widgetData)};
   var baseUrl = '${req.protocol}://${req.get('host')}';
   
-  // Create widget container
-  var container = document.createElement('div');
-  container.id = 'affiliate-widget-' + widgetId;
-  container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: Arial, sans-serif;';
+  // WordPress compatibility: wait for DOM ready
+  function initWidget() {
+    var container = document.createElement('div');
+    container.id = 'affiliate-widget-' + widgetId;
+    container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: Arial, sans-serif; margin: 10px 0;';
+    
+    // Better script insertion for WordPress
+    var scripts = document.getElementsByTagName('script');
+    var currentScript = null;
+    for (var i = scripts.length - 1; i >= 0; i--) {
+      if (scripts[i].src && scripts[i].src.indexOf('widgets/' + widgetId + '/embed.js') !== -1) {
+        currentScript = scripts[i];
+        break;
+      }
+    }
+    
+    if (currentScript && currentScript.parentNode) {
+      currentScript.parentNode.insertBefore(container, currentScript.nextSibling);
+    } else {
+      // Fallback: append to body
+      document.body.appendChild(container);
+    }
   
-  // Insert container where script is loaded
-  var currentScript = document.currentScript || document.scripts[document.scripts.length - 1];
-  currentScript.parentNode.insertBefore(container, currentScript);
-  
-  try {
+    try {
       var currentAdIndex = 0;
       
       // Apply size styles
@@ -5121,8 +5202,21 @@ async function generateAILinkSuggestions(params: {
         }
       }
   } catch (error) {
-    console.error('Affiliate widget error:', error.message || error);
-    container.innerHTML = '<div style="padding: 16px; text-align: center; border: 1px solid #e5e7eb; border-radius: 4px; background: #f9fafb;"><p style="color: #6b7280; font-size: 12px; margin: 0;">Unable to load advertisement</p><p style="color: #9ca3af; font-size: 10px; margin: 4px 0 0 0;">Error: ' + (error.message || 'Network error') + '</p></div>';
+      console.error('Affiliate widget error:', error.message || error);
+      if (container) {
+        container.innerHTML = '<div style="padding: 16px; text-align: center; border: 1px solid #e5e7eb; border-radius: 4px; background: #f9fafb;"><p style="color: #6b7280; font-size: 12px; margin: 0;">Unable to load advertisement</p><p style="color: #9ca3af; font-size: 10px; margin: 4px 0 0 0;">Error: ' + (error.message || 'Network error') + '</p></div>';
+      }
+    }
+  }
+  
+  // WordPress compatibility: multiple initialization approaches
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWidget);
+  } else if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initWidget();
+  } else {
+    // Fallback for older browsers
+    setTimeout(initWidget, 100);
   }
 })();
 `;

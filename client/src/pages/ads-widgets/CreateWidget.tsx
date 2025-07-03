@@ -445,6 +445,17 @@ export default function CreateWidget() {
     return `<script src="${window.location.origin}/widgets/{widget-id}/embed.js"></script>`;
   };
 
+  const generateIframeCode = () => {
+    const widgetId = isEditMode ? editWidgetId : createdWidgetId;
+    const size = watchedValues.size || '300x250';
+    const [width, height] = size === '100%' ? ['100%', '250px'] : size.split('x').map(s => s + 'px');
+    
+    if (widgetId) {
+      return `<iframe src="${window.location.origin}/widgets/${widgetId}/iframe" width="${width}" height="${height}" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>`;
+    }
+    return `<iframe src="${window.location.origin}/widgets/{widget-id}/iframe" width="${width}" height="${height}" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>`;
+  };
+
   const onSubmit = (data: WidgetFormData) => {
     saveWidget.mutate(data);
   };
@@ -1044,37 +1055,113 @@ export default function CreateWidget() {
                 <div className="space-y-4">
                   {((isEditMode && editWidgetId) || createdWidgetId) ? (
                     <>
-                      <div className="flex items-center justify-between">
-                        <Label>Embed Code</Label>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText(generateEmbedCode());
-                              toast({
-                                title: "Copied!",
-                                description: "Embed code copied to clipboard",
-                              });
-                            } catch (error) {
-                              toast({
-                                title: "Copy failed",
-                                description: "Please copy the code manually",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                          className="text-xs"
-                        >
-                          Copy to Clipboard
-                        </Button>
+                      <div className="space-y-4">
+                        {/* Embed Options Tabs */}
+                        <div className="border rounded-lg">
+                          <div className="flex border-b">
+                            <button
+                              className={`px-4 py-2 text-sm font-medium border-r ${
+                                previewMode === 'preview' 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'hover:bg-muted'
+                              }`}
+                              onClick={() => setPreviewMode('preview')}
+                            >
+                              JavaScript (Standard)
+                            </button>
+                            <button
+                              className={`px-4 py-2 text-sm font-medium ${
+                                previewMode === 'code' 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'hover:bg-muted'
+                              }`}
+                              onClick={() => setPreviewMode('code')}
+                            >
+                              Iframe (WordPress Compatible)
+                            </button>
+                          </div>
+                          
+                          <div className="p-4">
+                            {previewMode === 'preview' ? (
+                              <>
+                                <div className="flex items-center justify-between mb-3">
+                                  <Label className="text-sm font-medium">JavaScript Embed Code</Label>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={async () => {
+                                      try {
+                                        await navigator.clipboard.writeText(generateEmbedCode());
+                                        toast({
+                                          title: "Copied!",
+                                          description: "JavaScript embed code copied to clipboard",
+                                        });
+                                      } catch (error) {
+                                        toast({
+                                          title: "Copy failed",
+                                          description: "Please copy the code manually",
+                                          variant: "destructive",
+                                        });
+                                      }
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    Copy to Clipboard
+                                  </Button>
+                                </div>
+                                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-3">
+                                  <code className="text-sm break-all">{generateEmbedCode()}</code>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  <strong>Best for:</strong> Most websites, blogs, and content management systems. Provides dynamic content and analytics tracking.
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex items-center justify-between mb-3">
+                                  <Label className="text-sm font-medium">Iframe Embed Code</Label>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={async () => {
+                                      try {
+                                        await navigator.clipboard.writeText(generateIframeCode());
+                                        toast({
+                                          title: "Copied!",
+                                          description: "Iframe embed code copied to clipboard",
+                                        });
+                                      } catch (error) {
+                                        toast({
+                                          title: "Copy failed",
+                                          description: "Please copy the code manually",
+                                          variant: "destructive",
+                                        });
+                                      }
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    Copy to Clipboard
+                                  </Button>
+                                </div>
+                                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-3">
+                                  <code className="text-sm break-all">{generateIframeCode()}</code>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  <strong>Best for:</strong> WordPress, platforms with strict security policies, or when JavaScript embed doesn't work.
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                          <h4 className="font-medium text-sm mb-2">WordPress Users:</h4>
+                          <p className="text-sm text-muted-foreground">
+                            If the JavaScript version doesn't work on your WordPress site, use the Iframe version. 
+                            This bypasses WordPress security restrictions and ensures your widget displays properly.
+                          </p>
+                        </div>
                       </div>
-                      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                        <code className="text-sm break-all">{generateEmbedCode()}</code>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Copy and paste this code into your website where you want the ad to appear.
-                      </p>
                     </>
                   ) : (
                     <div className="text-center text-muted-foreground py-8">
