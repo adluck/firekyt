@@ -275,13 +275,14 @@ export default function CreateWidget() {
       case "728x90": // Leaderboard - horizontal layout
         return {
           layout: 'flex-row',
-          padding: '8px 12px',
+          padding: 'px-4 py-3',
           titleSize: 'text-sm font-semibold',
           descriptionSize: 'text-xs',
           descriptionLines: 'line-clamp-2',
           imageSize: 'w-20 h-20',
-          buttonSize: 'px-3 py-1 text-xs',
-          spacing: 'gap-3',
+          buttonSize: 'px-4 py-2 text-sm',
+          buttonWidth: 'w-24',
+          spacing: 'gap-4',
           textAlign: 'text-left',
           maxDescription: 80
         };
@@ -810,28 +811,30 @@ export default function CreateWidget() {
                             }}
                           />
                         )}
-                        <div className={`flex-1 flex flex-col ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'justify-center' : 'items-center'}`}>
-                          <h3 className={`${getContentStyling(watchedValues.size).titleSize} mb-1 leading-tight`}>
-                            {(() => {
-                              const title = currentAd.title || 'HyperX Cloud Alpha Wireless';
-                              const maxTitleLength = watchedValues.size === '160x600' ? 25 : 
-                                                   watchedValues.size === '728x90' ? 35 : 50;
-                              return title.length > maxTitleLength 
-                                ? title.substring(0, maxTitleLength) + '...'
-                                : title;
-                            })()}
-                          </h3>
-                          <p className={`${getContentStyling(watchedValues.size).descriptionSize} ${getContentStyling(watchedValues.size).descriptionLines} mb-2 opacity-80 leading-tight`}>
-                            {(() => {
-                              const maxLength = getContentStyling(watchedValues.size).maxDescription;
-                              const description = currentAd.description || 'Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red';
-                              return description.length > maxLength 
-                                ? description.substring(0, maxLength) + '...'
-                                : description;
-                            })()}
-                          </p>
+                        <div className={`flex-1 flex ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'flex-row items-center justify-between' : 'flex-col items-center'}`}>
+                          <div className="flex-1 min-w-0">
+                            <h3 className={`${getContentStyling(watchedValues.size).titleSize} mb-1 leading-tight`}>
+                              {(() => {
+                                const title = currentAd.title || 'HyperX Cloud Alpha Wireless';
+                                const maxTitleLength = watchedValues.size === '160x600' ? 25 : 
+                                                     watchedValues.size === '728x90' ? 35 : 50;
+                                return title.length > maxTitleLength 
+                                  ? title.substring(0, maxTitleLength) + '...'
+                                  : title;
+                              })()}
+                            </h3>
+                            <p className={`${getContentStyling(watchedValues.size).descriptionSize} ${getContentStyling(watchedValues.size).descriptionLines} opacity-80 leading-tight`}>
+                              {(() => {
+                                const maxLength = getContentStyling(watchedValues.size).maxDescription;
+                                const description = currentAd.description || 'Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red';
+                                return description.length > maxLength 
+                                  ? description.substring(0, maxLength) + '...'
+                                  : description;
+                              })()}
+                            </p>
+                          </div>
                           <button
-                            className={`${getContentStyling(watchedValues.size).buttonSize} rounded font-semibold transition-colors mt-auto`}
+                            className={`${getContentStyling(watchedValues.size).buttonSize} ${getContentStyling(watchedValues.size).buttonWidth || ''} rounded font-semibold transition-colors ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'ml-4' : 'mt-2'} flex-shrink-0`}
                             style={{
                               backgroundColor: watchedValues.theme.ctaColor,
                               color: 'white',
