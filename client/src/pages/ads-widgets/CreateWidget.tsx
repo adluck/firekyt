@@ -163,6 +163,7 @@ export default function CreateWidget() {
   const [, navigate] = useLocation();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
+  const [embedMode, setEmbedMode] = useState<'javascript' | 'iframe'>('javascript');
   const [previewAdIndex, setPreviewAdIndex] = useState(0);
   
   // Check if we're in edit mode
@@ -1061,28 +1062,28 @@ export default function CreateWidget() {
                           <div className="flex border-b">
                             <button
                               className={`px-4 py-2 text-sm font-medium border-r ${
-                                previewMode === 'preview' 
+                                embedMode === 'javascript' 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'hover:bg-muted'
                               }`}
-                              onClick={() => setPreviewMode('preview')}
+                              onClick={() => setEmbedMode('javascript')}
                             >
                               JavaScript (Standard)
                             </button>
                             <button
                               className={`px-4 py-2 text-sm font-medium ${
-                                previewMode === 'code' 
+                                embedMode === 'iframe' 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'hover:bg-muted'
                               }`}
-                              onClick={() => setPreviewMode('code')}
+                              onClick={() => setEmbedMode('iframe')}
                             >
                               Iframe (WordPress Compatible)
                             </button>
                           </div>
                           
                           <div className="p-4">
-                            {previewMode === 'preview' ? (
+                            {embedMode === 'javascript' ? (
                               <>
                                 <div className="flex items-center justify-between mb-3">
                                   <Label className="text-sm font-medium">JavaScript Embed Code</Label>
@@ -1155,11 +1156,19 @@ export default function CreateWidget() {
                         </div>
                         
                         <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
-                          <h4 className="font-medium text-sm mb-2">WordPress Users:</h4>
-                          <p className="text-sm text-muted-foreground">
-                            If the JavaScript version doesn't work on your WordPress site, use the Iframe version. 
-                            This bypasses WordPress security restrictions and ensures your widget displays properly.
-                          </p>
+                          <h4 className="font-medium text-sm mb-2">WordPress Users - Important:</h4>
+                          <div className="text-sm text-muted-foreground space-y-2">
+                            <p><strong>If you see the embed code as text instead of the widget:</strong></p>
+                            <ol className="list-decimal list-inside space-y-1 ml-2">
+                              <li>Use the <strong>Iframe</strong> embed code (not JavaScript)</li>
+                              <li>Switch to <strong>"Text" or "HTML" editor</strong> in WordPress (not Visual)</li>
+                              <li>Paste the iframe code where you want the widget</li>
+                              <li>Publish or preview your post</li>
+                            </ol>
+                            <p className="text-xs mt-2 text-blue-600 dark:text-blue-400">
+                              WordPress blocks external JavaScript for security, but iframes work everywhere.
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </>

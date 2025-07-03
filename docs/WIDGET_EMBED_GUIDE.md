@@ -41,11 +41,71 @@ Select from professional templates:
 
 ## Embed Code Usage
 
-### Getting Your Embed Code
-1. Complete your widget setup
-2. Click the **"Embed Code"** tab in the Live Preview section
-3. Copy the generated HTML/JavaScript code
-4. Paste it into your blog post or website
+### Two Embed Options Available
+
+FireKyt provides two embedding methods to ensure maximum compatibility:
+
+#### 1. JavaScript Embed (Standard)
+```html
+<script src="https://your-domain.com/widgets/123/embed.js"></script>
+```
+- **Best for**: Most websites, blogs, and content management systems
+- **Features**: Dynamic content, real-time analytics, ad rotation
+- **Compatibility**: Works on most platforms
+
+#### 2. Iframe Embed (WordPress Compatible)
+```html
+<iframe src="https://your-domain.com/widgets/123/iframe" width="728px" height="90px" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>
+```
+- **Best for**: WordPress, platforms with strict security policies
+- **Features**: Guaranteed rendering, bypasses JavaScript restrictions
+- **Compatibility**: Universal compatibility, including WordPress
+
+### WordPress Embedding Instructions
+
+WordPress requires special handling due to security restrictions:
+
+#### Method 1: Using the HTML Editor (Recommended)
+1. In your WordPress post editor, click **"Text"** or **"HTML"** tab (not Visual)
+2. Paste the **Iframe embed code** (not JavaScript)
+3. Switch back to **"Visual"** tab to see preview
+4. Publish your post
+
+#### Method 2: Using Gutenberg Block Editor
+1. Add a **"Custom HTML"** block
+2. Paste the **Iframe embed code**
+3. Preview and publish
+
+#### Method 3: Classic Editor
+1. Switch to **"Text"** view
+2. Paste the **Iframe embed code** where you want the widget
+3. Switch back to **"Visual"** to verify
+4. Publish
+
+#### Common WordPress Issues and Solutions
+
+**Problem**: Embed code shows as text instead of widget
+- **Solution**: Use iframe embed code in HTML/Text editor, not Visual editor
+
+**Problem**: WordPress strips out the code
+- **Solution**: Add this to your theme's functions.php:
+```php
+function allow_iframe_embeds($allowedtags) {
+    $allowedtags['iframe'] = array(
+        'src' => true,
+        'width' => true,
+        'height' => true,
+        'frameborder' => true,
+        'scrolling' => true,
+        'style' => true
+    );
+    return $allowedtags;
+}
+add_filter('wp_kses_allowed_html', 'allow_iframe_embeds');
+```
+
+**Problem**: Widget doesn't display properly
+- **Solution**: Ensure iframe dimensions match your widget size, check theme CSS conflicts
 
 ### Supported Platforms
 
