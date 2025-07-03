@@ -4,11 +4,12 @@
 1. [Getting Started](#getting-started)
 2. [Basic Setup](#basic-setup)
 3. [Content Creation Mastery](#content-creation-mastery)
-4. [Link Management & Optimization](#link-management--optimization)
-5. [Publishing & Distribution](#publishing--distribution)
-6. [Analytics & Performance Tracking](#analytics--performance-tracking)
-7. [Advanced Strategies](#advanced-strategies)
-8. [Troubleshooting & Best Practices](#troubleshooting--best-practices)
+4. [Affiliate Widget Creation & Embedding](#affiliate-widget-creation--embedding)
+5. [Link Management & Optimization](#link-management--optimization)
+6. [Publishing & Distribution](#publishing--distribution)
+7. [Analytics & Performance Tracking](#analytics--performance-tracking)
+8. [Advanced Strategies](#advanced-strategies)
+9. [Troubleshooting & Best Practices](#troubleshooting--best-practices)
 
 ---
 
@@ -142,6 +143,90 @@
    - Clear benefits over features
 
 **Practice Exercise**: Optimize 3 existing articles for both SEO and conversions.
+
+---
+
+## Affiliate Widget Creation & Embedding
+
+### 🎯 Day 9-10: Creating Professional Affiliate Widgets
+**Goal**: Build customizable affiliate ad widgets for your content
+
+#### Understanding Affiliate Widgets
+Affiliate widgets are professional advertisement units that you can embed anywhere on your website or blog. They're designed to:
+- Generate revenue through affiliate links
+- Look professional and blend with your content
+- Track performance and optimize automatically
+- Save time with "create once, use everywhere" approach
+
+#### Step 1: Access Widget Creation
+1. Navigate to **Ads Widgets** → **Create Widget**
+2. Choose a descriptive widget name (e.g., "Gaming Headsets Collection")
+3. Add a compelling description for your widget
+
+#### Step 2: Configure Your Ads
+1. **Add Products**: Click "Add Advertisement" to include affiliate products
+2. **Product Details**:
+   - Product name (e.g., "HyperX Cloud Alpha Wireless")
+   - Compelling description highlighting key benefits
+   - Your affiliate URL with tracking parameters
+3. **Upload Images**: Include high-quality product images
+4. **Set Rotation**: Configure how often ads rotate (10s recommended)
+
+#### Step 3: Choose Widget Size
+Select the appropriate size for your use case:
+- **728x90 Leaderboard**: Header/footer placement, blog post headers
+- **300x250 Medium Rectangle**: Sidebar placement, in-content advertising
+- **160x600 Wide Skyscraper**: Sidebar placement on desktop sites
+- **320x50 Mobile Banner**: Mobile-optimized content
+
+#### Step 4: Select Design Template
+Choose from professional templates:
+- **Modern Gradient**: Sleek gradient backgrounds
+- **Professional Dark**: Clean dark theme design
+- **Minimal White**: Simple, clean appearance
+- **Vibrant Orange**: Eye-catching bright design
+- **E-commerce Classic**: Traditional shopping layout
+
+#### Step 5: Customize Appearance
+1. **Colors**: Customize background, text, and button colors
+2. **Image Settings**: Adjust scale (80%-150%) and fit options
+3. **Preview**: Use the sticky Live Preview to see changes in real-time
+
+### 📝 Day 11: Embedding Widgets in Content
+
+#### WordPress Integration
+```html
+<!-- Switch to HTML/Code editor and paste embed code -->
+<div id="firekyt-widget-123"></div>
+<script src="https://your-domain.com/widget/123.js"></script>
+```
+
+#### Ghost Blog Integration
+```html
+<!-- Use HTML card or code injection -->
+<div class="firekyt-affiliate-widget">
+  <!-- Embed code goes here -->
+</div>
+```
+
+#### Custom Website Integration
+```html
+<!-- Add anywhere in your HTML -->
+<article>
+  <h2>Product Recommendations</h2>
+  <!-- Widget embed code -->
+  <div id="firekyt-widget-123"></div>
+  <script src="https://your-domain.com/widget/123.js"></script>
+</article>
+```
+
+#### Best Practices for Widget Placement
+1. **Strategic Positioning**: Place widgets where readers naturally pause
+2. **Content Relevance**: Match widget products to article topics
+3. **Mobile Optimization**: All widgets automatically adapt to screen size
+4. **Performance**: Widgets are optimized for fast loading
+
+**Practice Exercise**: Create 3 different widgets for different product categories and embed them in test blog posts.
 
 ---
 
