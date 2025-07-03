@@ -18,11 +18,11 @@ import { apiRequest } from "@/lib/queryClient";
 
 // Validation schemas
 const adSchema = z.object({
-  title: z.string().min(1, "Title is required").max(100, "Title too long"),
-  description: z.string().min(1, "Description is required").max(200, "Description too long"),
-  imageUrl: z.string().url("Valid image URL required"),
+  title: z.string().max(100, "Title too long"),
+  description: z.string().max(200, "Description too long"),
+  imageUrl: z.string().refine(val => val === "" || z.string().url().safeParse(val).success, "Valid image URL required"),
   ctaText: z.string().min(1, "CTA text is required").max(30, "CTA text too long"),
-  url: z.string().url("Valid HTTPS URL required").refine(url => url.startsWith('https://'), "Must use HTTPS"),
+  url: z.string().refine(val => val === "" || (z.string().url().safeParse(val).success && val.startsWith('https://')), "Valid HTTPS URL required"),
   tags: z.array(z.string()).optional(),
 });
 
@@ -189,22 +189,7 @@ export default function CreateWidget() {
     name: "ads"
   });
 
-  // Clear form fields when switching to a newly created ad
-  useEffect(() => {
-    const currentAd = form.getValues(`ads.${currentAdIndex}`);
-    // If this is a new ad (all fields are empty defaults), clear the form display
-    if (currentAd && 
-        currentAd.title === "" && 
-        currentAd.description === "" && 
-        currentAd.imageUrl === "" && 
-        currentAd.url === "") {
-      // Force re-render of form fields for the new ad
-      form.setValue(`ads.${currentAdIndex}.title`, "");
-      form.setValue(`ads.${currentAdIndex}.description`, "");
-      form.setValue(`ads.${currentAdIndex}.imageUrl`, "");
-      form.setValue(`ads.${currentAdIndex}.url`, "");
-    }
-  }, [currentAdIndex, form]);
+
 
 
 
@@ -249,9 +234,6 @@ export default function CreateWidget() {
   });
 
   const addAd = () => {
-    // First, trigger form validation to save current ad data
-    form.trigger();
-    
     const newAdIndex = fields.length;
     
     // Create the new empty ad using useFieldArray append
