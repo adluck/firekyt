@@ -279,7 +279,7 @@ export default function CreateWidget() {
           titleSize: 'text-sm font-semibold',
           descriptionSize: 'text-xs',
           descriptionLines: 'line-clamp-2',
-          imageSize: 'w-16 h-16',
+          imageSize: 'w-20 h-20',
           buttonSize: 'px-4 py-2 text-sm',
           buttonWidth: 'w-24',
           spacing: 'gap-6',
