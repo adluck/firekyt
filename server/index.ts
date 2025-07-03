@@ -33,7 +33,9 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       '100%': 'width: 100%; height: 250px;'
     };
 
-    const currentAd = widget.ads[0] || {};
+    const ads = typeof widget.ads === 'string' ? JSON.parse(widget.ads) : (widget.ads || []);
+    const theme = typeof widget.theme === 'string' ? JSON.parse(widget.theme) : (widget.theme || {});
+    const currentAd = ads[0] || {};
     const isCompact = widget.size === '728x90';
     
     const iframeHtml = `<!DOCTYPE html>
@@ -48,9 +50,9 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     body { 
       padding: 16px; 
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
-      background: ${widget.theme?.bgColor || '#ffffff'}; 
-      color: ${widget.theme?.textColor || '#000000'}; 
-      ${sizeStyles[widget.size] || sizeStyles['300x250']}
+      background: ${theme?.bgColor || '#ffffff'}; 
+      color: ${theme?.textColor || '#000000'}; 
+      ${(sizeStyles as any)[widget.size] || sizeStyles['300x250']}
       display: flex;
       align-items: center;
     }
@@ -106,7 +108,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       -webkit-box-orient: vertical;
     }
     .button { 
-      background: linear-gradient(135deg, ${widget.theme?.ctaColor || '#10b981'}, ${widget.theme?.ctaColor || '#059669'}); 
+      background: linear-gradient(135deg, ${theme?.ctaColor || '#10b981'}, ${theme?.ctaColor || '#059669'}); 
       color: white; 
       border: none; 
       border-radius: 6px; 
