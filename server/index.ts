@@ -48,13 +48,14 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     body { 
-      padding: 16px; 
+      padding: 0; 
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
-      background: ${theme?.bgColor || '#ffffff'}; 
+      background: transparent; 
       color: ${theme?.textColor || '#000000'}; 
       ${(sizeStyles as any)[widget.size] || sizeStyles['300x250']}
       display: flex;
       align-items: center;
+      justify-content: center;
     }
     .widget { 
       display: flex; 
@@ -63,11 +64,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       height: 100%; 
       align-items: ${isCompact ? 'center' : 'stretch'}; 
       justify-content: center;
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
+      background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: ${isCompact ? '8px' : '16px'};
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .image { 
       width: ${isCompact ? '60px' : '80px'}; 
@@ -89,7 +89,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       font-weight: 600; 
       margin: 0 0 6px 0; 
       line-height: 1.3; 
-      color: #1f2937; 
+      color: ${theme?.textColor || '#ffffff'}; 
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
@@ -100,7 +100,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       font-size: ${isCompact ? '11px' : '13px'}; 
       margin: 0 0 12px 0; 
       line-height: 1.4; 
-      color: #6b7280; 
+      color: ${theme?.textColor || '#e5e7eb'}; 
+      opacity: 0.8;
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
