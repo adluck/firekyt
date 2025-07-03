@@ -227,12 +227,12 @@ export default function CreateWidget() {
     form.setValue("ads", [
       ...currentAds,
       {
-        title: "HyperX Cloud Alpha Wireless",
-        description: "Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red",
-        imageUrl: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500&h=300&fit=crop",
+        title: "",
+        description: "",
+        imageUrl: "",
         ctaText: "Buy Now",
-        url: "https://amazon.com/hyperx-cloud-alpha-wireless",
-        tags: ["gaming", "headset", "wireless"],
+        url: "",
+        tags: [],
       },
     ]);
     setCurrentAdIndex(currentAds.length);
