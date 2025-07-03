@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useLocation } from "wouter";
+import { useLocation, useRoute } from "wouter";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, Eye, Code } from "lucide-react";
+import { Plus, Trash2, Eye, Code, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -447,15 +447,25 @@ export default function CreateWidget() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">{isEditMode ? "Edit Ad Widget" : "Create Ad Widget"}</h1>
-        <p className="text-muted-foreground mt-2">
-          {isEditMode 
-            ? "Update your affiliate ad widget with live preview"
-            : "Design and customize your affiliate ad widget with live preview"
-          }
-        </p>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="mb-8 flex items-center gap-4">
+        <div 
+          className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors group" 
+          onClick={() => navigate('/ads-widgets')}
+        >
+          <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+            {isEditMode ? "Edit Ad Widget" : "Create Ad Widget"}
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">
+            {isEditMode 
+              ? "Modify and optimize your existing ad widget configuration"
+              : "Design and customize a professional affiliate ad widget with real-time preview"
+            }
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -530,32 +540,33 @@ export default function CreateWidget() {
                 </CardContent>
               </Card>
 
-              {/* Theme Templates */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Design Templates</CardTitle>
-                  <p className="text-sm text-muted-foreground">Choose a pre-designed template or customize manually below</p>
+              {/* Professional Design Templates */}
+              <Card className="border-slate-200 dark:border-slate-700">
+                <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100">Design Templates</CardTitle>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Professional pre-built designs optimized for conversion</p>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {templateOptions.map((template) => (
                       <div
                         key={template.id}
-                        className="template-card relative group cursor-pointer"
+                        className="template-card relative group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
                         onClick={() => applyTemplate(template)}
                       >
-                        <div className={`${template.preview} h-28 rounded-lg p-3 border-2 border-transparent hover:border-primary/50 shadow-sm`}>
-                          <div className="text-white text-sm font-semibold mb-1 drop-shadow-sm">
+                        <div className={`${template.preview} h-20 rounded-xl p-4 border border-slate-200 hover:border-primary/60 transition-all duration-300 shadow-sm hover:shadow-md`}>
+                          <div className="text-white text-sm font-medium mb-1 drop-shadow-md">
                             {template.name}
                           </div>
-                          <div className="text-white text-xs opacity-90 line-clamp-2 drop-shadow-sm">
+                          <div className="text-white text-xs opacity-90 line-clamp-1 drop-shadow-sm">
                             {template.description}
                           </div>
-                          <div className="absolute bottom-2 right-2 bg-white/20 backdrop-blur-sm rounded px-2 py-1">
-                            <span className="text-white text-xs font-medium">Click to Apply</span>
+                          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                            <div className="bg-white/95 backdrop-blur-sm rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
+                              <span className="text-xs text-emerald-600 font-medium">✓</span>
+                            </div>
                           </div>
                         </div>
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all pointer-events-none" />
                       </div>
                     ))}
                   </div>
@@ -623,13 +634,16 @@ export default function CreateWidget() {
                 </CardContent>
               </Card>
 
-              {/* Theme Customization */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Manual Theme Customization</CardTitle>
-                  <p className="text-sm text-muted-foreground">Fine-tune colors and fonts manually</p>
+              {/* Advanced Customization */}
+              <Card className="border-slate-200 dark:border-slate-700">
+                <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    Advanced Customization
+                  </CardTitle>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Fine-tune colors and typography for perfect brand alignment</p>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="pt-6 space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -695,7 +709,7 @@ export default function CreateWidget() {
                       name="theme.ctaColor"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>CTA Button Color</FormLabel>
+                          <FormLabel>Action Button Color</FormLabel>
                           <div className="flex gap-2">
                             <FormControl>
                               <Input type="color" {...field} className="w-16 h-10" />
@@ -737,14 +751,25 @@ export default function CreateWidget() {
                 </CardContent>
               </Card>
 
-              {/* Ad Content */}
-              <Card>
-                <CardHeader>
+              {/* Advertisement Content */}
+              <Card className="border-slate-200 dark:border-slate-700">
+                <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center justify-between">
-                    <CardTitle>Ad Content</CardTitle>
-                    <Button type="button" onClick={addAd} size="sm">
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                        Advertisement Content
+                      </CardTitle>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Create multiple ads with automatic rotation for better performance</p>
+                    </div>
+                    <Button 
+                      type="button" 
+                      onClick={addAd} 
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-sm hover:shadow-md transition-all"
+                    >
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Ad
+                      Add Advertisement
                     </Button>
                   </div>
                 </CardHeader>
@@ -860,13 +885,20 @@ export default function CreateWidget() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 py-3"
                 disabled={saveWidget.isPending}
               >
-                {saveWidget.isPending 
-                  ? (isEditMode ? "Updating..." : "Creating...") 
-                  : (isEditMode ? "Update Widget" : "Create Widget")
-                }
+                {saveWidget.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    {isEditMode ? "Updating Widget..." : "Creating Widget..."}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span>{isEditMode ? "Update Widget" : "Create Widget"}</span>
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                  </div>
+                )}
               </Button>
             </form>
           </Form>
@@ -874,10 +906,13 @@ export default function CreateWidget() {
 
         {/* Live Preview Section */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
+          <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
+            <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center justify-between">
-                <CardTitle>Live Preview</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+                  Live Preview
+                </CardTitle>
                 <div className="flex items-center gap-4">
                   {watchedValues.ads?.length > 1 && (
                     <div className="text-xs text-muted-foreground flex items-center gap-1">
@@ -886,25 +921,33 @@ export default function CreateWidget() {
                       <span>{watchedValues.rotationInterval}s rotation</span>
                     </div>
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
                     <Button
-                    type="button"
-                    variant={previewMode === 'preview' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setPreviewMode('preview')}
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Preview
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={previewMode === 'code' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setPreviewMode('code')}
-                  >
-                    <Code className="w-4 h-4 mr-2" />
-                    Embed Code
-                  </Button>
+                      type="button"
+                      variant={previewMode === 'preview' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setPreviewMode('preview')}
+                      className={previewMode === 'preview' 
+                        ? 'bg-white dark:bg-slate-800 shadow-sm' 
+                        : 'hover:bg-white/50 dark:hover:bg-slate-600/50'
+                      }
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Preview
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={previewMode === 'code' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setPreviewMode('code')}
+                      className={previewMode === 'code' 
+                        ? 'bg-white dark:bg-slate-800 shadow-sm' 
+                        : 'hover:bg-white/50 dark:hover:bg-slate-600/50'
+                      }
+                    >
+                      <Code className="w-4 h-4 mr-2" />
+                      Embed Code
+                    </Button>
                   </div>
                 </div>
               </div>
