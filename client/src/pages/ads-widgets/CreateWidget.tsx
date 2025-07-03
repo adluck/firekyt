@@ -163,7 +163,7 @@ export default function CreateWidget() {
   const [, navigate] = useLocation();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
-  const [embedMode, setEmbedMode] = useState<'javascript' | 'iframe'>('javascript');
+  const [embedMode, setEmbedMode] = useState<'javascript' | 'iframe' | 'plugin'>('javascript');
   const [previewAdIndex, setPreviewAdIndex] = useState(0);
   
   // Check if we're in edit mode
@@ -1061,24 +1061,34 @@ export default function CreateWidget() {
                         <div className="border rounded-lg">
                           <div className="flex border-b">
                             <button
-                              className={`px-4 py-2 text-sm font-medium border-r ${
+                              className={`px-3 py-2 text-sm font-medium border-r ${
                                 embedMode === 'javascript' 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'hover:bg-muted'
                               }`}
                               onClick={() => setEmbedMode('javascript')}
                             >
-                              JavaScript (Standard)
+                              JavaScript
                             </button>
                             <button
-                              className={`px-4 py-2 text-sm font-medium ${
+                              className={`px-3 py-2 text-sm font-medium border-r ${
                                 embedMode === 'iframe' 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'hover:bg-muted'
                               }`}
                               onClick={() => setEmbedMode('iframe')}
                             >
-                              Iframe (WordPress Compatible)
+                              Iframe
+                            </button>
+                            <button
+                              className={`px-3 py-2 text-sm font-medium ${
+                                embedMode === 'plugin' 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'hover:bg-muted'
+                              }`}
+                              onClick={() => setEmbedMode('plugin')}
+                            >
+                              WP Plugin
                             </button>
                           </div>
                           
@@ -1117,7 +1127,7 @@ export default function CreateWidget() {
                                   <strong>Best for:</strong> Most websites, blogs, and content management systems. Provides dynamic content and analytics tracking.
                                 </p>
                               </>
-                            ) : (
+                            ) : embedMode === 'iframe' ? (
                               <>
                                 <div className="flex items-center justify-between mb-3">
                                   <Label className="text-sm font-medium">Iframe Embed Code</Label>
@@ -1151,22 +1161,94 @@ export default function CreateWidget() {
                                   <strong>Best for:</strong> WordPress, platforms with strict security policies, or when JavaScript embed doesn't work.
                                 </p>
                               </>
+                            ) : (
+                              <>
+                                <div className="flex items-center justify-between mb-3">
+                                  <Label className="text-sm font-medium">WordPress Plugin Solution</Label>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const link = document.createElement('a');
+                                      link.href = '/firekyt-widget-embed.php';
+                                      link.download = 'firekyt-widget-embed.php';
+                                      link.click();
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    Download Plugin
+                                  </Button>
+                                </div>
+                                <div className="space-y-4">
+                                  <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
+                                    <p className="text-sm font-medium mb-2">📥 Install the FireKyt Plugin</p>
+                                    <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                                      <li>Download the plugin file above</li>
+                                      <li>Go to WordPress Admin → Plugins → Add New → Upload Plugin</li>
+                                      <li>Upload the downloaded firekyt-widget-embed.php file</li>
+                                      <li>Activate the plugin</li>
+                                    </ol>
+                                  </div>
+                                  
+                                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                                    <p className="text-sm font-medium mb-2">🔧 Using the Plugin</p>
+                                    <p className="text-sm text-muted-foreground mb-2">
+                                      After activation, you can embed widgets using either method:
+                                    </p>
+                                    <div className="space-y-2">
+                                      <div>
+                                        <p className="text-sm font-medium">Method 1: Shortcode</p>
+                                        <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono">
+                                          {`[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}" domain="${window.location.origin}"]`}
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium">Method 2: Direct iframe</p>
+                                        <p className="text-sm text-muted-foreground">
+                                          Use the iframe embed code from the "Iframe" tab - the plugin ensures it works properly.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  <strong>Best for:</strong> WordPress users who want the easiest setup with full compatibility and shortcode support.
+                                </p>
+                              </>
                             )}
                           </div>
                         </div>
                         
                         <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
                           <h4 className="font-medium text-sm mb-2">WordPress Users - Important:</h4>
-                          <div className="text-sm text-muted-foreground space-y-2">
-                            <p><strong>If you see the embed code as text instead of the widget:</strong></p>
-                            <ol className="list-decimal list-inside space-y-1 ml-2">
-                              <li>Use the <strong>Iframe</strong> embed code (not JavaScript)</li>
-                              <li>Switch to <strong>"Text" or "HTML" editor</strong> in WordPress (not Visual)</li>
-                              <li>Paste the iframe code where you want the widget</li>
-                              <li>Publish or preview your post</li>
-                            </ol>
-                            <p className="text-xs mt-2 text-blue-600 dark:text-blue-400">
-                              WordPress blocks external JavaScript for security, but iframes work everywhere.
+                          <div className="text-sm text-muted-foreground space-y-3">
+                            <div>
+                              <p><strong>If you see a gray box instead of the widget:</strong></p>
+                              <ol className="list-decimal list-inside space-y-1 ml-2 mt-1">
+                                <li>Use the <strong>Iframe</strong> embed code (not JavaScript)</li>
+                                <li>Switch to <strong>"Text" or "HTML" editor</strong> in WordPress (not Visual)</li>
+                                <li>Paste the iframe code where you want the widget</li>
+                                <li>Add this line to your theme's functions.php file:</li>
+                              </ol>
+                            </div>
+                            
+                            <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono whitespace-pre">
+{`add_filter('wp_kses_allowed_html', function($tags) {
+    $tags['iframe'] = array(
+        'src' => true, 'width' => true, 'height' => true,
+        'frameborder' => true, 'style' => true, 'scrolling' => true
+    );
+    return $tags;
+});`}
+                            </div>
+                            
+                            <div className="text-xs">
+                              <p className="font-medium">Alternative for Gutenberg Editor:</p>
+                              <p>Use a "Custom HTML" block instead of "Paragraph" block</p>
+                            </div>
+                            
+                            <p className="text-xs text-blue-600 dark:text-blue-400">
+                              This code tells WordPress to allow iframe tags for widget embedding.
                             </p>
                           </div>
                         </div>

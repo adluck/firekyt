@@ -87,25 +87,29 @@ WordPress requires special handling due to security restrictions:
 **Problem**: Embed code shows as text instead of widget
 - **Solution**: Use iframe embed code in HTML/Text editor, not Visual editor
 
-**Problem**: WordPress strips out the code
-- **Solution**: Add this to your theme's functions.php:
+**Problem**: Widget shows as gray box instead of content
+- **Solution**: WordPress is blocking the iframe content. Add this to your theme's functions.php:
 ```php
-function allow_iframe_embeds($allowedtags) {
-    $allowedtags['iframe'] = array(
-        'src' => true,
-        'width' => true,
-        'height' => true,
-        'frameborder' => true,
-        'scrolling' => true,
-        'style' => true
+add_filter('wp_kses_allowed_html', function($tags) {
+    $tags['iframe'] = array(
+        'src' => true, 'width' => true, 'height' => true,
+        'frameborder' => true, 'style' => true, 'scrolling' => true
     );
-    return $allowedtags;
-}
-add_filter('wp_kses_allowed_html', 'allow_iframe_embeds');
+    return $tags;
+});
 ```
+
+**Problem**: Still not working in Gutenberg Editor
+- **Solution**: 
+  1. Use "Custom HTML" block instead of "Paragraph" block
+  2. Paste the iframe code directly into the Custom HTML block
+  3. Preview to verify the widget displays correctly
 
 **Problem**: Widget doesn't display properly
 - **Solution**: Ensure iframe dimensions match your widget size, check theme CSS conflicts
+
+**Problem**: HTTPS Mixed Content Warnings
+- **Solution**: Ensure your widget URLs use HTTPS if your WordPress site uses HTTPS
 
 ### Supported Platforms
 
