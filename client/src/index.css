@@ -74,16 +74,7 @@
   z-index: 1;
 }
 
-/* Enhanced circular image styling */
-.circular-image-frame {
-  position: relative;
-  z-index: 2;
-}
-
-.circular-image-frame img {
-  position: relative;
-  z-index: 3;
-}
+/* Enhanced image styling */
 
 /* Custom range slider styling */
 .range-slider {

@@ -796,22 +796,19 @@ export default function CreateWidget() {
                     {currentAd && (
                       <>
                         {currentAd.imageUrl && (
-                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 relative overflow-hidden circular-image-frame`}>
-                            <img
-                              src={currentAd.imageUrl}
-                              alt={currentAd.title}
-                              className="w-full h-full object-center rounded-full border-4 border-white/20 shadow-lg"
-                              style={{ 
-                                objectFit: watchedValues.theme.imageFit || 'cover' as any,
-                                transform: `scale(${(watchedValues.theme.imageScale || 100) / 100})`,
-                                transition: 'transform 0.3s ease'
-                              }}
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-transparent to-black/10" />
-                          </div>
+                          <img
+                            src={currentAd.imageUrl}
+                            alt={currentAd.title}
+                            className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 object-center rounded-lg shadow-lg`}
+                            style={{ 
+                              objectFit: watchedValues.theme.imageFit || 'cover' as any,
+                              transform: `scale(${(watchedValues.theme.imageScale || 100) / 100})`,
+                              transition: 'transform 0.3s ease'
+                            }}
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
                         )}
                         <div className={`flex-1 flex flex-col ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'justify-center' : 'items-center'}`}>
                           <h3 className={`${getContentStyling(watchedValues.size).titleSize} mb-1 leading-tight`}>
