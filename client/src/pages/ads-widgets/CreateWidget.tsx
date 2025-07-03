@@ -189,6 +189,23 @@ export default function CreateWidget() {
     name: "ads"
   });
 
+  // Clear form fields when switching to a newly created ad
+  useEffect(() => {
+    const currentAd = form.getValues(`ads.${currentAdIndex}`);
+    // If this is a new ad (all fields are empty defaults), clear the form display
+    if (currentAd && 
+        currentAd.title === "" && 
+        currentAd.description === "" && 
+        currentAd.imageUrl === "" && 
+        currentAd.url === "") {
+      // Force re-render of form fields for the new ad
+      form.setValue(`ads.${currentAdIndex}.title`, "");
+      form.setValue(`ads.${currentAdIndex}.description`, "");
+      form.setValue(`ads.${currentAdIndex}.imageUrl`, "");
+      form.setValue(`ads.${currentAdIndex}.url`, "");
+    }
+  }, [currentAdIndex, form]);
+
 
 
   const watchedValues = form.watch();
@@ -232,6 +249,9 @@ export default function CreateWidget() {
   });
 
   const addAd = () => {
+    // First, trigger form validation to save current ad data
+    form.trigger();
+    
     const newAdIndex = fields.length;
     
     // Create the new empty ad using useFieldArray append
