@@ -156,6 +156,7 @@ export default function CreateWidget() {
   const [, navigate] = useLocation();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
+  const [previewAdIndex, setPreviewAdIndex] = useState(0);
   
   // Check if we're in edit mode
   const urlParams = new URLSearchParams(window.location.search);
@@ -229,6 +230,20 @@ export default function CreateWidget() {
 
   const watchedValues = form.watch();
   const currentAd = watchedValues.ads?.[currentAdIndex] || watchedValues.ads?.[0];
+  const previewAd = watchedValues.ads?.[previewAdIndex] || watchedValues.ads?.[0];
+
+  // Add preview rotation effect
+  useEffect(() => {
+    if (previewMode === 'preview' && watchedValues.ads?.length > 1) {
+      const interval = setInterval(() => {
+        setPreviewAdIndex(prevIndex => 
+          prevIndex >= (watchedValues.ads?.length || 1) - 1 ? 0 : prevIndex + 1
+        );
+      }, watchedValues.rotationInterval * 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [previewMode, watchedValues.ads?.length, watchedValues.rotationInterval]);
 
   const applyTemplate = (template: typeof templateOptions[0]) => {
     form.setValue("theme", {
@@ -835,8 +850,16 @@ export default function CreateWidget() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Live Preview</CardTitle>
-                <div className="flex gap-2">
-                  <Button
+                <div className="flex items-center gap-4">
+                  {watchedValues.ads?.length > 1 && (
+                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                      <span>Ad {previewAdIndex + 1} of {watchedValues.ads.length}</span>
+                      <span>•</span>
+                      <span>{watchedValues.rotationInterval}s rotation</span>
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
                     type="button"
                     variant={previewMode === 'preview' ? 'default' : 'outline'}
                     size="sm"
@@ -854,6 +877,7 @@ export default function CreateWidget() {
                     <Code className="w-4 h-4 mr-2" />
                     Embed Code
                   </Button>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -873,13 +897,13 @@ export default function CreateWidget() {
                       position: 'relative',
                     }}
                   >
-                    {currentAd && (
+                    {previewAd && (
                       <>
-                        {currentAd.imageUrl && (
+                        {previewAd.imageUrl && (
                           <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0`}>
                             <img
-                              src={currentAd.imageUrl}
-                              alt={currentAd.title}
+                              src={previewAd.imageUrl}
+                              alt={previewAd.title}
                               className="w-full h-full object-center rounded-lg shadow-lg"
                               style={{ 
                                 objectFit: watchedValues.theme.imageFit || 'cover' as any,
@@ -896,7 +920,7 @@ export default function CreateWidget() {
                           <div className="flex-1 min-w-0">
                             <h3 className={`${getContentStyling(watchedValues.size).titleSize} mb-1 leading-tight`}>
                               {(() => {
-                                const title = currentAd.title || 'HyperX Cloud Alpha Wireless';
+                                const title = previewAd.title || 'HyperX Cloud Alpha Wireless';
                                 const maxTitleLength = watchedValues.size === '160x600' ? 25 : 
                                                      watchedValues.size === '728x90' ? 35 : 50;
                                 return title.length > maxTitleLength 
@@ -907,7 +931,7 @@ export default function CreateWidget() {
                             <p className={`${getContentStyling(watchedValues.size).descriptionSize} ${getContentStyling(watchedValues.size).descriptionLines} opacity-80 leading-tight`}>
                               {(() => {
                                 const maxLength = getContentStyling(watchedValues.size).maxDescription;
-                                const description = currentAd.description || 'Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red';
+                                const description = previewAd.description || 'Gaming Headset for PC, 300-hour battery life, DTS Headphone:X Spatial Audio, Memory foam, Dual Chamber Drivers, Noise-canceling mic, Durable aluminum frame, Red';
                                 return description.length > maxLength 
                                   ? description.substring(0, maxLength) + '...'
                                   : description;
@@ -921,7 +945,7 @@ export default function CreateWidget() {
                               color: 'white',
                             }}
                           >
-                            {currentAd.ctaText || 'Buy Now'}
+                            {previewAd.ctaText || 'Buy Now'}
                           </button>
                         </div>
                       </>
