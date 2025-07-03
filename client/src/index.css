@@ -24,6 +24,25 @@
   overflow: hidden;
 }
 
+/* Template selection hover effects */
+.template-card {
+  transition: all 0.3s ease;
+}
+
+.template-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Gradient backgrounds for templates */
+.gradient-modern {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+}
+
+.gradient-vibrant {
+  background: linear-gradient(90deg, #f97316 0%, #ef4444 100%);
+}
+
 /* Prevent white flash during navigation */
 html, body {
   background-color: hsl(var(--background)) !important;

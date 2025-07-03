@@ -30,9 +30,9 @@ const widgetSchema = z.object({
   name: z.string().min(1, "Widget name is required").max(100, "Name too long"),
   size: z.enum(["300x250", "728x90", "160x600", "100%"]),
   theme: z.object({
-    bgColor: z.string().regex(/^#[0-9A-F]{6}$/i, "Valid hex color required"),
-    textColor: z.string().regex(/^#[0-9A-F]{6}$/i, "Valid hex color required"),
-    ctaColor: z.string().regex(/^#[0-9A-F]{6}$/i, "Valid hex color required"),
+    bgColor: z.string().min(1, "Background color required"),
+    textColor: z.string().min(1, "Text color required"),
+    ctaColor: z.string().min(1, "CTA color required"),
     font: z.enum(["sans-serif", "serif", "monospace"]),
   }),
   rotationInterval: z.number().min(3, "Minimum 3 seconds").max(60, "Maximum 60 seconds"),
@@ -52,6 +52,84 @@ const fontOptions = [
   { value: "sans-serif", label: "Sans Serif" },
   { value: "serif", label: "Serif" },
   { value: "monospace", label: "Monospace" },
+];
+
+const templateOptions = [
+  {
+    id: "modern-gradient",
+    name: "Modern Gradient",
+    description: "Clean design with gradient background and circular image frame",
+    preview: "bg-gradient-to-br from-blue-600 to-purple-700",
+    theme: {
+      bgColor: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
+      textColor: "#ffffff",
+      ctaColor: "#10b981",
+      font: "sans-serif",
+      borderRadius: "12px",
+      imageStyle: "rounded-full",
+      layout: "modern"
+    }
+  },
+  {
+    id: "professional-dark",
+    name: "Professional Dark",
+    description: "Dark theme with blue accents, perfect for tech products",
+    preview: "bg-slate-800",
+    theme: {
+      bgColor: "#1e293b",
+      textColor: "#f1f5f9",
+      ctaColor: "#3b82f6",
+      font: "sans-serif",
+      borderRadius: "8px",
+      imageStyle: "rounded",
+      layout: "professional"
+    }
+  },
+  {
+    id: "minimal-white",
+    name: "Minimal White",
+    description: "Clean white background with subtle shadows",
+    preview: "bg-white border border-gray-200",
+    theme: {
+      bgColor: "#ffffff",
+      textColor: "#374151",
+      ctaColor: "#059669",
+      font: "sans-serif",
+      borderRadius: "6px",
+      imageStyle: "rounded",
+      layout: "minimal"
+    }
+  },
+  {
+    id: "vibrant-orange",
+    name: "Vibrant Orange",
+    description: "Eye-catching orange theme for high conversion",
+    preview: "bg-gradient-to-r from-orange-500 to-red-500",
+    theme: {
+      bgColor: "linear-gradient(90deg, #f97316 0%, #ef4444 100%)",
+      textColor: "#ffffff",
+      ctaColor: "#fbbf24",
+      font: "sans-serif",
+      borderRadius: "10px",
+      imageStyle: "rounded",
+      layout: "vibrant"
+    }
+  },
+  {
+    id: "e-commerce-classic",
+    name: "E-commerce Classic",
+    description: "Traditional e-commerce layout with product focus",
+    preview: "bg-gray-50 border border-gray-300",
+    theme: {
+      bgColor: "#f9fafb",
+      textColor: "#111827",
+      ctaColor: "#dc2626",
+      font: "sans-serif",
+      borderRadius: "4px",
+      imageStyle: "rounded",
+      layout: "ecommerce"
+    }
+  }
 ];
 
 export default function CreateWidget() {
@@ -87,6 +165,20 @@ export default function CreateWidget() {
 
   const watchedValues = form.watch();
   const currentAd = watchedValues.ads?.[currentAdIndex] || watchedValues.ads?.[0];
+
+  const applyTemplate = (template: typeof templateOptions[0]) => {
+    form.setValue("theme", {
+      bgColor: template.theme.bgColor,
+      textColor: template.theme.textColor,
+      ctaColor: template.theme.ctaColor,
+      font: template.theme.font as "sans-serif" | "serif" | "monospace",
+    });
+    
+    toast({
+      title: "Template Applied",
+      description: `${template.name} template has been applied to your widget.`,
+    });
+  };
 
   const createWidget = useMutation({
     mutationFn: async (data: WidgetFormData) => {
@@ -316,10 +408,43 @@ export default function CreateWidget() {
                 </CardContent>
               </Card>
 
+              {/* Theme Templates */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Design Templates</CardTitle>
+                  <p className="text-sm text-muted-foreground">Choose a pre-designed template or customize manually below</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {templateOptions.map((template) => (
+                      <div
+                        key={template.id}
+                        className="template-card relative group cursor-pointer"
+                        onClick={() => applyTemplate(template)}
+                      >
+                        <div className={`${template.preview} h-28 rounded-lg p-3 border-2 border-transparent hover:border-primary/50 shadow-sm`}>
+                          <div className="text-white text-sm font-semibold mb-1 drop-shadow-sm">
+                            {template.name}
+                          </div>
+                          <div className="text-white text-xs opacity-90 line-clamp-2 drop-shadow-sm">
+                            {template.description}
+                          </div>
+                          <div className="absolute bottom-2 right-2 bg-white/20 backdrop-blur-sm rounded px-2 py-1">
+                            <span className="text-white text-xs font-medium">Click to Apply</span>
+                          </div>
+                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all pointer-events-none" />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Theme Customization */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Theme Customization</CardTitle>
+                  <CardTitle>Manual Theme Customization</CardTitle>
+                  <p className="text-sm text-muted-foreground">Fine-tune colors and fonts manually</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -577,7 +702,9 @@ export default function CreateWidget() {
                     className={`border rounded-lg overflow-hidden ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'flex-row' : 'flex-col'} ${getContentStyling(watchedValues.size).padding} ${getContentStyling(watchedValues.size).spacing} ${getContentStyling(watchedValues.size).textAlign}`}
                     style={{
                       ...getSizeStyle(watchedValues.size),
-                      backgroundColor: watchedValues.theme.bgColor,
+                      background: watchedValues.theme.bgColor.includes('gradient') 
+                        ? watchedValues.theme.bgColor 
+                        : watchedValues.theme.bgColor,
                       color: watchedValues.theme.textColor,
                       fontFamily: watchedValues.theme.font,
                       display: 'flex',
