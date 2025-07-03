@@ -84,7 +84,12 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       flex: 1; 
       display: flex; 
       flex-direction: column; 
+      justify-content: space-between;
       min-width: 0;
+      position: relative;
+    }
+    .text-section {
+      flex-grow: 1;
     }
     .title { 
       font-size: ${isCompact ? '14px' : '16px'}; 
@@ -119,7 +124,6 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       font-size: ${isCompact ? '13px' : '15px'}; 
       font-weight: 700; 
       cursor: pointer; 
-      margin-top: auto; 
       width: fit-content; 
       transition: all 0.3s ease;
       text-decoration: none;
@@ -127,6 +131,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       text-align: center;
       box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
       letter-spacing: 0.5px;
+      align-self: flex-start;
     }
     .button:hover { 
       transform: translateY(-1px); 
@@ -143,8 +148,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
   <div class="widget" id="widget">
     ${currentAd.imageUrl ? `<img src="${currentAd.imageUrl}" alt="${currentAd.title || 'Product'}" class="image" onerror="this.style.display='none'">` : ''}
     <div class="content">
-      <h3 class="title">${(currentAd.title || 'Premium Gaming Headset').replace(/"/g, '&quot;')}</h3>
-      <p class="description">${(currentAd.description || 'High-quality wireless gaming headset with superior sound quality').replace(/"/g, '&quot;')}</p>
+      <div class="text-section">
+        <h3 class="title">${(currentAd.title || 'Premium Gaming Headset').replace(/"/g, '&quot;')}</h3>
+        <p class="description">${(currentAd.description || 'High-quality wireless gaming headset with superior sound quality').replace(/"/g, '&quot;')}</p>
+      </div>
       <button class="button" onclick="handleClick()" onkeypress="if(event.key==='Enter')handleClick()">${(currentAd.ctaText || 'Shop Now').replace(/"/g, '&quot;')}</button>
     </div>
   </div>
