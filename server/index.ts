@@ -145,6 +145,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     </div>
   </div>
   <script>
+    // Widget ads data
+    const adsData = ${JSON.stringify(ads)};
+    let currentAdIndex = 0;
+    
     function handleClick() {
       try {
         // Track click analytics
@@ -158,7 +162,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
         }).catch(e => console.log('Analytics failed:', e));
         
         // Open affiliate URL
-        const url = "${currentAd.url || '#'}";
+        const currentAd = adsData[currentAdIndex] || {};
+        const url = currentAd.url || '#';
         if (url && url !== '#') {
           window.open(url, '_blank', 'noopener,noreferrer');
         }
@@ -167,11 +172,51 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       }
     }
     
-    // Ensure proper sizing
+    function updateAdDisplay() {
+      if (!adsData || adsData.length === 0) return;
+      
+      const currentAd = adsData[currentAdIndex];
+      const widget = document.getElementById('widget');
+      const image = widget.querySelector('.image');
+      const title = widget.querySelector('.title');
+      const description = widget.querySelector('.description');
+      const button = widget.querySelector('.button');
+      
+      // Update content with smooth transition
+      widget.style.opacity = '0.7';
+      
+      setTimeout(() => {
+        if (image) {
+          image.src = currentAd.imageUrl || '';
+          image.alt = currentAd.title || 'Product';
+          image.style.display = currentAd.imageUrl ? 'block' : 'none';
+        }
+        
+        if (title) title.textContent = currentAd.title || 'Premium Gaming Headset';
+        if (description) description.textContent = currentAd.description || 'High-quality wireless gaming headset';
+        if (button) button.textContent = currentAd.ctaText || 'Shop Now';
+        
+        widget.style.opacity = '1';
+      }, 150);
+    }
+    
+    function rotateAds() {
+      if (!adsData || adsData.length <= 1) return;
+      
+      currentAdIndex = (currentAdIndex + 1) % adsData.length;
+      updateAdDisplay();
+    }
+    
+    // Initialize widget
     document.addEventListener('DOMContentLoaded', function() {
       const widget = document.getElementById('widget');
       if (widget) {
         widget.style.opacity = '1';
+        
+        // Start rotation if multiple ads
+        if (adsData && adsData.length > 1) {
+          setInterval(rotateAds, 5000); // Rotate every 5 seconds
+        }
       }
     });
   </script>
