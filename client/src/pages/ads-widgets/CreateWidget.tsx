@@ -206,9 +206,26 @@ export default function CreateWidget() {
     name: "ads"
   });
 
-
-
-
+  // Load widget data into form when in edit mode
+  useEffect(() => {
+    if (widgetData?.widget && isEditMode) {
+      const widget = widgetData.widget;
+      form.reset({
+        name: widget.name,
+        size: widget.size,
+        theme: widget.theme,
+        rotationInterval: widget.rotationInterval,
+        ads: widget.ads || [{
+          title: "",
+          description: "",
+          imageUrl: "",
+          ctaText: "Buy Now",
+          url: "",
+          tags: [],
+        }]
+      });
+    }
+  }, [widgetData, isEditMode, form]);
 
   const watchedValues = form.watch();
   const currentAd = watchedValues.ads?.[currentAdIndex] || watchedValues.ads?.[0];
