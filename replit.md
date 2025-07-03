@@ -314,6 +314,11 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Created copy-to-clipboard functionality for functions.php code with complete iframe allowlist and shortcode support
 ✓ Enhanced WordPress Functions tab with clear setup instructions and dual usage options (shortcode + iframe)
 ✓ Addressed WordPress hosting security restrictions with alternative implementation that doesn't require file uploads
+✓ Fixed widget display issues by correcting Content Security Policy frameSrc directive from "none" to "self"
+✓ Resolved database schema mismatch in iframe route (isActive vs is_active) with proper JSON parsing
+✓ Implemented dynamic ad rotation system cycling through 3 headphone products every 5 seconds
+✓ Enhanced widget visual design with larger images (120x80px for leaderboard), improved borders and shadows
+✓ Added smooth transition effects and proper text color visibility for all widget themes
 
 ## User Preferences
 
