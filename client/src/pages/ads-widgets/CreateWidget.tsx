@@ -273,7 +273,7 @@ export default function CreateWidget() {
           titleSize: 'text-sm font-semibold',
           descriptionSize: 'text-xs',
           descriptionLines: 'line-clamp-2',
-          imageSize: 'w-12 h-12',
+          imageSize: 'w-20 h-20',
           buttonSize: 'px-3 py-1 text-xs',
           spacing: 'gap-3',
           textAlign: 'text-left',
@@ -286,7 +286,7 @@ export default function CreateWidget() {
           titleSize: 'text-xs font-semibold',
           descriptionSize: 'text-[10px]',
           descriptionLines: 'line-clamp-4',
-          imageSize: 'w-full h-16',
+          imageSize: 'w-full h-28',
           buttonSize: 'px-2 py-1 text-[10px]',
           spacing: 'gap-2',
           textAlign: 'text-center',
@@ -299,7 +299,7 @@ export default function CreateWidget() {
           titleSize: 'text-sm font-semibold',
           descriptionSize: 'text-xs',
           descriptionLines: 'line-clamp-3',
-          imageSize: 'w-full h-20',
+          imageSize: 'w-full h-32',
           buttonSize: 'px-4 py-2 text-xs',
           spacing: 'gap-2',
           textAlign: 'text-center',
@@ -312,7 +312,7 @@ export default function CreateWidget() {
           titleSize: 'text-base font-semibold',
           descriptionSize: 'text-sm',
           descriptionLines: 'line-clamp-3',
-          imageSize: 'w-full h-24',
+          imageSize: 'w-full h-40',
           buttonSize: 'px-6 py-2 text-sm',
           spacing: 'gap-3',
           textAlign: 'text-center',
@@ -325,7 +325,7 @@ export default function CreateWidget() {
           titleSize: 'text-sm font-semibold',
           descriptionSize: 'text-xs',
           descriptionLines: 'line-clamp-3',
-          imageSize: 'w-full h-20',
+          imageSize: 'w-full h-32',
           buttonSize: 'px-4 py-2 text-xs',
           spacing: 'gap-2',
           textAlign: 'text-center',
@@ -733,7 +733,8 @@ export default function CreateWidget() {
                             <img
                               src={currentAd.imageUrl}
                               alt={currentAd.title}
-                              className="w-full h-full object-cover rounded-full border-4 border-white/20 shadow-lg"
+                              className="w-full h-full object-cover object-center rounded-full border-4 border-white/20 shadow-lg"
+                              style={{ objectFit: 'cover' }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                               }}
