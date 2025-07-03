@@ -185,25 +185,26 @@ export function RichTextEditor({
     }
   };
 
-  const ToolbarButton = ({ onClick, isActive, children, disabled, title }: any) => (
-    <Button
-      variant={isActive ? 'default' : 'ghost'}
-      size="sm"
-      onMouseDown={() => {
-        // Prevent focus loss without accessing event
-      }}
-      onClick={() => {
-        if (editor && onClick) {
-          onClick();
-        }
-      }}
-      disabled={disabled || !editor}
-      title={title}
-      className={cn('h-8 w-8 p-0', isActive && 'bg-primary text-primary-foreground')}
-    >
-      {children}
-    </Button>
-  );
+  const ToolbarButton = ({ onClick, isActive, children, disabled, title }: any) => {
+    const handleClick = () => {
+      if (editor && onClick) {
+        onClick();
+      }
+    };
+
+    return (
+      <Button
+        variant={isActive ? 'default' : 'ghost'}
+        size="sm"
+        onClick={handleClick}
+        disabled={disabled || !editor}
+        title={title}
+        className={cn('h-8 w-8 p-0', isActive && 'bg-primary text-primary-foreground')}
+      >
+        {children}
+      </Button>
+    );
+  };
 
   return (
     <div className={cn('overflow-hidden', className)}>
