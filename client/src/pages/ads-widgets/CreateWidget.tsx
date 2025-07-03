@@ -34,6 +34,8 @@ const widgetSchema = z.object({
     textColor: z.string().min(1, "Text color required"),
     ctaColor: z.string().min(1, "CTA color required"),
     font: z.enum(["sans-serif", "serif", "monospace"]),
+    imageScale: z.number().min(80).max(150).optional(),
+    imageFit: z.enum(["cover", "contain", "fill"]).optional(),
   }),
   rotationInterval: z.number().min(3, "Minimum 3 seconds").max(60, "Maximum 60 seconds"),
   ads: z.array(adSchema).min(1, "At least one ad is required"),
@@ -163,6 +165,8 @@ export default function CreateWidget() {
         textColor: "#333333",
         ctaColor: "#007cba",
         font: "sans-serif",
+        imageScale: 100,
+        imageFit: "cover",
       },
       rotationInterval: 5,
       ads: [
@@ -187,6 +191,8 @@ export default function CreateWidget() {
       textColor: template.theme.textColor,
       ctaColor: template.theme.ctaColor,
       font: template.theme.font as "sans-serif" | "serif" | "monospace",
+      imageScale: watchedValues.theme.imageScale || 100,
+      imageFit: watchedValues.theme.imageFit || "cover",
     });
     
     toast({
@@ -452,6 +458,67 @@ export default function CreateWidget() {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Image Sizing Controls */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Image Display Settings</CardTitle>
+                  <p className="text-sm text-muted-foreground">Customize how product images fill the available space</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="theme.imageScale"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Image Scale ({field.value || 100}%)</FormLabel>
+                        <FormControl>
+                          <div className="space-y-2">
+                            <input
+                              type="range"
+                              min="80"
+                              max="150"
+                              step="5"
+                              value={field.value || 100}
+                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                            />
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>80% (Smaller)</span>
+                              <span>100% (Default)</span>
+                              <span>150% (Larger)</span>
+                            </div>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="theme.imageFit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Image Fit Style</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || "cover"}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose image fit style" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="cover">Cover (Fill completely, may crop)</SelectItem>
+                            <SelectItem value="contain">Contain (Show full image, may have gaps)</SelectItem>
+                            <SelectItem value="fill">Fill (Stretch to fit, may distort)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
               </Card>
 
@@ -729,12 +796,20 @@ export default function CreateWidget() {
                     {currentAd && (
                       <>
                         {currentAd.imageUrl && (
-                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 relative overflow-hidden circular-image-frame`}>
+                          <div 
+                            className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 relative overflow-hidden circular-image-frame`}
+                            style={{
+                              transform: `scale(${(watchedValues.theme.imageScale || 100) / 100})`,
+                              transition: 'transform 0.3s ease'
+                            }}
+                          >
                             <img
                               src={currentAd.imageUrl}
                               alt={currentAd.title}
-                              className="w-full h-full object-cover object-center rounded-full border-4 border-white/20 shadow-lg"
-                              style={{ objectFit: 'cover' }}
+                              className="w-full h-full object-center rounded-full border-4 border-white/20 shadow-lg"
+                              style={{ 
+                                objectFit: watchedValues.theme.imageFit || 'cover' as any
+                              }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                               }}
