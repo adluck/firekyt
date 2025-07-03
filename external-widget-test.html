@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>External Widget Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .widget-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>External Website Widget Test</h1>
+        <p>This page simulates how widgets appear on external websites.</p>
+        
+        <div class="widget-container">
+            <h3>Widget Embed Test</h3>
+            <p>The widget should appear below:</p>
+            
+            <!-- Widget Embed Code -->
+            <script>
+                // Create script element dynamically to avoid CSP issues
+                (function() {
+                    var script = document.createElement('script');
+                    script.src = window.location.protocol + '//' + window.location.host + '/widgets/2/embed.js';
+                    script.async = true;
+                    script.onerror = function() {
+                        console.error('Failed to load widget script');
+                        document.write('<div style="padding: 20px; border: 1px solid #ddd; background: #f9f9f9; text-align: center;">Widget could not be loaded. Script blocked by browser security.</div>');
+                    };
+                    document.currentScript.parentNode.appendChild(script);
+                })();
+            </script>
+            
+        </div>
+        
+        <p>If you see a product advertisement above with image, title, description and "Shop Now" button, the widget is working correctly on external websites.</p>
+    </div>
+
+    <script>
+        console.log('External test page loaded');
+        
+        // Check if widgets loaded after a short delay
+        setTimeout(() => {
+            const widgets = document.querySelectorAll('[id^="affiliate-widget-"]');
+            console.log('Found widgets:', widgets.length);
+            widgets.forEach((widget, index) => {
+                console.log('Widget ' + index + ':', widget.innerHTML.substring(0, 100));
+            });
+        }, 2000);
+    </script>
+</body>
+</html>

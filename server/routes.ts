@@ -5006,9 +5006,23 @@ async function generateAILinkSuggestions(params: {
     res.sendFile(path.join(currentDir, '../test-widget.html'));
   });
 
+  // Serve external widget test page
+  app.get('/external-widget-test.html', (req, res) => {
+    const currentDir = dirname(fileURLToPath(import.meta.url));
+    res.sendFile(path.join(currentDir, '../external-widget-test.html'));
+  });
+
   // Serve widget embed script
   app.get('/widgets/:id/embed.js', async (req, res) => {
     try {
+      // Set CORS headers for external embedding
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type');
+      res.header('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+      res.header('X-Content-Type-Options', 'nosniff');
+      res.header('X-Frame-Options', 'ALLOWALL');
+      
       const widgetId = parseInt(req.params.id);
       const widget = await storage.getAdWidget(widgetId);
       
