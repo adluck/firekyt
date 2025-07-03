@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { useLocation } from "wouter";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -152,6 +153,7 @@ const templateOptions = [
 export default function CreateWidget() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
 
@@ -223,6 +225,11 @@ export default function CreateWidget() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/widgets"] });
       form.reset();
+      
+      // Navigate to widgets management page
+      setTimeout(() => {
+        navigate("/ads-widgets");
+      }, 1000);
     },
     onError: (error: any) => {
       toast({
@@ -236,9 +243,6 @@ export default function CreateWidget() {
   const addAd = () => {
     const newAdIndex = fields.length;
     
-    console.log('Adding new ad, current fields:', fields.length);
-    console.log('Current form values:', form.getValues());
-    
     // Create the new empty ad using useFieldArray append
     append({
       title: "",
@@ -251,9 +255,6 @@ export default function CreateWidget() {
     
     // Switch to the new ad
     setCurrentAdIndex(newAdIndex);
-    
-    console.log('After adding ad, new index:', newAdIndex);
-    console.log('New form values:', form.getValues());
   };
 
   const removeAd = (index: number) => {
