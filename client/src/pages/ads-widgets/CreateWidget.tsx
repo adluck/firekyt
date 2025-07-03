@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -154,6 +154,7 @@ export default function CreateWidget() {
   const queryClient = useQueryClient();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
+  const [formKey, setFormKey] = useState(0); // Add key to force form re-render
 
   const form = useForm<WidgetFormData>({
     resolver: zodResolver(widgetSchema),
@@ -180,7 +181,10 @@ export default function CreateWidget() {
         },
       ],
     },
+    mode: "onChange",
   });
+
+
 
   const watchedValues = form.watch();
   const currentAd = watchedValues.ads?.[currentAdIndex] || watchedValues.ads?.[0];
@@ -223,11 +227,8 @@ export default function CreateWidget() {
   });
 
   const addAd = () => {
-    console.log("🔧 Add Ad clicked");
     const currentValues = form.getValues();
-    console.log("🔧 Current form values:", currentValues);
     const newAdIndex = currentValues.ads.length;
-    console.log("🔧 New ad index will be:", newAdIndex);
     
     // Create the new empty ad
     const newAd = {
@@ -238,27 +239,21 @@ export default function CreateWidget() {
       url: "",
       tags: [],
     };
-    console.log("🔧 New ad object:", newAd);
     
     // Update the form with the new ad appended
     const updatedValues = {
       ...currentValues,
       ads: [...currentValues.ads, newAd]
     };
-    console.log("🔧 Updated form values:", updatedValues);
     
-    // Reset the entire form with updated values to ensure React Hook Form recognizes the changes
+    // Reset the entire form with updated values
     form.reset(updatedValues);
-    console.log("🔧 Form reset completed");
     
     // Switch to the new ad
     setCurrentAdIndex(newAdIndex);
-    console.log("🔧 Switched to ad index:", newAdIndex);
     
-    // Log current form state after operations
-    setTimeout(() => {
-      console.log("🔧 Form state after timeout:", form.getValues());
-    }, 100);
+    // Force form key update to ensure complete re-render
+    setFormKey(prev => prev + 1);
   };
 
   const removeAd = (index: number) => {
@@ -384,7 +379,7 @@ export default function CreateWidget() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form Section */}
         <div className="space-y-6">
-          <Form {...form}>
+          <Form {...form} key={formKey}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Widget Configuration */}
               <Card>
