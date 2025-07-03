@@ -36,40 +36,154 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const currentAd = widget.ads[0] || {};
     const isCompact = widget.size === '728x90';
     
-    const iframeHtml = `
-<!DOCTYPE html>
-<html>
+    const iframeHtml = `<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FireKyt Affiliate Widget</title>
   <style>
-    body { margin: 0; padding: 16px; font-family: Arial, sans-serif; background: ${widget.theme?.bgColor || '#ffffff'}; color: ${widget.theme?.textColor || '#000000'}; ${sizeStyles[widget.size] || sizeStyles['300x250']} overflow: hidden; }
-    .widget { display: flex; flex-direction: ${isCompact ? 'row' : 'column'}; height: 100%; align-items: ${isCompact ? 'center' : 'stretch'}; }
-    .image { width: ${isCompact ? '60px' : '80px'}; height: ${isCompact ? '40px' : '80px'}; object-fit: cover; border-radius: 4px; margin: ${isCompact ? '0 8px 0 0' : '0 0 8px 0'}; flex-shrink: 0; }
-    .content { flex: 1; display: flex; flex-direction: column; }
-    .title { font-size: ${isCompact ? '14px' : '16px'}; font-weight: bold; margin: 0 0 4px 0; line-height: 1.2; color: #1f2937; }
-    .description { font-size: ${isCompact ? '11px' : '14px'}; margin: 0 0 8px 0; line-height: 1.3; color: #4b5563; }
-    .button { background-color: ${widget.theme?.ctaColor || '#10b981'}; color: white; border: none; border-radius: 4px; padding: ${isCompact ? '6px 12px' : '8px 16px'}; font-size: ${isCompact ? '12px' : '14px'}; font-weight: bold; cursor: pointer; margin-top: auto; width: fit-content; transition: background-color 0.2s; }
-    .button:hover { opacity: 0.9; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    body { 
+      padding: 16px; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
+      background: ${widget.theme?.bgColor || '#ffffff'}; 
+      color: ${widget.theme?.textColor || '#000000'}; 
+      ${sizeStyles[widget.size] || sizeStyles['300x250']}
+      display: flex;
+      align-items: center;
+    }
+    .widget { 
+      display: flex; 
+      flex-direction: ${isCompact ? 'row' : 'column'}; 
+      width: 100%;
+      height: 100%; 
+      align-items: ${isCompact ? 'center' : 'stretch'}; 
+      justify-content: center;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .image { 
+      width: ${isCompact ? '60px' : '80px'}; 
+      height: ${isCompact ? '40px' : '80px'}; 
+      object-fit: cover; 
+      border-radius: 4px; 
+      margin: ${isCompact ? '0 12px 0 0' : '0 0 12px 0'}; 
+      flex-shrink: 0;
+      background: #f3f4f6;
+    }
+    .content { 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      min-width: 0;
+    }
+    .title { 
+      font-size: ${isCompact ? '14px' : '16px'}; 
+      font-weight: 600; 
+      margin: 0 0 6px 0; 
+      line-height: 1.3; 
+      color: #1f2937; 
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .description { 
+      font-size: ${isCompact ? '11px' : '13px'}; 
+      margin: 0 0 12px 0; 
+      line-height: 1.4; 
+      color: #6b7280; 
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: ${isCompact ? '1' : '2'};
+      -webkit-box-orient: vertical;
+    }
+    .button { 
+      background: linear-gradient(135deg, ${widget.theme?.ctaColor || '#10b981'}, ${widget.theme?.ctaColor || '#059669'}); 
+      color: white; 
+      border: none; 
+      border-radius: 6px; 
+      padding: ${isCompact ? '8px 16px' : '10px 20px'}; 
+      font-size: ${isCompact ? '12px' : '14px'}; 
+      font-weight: 600; 
+      cursor: pointer; 
+      margin-top: auto; 
+      width: fit-content; 
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    .button:hover { 
+      transform: translateY(-1px); 
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .loading { 
+      color: #9ca3af; 
+      text-align: center; 
+      padding: 20px; 
+    }
   </style>
 </head>
 <body>
-  <div class="widget">
-    ${currentAd.imageUrl ? `<img src="${currentAd.imageUrl}" class="image" onerror="this.style.display='none'">` : ''}
+  <div class="widget" id="widget">
+    ${currentAd.imageUrl ? `<img src="${currentAd.imageUrl}" alt="${currentAd.title || 'Product'}" class="image" onerror="this.style.display='none'">` : ''}
     <div class="content">
-      <h3 class="title">${currentAd.title || 'Premium Product'}</h3>
-      <p class="description">${currentAd.description || 'High-quality product with excellent features'}</p>
-      <button class="button" onclick="window.open('${currentAd.url}', '_blank')">${currentAd.ctaText || 'Shop Now'}</button>
+      <h3 class="title">${(currentAd.title || 'Premium Gaming Headset').replace(/"/g, '&quot;')}</h3>
+      <p class="description">${(currentAd.description || 'High-quality wireless gaming headset with superior sound quality').replace(/"/g, '&quot;')}</p>
+      <button class="button" onclick="handleClick()" onkeypress="if(event.key==='Enter')handleClick()">${(currentAd.ctaText || 'Shop Now').replace(/"/g, '&quot;')}</button>
     </div>
   </div>
+  <script>
+    function handleClick() {
+      try {
+        // Track click analytics
+        fetch('/api/widgets/${widgetId}/click', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            referrer: document.referrer || window.location.href,
+            timestamp: Date.now() 
+          })
+        }).catch(e => console.log('Analytics failed:', e));
+        
+        // Open affiliate URL
+        const url = "${currentAd.url || '#'}";
+        if (url && url !== '#') {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      } catch (e) {
+        console.log('Click handler error:', e);
+      }
+    }
+    
+    // Ensure proper sizing
+    document.addEventListener('DOMContentLoaded', function() {
+      const widget = document.getElementById('widget');
+      if (widget) {
+        widget.style.opacity = '1';
+      }
+    });
+  </script>
 </body>
 </html>`;
 
-    // Set iframe-friendly headers
+    // Set iframe-friendly headers for WordPress compatibility
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('X-Frame-Options', 'ALLOWALL');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN'); // Changed to SAMEORIGIN for better WordPress compatibility
+    res.setHeader('Content-Security-Policy', "frame-ancestors *; default-src 'self' 'unsafe-inline' data: *;");
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Cache-Control', 'public, max-age=300');
+    res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade');
     
     res.send(iframeHtml);
   } catch (error: any) {

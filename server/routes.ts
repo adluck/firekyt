@@ -5309,6 +5309,11 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Test endpoint for widget debugging
+  app.get('/test-widget', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'test-widget-direct.html'));
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

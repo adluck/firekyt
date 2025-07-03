@@ -1170,6 +1170,7 @@ export default function CreateWidget() {
                                     size="sm"
                                     onClick={async () => {
                                       const functionsCode = `// FireKyt Widget Support - Add to your theme's functions.php
+// Allow iframes in WordPress content
 add_filter('wp_kses_allowed_html', 'firekyt_allow_iframes', 10, 2);
 function firekyt_allow_iframes($tags, $context) {
     if ($context === 'post') {
@@ -1179,10 +1180,24 @@ function firekyt_allow_iframes($tags, $context) {
             'height' => true,
             'frameborder' => true,
             'scrolling' => true,
-            'style' => true
+            'style' => true,
+            'allow' => true,
+            'allowfullscreen' => true,
+            'loading' => true,
+            'title' => true,
+            'alt' => true
         );
     }
     return $tags;
+}
+
+// Remove X-Frame-Options for FireKyt widgets
+add_action('init', 'firekyt_remove_frame_options');
+function firekyt_remove_frame_options() {
+    if (isset($_GET['firekyt_widget']) || strpos($_SERVER['REQUEST_URI'], 'firekyt') !== false) {
+        remove_action('wp_head', 'wp_frame_options_headers');
+        header_remove('X-Frame-Options');
+    }
 }
 
 // FireKyt Shortcode Support
@@ -1197,7 +1212,21 @@ function firekyt_widget_shortcode($atts) {
     
     if (empty($atts['id'])) return '';
     
-    return '<iframe src="' . esc_url($atts['domain']) . '/widgets/' . esc_attr($atts['id']) . '/iframe" width="' . esc_attr($atts['width']) . '" height="' . esc_attr($atts['height']) . '" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>';
+    $iframe_src = esc_url($atts['domain']) . '/widgets/' . esc_attr($atts['id']) . '/iframe';
+    
+    return '<div style="margin: 20px 0; text-align: center;">
+        <iframe 
+            src="' . $iframe_src . '" 
+            width="' . esc_attr($atts['width']) . '" 
+            height="' . esc_attr($atts['height']) . '" 
+            frameborder="0" 
+            scrolling="no" 
+            style="border: none; display: block; margin: 0 auto; max-width: 100%;"
+            title="FireKyt Affiliate Widget"
+            loading="lazy">
+            <p>Your browser does not support iframes. <a href="' . $iframe_src . '" target="_blank">View widget</a></p>
+        </iframe>
+    </div>';
 }`;
                                       
                                       try {
