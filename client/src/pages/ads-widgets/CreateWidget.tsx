@@ -1028,9 +1028,33 @@ export default function CreateWidget() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <Label>Embed Code</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Embed Code</Label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(generateEmbedCode());
+                          toast({
+                            title: "Copied!",
+                            description: "Embed code copied to clipboard",
+                          });
+                        } catch (error) {
+                          toast({
+                            title: "Copy failed",
+                            description: "Please copy the code manually",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      className="text-xs"
+                    >
+                      Copy to Clipboard
+                    </Button>
+                  </div>
                   <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                    <code className="text-sm">{generateEmbedCode()}</code>
+                    <code className="text-sm break-all">{generateEmbedCode()}</code>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Copy and paste this code into your website where you want the ad to appear.
