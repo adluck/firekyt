@@ -223,8 +223,11 @@ export default function CreateWidget() {
   });
 
   const addAd = () => {
+    console.log("🔧 Add Ad clicked");
     const currentValues = form.getValues();
+    console.log("🔧 Current form values:", currentValues);
     const newAdIndex = currentValues.ads.length;
+    console.log("🔧 New ad index will be:", newAdIndex);
     
     // Create the new empty ad
     const newAd = {
@@ -235,18 +238,27 @@ export default function CreateWidget() {
       url: "",
       tags: [],
     };
+    console.log("🔧 New ad object:", newAd);
     
     // Update the form with the new ad appended
     const updatedValues = {
       ...currentValues,
       ads: [...currentValues.ads, newAd]
     };
+    console.log("🔧 Updated form values:", updatedValues);
     
     // Reset the entire form with updated values to ensure React Hook Form recognizes the changes
     form.reset(updatedValues);
+    console.log("🔧 Form reset completed");
     
     // Switch to the new ad
     setCurrentAdIndex(newAdIndex);
+    console.log("🔧 Switched to ad index:", newAdIndex);
+    
+    // Log current form state after operations
+    setTimeout(() => {
+      console.log("🔧 Form state after timeout:", form.getValues());
+    }, 100);
   };
 
   const removeAd = (index: number) => {
