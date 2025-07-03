@@ -11,7 +11,7 @@ import { EmbedExtension } from './EmbedExtension';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect, useMemo } from 'react';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
@@ -190,11 +190,17 @@ export function RichTextEditor({
       variant={isActive ? 'default' : 'ghost'}
       size="sm"
       onMouseDown={(e) => {
-        e.preventDefault(); // Prevent focus loss
+        if (e && e.preventDefault) {
+          e.preventDefault(); // Prevent focus loss
+        }
       }}
       onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
+        if (e && e.preventDefault) {
+          e.preventDefault();
+        }
+        if (e && e.stopPropagation) {
+          e.stopPropagation();
+        }
         if (editor && onClick) {
           onClick();
         }
@@ -307,6 +313,9 @@ export function RichTextEditor({
               <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle>Insert Widget Embed Code</DialogTitle>
+                  <DialogDescription>
+                    Paste your widget embed code to include it in your content. This can be HTML, JavaScript, or iframe code.
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
