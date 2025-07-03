@@ -169,12 +169,88 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 3: AI Content Generation */}
-      <section id="content-generation">
+      {/* Step 3: Create Affiliate Widgets */}
+      <section id="widget-creation">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">3</span>
+              Create Professional Affiliate Widgets (10 minutes)
+            </CardTitle>
+            <CardDescription>
+              Build customizable affiliate ad widgets for your content
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Create your first affiliate widget</h4>
+              <p className="text-sm mb-3">
+                Navigate to <strong>Ads Widgets</strong> → <strong>Create Widget</strong>. These are professional advertisement units you can embed anywhere on your website.
+              </p>
+              <div className="space-y-2 text-sm">
+                <p><strong>Widget Creation Steps:</strong></p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
+                  <li>Choose a descriptive name (e.g., "Gaming Headsets Collection")</li>
+                  <li>Add compelling description for your widget</li>
+                  <li>Select appropriate widget size for your use case</li>
+                  <li>Choose from professional design templates</li>
+                  <li>Add 2-3 affiliate products with images and URLs</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">📐 Widget Size Guide</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="font-bold">728x90 Leaderboard</p>
+                  <p className="text-muted-foreground">Perfect for blog headers and post tops</p>
+                </div>
+                <div>
+                  <p className="font-bold">300x250 Rectangle</p>
+                  <p className="text-muted-foreground">Ideal for sidebar and in-content placement</p>
+                </div>
+                <div>
+                  <p className="font-bold">160x600 Skyscraper</p>
+                  <p className="text-muted-foreground">Great for desktop sidebar placement</p>
+                </div>
+                <div>
+                  <p className="font-bold">320x50 Mobile Banner</p>
+                  <p className="text-muted-foreground">Optimized for mobile content</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Embed widgets in your content</h4>
+              <p className="text-sm mb-3">
+                After creating your widget, get the embed code from the "Embed Code" tab. This HTML code can be pasted into:
+              </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span><strong>WordPress:</strong> HTML/Code editor view</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span><strong>Blog Posts:</strong> Where you want ads to appear</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span><strong>Sidebar Areas:</strong> For ongoing revenue generation</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Step 4: AI Content Generation */}
+      <section id="content-generation">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</span>
               Generate Your First AI Article with Affiliate Links (20 minutes)
             </CardTitle>
             <CardDescription>
@@ -219,12 +295,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 4: Connect Site and Publish */}
+      {/* Step 5: Connect Site and Publish */}
       <section id="publishing">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">5</span>
               Connect Your Site and Publish the Article (15 minutes)
             </CardTitle>
             <CardDescription>
@@ -275,12 +351,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 5: Analytics */}
+      {/* Step 6: Analytics */}
       <section id="analytics-setup">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">5</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">6</span>
               Set Up Analytics Tracking (5 minutes)
             </CardTitle>
             <CardDescription>
@@ -318,12 +394,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 6: Affiliate Programs */}
+      {/* Step 7: Affiliate Programs */}
       <section id="affiliate-programs">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">6</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">7</span>
               Set Up Your Affiliate Program Account (15 minutes)
             </CardTitle>
             <CardDescription>
