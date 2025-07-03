@@ -141,7 +141,32 @@ This document provides a complete summary of all inline code comments and extern
 - 1000+ concurrent users supported
 - <5% error rates under normal load
 
-### 5. Dependency Documentation
+### 5. Widget Embed Documentation
+
+#### Widget Embed Guide (`docs/WIDGET_EMBED_GUIDE.md`)
+
+**Complete Widget Integration:**
+- Step-by-step widget creation and customization process
+- Platform-specific embed instructions (WordPress, Ghost, Medium, custom sites)
+- Widget size specifications and optimal use case scenarios
+- Design template options with professional styling
+- Performance optimization and analytics integration
+
+**Technical Implementation:**
+- HTML/JavaScript embed code generation and usage
+- Responsive design adaptation for all screen sizes
+- CSS customization options and override techniques
+- Affiliate link tracking with UTM parameter integration
+- Cross-platform compatibility and troubleshooting
+
+**Business Integration:**
+- Revenue optimization strategies and placement recommendations
+- Compliance guidelines for affiliate marketing disclosures
+- Analytics tracking for performance monitoring
+- A/B testing recommendations for conversion optimization
+- Scaling strategies for multiple content platforms
+
+### 6. Dependency Documentation
 
 #### Complete Dependencies Guide (`DEPENDENCIES.md`)
 
