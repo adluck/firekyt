@@ -5139,6 +5139,56 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Get widget detailed analytics
+  app.get('/api/widgets/:id/analytics', authenticateToken, async (req, res) => {
+    try {
+      const widgetId = parseInt(req.params.id);
+      const { timeRange } = req.query;
+      
+      const widget = await storage.getAdWidget(widgetId);
+      
+      if (!widget || widget.userId !== req.user!.id) {
+        return res.status(404).json({ message: 'Widget not found' });
+      }
+
+      // Calculate date range based on timeRange parameter
+      let startDate: Date | undefined;
+      let endDate = new Date();
+      
+      switch (timeRange) {
+        case '24h':
+          startDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          break;
+        case '7d':
+          startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case '90d':
+          startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // Default to 7 days
+      }
+
+      const analytics = await storage.getWidgetAnalytics(widgetId, startDate, endDate);
+      
+      res.json({
+        success: true,
+        analytics: analytics,
+        timeRange: timeRange || '7d',
+        dateRange: {
+          start: startDate.toISOString(),
+          end: endDate.toISOString()
+        }
+      });
+    } catch (error: any) {
+      console.error('Get widget analytics error:', error);
+      res.status(500).json({ message: 'Failed to fetch widget analytics' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

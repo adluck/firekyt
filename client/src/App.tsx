@@ -50,6 +50,8 @@ import Settings from "@/pages/settings/Settings";
 import Documentation from "@/pages/docs/Documentation";
 import FeedbackDashboard from "@/pages/admin/FeedbackDashboard";
 import CreateWidget from "@/pages/ads-widgets/CreateWidget";
+import ManageWidgets from "@/pages/ads-widgets/ManageWidgets";
+import WidgetAnalytics from "@/pages/ads-widgets/WidgetAnalytics";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -286,6 +288,22 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <CreateWidget />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/ads-widgets">
+        <ProtectedRoute>
+          <AppLayout>
+            <ManageWidgets />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/ads-widgets/analytics">
+        <ProtectedRoute>
+          <AppLayout>
+            <WidgetAnalytics />
           </AppLayout>
         </ProtectedRoute>
       </Route>
