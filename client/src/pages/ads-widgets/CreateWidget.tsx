@@ -275,7 +275,7 @@ export default function CreateWidget() {
       case "728x90": // Leaderboard - horizontal layout
         return {
           layout: 'flex-row',
-          padding: 'px-4 pt-3 pb-5',
+          padding: 'px-4 pt-2 pb-6',
           titleSize: 'text-sm font-semibold',
           descriptionSize: 'text-xs',
           descriptionLines: 'line-clamp-2',
