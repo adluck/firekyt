@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -184,6 +184,11 @@ export default function CreateWidget() {
     mode: "onChange",
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "ads"
+  });
+
 
 
   const watchedValues = form.watch();
@@ -227,29 +232,24 @@ export default function CreateWidget() {
   });
 
   const addAd = () => {
-    const currentAds = form.getValues("ads");
-    const newAdIndex = currentAds.length;
+    const newAdIndex = fields.length;
     
-    // Create the new empty ad
-    const newAd = {
+    // Create the new empty ad using useFieldArray append
+    append({
       title: "",
       description: "",
       imageUrl: "",
       ctaText: "Buy Now",
       url: "",
       tags: [],
-    };
-    
-    // Add the new ad using setValue instead of reset
-    form.setValue("ads", [...currentAds, newAd]);
+    });
     
     // Switch to the new ad
     setCurrentAdIndex(newAdIndex);
   };
 
   const removeAd = (index: number) => {
-    const currentAds = form.getValues("ads");
-    if (currentAds.length <= 1) {
+    if (fields.length <= 1) {
       toast({
         title: "Cannot Remove",
         description: "At least one ad is required",
@@ -257,8 +257,8 @@ export default function CreateWidget() {
       });
       return;
     }
-    form.setValue("ads", currentAds.filter((_, i) => i !== index));
-    if (currentAdIndex >= currentAds.length - 1) {
+    remove(index);
+    if (currentAdIndex >= fields.length - 1) {
       setCurrentAdIndex(0);
     }
   };
@@ -641,8 +641,8 @@ export default function CreateWidget() {
                 <CardContent className="space-y-4">
                   {/* Ad Tabs */}
                   <div className="flex flex-wrap gap-2">
-                    {watchedValues.ads?.map((_, index) => (
-                      <div key={index} className="flex items-center gap-2">
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="flex items-center gap-2">
                         <Button
                           type="button"
                           variant={currentAdIndex === index ? "default" : "outline"}
@@ -651,7 +651,7 @@ export default function CreateWidget() {
                         >
                           Ad {index + 1}
                         </Button>
-                        {watchedValues.ads.length > 1 && (
+                        {fields.length > 1 && (
                           <Button
                             type="button"
                             variant="outline"
@@ -666,7 +666,7 @@ export default function CreateWidget() {
                   </div>
 
                   {/* Current Ad Form */}
-                  {currentAdIndex < watchedValues.ads.length && (
+                  {currentAdIndex < fields.length && (
                     <div className="space-y-4 border rounded-lg p-4">
                       <FormField
                         control={form.control}
