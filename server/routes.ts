@@ -4923,6 +4923,14 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Handle CORS preflight for widget data
+  app.options('/widgets/:id/data', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.sendStatus(200);
+  });
+
   // Serve widget data (for embed script)
   app.get('/widgets/:id/data', async (req, res) => {
     try {
@@ -5002,13 +5010,7 @@ async function generateAILinkSuggestions(params: {
   currentScript.parentNode.insertBefore(container, currentScript);
   
   // Load widget data
-  fetch(baseUrl + '/widgets/' + widgetId + '/data', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'omit'
-  })
+  fetch(baseUrl + '/widgets/' + widgetId + '/data')
     .then(function(response) { 
       if (!response.ok) {
         throw new Error('HTTP ' + response.status + ': ' + response.statusText);
