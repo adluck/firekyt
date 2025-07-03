@@ -275,14 +275,14 @@ export default function CreateWidget() {
       case "728x90": // Leaderboard - horizontal layout
         return {
           layout: 'flex-row',
-          padding: 'px-4 py-3',
+          padding: 'px-6 py-4',
           titleSize: 'text-sm font-semibold',
           descriptionSize: 'text-xs',
           descriptionLines: 'line-clamp-2',
-          imageSize: 'w-20 h-20',
+          imageSize: 'w-16 h-16',
           buttonSize: 'px-4 py-2 text-sm',
           buttonWidth: 'w-24',
-          spacing: 'gap-4',
+          spacing: 'gap-6',
           textAlign: 'text-left',
           maxDescription: 80
         };
@@ -797,19 +797,21 @@ export default function CreateWidget() {
                     {currentAd && (
                       <>
                         {currentAd.imageUrl && (
-                          <img
-                            src={currentAd.imageUrl}
-                            alt={currentAd.title}
-                            className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 object-center rounded-lg shadow-lg`}
-                            style={{ 
-                              objectFit: watchedValues.theme.imageFit || 'cover' as any,
-                              transform: `scale(${(watchedValues.theme.imageScale || 100) / 100})`,
-                              transition: 'transform 0.3s ease'
-                            }}
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
+                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 flex items-center justify-center`}>
+                            <img
+                              src={currentAd.imageUrl}
+                              alt={currentAd.title}
+                              className="w-full h-full object-center rounded-lg shadow-lg"
+                              style={{ 
+                                objectFit: watchedValues.theme.imageFit || 'cover' as any,
+                                transform: `scale(${(watchedValues.theme.imageScale || 100) / 100})`,
+                                transition: 'transform 0.3s ease'
+                              }}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
                         )}
                         <div className={`flex-1 flex ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'flex-row items-center justify-between' : 'flex-col items-center'}`}>
                           <div className="flex-1 min-w-0">
