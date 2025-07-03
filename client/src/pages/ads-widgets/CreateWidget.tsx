@@ -270,6 +270,9 @@ export default function CreateWidget() {
     });
   };
 
+  // State for created widget ID
+  const [createdWidgetId, setCreatedWidgetId] = useState<number | null>(null);
+
   const saveWidget = useMutation({
     mutationFn: async (data: WidgetFormData) => {
       if (isEditMode && editWidgetId) {
@@ -278,7 +281,9 @@ export default function CreateWidget() {
         return apiRequest("POST", "/api/widgets", data);
       }
     },
-    onSuccess: () => {
+    onSuccess: async (response) => {
+      const result = await response.json();
+      
       toast({
         title: isEditMode ? "Widget Updated" : "Widget Created",
         description: isEditMode 
@@ -288,6 +293,11 @@ export default function CreateWidget() {
       queryClient.invalidateQueries({ queryKey: ["/api/widgets"] });
       if (isEditMode) {
         queryClient.invalidateQueries({ queryKey: ["/api/widgets", editWidgetId] });
+      }
+      
+      // Store the created widget ID for embed code generation
+      if (!isEditMode && result.widget?.id) {
+        setCreatedWidgetId(result.widget.id);
       }
       
       if (!isEditMode) {
@@ -428,6 +438,10 @@ export default function CreateWidget() {
   };
 
   const generateEmbedCode = () => {
+    const widgetId = isEditMode ? editWidgetId : createdWidgetId;
+    if (widgetId) {
+      return `<script src="${window.location.origin}/widgets/${widgetId}/embed.js"></script>`;
+    }
     return `<script src="${window.location.origin}/widgets/{widget-id}/embed.js"></script>`;
   };
 
@@ -1028,37 +1042,45 @@ export default function CreateWidget() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label>Embed Code</Label>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(generateEmbedCode());
-                          toast({
-                            title: "Copied!",
-                            description: "Embed code copied to clipboard",
-                          });
-                        } catch (error) {
-                          toast({
-                            title: "Copy failed",
-                            description: "Please copy the code manually",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                      className="text-xs"
-                    >
-                      Copy to Clipboard
-                    </Button>
-                  </div>
-                  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-                    <code className="text-sm break-all">{generateEmbedCode()}</code>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Copy and paste this code into your website where you want the ad to appear.
-                  </p>
+                  {((isEditMode && editWidgetId) || createdWidgetId) ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <Label>Embed Code</Label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(generateEmbedCode());
+                              toast({
+                                title: "Copied!",
+                                description: "Embed code copied to clipboard",
+                              });
+                            } catch (error) {
+                              toast({
+                                title: "Copy failed",
+                                description: "Please copy the code manually",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          className="text-xs"
+                        >
+                          Copy to Clipboard
+                        </Button>
+                      </div>
+                      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                        <code className="text-sm break-all">{generateEmbedCode()}</code>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Copy and paste this code into your website where you want the ad to appear.
+                      </p>
+                    </>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      <p>Create your widget to generate the embed code</p>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
