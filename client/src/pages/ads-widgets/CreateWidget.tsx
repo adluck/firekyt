@@ -236,6 +236,9 @@ export default function CreateWidget() {
   const addAd = () => {
     const newAdIndex = fields.length;
     
+    console.log('Adding new ad, current fields:', fields.length);
+    console.log('Current form values:', form.getValues());
+    
     // Create the new empty ad using useFieldArray append
     append({
       title: "",
@@ -248,6 +251,9 @@ export default function CreateWidget() {
     
     // Switch to the new ad
     setCurrentAdIndex(newAdIndex);
+    
+    console.log('After adding ad, new index:', newAdIndex);
+    console.log('New form values:', form.getValues());
   };
 
   const removeAd = (index: number) => {
@@ -669,7 +675,7 @@ export default function CreateWidget() {
 
                   {/* Current Ad Form */}
                   {currentAdIndex < fields.length && (
-                    <div className="space-y-4 border rounded-lg p-4">
+                    <div key={`ad-form-${currentAdIndex}`} className="space-y-4 border rounded-lg p-4">
                       <FormField
                         control={form.control}
                         name={`ads.${currentAdIndex}.title`}
