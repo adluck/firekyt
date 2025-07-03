@@ -154,7 +154,7 @@ export default function CreateWidget() {
   const queryClient = useQueryClient();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
-  const [formKey, setFormKey] = useState(0); // Add key to force form re-render
+
 
   const form = useForm<WidgetFormData>({
     resolver: zodResolver(widgetSchema),
@@ -251,9 +251,6 @@ export default function CreateWidget() {
     
     // Switch to the new ad
     setCurrentAdIndex(newAdIndex);
-    
-    // Force form key update to ensure complete re-render
-    setFormKey(prev => prev + 1);
   };
 
   const removeAd = (index: number) => {
@@ -379,7 +376,7 @@ export default function CreateWidget() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form Section */}
         <div className="space-y-6">
-          <Form {...form} key={formKey}>
+          <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Widget Configuration */}
               <Card>
