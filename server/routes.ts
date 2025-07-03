@@ -5086,8 +5086,8 @@ async function generateAILinkSuggestions(params: {
         }
         
         var contentHtml = '<div style="flex: 1; display: flex; flex-direction: column;">' +
-          '<h3 style="font-size: ' + (isCompact ? '14px' : '16px') + '; font-weight: bold; margin: 0 0 4px 0; line-height: 1.2; color: inherit;">' + (ad.title || 'Premium Product') + '</h3>' +
-          '<p style="font-size: ' + (isCompact ? '11px' : '14px') + '; margin: 0 0 8px 0; line-height: 1.3; opacity: 0.8; color: inherit;">' + (ad.description || 'High-quality product with excellent features') + '</p>' +
+          '<h3 style="font-size: ' + (isCompact ? '14px' : '16px') + '; font-weight: bold; margin: 0 0 4px 0; line-height: 1.2; color: #1f2937;">' + (ad.title || 'Premium Product') + '</h3>' +
+          '<p style="font-size: ' + (isCompact ? '11px' : '14px') + '; margin: 0 0 8px 0; line-height: 1.3; color: #4b5563;">' + (ad.description || 'High-quality product with excellent features') + '</p>' +
           '<button onclick="window.open(\\'' + ad.url + '\\', \\'_blank\\'); fetch(\\'' + baseUrl + '/widgets/' + widgetId + '/track-click\\', {method: \\'POST\\', headers: {\\'Content-Type\\': \\'application/json\\'}, body: JSON.stringify({adIndex: ' + index + '})}).catch(function(){});" style="background-color: ' + widget.theme.ctaColor + '; color: white; border: none; border-radius: 4px; padding: ' + (isCompact ? '6px 12px' : '8px 16px') + '; font-size: ' + (isCompact ? '12px' : '14px') + '; font-weight: bold; cursor: pointer; margin-top: auto; width: fit-content; transition: background-color 0.2s;">' + (ad.ctaText || 'Shop Now') + '</button>' +
           '</div>';
         
