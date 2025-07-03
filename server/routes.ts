@@ -4926,11 +4926,20 @@ async function generateAILinkSuggestions(params: {
   // Serve widget data (for embed script)
   app.get('/widgets/:id/data', async (req, res) => {
     try {
+      // Set CORS headers for external embedding
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type');
+      res.header('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+      
       const widgetId = parseInt(req.params.id);
       const widget = await storage.getAdWidget(widgetId);
       
       if (!widget || !widget.isActive) {
-        return res.status(404).json({ error: 'Widget not found or inactive' });
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Widget not found or inactive' 
+        });
       }
 
       // Track view
@@ -4955,7 +4964,10 @@ async function generateAILinkSuggestions(params: {
       });
     } catch (error: any) {
       console.error('Get widget data error:', error);
-      res.status(500).json({ error: 'Failed to load widget data' });
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to load widget data' 
+      });
     }
   });
 
@@ -4990,10 +5002,23 @@ async function generateAILinkSuggestions(params: {
   currentScript.parentNode.insertBefore(container, currentScript);
   
   // Load widget data
-  fetch(baseUrl + '/widgets/' + widgetId + '/data')
-    .then(function(response) { return response.json(); })
+  fetch(baseUrl + '/widgets/' + widgetId + '/data', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'omit'
+  })
+    .then(function(response) { 
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+      }
+      return response.json(); 
+    })
     .then(function(data) {
-      if (!data.success) throw new Error('Failed to load widget');
+      if (!data.success) {
+        throw new Error('Widget data invalid: ' + JSON.stringify(data));
+      }
       
       var widget = data.widget;
       var currentAdIndex = 0;
@@ -5053,8 +5078,8 @@ async function generateAILinkSuggestions(params: {
       }
     })
     .catch(function(error) {
-      console.error('Affiliate widget error:', error);
-      container.innerHTML = '<p style="color: #999; font-size: 12px; text-align: center;">Ad unavailable</p>';
+      console.error('Affiliate widget error:', error.message || error);
+      container.innerHTML = '<div style="padding: 16px; text-align: center; border: 1px solid #e5e7eb; border-radius: 4px; background: #f9fafb;"><p style="color: #6b7280; font-size: 12px; margin: 0;">Unable to load advertisement</p><p style="color: #9ca3af; font-size: 10px; margin: 4px 0 0 0;">Error: ' + (error.message || 'Network error') + '</p></div>';
     });
 })();
 `;
