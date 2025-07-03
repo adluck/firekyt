@@ -188,7 +188,11 @@ export function RichTextEditor({
   const ToolbarButton = ({ onClick, isActive, children, disabled, title }: any) => {
     const handleClick = () => {
       if (editor && onClick) {
-        onClick();
+        try {
+          onClick();
+        } catch (error) {
+          console.error('Toolbar button error:', error);
+        }
       }
     };
 
