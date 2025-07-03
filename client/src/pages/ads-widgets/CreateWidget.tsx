@@ -1088,7 +1088,7 @@ export default function CreateWidget() {
                               }`}
                               onClick={() => setEmbedMode('plugin')}
                             >
-                              WP Plugin
+                              WP Functions
                             </button>
                           </div>
                           
@@ -1164,55 +1164,100 @@ export default function CreateWidget() {
                             ) : (
                               <>
                                 <div className="flex items-center justify-between mb-3">
-                                  <Label className="text-sm font-medium">WordPress Plugin Solution</Label>
+                                  <Label className="text-sm font-medium">WordPress Functions.php Solution</Label>
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => {
-                                      const link = document.createElement('a');
-                                      link.href = '/firekyt-widget-embed.php';
-                                      link.download = 'firekyt-widget-embed.php';
-                                      link.click();
+                                    onClick={async () => {
+                                      const functionsCode = `// FireKyt Widget Support - Add to your theme's functions.php
+add_filter('wp_kses_allowed_html', 'firekyt_allow_iframes', 10, 2);
+function firekyt_allow_iframes($tags, $context) {
+    if ($context === 'post') {
+        $tags['iframe'] = array(
+            'src' => true,
+            'width' => true,
+            'height' => true,
+            'frameborder' => true,
+            'scrolling' => true,
+            'style' => true
+        );
+    }
+    return $tags;
+}
+
+// FireKyt Shortcode Support
+add_shortcode('firekyt_widget', 'firekyt_widget_shortcode');
+function firekyt_widget_shortcode($atts) {
+    $atts = shortcode_atts(array(
+        'id' => '',
+        'domain' => '${window.location.origin}',
+        'width' => '300',
+        'height' => '250'
+    ), $atts);
+    
+    if (empty($atts['id'])) return '';
+    
+    return '<iframe src="' . esc_url($atts['domain']) . '/widgets/' . esc_attr($atts['id']) . '/iframe" width="' . esc_attr($atts['width']) . '" height="' . esc_attr($atts['height']) . '" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>';
+}`;
+                                      
+                                      try {
+                                        await navigator.clipboard.writeText(functionsCode);
+                                        toast({
+                                          title: "Copied!",
+                                          description: "Functions.php code copied to clipboard",
+                                        });
+                                      } catch (error) {
+                                        toast({
+                                          title: "Copy failed",
+                                          description: "Please copy the code manually",
+                                          variant: "destructive",
+                                        });
+                                      }
                                     }}
                                     className="text-xs"
                                   >
-                                    Download Plugin
+                                    Copy Functions Code
                                   </Button>
                                 </div>
                                 <div className="space-y-4">
+                                  <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
+                                    <p className="text-sm font-medium mb-2">⚠️ Plugin Upload Blocked?</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      Many WordPress hosts block PHP file uploads for security. Use this functions.php approach instead.
+                                    </p>
+                                  </div>
+                                  
                                   <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
-                                    <p className="text-sm font-medium mb-2">📥 Install the FireKyt Plugin</p>
+                                    <p className="text-sm font-medium mb-2">🔧 Setup Instructions</p>
                                     <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                                      <li>Download the plugin file above</li>
-                                      <li>Go to WordPress Admin → Plugins → Add New → Upload Plugin</li>
-                                      <li>Upload the downloaded firekyt-widget-embed.php file</li>
-                                      <li>Activate the plugin</li>
+                                      <li>Copy the code above using the button</li>
+                                      <li>Go to WordPress Admin → Appearance → Theme Editor</li>
+                                      <li>Select "functions.php" from the file list</li>
+                                      <li>Paste the code at the end of the file</li>
+                                      <li>Click "Update File"</li>
                                     </ol>
                                   </div>
                                   
                                   <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
-                                    <p className="text-sm font-medium mb-2">🔧 Using the Plugin</p>
-                                    <p className="text-sm text-muted-foreground mb-2">
-                                      After activation, you can embed widgets using either method:
-                                    </p>
+                                    <p className="text-sm font-medium mb-2">🎯 Usage Options</p>
                                     <div className="space-y-2">
                                       <div>
-                                        <p className="text-sm font-medium">Method 1: Shortcode</p>
+                                        <p className="text-sm font-medium">Option 1: Shortcode (After functions.php update)</p>
                                         <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono">
-                                          {`[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}" domain="${window.location.origin}"]`}
+                                          {`[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}"]`}
                                         </div>
                                       </div>
                                       <div>
-                                        <p className="text-sm font-medium">Method 2: Direct iframe</p>
+                                        <p className="text-sm font-medium">Option 2: Direct iframe (Works immediately)</p>
                                         <p className="text-sm text-muted-foreground">
-                                          Use the iframe embed code from the "Iframe" tab - the plugin ensures it works properly.
+                                          Use the iframe embed code from the "Iframe" tab in Text/HTML editor mode.
                                         </p>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                                 <p className="text-sm text-muted-foreground">
-                                  <strong>Best for:</strong> WordPress users who want the easiest setup with full compatibility and shortcode support.
+                                  <strong>Best for:</strong> WordPress users when plugin upload is blocked. Provides both shortcode and iframe support.
                                 </p>
                               </>
                             )}
