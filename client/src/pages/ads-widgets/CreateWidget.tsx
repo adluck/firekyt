@@ -554,6 +554,138 @@ export default function CreateWidget() {
                 </CardContent>
               </Card>
 
+              {/* Advertisement Content */}
+              <Card className="border-slate-200 dark:border-slate-700">
+                <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                        Advertisement Content
+                      </CardTitle>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Create multiple ads with automatic rotation for better performance</p>
+                    </div>
+                    <Button 
+                      type="button" 
+                      onClick={addAd} 
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-sm hover:shadow-md transition-all"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Advertisement
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-4">
+                  {/* Ad Tabs */}
+                  <div className="flex flex-wrap gap-2">
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant={currentAdIndex === index ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentAdIndex(index)}
+                        >
+                          Ad {index + 1}
+                        </Button>
+                        {fields.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeAd(index)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Current Ad Form */}
+                  {currentAdIndex < fields.length && (
+                    <div key={`ad-form-${currentAdIndex}`} className="space-y-4 border rounded-lg p-4">
+                      <FormField
+                        control={form.control}
+                        name={`ads.${currentAdIndex}.title`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Product Title</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., Delonghi Espresso Machine" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`ads.${currentAdIndex}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Short Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="e.g., Save 20% on top-rated gear"
+                                rows={3}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`ads.${currentAdIndex}.imageUrl`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Image URL</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://example.com/image.jpg" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`ads.${currentAdIndex}.ctaText`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>CTA Text</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Buy Now" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`ads.${currentAdIndex}.url`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Affiliate URL</FormLabel>
+                              <FormControl>
+                                <Input placeholder="https://..." {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Professional Design Templates */}
               <Card className="border-slate-200 dark:border-slate-700">
                 <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -762,138 +894,6 @@ export default function CreateWidget() {
                       )}
                     />
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Advertisement Content */}
-              <Card className="border-slate-200 dark:border-slate-700">
-                <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        Advertisement Content
-                      </CardTitle>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Create multiple ads with automatic rotation for better performance</p>
-                    </div>
-                    <Button 
-                      type="button" 
-                      onClick={addAd} 
-                      size="sm"
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-sm hover:shadow-md transition-all"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Advertisement
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-6 space-y-4">
-                  {/* Ad Tabs */}
-                  <div className="flex flex-wrap gap-2">
-                    {fields.map((field, index) => (
-                      <div key={field.id} className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant={currentAdIndex === index ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentAdIndex(index)}
-                        >
-                          Ad {index + 1}
-                        </Button>
-                        {fields.length > 1 && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => removeAd(index)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Current Ad Form */}
-                  {currentAdIndex < fields.length && (
-                    <div key={`ad-form-${currentAdIndex}`} className="space-y-4 border rounded-lg p-4">
-                      <FormField
-                        control={form.control}
-                        name={`ads.${currentAdIndex}.title`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Product Title</FormLabel>
-                            <FormControl>
-                              <Input placeholder="e.g., Delonghi Espresso Machine" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name={`ads.${currentAdIndex}.description`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Short Description</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="e.g., Save 20% on top-rated gear"
-                                rows={3}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name={`ads.${currentAdIndex}.imageUrl`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input placeholder="https://example.com/image.jpg" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name={`ads.${currentAdIndex}.ctaText`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>CTA Text</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Buy Now" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name={`ads.${currentAdIndex}.url`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Affiliate URL</FormLabel>
-                              <FormControl>
-                                <Input placeholder="https://..." {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
 
