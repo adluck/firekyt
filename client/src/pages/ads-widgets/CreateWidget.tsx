@@ -797,7 +797,7 @@ export default function CreateWidget() {
                     {currentAd && (
                       <>
                         {currentAd.imageUrl && (
-                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0`}>
+                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 ${getContentStyling(watchedValues.size).layout === 'flex-row' ? 'my-2' : ''}`}>
                             <img
                               src={currentAd.imageUrl}
                               alt={currentAd.title}
