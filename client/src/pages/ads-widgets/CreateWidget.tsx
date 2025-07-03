@@ -483,7 +483,7 @@ export default function CreateWidget() {
                               step="5"
                               value={field.value || 100}
                               onChange={(e) => field.onChange(parseInt(e.target.value))}
-                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer range-slider"
                             />
                             <div className="flex justify-between text-xs text-muted-foreground">
                               <span>80% (Smaller)</span>
@@ -796,19 +796,15 @@ export default function CreateWidget() {
                     {currentAd && (
                       <>
                         {currentAd.imageUrl && (
-                          <div 
-                            className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 relative overflow-hidden circular-image-frame`}
-                            style={{
-                              transform: `scale(${(watchedValues.theme.imageScale || 100) / 100})`,
-                              transition: 'transform 0.3s ease'
-                            }}
-                          >
+                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 relative overflow-hidden circular-image-frame`}>
                             <img
                               src={currentAd.imageUrl}
                               alt={currentAd.title}
                               className="w-full h-full object-center rounded-full border-4 border-white/20 shadow-lg"
                               style={{ 
-                                objectFit: watchedValues.theme.imageFit || 'cover' as any
+                                objectFit: watchedValues.theme.imageFit || 'cover' as any,
+                                transform: `scale(${(watchedValues.theme.imageScale || 100) / 100})`,
+                                transition: 'transform 0.3s ease'
                               }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
