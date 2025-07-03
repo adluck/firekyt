@@ -47,13 +47,18 @@ export const EmbedExtension = Node.create<EmbedOptions>({
   renderHTML({ HTMLAttributes }) {
     const embedCode = HTMLAttributes.src || '';
     
+    // Check if this is a widget embed code
+    const isWidgetEmbed = embedCode.includes('/widgets/') || embedCode.includes('widget-id');
+    const embedType = isWidgetEmbed ? 'Affiliate Widget' : 'External Embed';
+    const embedIcon = isWidgetEmbed ? '🛍️' : '📱';
+    
     return [
       'div',
       mergeAttributes(
         {
           'data-embed': true,
           'data-embed-code': embedCode,
-          class: 'embed-container my-4 border rounded-lg bg-muted/10 overflow-hidden p-4',
+          class: 'embed-container my-4 border-2 border-dashed border-blue-300 bg-blue-50 dark:bg-blue-950 dark:border-blue-700 rounded-lg p-4',
           style: 'white-space: normal;',
         },
         this.options.HTMLAttributes
@@ -61,17 +66,24 @@ export const EmbedExtension = Node.create<EmbedOptions>({
       [
         'div',
         {
-          class: 'text-sm text-muted-foreground mb-2',
+          class: 'flex items-center gap-2 text-sm font-medium text-blue-700 dark:text-blue-300 mb-3',
         },
-        '📱 Widget Embed',
+        `${embedIcon} ${embedType}`,
       ],
       [
         'div',
         {
-          class: 'embed-preview bg-background rounded border p-2 text-xs font-mono',
-          style: 'max-height: 100px; overflow: hidden;',
+          class: 'text-xs text-blue-600 dark:text-blue-400 mb-2',
         },
-        embedCode.length > 150 ? embedCode.substring(0, 150) + '...' : embedCode,
+        'This embed will render when published to your website',
+      ],
+      [
+        'div',
+        {
+          class: 'embed-preview bg-white dark:bg-gray-800 rounded border p-3 text-xs font-mono text-gray-600 dark:text-gray-300',
+          style: 'max-height: 80px; overflow: hidden; word-break: break-all;',
+        },
+        embedCode.length > 200 ? embedCode.substring(0, 200) + '...' : embedCode,
       ],
     ];
   },
