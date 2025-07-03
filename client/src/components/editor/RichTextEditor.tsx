@@ -7,9 +7,12 @@ import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import { TableExtension } from './TableExtension';
+import { EmbedExtension } from './EmbedExtension';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect, useMemo } from 'react';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
 import {
@@ -28,6 +31,7 @@ import {
   Heading3,
   Undo,
   Redo,
+  Monitor,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -54,8 +58,10 @@ export function RichTextEditor({
 }: RichTextEditorProps) {
   const [linkUrl, setLinkUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [embedCode, setEmbedCode] = useState('');
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [showImageInput, setShowImageInput] = useState(false);
+  const [showEmbedDialog, setShowEmbedDialog] = useState(false);
 
   // Convert markdown to HTML if needed
   const processedContent = useMemo(() => {
@@ -101,6 +107,7 @@ export function RichTextEditor({
         },
       }),
       TableExtension,
+      EmbedExtension,
     ],
     content: processedContent,
     editable,
@@ -167,6 +174,15 @@ export function RichTextEditor({
 
   const addTable = () => {
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+  };
+
+  const insertEmbed = () => {
+    if (embedCode.trim()) {
+      // Insert the embed code as a custom embed node
+      editor.chain().focus().setEmbed({ src: embedCode.trim() }).run();
+      setEmbedCode('');
+      setShowEmbedDialog(false);
+    }
   };
 
   const ToolbarButton = ({ onClick, isActive, children, disabled, title }: any) => (
@@ -281,6 +297,42 @@ export function RichTextEditor({
             <ToolbarButton onClick={addTable}>
               <TableIcon className="h-4 w-4" />
             </ToolbarButton>
+            
+            <Dialog open={showEmbedDialog} onOpenChange={setShowEmbedDialog}>
+              <DialogTrigger asChild>
+                <ToolbarButton onClick={() => setShowEmbedDialog(true)} title="Insert Widget Embed">
+                  <Monitor className="h-4 w-4" />
+                </ToolbarButton>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Insert Widget Embed Code</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Paste your widget embed code:</label>
+                    <Textarea
+                      placeholder="Paste your widget embed code here (HTML, JavaScript, or iframe)..."
+                      value={embedCode}
+                      onChange={(e) => setEmbedCode(e.target.value)}
+                      rows={8}
+                      className="mt-2"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => {
+                      setShowEmbedDialog(false);
+                      setEmbedCode('');
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button onClick={insertEmbed} disabled={!embedCode.trim()}>
+                      Insert Embed
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <Separator orientation="vertical" className="h-6 mx-1" />
 
