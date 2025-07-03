@@ -4,6 +4,7 @@ import { spawn } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import fs from "fs";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -4944,10 +4945,16 @@ async function generateAILinkSuggestions(params: {
       const widget = await storage.getAdWidget(widgetId);
       
       if (!widget || !widget.isActive) {
-        return res.status(404).json({ 
+        const errorData = { 
           success: false, 
           error: 'Widget not found or inactive' 
-        });
+        };
+        
+        if (req.query.callback) {
+          return res.setHeader('Content-Type', 'application/javascript')
+                   .send(`${req.query.callback}(${JSON.stringify(errorData)});`);
+        }
+        return res.status(404).json(errorData);
       }
 
       // Track view
@@ -4959,7 +4966,7 @@ async function generateAILinkSuggestions(params: {
         ipAddress: req.ip || null
       });
       
-      res.json({
+      const responseData = {
         success: true,
         widget: {
           id: widget.id,
@@ -4969,13 +4976,27 @@ async function generateAILinkSuggestions(params: {
           rotationInterval: widget.rotationInterval,
           ads: widget.ads
         }
-      });
+      };
+      
+      // Support JSONP callback
+      if (req.query.callback) {
+        res.setHeader('Content-Type', 'application/javascript');
+        res.send(`${req.query.callback}(${JSON.stringify(responseData)});`);
+      } else {
+        res.json(responseData);
+      }
     } catch (error: any) {
       console.error('Get widget data error:', error);
-      res.status(500).json({ 
+      const errorData = { 
         success: false, 
         error: 'Failed to load widget data' 
-      });
+      };
+      
+      if (req.query.callback) {
+        return res.setHeader('Content-Type', 'application/javascript')
+                 .send(`${req.query.callback}(${JSON.stringify(errorData)});`);
+      }
+      res.status(500).json(errorData);
     }
   });
 
@@ -4995,9 +5016,29 @@ async function generateAILinkSuggestions(params: {
         return res.status(404).send('// Widget not found or inactive');
       }
 
+      // Track view
+      await storage.createAdWidgetAnalytics({
+        widgetId,
+        eventType: 'view',
+        referrer: req.get('Referer') || null,
+        userAgent: req.get('User-Agent') || null,
+        ipAddress: req.ip || null
+      });
+
+      // Embed widget data directly in script to avoid CORS issues
+      const widgetData = {
+        id: widget.id,
+        name: widget.name,
+        size: widget.size,
+        theme: widget.theme,
+        rotationInterval: widget.rotationInterval,
+        ads: widget.ads
+      };
+
       const embedScript = `
 (function() {
   var widgetId = ${widgetId};
+  var widget = ${JSON.stringify(widgetData)};
   var baseUrl = '${req.protocol}://${req.get('host')}';
   
   // Create widget container
@@ -5009,20 +5050,7 @@ async function generateAILinkSuggestions(params: {
   var currentScript = document.currentScript || document.scripts[document.scripts.length - 1];
   currentScript.parentNode.insertBefore(container, currentScript);
   
-  // Load widget data
-  fetch(baseUrl + '/widgets/' + widgetId + '/data')
-    .then(function(response) { 
-      if (!response.ok) {
-        throw new Error('HTTP ' + response.status + ': ' + response.statusText);
-      }
-      return response.json(); 
-    })
-    .then(function(data) {
-      if (!data.success) {
-        throw new Error('Widget data invalid: ' + JSON.stringify(data));
-      }
-      
-      var widget = data.widget;
+  try {
       var currentAdIndex = 0;
       
       // Apply size styles
@@ -5078,11 +5106,10 @@ async function generateAILinkSuggestions(params: {
           }, widget.rotationInterval * 1000);
         }
       }
-    })
-    .catch(function(error) {
-      console.error('Affiliate widget error:', error.message || error);
-      container.innerHTML = '<div style="padding: 16px; text-align: center; border: 1px solid #e5e7eb; border-radius: 4px; background: #f9fafb;"><p style="color: #6b7280; font-size: 12px; margin: 0;">Unable to load advertisement</p><p style="color: #9ca3af; font-size: 10px; margin: 4px 0 0 0;">Error: ' + (error.message || 'Network error') + '</p></div>';
-    });
+  } catch (error) {
+    console.error('Affiliate widget error:', error.message || error);
+    container.innerHTML = '<div style="padding: 16px; text-align: center; border: 1px solid #e5e7eb; border-radius: 4px; background: #f9fafb;"><p style="color: #6b7280; font-size: 12px; margin: 0;">Unable to load advertisement</p><p style="color: #9ca3af; font-size: 10px; margin: 4px 0 0 0;">Error: ' + (error.message || 'Network error') + '</p></div>';
+  }
 })();
 `;
 
