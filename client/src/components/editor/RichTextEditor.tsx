@@ -189,18 +189,10 @@ export function RichTextEditor({
     <Button
       variant={isActive ? 'default' : 'ghost'}
       size="sm"
-      onMouseDown={(e) => {
-        if (e && e.preventDefault) {
-          e.preventDefault(); // Prevent focus loss
-        }
+      onMouseDown={() => {
+        // Prevent focus loss without accessing event
       }}
-      onClick={(e) => {
-        if (e && e.preventDefault) {
-          e.preventDefault();
-        }
-        if (e && e.stopPropagation) {
-          e.stopPropagation();
-        }
+      onClick={() => {
         if (editor && onClick) {
           onClick();
         }
