@@ -1,6 +1,9 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { spawn } from "child_process";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -4956,6 +4959,12 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Serve test page for widget verification
+  app.get('/test-widget.html', (req, res) => {
+    const currentDir = dirname(fileURLToPath(import.meta.url));
+    res.sendFile(path.join(currentDir, '../test-widget.html'));
+  });
+
   // Serve widget embed script
   app.get('/widgets/:id/embed.js', async (req, res) => {
     try {
@@ -4974,7 +4983,7 @@ async function generateAILinkSuggestions(params: {
   // Create widget container
   var container = document.createElement('div');
   container.id = 'affiliate-widget-' + widgetId;
-  container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);';
+  container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: Arial, sans-serif;';
   
   // Insert container where script is loaded
   var currentScript = document.currentScript || document.scripts[document.scripts.length - 1];
@@ -4997,7 +5006,7 @@ async function generateAILinkSuggestions(params: {
         '100%': 'width: 100%; height: 250px; max-width: 500px;'
       };
       
-      container.style.cssText += sizeStyles[widget.size] || sizeStyles['300x250'];
+      container.style.cssText += ' ' + (sizeStyles[widget.size] || sizeStyles['300x250']);
       container.style.backgroundColor = widget.theme.bgColor;
       container.style.color = widget.theme.textColor;
       container.style.fontFamily = widget.theme.font;
@@ -5008,12 +5017,26 @@ async function generateAILinkSuggestions(params: {
       
       function renderAd(ad, index) {
         var isCompact = widget.size === '728x90';
+        var isVertical = widget.size === '160x600';
         
-        container.innerHTML = 
-          (ad.imageUrl ? '<img src="' + ad.imageUrl + '" style="width: 100%; height: ' + (isCompact ? '50%' : '60%') + '; object-fit: cover; border-radius: 4px; margin-bottom: 8px;" onerror="this.style.display=\\'none\\'">' : '') +
-          '<h3 style="font-size: ' + (isCompact ? '14px' : '16px') + '; font-weight: bold; margin: 0 0 4px 0; line-height: 1.2;">' + (ad.title || 'Product Title') + '</h3>' +
-          '<p style="font-size: ' + (isCompact ? '12px' : '14px') + '; margin: 0 0 8px 0; line-height: 1.3; opacity: 0.8;">' + (ad.description || 'Product description') + '</p>' +
-          '<button onclick="window.open(\\'' + ad.url + '\\', \\'_blank\\'); fetch(\\'' + baseUrl + '/widgets/' + widgetId + '/track-click\\', {method: \\'POST\\', headers: {\\'Content-Type\\': \\'application/json\\'}, body: JSON.stringify({adIndex: ' + index + '})});" style="background-color: ' + widget.theme.ctaColor + '; color: white; border: none; border-radius: 4px; padding: 8px 16px; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: auto;">' + (ad.ctaText || 'Buy Now') + '</button>';
+        // Force display block to override any inherited styles
+        container.style.display = 'block';
+        container.style.visibility = 'visible';
+        
+        var imageHtml = '';
+        if (ad.imageUrl) {
+          var imageHeight = isCompact ? '40px' : (isVertical ? '120px' : '80px');
+          var imageWidth = isCompact ? '60px' : (isVertical ? '120px' : '80px');
+          imageHtml = '<img src="' + ad.imageUrl + '" style="width: ' + imageWidth + '; height: ' + imageHeight + '; object-fit: cover; border-radius: 4px; margin: ' + (isCompact ? '0 8px 0 0' : '0 0 8px 0') + '; flex-shrink: 0;" onerror="this.style.display=\\'none\\'">';
+        }
+        
+        var contentHtml = '<div style="flex: 1; display: flex; flex-direction: column;">' +
+          '<h3 style="font-size: ' + (isCompact ? '14px' : '16px') + '; font-weight: bold; margin: 0 0 4px 0; line-height: 1.2; color: inherit;">' + (ad.title || 'Premium Product') + '</h3>' +
+          '<p style="font-size: ' + (isCompact ? '11px' : '14px') + '; margin: 0 0 8px 0; line-height: 1.3; opacity: 0.8; color: inherit;">' + (ad.description || 'High-quality product with excellent features') + '</p>' +
+          '<button onclick="window.open(\\'' + ad.url + '\\', \\'_blank\\'); fetch(\\'' + baseUrl + '/widgets/' + widgetId + '/track-click\\', {method: \\'POST\\', headers: {\\'Content-Type\\': \\'application/json\\'}, body: JSON.stringify({adIndex: ' + index + '})}).catch(function(){});" style="background-color: ' + widget.theme.ctaColor + '; color: white; border: none; border-radius: 4px; padding: ' + (isCompact ? '6px 12px' : '8px 16px') + '; font-size: ' + (isCompact ? '12px' : '14px') + '; font-weight: bold; cursor: pointer; margin-top: auto; width: fit-content; transition: background-color 0.2s;">' + (ad.ctaText || 'Shop Now') + '</button>' +
+          '</div>';
+        
+        container.innerHTML = '<div style="display: flex; flex-direction: ' + (isCompact ? 'row' : 'column') + '; height: 100%; align-items: ' + (isCompact ? 'center' : 'stretch') + ';">' + imageHtml + contentHtml + '</div>';
       }
       
       // Render first ad
