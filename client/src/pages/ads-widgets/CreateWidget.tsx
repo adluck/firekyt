@@ -33,6 +33,7 @@ const widgetSchema = z.object({
   theme: z.object({
     bgColor: z.string().min(1, "Background color required"),
     textColor: z.string().min(1, "Text color required"),
+    descriptionColor: z.string().min(1, "Description color required"),
     ctaColor: z.string().min(1, "CTA color required"),
     font: z.enum(["sans-serif", "serif", "monospace"]),
     imageScale: z.number().min(80).max(150).optional(),
@@ -66,6 +67,7 @@ const templateOptions = [
     theme: {
       bgColor: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
       textColor: "#ffffff",
+      descriptionColor: "#e2e8f0",
       ctaColor: "#10b981",
       font: "sans-serif",
       borderRadius: "12px",
@@ -81,6 +83,7 @@ const templateOptions = [
     theme: {
       bgColor: "#1e293b",
       textColor: "#f1f5f9",
+      descriptionColor: "#cbd5e1",
       ctaColor: "#3b82f6",
       font: "sans-serif",
       borderRadius: "8px",
@@ -96,6 +99,7 @@ const templateOptions = [
     theme: {
       bgColor: "#ffffff",
       textColor: "#374151",
+      descriptionColor: "#6b7280",
       ctaColor: "#059669",
       font: "sans-serif",
       borderRadius: "6px",
@@ -111,6 +115,7 @@ const templateOptions = [
     theme: {
       bgColor: "linear-gradient(90deg, #f97316 0%, #ef4444 100%)",
       textColor: "#ffffff",
+      descriptionColor: "#fef3c7",
       ctaColor: "#fbbf24",
       font: "sans-serif",
       borderRadius: "10px",
@@ -126,6 +131,7 @@ const templateOptions = [
     theme: {
       bgColor: "#f9fafb",
       textColor: "#111827",
+      descriptionColor: "#4b5563",
       ctaColor: "#dc2626",
       font: "sans-serif",
       borderRadius: "4px",
@@ -141,6 +147,7 @@ const templateOptions = [
     theme: {
       bgColor: "linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%)",
       textColor: "#ffffff",
+      descriptionColor: "#dbeafe",
       ctaColor: "#60a5fa",
       font: "sans-serif",
       borderRadius: "12px",
@@ -182,6 +189,7 @@ export default function CreateWidget() {
       theme: {
         bgColor: "#ffffff",
         textColor: "#333333",
+        descriptionColor: "#666666",
         ctaColor: "#007cba",
         font: "sans-serif",
         imageScale: 100,
@@ -249,6 +257,7 @@ export default function CreateWidget() {
     form.setValue("theme", {
       bgColor: template.theme.bgColor,
       textColor: template.theme.textColor,
+      descriptionColor: template.theme.descriptionColor || "#666666",
       ctaColor: template.theme.ctaColor,
       font: template.theme.font as "sans-serif" | "serif" | "monospace",
       imageScale: watchedValues.theme.imageScale || 100,
@@ -646,7 +655,7 @@ export default function CreateWidget() {
                       name="theme.textColor"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Text Color</FormLabel>
+                          <FormLabel>Title Color</FormLabel>
                           <div className="flex gap-2">
                             <FormControl>
                               <Input type="color" {...field} className="w-16 h-10" />
@@ -662,6 +671,25 @@ export default function CreateWidget() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="theme.descriptionColor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description Color</FormLabel>
+                          <div className="flex gap-2">
+                            <FormControl>
+                              <Input type="color" {...field} className="w-16 h-10" />
+                            </FormControl>
+                            <FormControl>
+                              <Input {...field} placeholder="#666666" />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <FormField
                       control={form.control}
                       name="theme.ctaColor"
@@ -928,7 +956,10 @@ export default function CreateWidget() {
                                   : title;
                               })()}
                             </h3>
-                            <p className={`${getContentStyling(watchedValues.size).descriptionSize} ${getContentStyling(watchedValues.size).descriptionLines} opacity-80 leading-tight`}>
+                            <p 
+                              className={`${getContentStyling(watchedValues.size).descriptionSize} ${getContentStyling(watchedValues.size).descriptionLines} leading-tight`}
+                              style={{ color: watchedValues.theme.descriptionColor }}
+                            >
                               {(() => {
                                 const maxLength = getContentStyling(watchedValues.size).maxDescription;
                                 const description = previewAd.description || 'Enter your product description here...';
