@@ -275,14 +275,14 @@ export default function CreateWidget() {
       case "728x90": // Leaderboard - horizontal layout
         return {
           layout: 'flex-row',
-          padding: 'px-6 py-4',
+          padding: 'px-4 py-1',
           titleSize: 'text-sm font-semibold',
           descriptionSize: 'text-xs',
           descriptionLines: 'line-clamp-2',
-          imageSize: 'w-20 h-20',
+          imageSize: 'w-24 h-24',
           buttonSize: 'px-4 py-2 text-sm',
           buttonWidth: 'w-24',
-          spacing: 'gap-6',
+          spacing: 'gap-4',
           textAlign: 'text-left',
           maxDescription: 80
         };
@@ -797,7 +797,7 @@ export default function CreateWidget() {
                     {currentAd && (
                       <>
                         {currentAd.imageUrl && (
-                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0 flex items-center justify-center`}>
+                          <div className={`${getContentStyling(watchedValues.size).imageSize} flex-shrink-0`}>
                             <img
                               src={currentAd.imageUrl}
                               alt={currentAd.title}
