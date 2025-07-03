@@ -227,8 +227,8 @@ export default function CreateWidget() {
   });
 
   const addAd = () => {
-    const currentValues = form.getValues();
-    const newAdIndex = currentValues.ads.length;
+    const currentAds = form.getValues("ads");
+    const newAdIndex = currentAds.length;
     
     // Create the new empty ad
     const newAd = {
@@ -240,14 +240,8 @@ export default function CreateWidget() {
       tags: [],
     };
     
-    // Update the form with the new ad appended
-    const updatedValues = {
-      ...currentValues,
-      ads: [...currentValues.ads, newAd]
-    };
-    
-    // Reset the entire form with updated values
-    form.reset(updatedValues);
+    // Add the new ad using setValue instead of reset
+    form.setValue("ads", [...currentAds, newAd]);
     
     // Switch to the new ad
     setCurrentAdIndex(newAdIndex);
