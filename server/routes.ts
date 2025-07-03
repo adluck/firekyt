@@ -5012,72 +5012,7 @@ async function generateAILinkSuggestions(params: {
     res.sendFile(path.join(currentDir, '../external-widget-test.html'));
   });
 
-  // Serve widget as iframe (WordPress-compatible alternative)
-  app.get('/widgets/:id/iframe', async (req, res) => {
-    try {
-      const widgetId = parseInt(req.params.id);
-      const widget = await storage.getAdWidget(widgetId);
-      
-      if (!widget || !widget.isActive) {
-        return res.status(404).send('<html><body>Widget not found</body></html>');
-      }
-
-      // Track view
-      await storage.createAdWidgetAnalytics({
-        widgetId,
-        eventType: 'view',
-        referrer: req.get('Referer') || null,
-        userAgent: req.get('User-Agent') || null,
-        ipAddress: req.ip || null
-      });
-
-      const sizeStyles = {
-        '300x250': 'width: 300px; height: 250px;',
-        '728x90': 'width: 728px; height: 90px;',
-        '160x600': 'width: 160px; height: 600px;',
-        '100%': 'width: 100%; height: 250px;'
-      };
-
-      const currentAd = widget.ads[0] || {};
-      const isCompact = widget.size === '728x90';
-      
-      const iframeHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { margin: 0; padding: 16px; font-family: Arial, sans-serif; background: ${widget.theme.bgColor}; color: ${widget.theme.textColor}; ${sizeStyles[widget.size] || sizeStyles['300x250']} overflow: hidden; }
-    .widget { display: flex; flex-direction: ${isCompact ? 'row' : 'column'}; height: 100%; align-items: ${isCompact ? 'center' : 'stretch'}; }
-    .image { width: ${isCompact ? '60px' : '80px'}; height: ${isCompact ? '40px' : '80px'}; object-fit: cover; border-radius: 4px; margin: ${isCompact ? '0 8px 0 0' : '0 0 8px 0'}; flex-shrink: 0; }
-    .content { flex: 1; display: flex; flex-direction: column; }
-    .title { font-size: ${isCompact ? '14px' : '16px'}; font-weight: bold; margin: 0 0 4px 0; line-height: 1.2; color: #1f2937; }
-    .description { font-size: ${isCompact ? '11px' : '14px'}; margin: 0 0 8px 0; line-height: 1.3; color: #4b5563; }
-    .button { background-color: ${widget.theme.ctaColor}; color: white; border: none; border-radius: 4px; padding: ${isCompact ? '6px 12px' : '8px 16px'}; font-size: ${isCompact ? '12px' : '14px'}; font-weight: bold; cursor: pointer; margin-top: auto; width: fit-content; transition: background-color 0.2s; }
-    .button:hover { opacity: 0.9; }
-  </style>
-</head>
-<body>
-  <div class="widget">
-    ${currentAd.imageUrl ? `<img src="${currentAd.imageUrl}" class="image" onerror="this.style.display='none'">` : ''}
-    <div class="content">
-      <h3 class="title">${currentAd.title || 'Premium Product'}</h3>
-      <p class="description">${currentAd.description || 'High-quality product with excellent features'}</p>
-      <button class="button" onclick="window.open('${currentAd.url}', '_blank')">${currentAd.ctaText || 'Shop Now'}</button>
-    </div>
-  </div>
-</body>
-</html>`;
-
-      res.setHeader('Content-Type', 'text/html');
-      res.setHeader('X-Frame-Options', 'ALLOWALL');
-      res.send(iframeHtml);
-    } catch (error: any) {
-      console.error('Serve iframe widget error:', error);
-      res.status(500).send('<html><body>Error loading widget</body></html>');
-    }
-  });
+  // Note: Widget iframe route is now handled in server/index.ts before security middleware
 
   // Serve widget embed script
   app.get('/widgets/:id/embed.js', async (req, res) => {
