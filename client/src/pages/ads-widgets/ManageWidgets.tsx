@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Monitor, BarChart3, Copy, Trash2, ExternalLink, Eye, MousePointer } from "lucide-react";
+import { Plus, Monitor, BarChart3, Copy, Trash2, ExternalLink, Eye, MousePointer, Edit } from "lucide-react";
 
 interface AdWidget {
   id: number;
@@ -147,6 +147,11 @@ export default function ManageWidgets() {
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
+                    <Link href={`/ads-widgets/create?edit=${widget.id}`}>
+                      <Button variant="ghost" size="sm">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                    </Link>
                     <Link href={`/ads-widgets/analytics?widget=${widget.id}`}>
                       <Button variant="ghost" size="sm">
                         <BarChart3 className="w-4 h-4" />

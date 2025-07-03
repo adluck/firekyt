@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2, Eye, Code } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 // Validation schemas
@@ -156,7 +156,22 @@ export default function CreateWidget() {
   const [, navigate] = useLocation();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
+  
+  // Check if we're in edit mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const editWidgetId = urlParams.get('edit');
+  const isEditMode = !!editWidgetId;
 
+  // Fetch widget data when in edit mode
+  const { data: widgetData, isLoading: isLoadingWidget } = useQuery({
+    queryKey: ["/api/widgets", editWidgetId],
+    queryFn: async () => {
+      if (!editWidgetId) return null;
+      const response = await apiRequest("GET", `/api/widgets/${editWidgetId}`);
+      return response.json();
+    },
+    enabled: isEditMode,
+  });
 
   const form = useForm<WidgetFormData>({
     resolver: zodResolver(widgetSchema),
@@ -214,17 +229,29 @@ export default function CreateWidget() {
     });
   };
 
-  const createWidget = useMutation({
+  const saveWidget = useMutation({
     mutationFn: async (data: WidgetFormData) => {
-      return apiRequest("POST", "/api/widgets", data);
+      if (isEditMode && editWidgetId) {
+        return apiRequest("PUT", `/api/widgets/${editWidgetId}`, data);
+      } else {
+        return apiRequest("POST", "/api/widgets", data);
+      }
     },
     onSuccess: () => {
       toast({
-        title: "Widget Created",
-        description: "Your ad widget has been created successfully.",
+        title: isEditMode ? "Widget Updated" : "Widget Created",
+        description: isEditMode 
+          ? "Your ad widget has been updated successfully."
+          : "Your ad widget has been created successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/widgets"] });
-      form.reset();
+      if (isEditMode) {
+        queryClient.invalidateQueries({ queryKey: ["/api/widgets", editWidgetId] });
+      }
+      
+      if (!isEditMode) {
+        form.reset();
+      }
       
       // Navigate to widgets management page
       setTimeout(() => {
@@ -234,7 +261,7 @@ export default function CreateWidget() {
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to create widget",
+        description: error.message || (isEditMode ? "Failed to update widget" : "Failed to create widget"),
         variant: "destructive",
       });
     },
@@ -364,15 +391,29 @@ export default function CreateWidget() {
   };
 
   const onSubmit = (data: WidgetFormData) => {
-    createWidget.mutate(data);
+    saveWidget.mutate(data);
   };
+
+  // Show loading state while fetching widget data
+  if (isEditMode && isLoadingWidget) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Create Ad Widget</h1>
+        <h1 className="text-3xl font-bold">{isEditMode ? "Edit Ad Widget" : "Create Ad Widget"}</h1>
         <p className="text-muted-foreground mt-2">
-          Design and customize your affiliate ad widget with live preview
+          {isEditMode 
+            ? "Update your affiliate ad widget with live preview"
+            : "Design and customize your affiliate ad widget with live preview"
+          }
         </p>
       </div>
 
@@ -760,9 +801,12 @@ export default function CreateWidget() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={createWidget.isPending}
+                disabled={saveWidget.isPending}
               >
-                {createWidget.isPending ? "Creating..." : "Create Widget"}
+                {saveWidget.isPending 
+                  ? (isEditMode ? "Updating..." : "Creating...") 
+                  : (isEditMode ? "Update Widget" : "Create Widget")
+                }
               </Button>
             </form>
           </Form>
