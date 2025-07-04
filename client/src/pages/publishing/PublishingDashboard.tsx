@@ -960,14 +960,14 @@ export default function PublishingDashboard() {
             ) : (
               connections.map((connection: any) => (
                 <Card key={connection.id}>
-                  <CardHeader className="flex flex-col xl:flex-row xl:items-center xl:justify-between space-y-2 xl:space-y-0 pb-2">
+                  <CardHeader className="flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between space-y-2 2xl:space-y-0 pb-2">
                     <CardTitle className="text-base flex items-center gap-2 capitalize">
                       {getPlatformIcon(connection.platform)}
                       {connection.platform}
                     </CardTitle>
                     <Badge 
                       variant={connection.isActive ? "default" : "secondary"}
-                      className={`${connection.isActive ? "bg-green-600 hover:bg-green-700 text-white" : ""} self-start xl:self-center`}
+                      className={`${connection.isActive ? "bg-green-600 hover:bg-green-700 text-white" : ""} self-start 2xl:self-center`}
                     >
                       {connection.isActive ? "Connected" : "Inactive"}
                     </Badge>
@@ -985,11 +985,11 @@ export default function PublishingDashboard() {
                       <p className="text-sm text-muted-foreground">
                         Connected: {new Date(connection.createdAt).toLocaleDateString()}
                       </p>
-                      <div className="flex flex-col xl:flex-row gap-2 pt-2">
+                      <div className="flex flex-col 2xl:flex-row gap-2 pt-2">
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="w-full xl:w-auto justify-center xl:justify-start"
+                          className="w-full 2xl:w-auto justify-center 2xl:justify-start"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowConnectionDialog(true);
@@ -1001,7 +1001,7 @@ export default function PublishingDashboard() {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="w-full xl:w-auto justify-center xl:justify-start"
+                          className="w-full 2xl:w-auto justify-center 2xl:justify-start"
                           onClick={() => {
                             setSelectedContent(userContent[0]);
                             setShowScheduleDialog(true);
@@ -1013,7 +1013,7 @@ export default function PublishingDashboard() {
                         <Button 
                           size="sm" 
                           variant="default"
-                          className="w-full xl:w-auto justify-center xl:justify-start"
+                          className="w-full 2xl:w-auto justify-center 2xl:justify-start"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowPublishDialog(true);
