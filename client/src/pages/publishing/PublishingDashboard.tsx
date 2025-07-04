@@ -432,12 +432,12 @@ export default function PublishingDashboard() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <NetworkStatus />
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Publishing Dashboard</h1>
           <p className="text-muted-foreground">Manage your content publishing across multiple platforms</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button 
             variant="outline" 
             size="sm"
