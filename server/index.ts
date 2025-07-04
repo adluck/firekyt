@@ -45,7 +45,47 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const theme = typeof widget.theme === 'string' ? JSON.parse(widget.theme) : (widget.theme || {});
     const currentAd = ads[0] || {};
     
-    const isLeaderboard = widget.size === '728x90';
+    // Define specific layouts for each widget size
+    const widgetLayouts = {
+      '728x90': {
+        flexDirection: 'row',
+        textAlign: 'center',
+        imageSize: { width: '80px', height: '60px' },
+        imageMargin: '0 12px 0 0',
+        contentDirection: 'row',
+        contentAlign: 'center',
+        buttonMargin: '0 0 0 15px'
+      },
+      '300x250': {
+        flexDirection: 'column',
+        textAlign: 'left',
+        imageSize: { width: '140px', height: '140px' },
+        imageMargin: '0 0 15px 0',
+        contentDirection: 'column',
+        contentAlign: 'stretch',
+        buttonMargin: '0 auto'
+      },
+      '160x600': {
+        flexDirection: 'column',
+        textAlign: 'left',
+        imageSize: { width: '140px', height: '140px' },
+        imageMargin: '0 0 15px 0',
+        contentDirection: 'column',
+        contentAlign: 'stretch',
+        buttonMargin: '0 auto'
+      },
+      '100%': {
+        flexDirection: 'column',
+        textAlign: 'left',
+        imageSize: { width: '140px', height: '140px' },
+        imageMargin: '0 0 15px 0',
+        contentDirection: 'column',
+        contentAlign: 'stretch',
+        buttonMargin: '0 auto'
+      }
+    };
+    
+    const layout = widgetLayouts[widget.size as keyof typeof widgetLayouts] || widgetLayouts['300x250'];
     
     const iframeHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -69,7 +109,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     }
     .widget { 
       display: flex; 
-      flex-direction: ${isLeaderboard ? 'row' : 'column'}; 
+      flex-direction: ${layout.flexDirection}; 
       width: 100%;
       height: 100%; 
       align-items: center; 
@@ -78,7 +118,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      text-align: ${isLeaderboard ? 'center' : 'left'};
+      text-align: ${layout.textAlign};
       position: relative;
       overflow: hidden;
     }
@@ -106,10 +146,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       z-index: 1;
     }
     .image-container {
-      width: ${isLeaderboard ? '80px' : '140px'}; 
-      height: ${isLeaderboard ? '60px' : '140px'}; 
+      width: ${layout.imageSize.width}; 
+      height: ${layout.imageSize.height}; 
       border-radius: 8px; 
-      margin: ${isLeaderboard ? '0 12px 0 0' : '0 0 15px 0'}; 
+      margin: ${layout.imageMargin}; 
       flex-shrink: 0;
       background: #ffffff;
       border: 2px solid rgba(255,255,255,0.3);
@@ -133,9 +173,9 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     .content { 
       flex: 1; 
       display: flex; 
-      flex-direction: ${isLeaderboard ? 'row' : 'column'}; 
+      flex-direction: ${layout.contentDirection}; 
       justify-content: space-between;
-      align-items: ${isLeaderboard ? 'center' : 'stretch'};
+      align-items: ${layout.contentAlign};
       min-width: 0;
       position: relative;
       z-index: 2;
@@ -172,8 +212,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       color: white; 
       border: none; 
       border-radius: 8px; 
-      padding: ${isLeaderboard ? '8px 16px' : '8px 16px'}; 
-      font-size: ${isLeaderboard ? '12px' : '12px'}; 
+      padding: 8px 16px; 
+      font-size: 12px; 
       font-weight: 700; 
       cursor: pointer; 
       width: fit-content; 
@@ -184,7 +224,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
       letter-spacing: 0.5px;
       align-self: center;
-      margin: ${isLeaderboard ? '0 0 0 15px' : '0 auto'};
+      margin: ${layout.buttonMargin};
       position: relative;
       z-index: 2;
       flex-shrink: 0;
