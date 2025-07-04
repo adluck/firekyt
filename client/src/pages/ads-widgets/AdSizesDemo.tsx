@@ -9,10 +9,12 @@ const AdSizesDemo = () => {
   const [selectedWidgetId, setSelectedWidgetId] = useState<string>("");
 
   // Fetch user's saved widgets
-  const { data: widgets, isLoading } = useQuery({
+  const { data: widgetsResponse, isLoading } = useQuery({
     queryKey: ['/api/widgets'],
     enabled: true
   });
+
+  const widgets = widgetsResponse?.widgets || [];
 
   const adSizes = [
     {
@@ -82,49 +84,35 @@ const AdSizesDemo = () => {
             Select Widget to Preview
           </h3>
           
-          {widgets && widgets.length > 0 ? (
-            <div className="flex items-center gap-4">
-              <Select value={selectedWidgetId} onValueChange={setSelectedWidgetId}>
-                <SelectTrigger className="w-80">
-                  <SelectValue placeholder="Choose a widget to preview..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {widgets.map((widget: any) => (
-                    <SelectItem key={widget.id} value={widget.id.toString()}>
-                      <div className="flex items-center gap-2">
-                        <span>{widget.name}</span>
-                        <Badge variant={widget.isActive ? "default" : "secondary"} className="text-xs">
-                          {widget.isActive ? "Active" : "Inactive"}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              {selectedWidgetId && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setSelectedWidgetId("")}
-                  className="shrink-0"
-                >
-                  Clear Selection
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400 mb-4">
-                You don't have any widgets created yet.
-              </p>
+          <div className="flex items-center gap-4">
+            <Select value={selectedWidgetId} onValueChange={setSelectedWidgetId}>
+              <SelectTrigger className="w-80">
+                <SelectValue placeholder="Choose a widget to preview..." />
+              </SelectTrigger>
+              <SelectContent>
+                {widgets.map((widget: any) => (
+                  <SelectItem key={widget.id} value={widget.id.toString()}>
+                    <div className="flex items-center gap-2">
+                      <span>{widget.name}</span>
+                      <Badge variant={widget.isActive ? "default" : "secondary"} className="text-xs">
+                        {widget.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {selectedWidgetId && (
               <Button 
-                onClick={() => window.location.href = '/ads-widgets/create'}
-                className="inline-flex items-center gap-2"
+                variant="outline" 
+                onClick={() => setSelectedWidgetId("")}
+                className="shrink-0"
               >
-                Create Your First Widget
+                Clear Selection
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
