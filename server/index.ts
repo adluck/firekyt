@@ -45,11 +45,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const theme = typeof widget.theme === 'string' ? JSON.parse(widget.theme) : (widget.theme || {});
     const currentAd = ads[0] || {};
     
-    // Use size parameter from query string if provided, otherwise use widget's default size
-    const requestedSize = req.query.size as string || widget.size;
-    const isCompact = requestedSize === '728x90';
-    
-    console.log(`🎯 Widget ${widgetId} iframe: requestedSize=${requestedSize}, isCompact=${isCompact}, widgetSize=${widget.size}`);
+    const isCompact = widget.size === '728x90';
     
     const iframeHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -66,21 +62,21 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       font-family: ${theme?.font === 'serif' ? 'Georgia, "Times New Roman", Times, serif' : theme?.font === 'monospace' ? '"Courier New", Courier, monospace' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'}; 
       background: transparent; 
       color: ${theme?.textColor || '#000000'}; 
-      ${(sizeStyles as any)[requestedSize] || sizeStyles['300x250']}
+      ${(sizeStyles as any)[widget.size] || sizeStyles['300x250']}
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .widget { 
       display: flex; 
-      flex-direction: ${isCompact ? 'row' : 'column'}; 
+      flex-direction: column; 
       width: 100%;
       height: 100%; 
-      align-items: ${isCompact ? 'center' : 'center'}; 
-      justify-content: ${isCompact ? 'flex-start' : 'center'};
+      align-items: center; 
+      justify-content: center;
       background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
-      padding: ${isCompact ? '8px 12px' : '20px 20px 20px 20px'};
+      padding: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       text-align: center;
       position: relative;
@@ -110,10 +106,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       z-index: 1;
     }
     .image-container {
-      width: ${isCompact ? '100px' : '140px'}; 
-      height: ${isCompact ? '60px' : '140px'}; 
+      width: 140px; 
+      height: 140px; 
       border-radius: 8px; 
-      margin: ${isCompact ? '0 12px 0 0' : '0 0 15px 0'}; 
+      margin: 0 0 15px 0; 
       flex-shrink: 0;
       background: #ffffff;
       border: 2px solid rgba(255,255,255,0.3);
@@ -137,9 +133,9 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     .content { 
       flex: 1; 
       display: flex; 
-      flex-direction: ${isCompact ? 'row' : 'column'}; 
+      flex-direction: column; 
       justify-content: space-between;
-      align-items: ${isCompact ? 'center' : 'stretch'};
+      align-items: stretch;
       min-width: 0;
       position: relative;
       z-index: 2;
