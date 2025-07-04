@@ -1001,7 +1001,7 @@ export default function CreateWidget() {
                             <img
                               src={previewAd.imageUrl}
                               alt={previewAd.title}
-                              className="w-full h-full object-center rounded-lg shadow-lg"
+                              className="w-full h-full object-center rounded-lg"
                               style={{ 
                                 objectFit: watchedValues.theme.imageFit || 'cover' as any,
                                 transform: `scale(${(watchedValues.theme.imageScale || 100) / 100})`,

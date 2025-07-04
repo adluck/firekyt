@@ -5,7 +5,7 @@
   // Create widget container
   var container = document.createElement('div');
   container.id = 'affiliate-widget-' + widgetId;
-  container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: Arial, sans-serif;';
+  container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; font-family: Arial, sans-serif;';
   
   // Insert container where script is loaded
   var currentScript = document.currentScript || document.scripts[document.scripts.length - 1];

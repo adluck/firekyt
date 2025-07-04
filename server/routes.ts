@@ -5065,7 +5065,7 @@ async function generateAILinkSuggestions(params: {
   function initWidget() {
     var container = document.createElement('div');
     container.id = 'affiliate-widget-' + widgetId;
-    container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-family: Arial, sans-serif; margin: 10px 0;';
+    container.style.cssText = 'position: relative; overflow: hidden; border-radius: 8px; font-family: Arial, sans-serif; margin: 10px 0;';
     
     // Better script insertion for WordPress
     var scripts = document.getElementsByTagName('script');
