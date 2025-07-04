@@ -5017,6 +5017,12 @@ async function generateAILinkSuggestions(params: {
     res.sendFile(path.join(currentDir, '../test-widget.html'));
   });
 
+  // Serve fresh widget test page
+  app.get('/test-widget-fresh.html', (req, res) => {
+    const currentDir = dirname(fileURLToPath(import.meta.url));
+    res.sendFile(path.join(currentDir, '../test-widget-fresh.html'));
+  });
+
   // Serve external widget test page
   app.get('/external-widget-test.html', (req, res) => {
     const currentDir = dirname(fileURLToPath(import.meta.url));

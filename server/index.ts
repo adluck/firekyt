@@ -13,6 +13,9 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.header('Pragma', 'no-cache');
     res.header('Expires', '0');
+    res.header('Last-Modified', new Date().toUTCString());
+    res.header('ETag', `"${Date.now()}"`);
+    res.header('Vary', 'Accept-Encoding');
     
     const { storage } = await import('./storage');
     const widgetId = parseInt(req.params.id);
