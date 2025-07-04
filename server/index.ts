@@ -75,10 +75,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       width: 100%;
       height: 100%; 
       align-items: ${isCompact ? 'center' : 'center'}; 
-      justify-content: ${isCompact ? 'center' : 'center'};
+      justify-content: ${isCompact ? 'flex-start' : 'center'};
       background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
-      padding: ${isCompact ? '12px 16px' : '20px 20px 20px 20px'};
+      padding: ${isCompact ? '8px 12px' : '20px 20px 20px 20px'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       text-align: center;
       position: relative;
@@ -108,14 +108,14 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       z-index: 1;
     }
     .image-container {
-      width: ${isCompact ? '120px' : '140px'}; 
-      height: ${isCompact ? '80px' : '140px'}; 
-      border-radius: 12px; 
-      margin: ${isCompact ? '0 20px 0 0' : '0 0 15px 0'}; 
+      width: ${isCompact ? '100px' : '140px'}; 
+      height: ${isCompact ? '60px' : '140px'}; 
+      border-radius: 8px; 
+      margin: ${isCompact ? '0 12px 0 0' : '0 0 15px 0'}; 
       flex-shrink: 0;
       background: #ffffff;
-      border: 3px solid rgba(255,255,255,0.3);
-      padding: 0;
+      border: 2px solid rgba(255,255,255,0.3);
+      padding: 2px;
       display: flex;
       align-items: center;
       justify-content: flex-start;
