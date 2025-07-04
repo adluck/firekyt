@@ -78,17 +78,19 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       background: #ffffff;
       border: 3px solid rgba(255,255,255,0.3);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      padding: 6px;
+      padding: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      overflow: hidden;
     }
     .image { 
-      max-width: 100%; 
-      max-height: 100%; 
+      width: 100%; 
+      height: 100%; 
       object-fit: contain; 
-      object-position: center;
-      border-radius: 8px;
+      object-position: center center;
+      border-radius: 6px;
     }
     .content { 
       flex: 1; 
