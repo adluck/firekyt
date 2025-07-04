@@ -4939,7 +4939,9 @@ async function generateAILinkSuggestions(params: {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
       res.header('Access-Control-Allow-Headers', 'Content-Type');
-      res.header('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+      res.header('Cache-Control', 'no-cache, no-store, must-revalidate'); // No caching for immediate updates
+      res.header('Pragma', 'no-cache');
+      res.header('Expires', '0');
       
       const widgetId = parseInt(req.params.id);
       const widget = await storage.getAdWidget(widgetId);
@@ -5021,7 +5023,9 @@ async function generateAILinkSuggestions(params: {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
       res.header('Access-Control-Allow-Headers', 'Content-Type');
-      res.header('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+      res.header('Cache-Control', 'no-cache, no-store, must-revalidate'); // No caching for immediate updates
+      res.header('Pragma', 'no-cache');
+      res.header('Expires', '0');
       res.header('X-Content-Type-Options', 'nosniff');
       res.header('X-Frame-Options', 'ALLOWALL');
       
