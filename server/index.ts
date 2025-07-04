@@ -123,7 +123,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
-      -webkit-line-clamp: ${isCompact ? '1' : '2'};
+      -webkit-line-clamp: ${isCompact ? '2' : '4'};
       -webkit-box-orient: vertical;
     }
     .button { 
