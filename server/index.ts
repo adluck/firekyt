@@ -135,8 +135,9 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     .content { 
       flex: 1; 
       display: flex; 
-      flex-direction: column; 
+      flex-direction: ${isCompact ? 'row' : 'column'}; 
       justify-content: space-between;
+      align-items: ${isCompact ? 'center' : 'stretch'};
       min-width: 0;
       position: relative;
       z-index: 2;
@@ -184,10 +185,11 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       text-align: center;
       box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
       letter-spacing: 0.5px;
-      align-self: center;
-      margin: 0 auto;
+      align-self: ${isCompact ? 'center' : 'center'};
+      margin: ${isCompact ? '0 0 0 15px' : '0 auto'};
       position: relative;
       z-index: 2;
+      flex-shrink: 0;
     }
     .button:hover { 
       transform: translateY(-1px); 
