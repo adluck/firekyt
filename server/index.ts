@@ -80,10 +80,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       text-align: center;
     }
     .image-container {
-      width: ${isCompact ? '120px' : '160px'}; 
-      height: ${isCompact ? '80px' : '160px'}; 
+      width: ${isCompact ? '120px' : '140px'}; 
+      height: ${isCompact ? '80px' : '140px'}; 
       border-radius: 12px; 
-      margin: ${isCompact ? '0 20px 0 0' : '0 0 20px 0'}; 
+      margin: ${isCompact ? '0 20px 0 0' : '0 0 15px 0'}; 
       flex-shrink: 0;
       background: #ffffff;
       border: 3px solid rgba(255,255,255,0.3);
@@ -117,8 +117,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     .title { 
       font-size: ${isCompact ? '14px' : '14px'}; 
       font-weight: 600; 
-      margin: 0 0 6px 0; 
-      line-height: 1.3; 
+      margin: 0 0 4px 0; 
+      line-height: 1.2; 
       color: ${theme?.textColor || '#ffffff'}; 
       overflow: hidden;
       text-overflow: ellipsis;
@@ -127,15 +127,15 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       -webkit-box-orient: vertical;
     }
     .description { 
-      font-size: ${isCompact ? '11px' : '12px'}; 
-      margin: 0 0 12px 0; 
-      line-height: 1.4; 
+      font-size: ${isCompact ? '11px' : '11px'}; 
+      margin: 0 0 8px 0; 
+      line-height: 1.3; 
       color: ${theme?.textColor || '#e5e7eb'}; 
       opacity: 0.8;
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
-      -webkit-line-clamp: ${isCompact ? '2' : '4'};
+      -webkit-line-clamp: ${isCompact ? '2' : '2'};
       -webkit-box-orient: vertical;
     }
     .button { 
