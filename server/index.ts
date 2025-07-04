@@ -9,6 +9,11 @@ const app = express();
 // Add iframe route BEFORE security middleware to bypass restrictions
 app.get('/widgets/:id/iframe', async (req, res) => {
   try {
+    // Set no-cache headers for immediate updates
+    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.header('Pragma', 'no-cache');
+    res.header('Expires', '0');
+    
     const { storage } = await import('./storage');
     const widgetId = parseInt(req.params.id);
     const widget = await storage.getAdWidget(widgetId);
@@ -62,12 +67,13 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       flex-direction: ${isCompact ? 'row' : 'column'}; 
       width: 100%;
       height: 100%; 
-      align-items: ${isCompact ? 'center' : 'stretch'}; 
+      align-items: ${isCompact ? 'center' : 'center'}; 
       justify-content: center;
       background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
       padding: ${isCompact ? '12px 16px' : '20px'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
     }
     .image-container {
       width: ${isCompact ? '120px' : '160px'}; 
