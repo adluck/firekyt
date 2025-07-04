@@ -280,8 +280,19 @@ export default function CreateWidget() {
         console.log('🔄 Making PUT request to:', `/api/widgets/${editWidgetId}`);
         try {
           const response = await apiRequest("PUT", `/api/widgets/${editWidgetId}`, data);
-          console.log('✅ PUT request successful, response:', response);
-          return response;
+          console.log('✅ PUT request successful, response status:', response.status);
+          console.log('✅ Response headers:', [...response.headers.entries()]);
+          const responseText = await response.text();
+          console.log('✅ Response body:', responseText);
+          
+          // Create a new response with the same data for the mutation to use
+          const clonedResponse = new Response(responseText, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers
+          });
+          
+          return clonedResponse;
         } catch (error) {
           console.error('❌ PUT request failed:', error);
           throw error;
