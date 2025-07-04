@@ -58,9 +58,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     body { 
       padding: 0; 
-      font-family: ${theme?.font === 'serif' ? 'Georgia, "Times New Roman", Times, serif' : 
-                    theme?.font === 'monospace' ? '"Courier New", Courier, monospace' : 
-                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'}; 
+      font-family: ${theme?.font === 'serif' ? 'Georgia, "Times New Roman", Times, serif' : theme?.font === 'monospace' ? '"Courier New", Courier, monospace' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'}; 
       background: transparent; 
       color: ${theme?.textColor || '#000000'}; 
       ${(sizeStyles as any)[widget.size] || sizeStyles['300x250']}
