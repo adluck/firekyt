@@ -29,7 +29,8 @@ import {
   PanelLeftClose,
   PanelLeft,
   Monitor,
-  Plus
+  Plus,
+  Ruler
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +95,8 @@ const navigation = [
     submenu: [
       { name: 'Create Widget', href: '/ads-widgets/create', icon: Plus },
       { name: 'Manage Widgets', href: '/ads-widgets', icon: Monitor },
-      { name: 'Widget Analytics', href: '/ads-widgets/analytics', icon: BarChart3 }
+      { name: 'Widget Analytics', href: '/ads-widgets/analytics', icon: BarChart3 },
+      { name: 'Ad Sizes Demo', href: '/ads-widgets/sizes', icon: Ruler }
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },

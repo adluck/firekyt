@@ -52,6 +52,7 @@ import FeedbackDashboard from "@/pages/admin/FeedbackDashboard";
 import CreateWidget from "@/pages/ads-widgets/CreateWidget";
 import ManageWidgets from "@/pages/ads-widgets/ManageWidgets";
 import WidgetAnalytics from "@/pages/ads-widgets/WidgetAnalytics";
+import AdSizesDemo from "@/pages/ads-widgets/AdSizesDemo";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -304,6 +305,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <WidgetAnalytics />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/ads-widgets/sizes">
+        <ProtectedRoute>
+          <AppLayout>
+            <AdSizesDemo />
           </AppLayout>
         </ProtectedRoute>
       </Route>
