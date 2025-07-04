@@ -45,7 +45,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const theme = typeof widget.theme === 'string' ? JSON.parse(widget.theme) : (widget.theme || {});
     const currentAd = ads[0] || {};
     
-    const isCompact = widget.size === '728x90';
+    const isLeaderboard = widget.size === '728x90';
     
     const iframeHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -69,7 +69,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     }
     .widget { 
       display: flex; 
-      flex-direction: column; 
+      flex-direction: ${isLeaderboard ? 'row' : 'column'}; 
       width: 100%;
       height: 100%; 
       align-items: center; 
@@ -106,10 +106,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       z-index: 1;
     }
     .image-container {
-      width: 140px; 
-      height: 140px; 
+      width: ${isLeaderboard ? '80px' : '140px'}; 
+      height: ${isLeaderboard ? '60px' : '140px'}; 
       border-radius: 8px; 
-      margin: 0 0 15px 0; 
+      margin: ${isLeaderboard ? '0 12px 0 0' : '0 0 15px 0'}; 
       flex-shrink: 0;
       background: #ffffff;
       border: 2px solid rgba(255,255,255,0.3);
@@ -133,9 +133,9 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     .content { 
       flex: 1; 
       display: flex; 
-      flex-direction: column; 
+      flex-direction: ${isLeaderboard ? 'row' : 'column'}; 
       justify-content: space-between;
-      align-items: stretch;
+      align-items: ${isLeaderboard ? 'center' : 'stretch'};
       min-width: 0;
       position: relative;
       z-index: 2;
@@ -144,7 +144,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       flex-grow: 1;
     }
     .title { 
-      font-size: ${isCompact ? '14px' : '14px'}; 
+      font-size: 14px; 
       font-weight: 600; 
       margin: 0 0 4px 0; 
       line-height: 1.2; 
@@ -156,7 +156,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       -webkit-box-orient: vertical;
     }
     .description { 
-      font-size: ${isCompact ? '11px' : '11px'}; 
+      font-size: 11px; 
       margin: 0 0 8px 0; 
       line-height: 1.3; 
       color: ${theme?.textColor || '#e5e7eb'}; 
@@ -164,7 +164,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
-      -webkit-line-clamp: ${isCompact ? '2' : '2'};
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
     }
     .button { 
@@ -172,8 +172,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       color: white; 
       border: none; 
       border-radius: 8px; 
-      padding: ${isCompact ? '10px 20px' : '8px 16px'}; 
-      font-size: ${isCompact ? '13px' : '12px'}; 
+      padding: ${isLeaderboard ? '8px 16px' : '8px 16px'}; 
+      font-size: ${isLeaderboard ? '12px' : '12px'}; 
       font-weight: 700; 
       cursor: pointer; 
       width: fit-content; 
@@ -183,8 +183,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       text-align: center;
       box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
       letter-spacing: 0.5px;
-      align-self: ${isCompact ? 'center' : 'center'};
-      margin: ${isCompact ? '0 0 0 15px' : '0 auto'};
+      align-self: center;
+      margin: ${isLeaderboard ? '0 0 0 15px' : '0 auto'};
       position: relative;
       z-index: 2;
       flex-shrink: 0;
