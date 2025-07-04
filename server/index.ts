@@ -78,7 +78,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      text-align: center;
+      text-align: ${isLeaderboard ? 'center' : 'left'};
       position: relative;
       overflow: hidden;
     }
