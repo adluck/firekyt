@@ -69,18 +69,26 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       padding: ${isCompact ? '12px 16px' : '20px'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-    .image { 
+    .image-container {
       width: ${isCompact ? '120px' : '160px'}; 
       height: ${isCompact ? '80px' : '160px'}; 
-      object-fit: contain; 
-      object-position: center;
       border-radius: 12px; 
       margin: ${isCompact ? '0 20px 0 0' : '0 0 20px 0'}; 
       flex-shrink: 0;
       background: #ffffff;
       border: 3px solid rgba(255,255,255,0.3);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      padding: 8px;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .image { 
+      max-width: 100%; 
+      max-height: 100%; 
+      object-fit: contain; 
+      object-position: center;
+      border-radius: 8px;
     }
     .content { 
       flex: 1; 
@@ -148,7 +156,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
 </head>
 <body>
   <div class="widget" id="widget">
-    ${currentAd.imageUrl ? `<img src="${currentAd.imageUrl}" alt="${currentAd.title || 'Product'}" class="image" onerror="this.style.display='none'">` : ''}
+    ${currentAd.imageUrl ? `<div class="image-container"><img src="${currentAd.imageUrl}" alt="${currentAd.title || 'Product'}" class="image" onerror="this.parentElement.style.display='none'"></div>` : ''}
     <div class="content">
       <div class="text-section">
         <h3 class="title">${(currentAd.title || 'Premium Gaming Headset').replace(/"/g, '&quot;')}</h3>
@@ -190,6 +198,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       
       const currentAd = adsData[currentAdIndex];
       const widget = document.getElementById('widget');
+      const imageContainer = widget.querySelector('.image-container');
       const image = widget.querySelector('.image');
       const title = widget.querySelector('.title');
       const description = widget.querySelector('.description');
@@ -199,10 +208,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       widget.style.opacity = '0.7';
       
       setTimeout(() => {
-        if (image) {
+        if (image && imageContainer) {
           image.src = currentAd.imageUrl || '';
           image.alt = currentAd.title || 'Product';
-          image.style.display = currentAd.imageUrl ? 'block' : 'none';
+          imageContainer.style.display = currentAd.imageUrl ? 'flex' : 'none';
         }
         
         if (title) title.textContent = currentAd.title || 'Premium Gaming Headset';
