@@ -98,7 +98,7 @@ const navigation = [
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },
-  { name: 'Billing', href: '/billing', icon: CreditCard },
+  // { name: 'Billing', href: '/billing', icon: CreditCard }, // Temporarily hidden
   { name: 'Documentation', href: '/docs', icon: BookOpen },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
