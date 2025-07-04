@@ -143,8 +143,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       color: white; 
       border: none; 
       border-radius: 8px; 
-      padding: ${isCompact ? '10px 20px' : '14px 28px'}; 
-      font-size: ${isCompact ? '13px' : '14px'}; 
+      padding: ${isCompact ? '10px 20px' : '8px 16px'}; 
+      font-size: ${isCompact ? '13px' : '12px'}; 
       font-weight: 700; 
       cursor: pointer; 
       width: fit-content; 
