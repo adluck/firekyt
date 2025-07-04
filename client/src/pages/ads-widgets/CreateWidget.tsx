@@ -458,6 +458,8 @@ export default function CreateWidget() {
   };
 
   const onSubmit = (data: WidgetFormData) => {
+    console.log('🚀 Form submission triggered with data:', data);
+    console.log('🚀 Edit mode:', isEditMode, 'Widget ID:', editWidgetId);
     saveWidget.mutate(data);
   };
 
@@ -498,7 +500,9 @@ export default function CreateWidget() {
         {/* Form Section */}
         <div className="space-y-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.log('❌ Form validation errors:', errors);
+            })} className="space-y-6">
               {/* Widget Configuration */}
               <Card>
                 <CardHeader>
