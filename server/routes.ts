@@ -4881,6 +4881,11 @@ async function generateAILinkSuggestions(params: {
   app.put('/api/widgets/:id', authenticateToken, async (req, res) => {
     try {
       const widgetId = parseInt(req.params.id);
+      console.log('📝 Widget Update Request:', {
+        widgetId,
+        requestBody: JSON.stringify(req.body, null, 2)
+      });
+      
       const widget = await storage.getAdWidget(widgetId);
       
       if (!widget || widget.userId !== req.user!.id) {
@@ -4890,7 +4895,11 @@ async function generateAILinkSuggestions(params: {
       const updates = { ...req.body };
       delete updates.userId; // Prevent userId modification
       
+      console.log('📝 Updates to apply:', JSON.stringify(updates, null, 2));
+      
       const updatedWidget = await storage.updateAdWidget(widgetId, updates);
+      
+      console.log('✅ Widget updated successfully:', updatedWidget.id);
       
       res.json({
         success: true,
