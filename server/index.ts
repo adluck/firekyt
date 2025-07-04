@@ -74,7 +74,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       justify-content: center;
       background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
-      padding: ${isCompact ? '12px 16px' : '20px'};
+      padding: ${isCompact ? '12px 16px' : '30px 20px 20px 20px'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       text-align: center;
     }
