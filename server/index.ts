@@ -49,13 +49,15 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const requestedSize = req.query.size as string || widget.size;
     const isCompact = requestedSize === '728x90';
     
+    console.log(`🎯 Widget ${widgetId} iframe: requestedSize=${requestedSize}, isCompact=${isCompact}, widgetSize=${widget.size}`);
+    
     const iframeHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FireKyt Affiliate Widget</title>
-  <!-- Cache-busting: ${Date.now()} -->
+  <!-- Cache-busting v2: ${Date.now()} -->
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
