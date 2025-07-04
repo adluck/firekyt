@@ -277,7 +277,15 @@ export default function CreateWidget() {
   const saveWidget = useMutation({
     mutationFn: async (data: WidgetFormData) => {
       if (isEditMode && editWidgetId) {
-        return apiRequest("PUT", `/api/widgets/${editWidgetId}`, data);
+        console.log('🔄 Making PUT request to:', `/api/widgets/${editWidgetId}`);
+        try {
+          const response = await apiRequest("PUT", `/api/widgets/${editWidgetId}`, data);
+          console.log('✅ PUT request successful, response:', response);
+          return response;
+        } catch (error) {
+          console.error('❌ PUT request failed:', error);
+          throw error;
+        }
       } else {
         return apiRequest("POST", "/api/widgets", data);
       }
