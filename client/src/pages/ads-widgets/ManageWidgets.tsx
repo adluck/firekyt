@@ -134,9 +134,12 @@ export default function ManageWidgets() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {widgets.map((widget: AdWidget) => (
             <Card key={widget.id} className="relative">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <Badge variant={widget.isActive ? "default" : "secondary"}>
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between mb-3">
+                  <Badge 
+                    variant={widget.isActive ? "default" : "secondary"} 
+                    className="text-xs font-medium px-2.5 py-0.5"
+                  >
                     {widget.isActive ? "Active" : "Inactive"}
                   </Badge>
                   <div className="flex items-center space-x-1">
@@ -144,22 +147,23 @@ export default function ManageWidgets() {
                       variant="ghost"
                       size="sm"
                       onClick={() => copyEmbedCode(widget.id)}
+                      className="h-8 w-8 p-0"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
                     <Link href={`/ads-widgets/create?edit=${widget.id}`}>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <Edit className="w-4 h-4" />
                       </Button>
                     </Link>
                     <Link href={`/ads-widgets/analytics?widget=${widget.id}`}>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <BarChart3 className="w-4 h-4" />
                       </Button>
                     </Link>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </AlertDialogTrigger>
@@ -183,50 +187,43 @@ export default function ManageWidgets() {
                     </AlertDialog>
                   </div>
                 </div>
-                <CardTitle className="text-lg">{widget.name}</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-xl font-semibold mb-1 text-foreground">{widget.name}</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground leading-relaxed">
                   {widget.size} • {widget.ads.length} ads • {widget.rotationInterval}s rotation
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="flex items-center justify-center mb-1">
-                      <Eye className="w-4 h-4 mr-1 text-muted-foreground" />
-                    </div>
-                    <p className="text-2xl font-bold">{widget.stats.views}</p>
-                    <p className="text-xs text-muted-foreground">Views</p>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="text-center space-y-2">
+                    <div className="text-3xl font-bold text-foreground">{widget.stats.views.toLocaleString()}</div>
+                    <div className="text-sm font-medium text-muted-foreground tracking-wide">Views</div>
                   </div>
-                  <div>
-                    <div className="flex items-center justify-center mb-1">
-                      <MousePointer className="w-4 h-4 mr-1 text-muted-foreground" />
-                    </div>
-                    <p className="text-2xl font-bold">{widget.stats.clicks}</p>
-                    <p className="text-xs text-muted-foreground">Clicks</p>
+                  <div className="text-center space-y-2">
+                    <div className="text-3xl font-bold text-foreground">{widget.stats.clicks.toLocaleString()}</div>
+                    <div className="text-sm font-medium text-muted-foreground tracking-wide">Clicks</div>
                   </div>
-                  <div>
-                    <div className="flex items-center justify-center mb-1">
-                      <BarChart3 className="w-4 h-4 mr-1 text-muted-foreground" />
-                    </div>
-                    <p className="text-2xl font-bold">{widget.stats.ctr}%</p>
-                    <p className="text-xs text-muted-foreground">CTR</p>
+                  <div className="text-center space-y-2">
+                    <div className="text-3xl font-bold text-foreground">{widget.stats.ctr.toFixed(1)}%</div>
+                    <div className="text-sm font-medium text-muted-foreground tracking-wide">CTR</div>
                   </div>
                 </div>
                 
-                <div className="flex space-x-2">
-                  <Button
-                    variant={widget.isActive ? "outline" : "default"}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => toggleWidget.mutate({ widgetId: widget.id, isActive: !widget.isActive })}
-                  >
-                    {widget.isActive ? "Deactivate" : "Activate"}
-                  </Button>
-                  <Link href={`/ads-widgets/create?edit=${widget.id}`}>
-                    <Button variant="outline" size="sm">
-                      Edit
+                <div className="border-t border-border/40 pt-4">
+                  <div className="flex gap-3">
+                    <Button
+                      variant={widget.isActive ? "outline" : "default"}
+                      size="sm"
+                      className="flex-1 h-9 font-medium"
+                      onClick={() => toggleWidget.mutate({ widgetId: widget.id, isActive: !widget.isActive })}
+                    >
+                      {widget.isActive ? "Deactivate" : "Activate"}
                     </Button>
-                  </Link>
+                    <Link href={`/ads-widgets/create?edit=${widget.id}`}>
+                      <Button variant="outline" size="sm" className="h-9 px-4 font-medium">
+                        Edit
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </CardContent>
             </Card>
