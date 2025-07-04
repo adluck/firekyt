@@ -78,7 +78,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       background: #ffffff;
       border: 3px solid rgba(255,255,255,0.3);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      padding: 0 8px 8px 0;
+      padding: 0;
       display: flex;
       align-items: center;
       justify-content: flex-start;
@@ -89,8 +89,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       width: 100%; 
       height: 100%; 
       object-fit: contain; 
-      object-position: center center;
-      border-radius: 6px;
+      object-position: left center;
+      border-radius: 12px 0 0 12px;
     }
     .content { 
       flex: 1; 
