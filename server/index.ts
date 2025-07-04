@@ -62,40 +62,12 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       flex-direction: ${isCompact ? 'row' : 'column'}; 
       width: 100%;
       height: 100%; 
-      max-width: ${isCompact ? '400px' : '300px'};
-      min-width: ${isCompact ? '300px' : '200px'};
       align-items: ${isCompact ? 'center' : 'stretch'}; 
       justify-content: center;
       background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
       padding: ${isCompact ? '12px 16px' : '20px'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    @media (max-width: 480px) {
-      .widget {
-        max-width: 100%;
-        min-width: 280px;
-        padding: ${isCompact ? '10px 12px' : '16px'};
-        border-radius: 6px;
-      }
-      .image-container {
-        width: ${isCompact ? '100px' : '140px'} !important;
-        height: ${isCompact ? '70px' : '140px'} !important;
-      }
-    }
-    
-    @media (max-width: 320px) {
-      .widget {
-        min-width: 260px;
-        padding: ${isCompact ? '8px 10px' : '12px'};
-        flex-direction: column;
-      }
-      .image-container {
-        width: 120px !important;
-        height: 120px !important;
-        margin: 0 0 12px 0 !important;
-      }
     }
     .image-container {
       width: ${isCompact ? '120px' : '160px'}; 
@@ -180,48 +152,6 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       color: #9ca3af; 
       text-align: center; 
       padding: 20px; 
-    }
-    
-    @media (max-width: 480px) {
-      .title {
-        font-size: ${isCompact ? '12px' : '14px'};
-        margin: 0 0 4px 0;
-        -webkit-line-clamp: 1;
-      }
-      .description {
-        font-size: ${isCompact ? '10px' : '12px'};
-        margin: 0 0 8px 0;
-        -webkit-line-clamp: 1;
-      }
-      .button {
-        padding: ${isCompact ? '6px 12px' : '8px 16px'};
-        font-size: ${isCompact ? '10px' : '12px'};
-      }
-      .content {
-        ${isCompact ? 'gap: 8px;' : ''}
-      }
-    }
-    
-    @media (max-width: 320px) {
-      .title {
-        font-size: 14px;
-        text-align: center;
-        margin: 0 0 6px 0;
-      }
-      .description {
-        font-size: 11px;
-        text-align: center;
-        margin: 0 0 10px 0;
-      }
-      .button {
-        width: 100%;
-        padding: 8px;
-        font-size: 12px;
-        align-self: stretch;
-      }
-      .content {
-        align-items: center;
-      }
     }
   </style>
 </head>

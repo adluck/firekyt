@@ -940,7 +940,7 @@ export default function PublishingDashboard() {
         </TabsList>
 
         <TabsContent value="connections">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
             {connectionsLoading ? (
               <p>Loading connections...</p>
             ) : connections.length === 0 ? (
@@ -960,35 +960,36 @@ export default function PublishingDashboard() {
             ) : (
               connections.map((connection: any) => (
                 <Card key={connection.id}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
+                  <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 pb-2">
+                    <CardTitle className="text-base flex items-center gap-2 capitalize">
                       {getPlatformIcon(connection.platform)}
                       {connection.platform}
                     </CardTitle>
                     <Badge 
                       variant={connection.isActive ? "default" : "secondary"}
-                      className={connection.isActive ? "bg-green-600 hover:bg-green-700 text-white" : ""}
+                      className={`${connection.isActive ? "bg-green-600 hover:bg-green-700 text-white" : ""} self-start sm:self-center`}
                     >
                       {connection.isActive ? "Connected" : "Inactive"}
                     </Badge>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground break-words">
                         Username: {connection.username || "Not provided"}
                       </p>
                       {connection.blogUrl && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground break-all">
                           Blog: {connection.blogUrl}
                         </p>
                       )}
                       <p className="text-sm text-muted-foreground">
                         Connected: {new Date(connection.createdAt).toLocaleDateString()}
                       </p>
-                      <div className="flex gap-2 pt-2">
+                      <div className="flex flex-col sm:flex-row gap-2 pt-2">
                         <Button 
                           size="sm" 
                           variant="outline"
+                          className="w-full sm:w-auto justify-center sm:justify-start"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowConnectionDialog(true);
@@ -1000,6 +1001,7 @@ export default function PublishingDashboard() {
                         <Button 
                           size="sm" 
                           variant="outline"
+                          className="w-full sm:w-auto justify-center sm:justify-start"
                           onClick={() => {
                             setSelectedContent(userContent[0]);
                             setShowScheduleDialog(true);
@@ -1011,6 +1013,7 @@ export default function PublishingDashboard() {
                         <Button 
                           size="sm" 
                           variant="default"
+                          className="w-full sm:w-auto justify-center sm:justify-start"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowPublishDialog(true);
