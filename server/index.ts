@@ -81,7 +81,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       padding: 8px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       position: relative;
       overflow: hidden;
     }
