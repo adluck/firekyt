@@ -281,7 +281,6 @@ export default function CreateWidget() {
         try {
           const response = await apiRequest("PUT", `/api/widgets/${editWidgetId}`, data);
           console.log('✅ PUT request successful, response status:', response.status);
-          console.log('✅ Response headers:', [...response.headers.entries()]);
           const responseText = await response.text();
           console.log('✅ Response body:', responseText);
           

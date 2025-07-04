@@ -93,9 +93,11 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     .image { 
       width: 100%; 
       height: 100%; 
-      object-fit: contain; 
-      object-position: left center;
+      object-fit: ${theme?.imageFit || 'contain'}; 
+      object-position: center;
       border-radius: 12px 0 0 12px;
+      transform: scale(${(theme?.imageScale || 100) / 100});
+      transition: transform 0.3s ease;
     }
     .content { 
       flex: 1; 
