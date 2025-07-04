@@ -78,6 +78,31 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       padding: ${isCompact ? '12px 16px' : '20px 20px 20px 20px'};
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .widget::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: rotate(45deg);
+      z-index: 1;
+    }
+    .widget::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -30%;
+      width: 120%;
+      height: 120%;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      z-index: 1;
     }
     .image-container {
       width: ${isCompact ? '120px' : '140px'}; 
@@ -93,6 +118,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       justify-content: flex-start;
       position: relative;
       overflow: hidden;
+      z-index: 2;
     }
     .image { 
       width: 100%; 
@@ -110,6 +136,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       justify-content: space-between;
       min-width: 0;
       position: relative;
+      z-index: 2;
     }
     .text-section {
       flex-grow: 1;
@@ -156,6 +183,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       letter-spacing: 0.5px;
       align-self: center;
       margin: 0 auto;
+      position: relative;
+      z-index: 2;
     }
     .button:hover { 
       transform: translateY(-1px); 
