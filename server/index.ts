@@ -148,7 +148,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       text-align: center;
       box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
       letter-spacing: 0.5px;
-      align-self: flex-start;
+      align-self: center;
+      margin: 0 auto;
     }
     .button:hover { 
       transform: translateY(-1px); 
