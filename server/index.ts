@@ -45,6 +45,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const theme = typeof widget.theme === 'string' ? JSON.parse(widget.theme) : (widget.theme || {});
     const currentAd = ads[0] || {};
     
+    // Use size parameter from query string for demo purposes, otherwise use widget's stored size
+    const demoSize = req.query.size as string;
+    const effectiveSize = demoSize || widget.size;
+    
     // Define specific layouts for each widget size
     const widgetLayouts = {
       '728x90': {
@@ -85,7 +89,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       }
     };
     
-    const layout = widgetLayouts[widget.size as keyof typeof widgetLayouts] || widgetLayouts['300x250'];
+    const layout = widgetLayouts[effectiveSize as keyof typeof widgetLayouts] || widgetLayouts['300x250'];
     
     const iframeHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -102,7 +106,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       font-family: ${theme?.font === 'serif' ? 'Georgia, "Times New Roman", Times, serif' : theme?.font === 'monospace' ? '"Courier New", Courier, monospace' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'}; 
       background: transparent; 
       color: ${theme?.textColor || '#000000'}; 
-      ${(sizeStyles as any)[widget.size] || sizeStyles['300x250']}
+      ${(sizeStyles as any)[effectiveSize] || sizeStyles['300x250']}
       display: flex;
       align-items: center;
       justify-content: center;
