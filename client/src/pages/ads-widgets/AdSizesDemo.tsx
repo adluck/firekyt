@@ -57,7 +57,7 @@ const AdSizesDemo = () => {
     }
 
     const baseUrl = window.location.origin;
-    return `${baseUrl}/widget/${selectedWidgetId}/iframe?size=${encodeURIComponent(size)}`;
+    return `${baseUrl}/widgets/${selectedWidgetId}/iframe?size=${encodeURIComponent(size)}`;
   };
 
   if (isLoading) {
