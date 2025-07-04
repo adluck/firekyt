@@ -77,7 +77,6 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       flex-shrink: 0;
       background: #ffffff;
       border: 3px solid rgba(255,255,255,0.3);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       padding: 0;
       display: flex;
       align-items: center;
