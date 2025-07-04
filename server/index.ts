@@ -101,8 +101,6 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       border-radius: 12px 0 0 12px;
       transform: scale(${(theme?.imageScale || 100) / 100});
       transition: transform 0.3s ease;
-      border: 3px solid ${theme?.imageScale && theme.imageScale > 120 ? '#ff0000' : '#00ff00'};
-      box-shadow: 0 0 10px ${theme?.imageScale && theme.imageScale > 120 ? '#ff0000' : '#00ff00'};
     }
     .content { 
       flex: 1; 
