@@ -72,7 +72,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       width: 100%;
       height: 100%; 
       align-items: ${isCompact ? 'center' : 'center'}; 
-      justify-content: center;
+      justify-content: ${isCompact ? 'center' : 'flex-start'};
       background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
       padding: ${isCompact ? '12px 16px' : '30px 20px 20px 20px'};
