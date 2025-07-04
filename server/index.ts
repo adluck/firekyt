@@ -109,7 +109,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       flex-grow: 1;
     }
     .title { 
-      font-size: ${isCompact ? '14px' : '16px'}; 
+      font-size: ${isCompact ? '14px' : '14px'}; 
       font-weight: 600; 
       margin: 0 0 6px 0; 
       line-height: 1.3; 
@@ -121,7 +121,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       -webkit-box-orient: vertical;
     }
     .description { 
-      font-size: ${isCompact ? '11px' : '13px'}; 
+      font-size: ${isCompact ? '11px' : '12px'}; 
       margin: 0 0 12px 0; 
       line-height: 1.4; 
       color: ${theme?.textColor || '#e5e7eb'}; 
@@ -138,7 +138,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       border: none; 
       border-radius: 8px; 
       padding: ${isCompact ? '10px 20px' : '12px 24px'}; 
-      font-size: ${isCompact ? '13px' : '15px'}; 
+      font-size: ${isCompact ? '13px' : '12px'}; 
       font-weight: 700; 
       cursor: pointer; 
       width: fit-content; 
