@@ -170,17 +170,18 @@ export default function AdCopyGenerator() {
       };
 
       const response = await apiRequest('POST', '/api/generate-ad-copy', requestData);
+      const data = await response.json();
       
-      if (response.success) {
+      if (data.success) {
         toast({
           title: "Ad Copy Generated!",
-          description: `Generated ${response.totalVariations} ad copy variations successfully.`,
+          description: `Generated ${data.totalVariations} ad copy variations successfully.`,
         });
         
         // Navigate to results page with campaign ID
-        navigate(`/my-ads/${response.campaignId}`);
+        navigate(`/my-ads/${data.campaignId}`);
       } else {
-        throw new Error(response.message || 'Failed to generate ad copy');
+        throw new Error(data.message || 'Failed to generate ad copy');
       }
     } catch (error: any) {
       console.error('Generation error:', error);

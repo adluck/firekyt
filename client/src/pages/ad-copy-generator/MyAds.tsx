@@ -55,7 +55,8 @@ export default function MyAds() {
     queryKey: ['/api/ad-copy-campaigns'],
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/ad-copy-campaigns');
-      return response.campaigns as AdCopyCampaign[];
+      const data = await response.json();
+      return data.campaigns as AdCopyCampaign[];
     }
   });
 
