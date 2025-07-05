@@ -120,8 +120,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
   <title>FireKyt Affiliate Widget</title>
   <!-- Cache-busting v4: ${Date.now()} -->
   <style>
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    * { box-sizing: border-box !important; }
+    html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; overflow: hidden !important; }
     body { 
       padding: 0; 
       font-family: ${theme?.font === 'serif' ? 'Georgia, "Times New Roman", Times, serif' : theme?.font === 'monospace' ? '"Courier New", Courier, monospace' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'}; 
@@ -133,12 +133,12 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       justify-content: center;
     }
     .widget { 
-      display: flex; 
-      flex-direction: ${layout.flexDirection}; 
-      width: 100%;
-      height: 100%; 
-      align-items: center; 
-      justify-content: center;
+      display: flex !important; 
+      flex-direction: ${layout.flexDirection} !important; 
+      width: 100% !important;
+      height: 100% !important; 
+      align-items: center !important; 
+      justify-content: center !important;
       background: ${theme?.bgColor || 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'};
       border-radius: 8px;
       padding: 20px;
@@ -196,14 +196,14 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       transition: transform 0.3s ease;
     }
     .content { 
-      flex: 1; 
-      display: flex; 
-      flex-direction: ${layout.contentDirection}; 
-      justify-content: space-between;
-      align-items: ${layout.contentAlign};
-      min-width: 0;
-      position: relative;
-      z-index: 2;
+      flex: 1 !important; 
+      display: flex !important; 
+      flex-direction: ${layout.contentDirection} !important; 
+      justify-content: space-between !important;
+      align-items: ${layout.contentAlign} !important;
+      min-width: 0 !important;
+      position: relative !important;
+      z-index: 2 !important;
     }
     .text-section {
       flex-grow: 1;
