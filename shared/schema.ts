@@ -448,6 +448,44 @@ export const userActivity = pgTable("user_activity", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// AI-generated ad copy campaigns
+export const adCopyCampaigns = pgTable("ad_copy_campaigns", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  name: text("name").notNull(),
+  productName: text("product_name").notNull(),
+  productDescription: text("product_description").notNull(),
+  productPrice: decimal("product_price", { precision: 10, scale: 2 }),
+  productCategory: text("product_category").notNull(),
+  targetAudience: text("target_audience").notNull(),
+  keyBenefits: text("key_benefits").array(),
+  callToAction: text("call_to_action").notNull(),
+  brandVoice: text("brand_voice").notNull().default("professional"), // professional, casual, friendly, urgent, luxury
+  campaignGoal: text("campaign_goal").notNull(), // awareness, conversion, engagement, traffic
+  affiliateUrl: text("affiliate_url").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Generated ad copy variations for different platforms
+export const adCopyVariations = pgTable("ad_copy_variations", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => adCopyCampaigns.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(), // google_ads, facebook, instagram, tiktok, youtube_shorts, pinterest
+  adFormat: text("ad_format").notNull(), // text_ad, display_ad, video_ad, carousel_ad, story_ad
+  headline: text("headline").notNull(),
+  description: text("description").notNull(),
+  callToAction: text("call_to_action").notNull(),
+  hashtags: text("hashtags").array(),
+  characterCount: integer("character_count").notNull(),
+  platformSpecs: jsonb("platform_specs"), // Platform-specific requirements and limits
+  performance: jsonb("performance"), // CTR, impressions, clicks, conversions if available
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
