@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 const AdSizesDemo = () => {
@@ -15,6 +15,13 @@ const AdSizesDemo = () => {
   });
 
   const widgets = (widgetsResponse as any)?.widgets || [];
+
+  // Auto-select first widget on page load
+  useEffect(() => {
+    if (widgets.length > 0 && !selectedWidgetId) {
+      setSelectedWidgetId(widgets[0].id.toString());
+    }
+  }, [widgets, selectedWidgetId]);
 
   const adSizes = [
     {
