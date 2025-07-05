@@ -152,7 +152,7 @@ export default function ManageWidgets() {
         <CardContent>
           <div className="flex items-center gap-4">
             <Select value={selectedWidgetId} onValueChange={setSelectedWidgetId}>
-              <SelectTrigger className="w-96">
+              <SelectTrigger className="w-full max-w-2xl">
                 <SelectValue placeholder="Choose a widget to manage..." />
               </SelectTrigger>
               <SelectContent>
