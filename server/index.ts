@@ -118,7 +118,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FireKyt Affiliate Widget</title>
-  <!-- Cache-busting v4: ${Date.now()} -->
+  <!-- Cache-busting v5: ${Date.now()}-${Math.random().toString(36).substr(2, 9)} -->
   <style>
     * { box-sizing: border-box !important; }
     html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; overflow: hidden !important; }
