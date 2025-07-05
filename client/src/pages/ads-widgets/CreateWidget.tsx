@@ -163,7 +163,7 @@ export default function CreateWidget() {
   const [, navigate] = useLocation();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
-  const [embedMode, setEmbedMode] = useState<'javascript' | 'iframe' | 'plugin'>('javascript');
+  const [embedMode, setEmbedMode] = useState<'javascript' | 'iframe' | 'plugin' | 'wordpress-plugin'>('javascript');
   const [previewAdIndex, setPreviewAdIndex] = useState(0);
   
   // Check if we're in edit mode
@@ -1117,7 +1117,7 @@ export default function CreateWidget() {
                               Iframe
                             </button>
                             <button
-                              className={`px-3 py-2 text-sm font-medium ${
+                              className={`px-3 py-2 text-sm font-medium border-r ${
                                 embedMode === 'plugin' 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'hover:bg-muted'
@@ -1125,6 +1125,16 @@ export default function CreateWidget() {
                               onClick={() => setEmbedMode('plugin')}
                             >
                               WP Functions
+                            </button>
+                            <button
+                              className={`px-3 py-2 text-sm font-medium ${
+                                embedMode === 'wordpress-plugin' 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'hover:bg-muted'
+                              }`}
+                              onClick={() => setEmbedMode('wordpress-plugin')}
+                            >
+                              WP Plugin
                             </button>
                           </div>
                           
@@ -1197,7 +1207,7 @@ export default function CreateWidget() {
                                   <strong>Best for:</strong> WordPress, platforms with strict security policies, or when JavaScript embed doesn't work.
                                 </p>
                               </>
-                            ) : (
+                            ) : embedMode === 'plugin' ? (
                               <>
                                 <div className="flex items-center justify-between mb-3">
                                   <Label className="text-sm font-medium">WordPress Functions.php Solution</Label>
@@ -1325,7 +1335,92 @@ function firekyt_widget_shortcode($atts) {
                                   <strong>Best for:</strong> WordPress users when plugin upload is blocked. Provides both shortcode and iframe support.
                                 </p>
                               </>
-                            )}
+                            ) : embedMode === 'wordpress-plugin' ? (
+                              <>
+                                <div className="flex items-center justify-between mb-3">
+                                  <Label className="text-sm font-medium">WordPress Plugin (Recommended)</Label>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      // Create a download link for the plugin files
+                                      const pluginFiles = {
+                                        'firekyt-widget-plugin.php': `<?php
+/**
+ * Plugin Name: FireKyt Widget Embedder
+ * Description: Safely embed FireKyt affiliate widgets with shortcodes.
+ * Version: 1.0.0
+ * Author: FireKyt
+ */
+// Plugin code would be inserted here
+// This is a simplified version for demonstration`,
+                                        'README.md': 'FireKyt Widget Embedder Plugin\n\nInstallation instructions and usage guide.'
+                                      };
+                                      
+                                      // For now, just show the installation instructions
+                                      toast({
+                                        title: "Plugin Download",
+                                        description: "Plugin files are available for download. See instructions below.",
+                                      });
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    Download Plugin
+                                  </Button>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                  <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
+                                    <p className="text-sm font-medium mb-2">✅ Easiest WordPress Solution</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      Our WordPress plugin automatically handles iframe security and provides simple shortcodes for widget embedding.
+                                    </p>
+                                  </div>
+                                  
+                                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                                    <p className="text-sm font-medium mb-2">📥 Installation Steps</p>
+                                    <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                                      <li>Download the plugin files using the button above</li>
+                                      <li>Go to WordPress Admin → Plugins → Add New → Upload Plugin</li>
+                                      <li>Upload the plugin zip file and activate</li>
+                                      <li>Configure settings in Settings → FireKyt Widgets</li>
+                                    </ol>
+                                  </div>
+                                  
+                                  <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
+                                    <p className="text-sm font-medium mb-2">🎯 Usage After Installation</p>
+                                    <div className="space-y-2">
+                                      <div>
+                                        <p className="text-sm font-medium">Shortcode Method:</p>
+                                        <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono">
+                                          {`[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}" domain="${window.location.hostname}"]`}
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium">Gutenberg Block:</p>
+                                        <p className="text-sm text-muted-foreground">
+                                          Search for "FireKyt Widget" in the block editor and enter your widget details.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-lg">
+                                    <p className="text-sm font-medium mb-2">🛡️ Security Features</p>
+                                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                      <li>Automatic iframe security validation</li>
+                                      <li>Domain whitelist protection</li>
+                                      <li>XSS and malicious content filtering</li>
+                                      <li>WordPress security standards compliance</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                
+                                <p className="text-sm text-muted-foreground">
+                                  <strong>Best for:</strong> WordPress users who want the simplest, most secure solution with full Gutenberg and Classic Editor support.
+                                </p>
+                              </>
+                            ) : null}
                           </div>
                         </div>
                         

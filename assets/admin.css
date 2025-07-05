@@ -1,0 +1,242 @@
+/**
+ * FireKyt Widget Embedder - Admin Styles
+ * Version: 1.0.0
+ */
+
+/* Admin page specific styles */
+.firekyt-widget-admin {
+    max-width: 1200px;
+}
+
+.firekyt-widget-admin .postbox {
+    margin-bottom: 20px;
+}
+
+.firekyt-widget-admin .postbox .inside {
+    padding: 20px;
+}
+
+/* Shortcode examples */
+.firekyt-shortcode-example {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    overflow-x: auto;
+}
+
+.firekyt-shortcode-example code {
+    background: none;
+    padding: 0;
+    color: #d63384;
+    font-weight: bold;
+}
+
+/* Parameter list styling */
+.firekyt-parameter-list {
+    margin: 15px 0;
+    padding-left: 0;
+}
+
+.firekyt-parameter-list li {
+    margin: 8px 0;
+    list-style: none;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-left: 4px solid #007cba;
+    border-radius: 0 4px 4px 0;
+}
+
+.firekyt-parameter-list li strong {
+    color: #007cba;
+    font-weight: 600;
+}
+
+/* Settings form styling */
+.firekyt-settings-form .form-table th {
+    width: 200px;
+    vertical-align: top;
+    padding-top: 15px;
+}
+
+.firekyt-settings-form .form-table td {
+    padding-top: 10px;
+}
+
+.firekyt-settings-form textarea {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.firekyt-settings-form input[type="number"] {
+    width: 100px;
+}
+
+/* Notice styling */
+.firekyt-notice {
+    border-left: 4px solid #007cba;
+    background: #f0f8ff;
+    padding: 12px;
+    margin: 20px 0;
+}
+
+.firekyt-notice.notice-warning {
+    border-left-color: #ffb900;
+    background: #fff8e1;
+}
+
+.firekyt-notice.notice-error {
+    border-left-color: #d63384;
+    background: #fff5f5;
+}
+
+.firekyt-notice.notice-success {
+    border-left-color: #00a32a;
+    background: #f0fff4;
+}
+
+/* Help text styling */
+.firekyt-help-text {
+    font-style: italic;
+    color: #666;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-top: 5px;
+}
+
+/* Tab navigation for settings */
+.firekyt-nav-tabs {
+    border-bottom: 1px solid #ddd;
+    margin: 20px 0 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+}
+
+.firekyt-nav-tabs li {
+    margin: 0 5px 0 0;
+}
+
+.firekyt-nav-tabs li a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    background: #f1f1f1;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    color: #333;
+}
+
+.firekyt-nav-tabs li.active a {
+    background: #fff;
+    color: #007cba;
+    font-weight: bold;
+}
+
+.firekyt-nav-tabs li a:hover {
+    background: #e1e1e1;
+}
+
+/* Settings sections */
+.firekyt-settings-section {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Button styling */
+.firekyt-button-primary {
+    background: #007cba;
+    border-color: #005a87;
+    color: #fff;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+.firekyt-button-primary:hover {
+    background: #005a87;
+    border-color: #004268;
+    color: #fff;
+}
+
+/* Domain validation styling */
+.firekyt-domain-valid {
+    color: #00a32a;
+    font-weight: bold;
+}
+
+.firekyt-domain-invalid {
+    color: #d63384;
+    font-weight: bold;
+}
+
+.firekyt-domain-list {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.firekyt-domain-list .domain-item {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.firekyt-domain-list .domain-item:last-child {
+    border-bottom: none;
+}
+
+/* Responsive admin styles */
+@media (max-width: 768px) {
+    .firekyt-nav-tabs {
+        flex-direction: column;
+    }
+    
+    .firekyt-nav-tabs li {
+        margin: 0 0 5px 0;
+    }
+    
+    .firekyt-nav-tabs li a {
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+    
+    .firekyt-settings-form .form-table th,
+    .firekyt-settings-form .form-table td {
+        display: block;
+        width: 100%;
+        padding: 10px 0;
+    }
+    
+    .firekyt-settings-form .form-table th {
+        font-weight: bold;
+        border-bottom: 1px solid #eee;
+    }
+}
+
+/* Loading indicator */
+.firekyt-loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007cba;
+    border-radius: 50%;
+    animation: firekyt-spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes firekyt-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

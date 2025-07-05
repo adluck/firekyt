@@ -1,218 +1,246 @@
-# FireKyt - AI Affiliate Marketing Platform
+# FireKyt Widget Embedder - WordPress Plugin
 
-A comprehensive, AI-powered affiliate marketing SaaS platform built with modern web technologies. FireKyt empowers affiliate marketers with intelligent content generation, real-time analytics, and automated publishing capabilities.
+A secure and user-friendly WordPress plugin that enables safe embedding of FireKyt affiliate widgets and external iframes without manual code editing.
 
 ## 🚀 Features
 
-### AI-Powered Content Generation
-- **Google Gemini Integration**: Advanced AI content creation with SEO optimization
-- **Multiple Content Types**: Blog posts, product reviews, comparisons, and video scripts
-- **Brand Voice Consistency**: Maintains consistent tone across all generated content
-- **SEO Analysis**: Automated keyword research and content optimization
+### Core Functionality
+- **Automatic iframe Support**: Safely allows `<iframe>` tags in post/page content
+- **Dual Shortcode System**: Specialized shortcodes for FireKyt widgets and generic iframes
+- **Security First**: Domain whitelist system with wildcard support
+- **Gutenberg Integration**: Native block editor support with live previews
+- **Mobile Responsive**: Automatic responsive adjustments for all screen sizes
+- **Performance Optimized**: Lazy loading and performance-first design
 
-### Intelligent Link Management
-- **Smart Link Placement**: AI-powered suggestions for optimal affiliate link positioning
-- **Performance Tracking**: Real-time click tracking and conversion monitoring
-- **Multi-Network Support**: Amazon Associates, Impact Radius, and custom networks
-- **Link Optimization**: Automatic testing and optimization of affiliate placements
+### WordPress Compatibility
+- ✅ **Classic Editor**: Full TinyMCE integration
+- ✅ **Gutenberg Editor**: Custom blocks with live preview
+- ✅ **Page Builders**: Compatible with Elementor, Beaver Builder, Divi
+- ✅ **WordPress 5.0+**: Tested with latest WordPress versions
+- ✅ **Multisite**: Full multisite network support
 
-### Real-Time Analytics Dashboard
-- **Comprehensive Metrics**: Page views, clicks, conversions, and revenue tracking
-- **Visual Analytics**: Interactive charts and performance graphs
-- **Activity Timeline**: Detailed user activity tracking with real-time updates
-- **Performance Insights**: Data-driven recommendations for content optimization
+## 📦 Installation
 
-### Multi-Platform Publishing
-- **WordPress Integration**: Direct publishing to WordPress sites
-- **Social Media Automation**: LinkedIn and Pinterest publishing
-- **Scheduled Publishing**: Advanced scheduling with background processing
-- **Publication History**: Complete audit trail of all published content
+### Method 1: Direct Upload (Recommended)
+1. Download the plugin files from your FireKyt dashboard
+2. Go to **WordPress Admin → Plugins → Add New → Upload Plugin**
+3. Upload the `firekyt-widget-plugin.zip` file
+4. Click **Install Now** and then **Activate**
 
-### Security & Performance
-- **JWT Authentication**: Secure token-based authentication system
-- **Rate Limiting**: Advanced protection against abuse
-- **Caching Layers**: Multi-tier caching for optimal performance
-- **Performance Monitoring**: Real-time performance tracking and optimization
+### Method 2: Manual Installation
+1. Upload the `firekyt-widget-plugin` folder to `/wp-content/plugins/`
+2. Go to **WordPress Admin → Plugins**
+3. Find "FireKyt Widget Embedder" and click **Activate**
 
-## 🏗️ Architecture
+### Method 3: FTP Upload
+1. Extract the plugin files to your computer
+2. Upload the entire folder to `/wp-content/plugins/` via FTP
+3. Activate through the WordPress admin interface
 
-### Frontend
-- **React 18.3** with TypeScript
-- **Tailwind CSS** with shadcn/ui components
-- **TanStack React Query** for state management
-- **Wouter** for lightweight routing
-- **TipTap** rich text editor
+## ⚙️ Configuration
 
-### Backend
-- **Node.js** with Express.js
-- **PostgreSQL** with Drizzle ORM
-- **Google Gemini AI** integration
-- **JWT** authentication
-- **Stripe** payment processing
+### Initial Setup
+1. Go to **Settings → FireKyt Widgets** in your WordPress admin
+2. Configure your allowed domains (default includes FireKyt domains)
+3. Set default widget dimensions
+4. Save your settings
 
-### Database Schema
-- **Multi-tenant architecture** ready for scale
-- **Comprehensive analytics** tracking
-- **Affiliate link intelligence** system
-- **User activity logging** with detailed metadata
+### Allowed Domains
+The plugin includes these pre-configured safe domains:
+- `firekyt.com`
+- `*.firekyt.com` (all subdomains)
+- `localhost:5000` (development)
+- `*.replit.app` (Replit deployments)
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ 
-- PostgreSQL 14+
-- Required API keys:
-  - Google Gemini API key
-  - Stripe keys (for payments)
-  - SendGrid API key (for emails)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/firekyt.git
-   cd firekyt
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Environment Setup**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API keys and database URL
-   ```
-
-4. **Database Setup**
-   ```bash
-   npm run db:push
-   ```
-
-5. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
-
-The application will be available at `http://localhost:5000`
-
-## 📊 Dashboard Features
-
-### Analytics Overview
-- **Total Sites**: Track multiple affiliate websites
-- **Content Performance**: Real-time content analytics
-- **Revenue Metrics**: Conversion tracking and revenue attribution
-- **Click-Through Rates**: Detailed performance metrics
-
-### Recent Activity
-- **Real-Time Updates**: Live activity feed
-- **Detailed Logging**: Content creation, publication, and link activities
-- **Performance Tracking**: Click and conversion events
-- **Platform Integrations**: Social media and publishing activities
-
-### SEO Analytics
-- **Keyword Tracking**: Monitor keyword rankings and performance
-- **Content Optimization**: AI-powered SEO recommendations
-- **Competitor Analysis**: Track competitor performance
-- **SERP Monitoring**: Search engine results tracking
-
-## 🔧 Configuration
-
-### API Integrations
-- **Google Gemini**: Content generation and SEO analysis
-- **WordPress**: External blog publishing
-- **Pinterest**: Social media automation
-- **LinkedIn**: Professional content sharing
-- **Stripe**: Payment processing and subscriptions
-
-### Performance Optimization
-- **Multi-layer Caching**: Memory, query, and session caching
-- **Database Optimization**: Query optimization and connection pooling
-- **Rate Limiting**: Sliding window algorithms for API protection
-- **Real-time Monitoring**: Performance tracking with alerting
-
-## 📈 Scalability
-
-The platform is designed to support millions of users with:
-- **Kubernetes deployment** configuration
-- **Database read replicas** for scaling
-- **Redis clustering** for distributed caching
-- **Microservices architecture** ready
-- **Auto-scaling** capabilities
-
-## 🔒 Security
-
-- **JWT Authentication** with secure token management
-- **Password Hashing** with bcrypt
-- **Rate Limiting** to prevent abuse
-- **Input Validation** with Zod schemas
-- **Security Headers** with Helmet
-- **Environment Variable Protection**
-
-## 🧪 Testing
-
-```bash
-# Run unit tests
-npm test
-
-# Run integration tests
-npm run test:integration
-
-# Performance testing
-npm run test:performance
+Add your custom domains in the format:
+```
+mydomain.com,*.anotherdomain.com,specific.subdomain.com
 ```
 
-## 📦 Deployment
+## 🎯 Usage Guide
 
-### Production Deployment
-1. **Build the application**
-   ```bash
-   npm run build
-   ```
+### FireKyt Widget Shortcode
+For embedding FireKyt affiliate widgets:
 
-2. **Deploy to your platform**
-   - Replit Deployments (recommended)
-   - Docker container
-   - Kubernetes cluster
-   - Traditional VPS
+```php
+[firekyt_widget id="123" domain="myapp.com" width="300" height="250"]
+```
 
-### Environment Variables
-Required environment variables for production:
-- `DATABASE_URL`: PostgreSQL connection string
-- `JWT_SECRET`: JWT signing secret
-- `GEMINI_API_KEY`: Google Gemini API key
-- `STRIPE_SECRET_KEY`: Stripe secret key
-- `SENDGRID_API_KEY`: SendGrid API key
+**Parameters:**
+- `id` (required) - Your FireKyt widget ID
+- `domain` (required) - Domain hosting your widget
+- `width` (optional) - Width in pixels (default: 300)
+- `height` (optional) - Height in pixels (default: 250)
+- `loading` (optional) - "lazy" or "eager" (default: lazy)
+- `class` (optional) - CSS class name
 
-## 🤝 Contributing
+### Generic Iframe Shortcode
+For other external content:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new features
-5. Submit a pull request
+```php
+[firekyt_iframe src="https://example.com/widget" width="300" height="250" title="My Widget"]
+```
+
+**Parameters:**
+- `src` (required) - Full URL to embed
+- `width` (optional) - Width in pixels
+- `height` (optional) - Height in pixels
+- `title` (optional) - Accessible title
+- `loading` (optional) - "lazy" or "eager"
+- `class` (optional) - CSS class name
+
+## 🎨 Gutenberg Blocks
+
+### FireKyt Widget Block
+1. In Gutenberg editor, click **+** to add a block
+2. Search for "FireKyt Widget"
+3. Enter your Widget ID and Domain in the sidebar
+4. Adjust dimensions as needed
+5. See live preview in the editor
+
+### Safe Iframe Embed Block
+1. Add block and search for "Safe Iframe Embed"
+2. Enter the source URL in the sidebar
+3. Configure dimensions and accessibility options
+4. Preview updates automatically
+
+## 🛡️ Security Features
+
+### Domain Whitelisting
+- Only approved domains can be embedded
+- Wildcard support for subdomains
+- Automatic validation before rendering
+
+### Sandboxing
+- Secure iframe attributes applied automatically
+- XSS protection through content filtering
+- Safe default configurations
+
+### WordPress Security
+- Integrates with WordPress security standards
+- Respects user capabilities and permissions
+- Clean uninstall process
+
+## 🎛️ Advanced Configuration
+
+### Custom CSS Classes
+Default class: `firekyt-widget-iframe`
+
+Add custom styling in your theme:
+```css
+.firekyt-widget-iframe {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+```
+
+### Theme Integration
+The plugin respects your theme's styling and provides hooks for customization:
+
+```php
+// Add to your theme's functions.php
+add_filter('firekyt_widget_default_class', function($class) {
+    return 'my-custom-widget-class';
+});
+```
+
+### Performance Optimization
+- Lazy loading enabled by default
+- Optimized CSS and JavaScript loading
+- Minimal resource footprint
+
+## 🔧 Troubleshooting
+
+### Widget Not Displaying
+1. **Check Domain Whitelist**: Ensure your domain is in the allowed list
+2. **Verify Widget ID**: Double-check your FireKyt widget ID
+3. **Browser Console**: Look for JavaScript errors
+4. **Theme Conflicts**: Test with a default WordPress theme
+
+### Gutenberg Issues
+1. **Clear Browser Cache**: Force refresh with Ctrl+F5
+2. **Plugin Conflicts**: Temporarily deactivate other plugins
+3. **WordPress Update**: Ensure you're using WordPress 5.0+
+
+### Permission Errors
+1. **User Capabilities**: Ensure you have `edit_posts` capability
+2. **Multisite**: Check network admin settings
+3. **Security Plugins**: Whitelist iframe tags in security plugins
+
+## 📱 Mobile Compatibility
+
+The plugin automatically:
+- Scales widgets for mobile screens
+- Applies responsive CSS rules
+- Maintains aspect ratios
+- Optimizes touch interactions
+
+## 🔄 Updates & Maintenance
+
+### Automatic Updates
+- The plugin checks for updates from your FireKyt dashboard
+- Security patches applied automatically
+- Feature updates with user notification
+
+### Manual Updates
+1. Download latest version from FireKyt
+2. Upload and replace existing files
+3. Reactivate if needed
+
+## 🗑️ Uninstallation
+
+### Clean Removal
+1. Deactivate the plugin
+2. Delete from **Plugins → Installed Plugins**
+3. All settings and data are automatically removed
+
+### Manual Cleanup
+If needed, remove these database options:
+- `firekyt_widget_options`
+
+## 📞 Support
+
+### Documentation
+- [FireKyt Widget Documentation](https://docs.firekyt.com)
+- [WordPress Plugin Guide](https://firekyt.com/wordpress-guide)
+
+### Contact Support
+- **Email**: support@firekyt.com
+- **Live Chat**: Available in your FireKyt dashboard
+- **Community Forum**: [community.firekyt.com](https://community.firekyt.com)
+
+## 📋 System Requirements
+
+- **WordPress**: 5.0 or higher
+- **PHP**: 7.4 or higher
+- **Memory**: 64MB minimum
+- **Permissions**: File write access for uploads
+
+## 🔐 Privacy & Data
+
+### Data Collection
+- No personal data collected
+- Widget analytics handled by FireKyt servers
+- GDPR compliant
+
+### Third-Party Services
+- Widget content loaded from approved domains only
+- No tracking scripts without user consent
+- Respects WordPress privacy settings
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This plugin is licensed under GPL v2 or later.
+Copyright © 2025 FireKyt. All rights reserved.
 
-## 🆘 Support
+## 🚀 Getting Started
 
-For support and questions:
-- Open an issue on GitHub
-- Check the documentation
-- Review the troubleshooting guide
-
-## 🚀 Roadmap
-
-### Upcoming Features
-- **AI Video Generation**: Automated video content creation
-- **Advanced Analytics**: Machine learning insights
-- **Mobile App**: Native mobile applications
-- **API Marketplace**: Third-party integrations
-- **White Label**: Custom branding options
+1. **Install** the plugin using any method above
+2. **Configure** your allowed domains in Settings
+3. **Create** a FireKyt widget in your dashboard
+4. **Embed** using shortcodes or Gutenberg blocks
+5. **Publish** and start earning affiliate commissions!
 
 ---
 
-Built with ❤️ for affiliate marketers who want to scale their business with AI.
+**Need help?** Visit [docs.firekyt.com](https://docs.firekyt.com) for detailed guides and video tutorials.

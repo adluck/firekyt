@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireKyt WordPress Plugin - Usage Examples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .example {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .shortcode {
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .preview {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            background: #fff;
+            margin: 10px 0;
+        }
+        h1, h2 { color: #333; }
+        .feature { 
+            background: #e8f5e8; 
+            padding: 10px; 
+            border-left: 4px solid #4caf50; 
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 FireKyt WordPress Plugin Usage Examples</h1>
+    
+    <div class="feature">
+        <strong>✅ Plugin Installed:</strong> This page demonstrates how the FireKyt Widget Embedder plugin works in WordPress.
+    </div>
+
+    <h2>🎯 Basic FireKyt Widget</h2>
+    <div class="example">
+        <h3>Shortcode:</h3>
+        <div class="shortcode">[firekyt_widget id="3" domain="your-app.replit.app" width="300" height="250"]</div>
+        
+        <h3>What visitors see:</h3>
+        <div class="preview">
+            <iframe 
+                src="https://your-app.replit.app/widgets/3/iframe" 
+                width="300" 
+                height="250" 
+                frameborder="0" 
+                scrolling="no" 
+                title="FireKyt Affiliate Widget"
+                style="border: none; display: block; margin: 0 auto;">
+            </iframe>
+        </div>
+        
+        <p><strong>Perfect for:</strong> Sidebar widgets, in-content promotions, product recommendations</p>
+    </div>
+
+    <h2>📱 Responsive Widget (Auto-sizing)</h2>
+    <div class="example">
+        <h3>Shortcode:</h3>
+        <div class="shortcode">[firekyt_widget id="5" domain="your-app.replit.app" width="100%" height="300"]</div>
+        
+        <h3>What visitors see:</h3>
+        <div class="preview">
+            <iframe 
+                src="https://your-app.replit.app/widgets/5/iframe" 
+                width="100%" 
+                height="300" 
+                frameborder="0" 
+                scrolling="no" 
+                title="Responsive FireKyt Widget"
+                style="border: none; display: block; max-width: 100%;">
+            </iframe>
+        </div>
+        
+        <p><strong>Perfect for:</strong> Mobile-friendly content, full-width promotions, responsive layouts</p>
+    </div>
+
+    <h2>🎨 Leaderboard Widget (728x90)</h2>
+    <div class="example">
+        <h3>Shortcode:</h3>
+        <div class="shortcode">[firekyt_widget id="2" domain="your-app.replit.app" width="728" height="90"]</div>
+        
+        <h3>What visitors see:</h3>
+        <div class="preview">
+            <iframe 
+                src="https://your-app.replit.app/widgets/2/iframe" 
+                width="728" 
+                height="90" 
+                frameborder="0" 
+                scrolling="no" 
+                title="Leaderboard FireKyt Widget"
+                style="border: none; display: block; margin: 0 auto;">
+            </iframe>
+        </div>
+        
+        <p><strong>Perfect for:</strong> Header/footer ads, between content sections, high-visibility placements</p>
+    </div>
+
+    <h2>🔗 Generic Iframe (Any External Content)</h2>
+    <div class="example">
+        <h3>Shortcode:</h3>
+        <div class="shortcode">[firekyt_iframe src="https://your-app.replit.app/widgets/3/iframe" width="300" height="250" title="External Widget"]</div>
+        
+        <h3>What visitors see:</h3>
+        <div class="preview">
+            <iframe 
+                src="https://your-app.replit.app/widgets/3/iframe" 
+                width="300" 
+                height="250" 
+                frameborder="0" 
+                scrolling="no" 
+                title="External Widget"
+                style="border: none; display: block; margin: 0 auto;">
+            </iframe>
+        </div>
+        
+        <p><strong>Perfect for:</strong> Any external iframe content, third-party widgets, embedded tools</p>
+    </div>
+
+    <h2>⚙️ Advanced Options</h2>
+    <div class="example">
+        <h3>With Custom CSS Class & Lazy Loading:</h3>
+        <div class="shortcode">[firekyt_widget id="3" domain="your-app.replit.app" width="300" height="250" class="my-custom-widget" loading="lazy"]</div>
+        
+        <h3>Parameters Available:</h3>
+        <ul>
+            <li><strong>id</strong> - Your FireKyt widget ID (required)</li>
+            <li><strong>domain</strong> - Your app domain (required)</li>
+            <li><strong>width</strong> - Width in pixels or % (optional)</li>
+            <li><strong>height</strong> - Height in pixels (optional)</li>
+            <li><strong>class</strong> - CSS class for styling (optional)</li>
+            <li><strong>loading</strong> - "lazy" or "eager" (optional)</li>
+        </ul>
+    </div>
+
+    <h2>🛡️ Security Features</h2>
+    <div class="example">
+        <h3>✅ Automatic Safety Features:</h3>
+        <ul>
+            <li><strong>Domain Whitelisting:</strong> Only approved domains can be embedded</li>
+            <li><strong>Iframe Sandboxing:</strong> Secure attributes applied automatically</li>
+            <li><strong>XSS Protection:</strong> Content filtered through WordPress security</li>
+            <li><strong>Lazy Loading:</strong> Better performance and user experience</li>
+        </ul>
+        
+        <h3>🚫 What Gets Blocked:</h3>
+        <ul>
+            <li>Malicious domains not in your allowed list</li>
+            <li>Invalid or malformed URLs</li>
+            <li>Content without proper security attributes</li>
+        </ul>
+    </div>
+
+    <h2>📋 WordPress Editor Integration</h2>
+    <div class="example">
+        <h3>✅ Works With All Editors:</h3>
+        <ul>
+            <li><strong>Gutenberg (Block Editor):</strong> Custom blocks with live preview</li>
+            <li><strong>Classic Editor:</strong> Shortcodes in Text/HTML view</li>
+            <li><strong>Page Builders:</strong> Elementor, Beaver Builder, Divi compatible</li>
+            <li><strong>Widgets:</strong> Use in sidebar widgets and widget areas</li>
+        </ul>
+    </div>
+
+    <h2>🎯 Quick Setup Reminder</h2>
+    <div class="example">
+        <h3>1. Plugin Settings (Settings → FireKyt Widgets):</h3>
+        <ul>
+            <li>Add your domain to allowed domains list</li>
+            <li>Set default widget dimensions</li>
+            <li>Configure lazy loading preferences</li>
+        </ul>
+        
+        <h3>2. Get Widget ID from FireKyt Dashboard:</h3>
+        <ul>
+            <li>Create widget in your FireKyt account</li>
+            <li>Copy the widget ID (like "3" or "123")</li>
+            <li>Note your app domain</li>
+        </ul>
+        
+        <h3>3. Embed in WordPress:</h3>
+        <ul>
+            <li>Use shortcode in any post/page</li>
+            <li>Or add Gutenberg block for live preview</li>
+            <li>Publish and start earning!</li>
+        </ul>
+    </div>
+
+    <hr>
+    
+    <p style="text-align: center; color: #666;">
+        <strong>🔥 FireKyt Widget Embedder Plugin</strong><br>
+        Making affiliate widget embedding safe and simple for WordPress users.<br>
+        <em>Questions? Contact support@firekyt.com</em>
+    </p>
+</body>
+</html>
