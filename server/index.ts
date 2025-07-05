@@ -100,7 +100,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
         imageMargin: '0 12px 0 0',
         contentDirection: 'row',
         contentAlign: 'center',
-        buttonMargin: '0 0 0 15px'
+        buttonMargin: '0 0 0 10px'
       },
       '300x250': {
         flexDirection: 'column',
@@ -265,7 +265,8 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       font-size: 12px; 
       font-weight: 700; 
       cursor: pointer; 
-      width: fit-content; 
+      min-width: 80px;
+      max-width: 100px;
       transition: all 0.3s ease;
       text-decoration: none;
       display: inline-block;
@@ -273,6 +274,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
       letter-spacing: 0.5px;
       align-self: center;
+      flex-shrink: 0;
       margin: ${layout.buttonMargin};
       position: relative;
       z-index: 2;
