@@ -51,22 +51,39 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const demoSize = req.query.size as string;
     const effectiveSize = demoSize || widget.size;
     
-    // Auto-detect layout based on dimensions to handle any iframe size
+    // Auto-detect layout based on iframe dimensions from query parameters or widget size
     let layoutSize = effectiveSize;
-    if (effectiveSize !== '100%') {
-      const [width, height] = effectiveSize.split('x').map(Number);
-      
+    
+    // Check if iframe dimensions are provided via query parameters (for external embedding)
+    const iframeWidth = req.query.w ? parseInt(req.query.w as string) : null;
+    const iframeHeight = req.query.h ? parseInt(req.query.h as string) : null;
+    
+    let detectionWidth, detectionHeight;
+    
+    if (iframeWidth && iframeHeight) {
+      // Use iframe dimensions from query parameters
+      detectionWidth = iframeWidth;
+      detectionHeight = iframeHeight;
+    } else if (effectiveSize !== '100%') {
+      // Fall back to widget's stored size
+      [detectionWidth, detectionHeight] = effectiveSize.split('x').map(Number);
+    }
+    
+    if (detectionWidth && detectionHeight) {
       // If width is much larger than height, it's horizontal (leaderboard style)
-      if (width > height * 1.5) {
+      if (detectionWidth > detectionHeight * 1.5) {
         layoutSize = '728x90'; // Use horizontal layout template
+        console.log(`🎯 Layout Detection: ${detectionWidth}x${detectionHeight} → HORIZONTAL (${layoutSize})`);
       }
       // If height is much larger than width, it's vertical (skyscraper style)  
-      else if (height > width * 1.5) {
+      else if (detectionHeight > detectionWidth * 1.5) {
         layoutSize = '160x600'; // Use vertical layout template
+        console.log(`🎯 Layout Detection: ${detectionWidth}x${detectionHeight} → VERTICAL (${layoutSize})`);
       }
       // Otherwise it's square/rectangular (medium rectangle style)
       else {
         layoutSize = '300x250'; // Use square layout template
+        console.log(`🎯 Layout Detection: ${detectionWidth}x${detectionHeight} → SQUARE (${layoutSize})`);
       }
     }
     

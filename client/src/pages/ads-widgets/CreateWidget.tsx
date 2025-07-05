@@ -469,10 +469,14 @@ export default function CreateWidget() {
     const size = watchedValues.size || '300x250';
     const [width, height] = size === '100%' ? ['100%', '250px'] : size.split('x').map(s => s + 'px');
     
+    // Add iframe dimensions as query parameters for proper layout detection
+    const widthNum = width === '100%' ? '300' : width.replace('px', '');
+    const heightNum = height.replace('px', '');
+    
     if (widgetId) {
-      return `<iframe src="${window.location.origin}/widgets/${widgetId}/iframe" width="${width}" height="${height}" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>`;
+      return `<iframe src="${window.location.origin}/widgets/${widgetId}/iframe?w=${widthNum}&h=${heightNum}" width="${width}" height="${height}" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>`;
     }
-    return `<iframe src="${window.location.origin}/widgets/{widget-id}/iframe" width="${width}" height="${height}" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>`;
+    return `<iframe src="${window.location.origin}/widgets/{widget-id}/iframe?w=${widthNum}&h=${heightNum}" width="${width}" height="${height}" frameborder="0" scrolling="no" style="border: none; display: block; margin: 10px 0;"></iframe>`;
   };
 
   const onSubmit = (data: WidgetFormData) => {

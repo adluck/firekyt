@@ -372,6 +372,13 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Implemented Google Ads-inspired sophistication with CSS pseudo-elements for visual depth and professional appearance
 ✓ Added proper z-index layering ensuring content appears above decorative pattern elements
 ✓ Successfully applied "Professional Dark" template with working gradient and pattern system - user confirmed: "working now"
+✓ Identified widget layout issue - iframe dimensions in blog post were 160x600 (vertical) causing skyscraper layout instead of 728x90 (horizontal)
+✓ Enhanced smart layout detection system to properly handle iframe dimension query parameters (w= and h=)
+✓ Modified iframe embed code generation to include dimension parameters for accurate layout detection
+✓ Added robust CSS !important rules and aggressive cache-busting to prevent external stylesheet conflicts
+✓ Improved universal widget compatibility - any widget now adapts correctly to iframe container dimensions
+✓ Fixed layout detection logic: width > height × 1.5 = horizontal, height > width × 1.5 = vertical, else square
+✓ All widget sizes now working correctly with automatic layout adaptation based on actual iframe dimensions
 
 ## User Preferences
 
