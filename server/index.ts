@@ -91,7 +91,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const widgetLayouts = {
       '728x90': {
         flexDirection: 'row',
-        textAlign: 'center',
+        textAlign: 'left',
         imageSize: { width: '80px', height: '60px' },
         imageMargin: '0 12px 0 0',
         contentDirection: 'row',
@@ -100,7 +100,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       },
       '300x250': {
         flexDirection: 'column',
-        textAlign: 'left',
+        textAlign: 'center',
         imageSize: { width: '140px', height: '140px' },
         imageMargin: '0 0 15px 0',
         contentDirection: 'column',
@@ -109,7 +109,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       },
       '160x600': {
         flexDirection: 'column',
-        textAlign: 'left',
+        textAlign: 'center',
         imageSize: { width: '140px', height: '140px' },
         imageMargin: '0 0 15px 0',
         contentDirection: 'column',
@@ -118,7 +118,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       },
       '100%': {
         flexDirection: 'column',
-        textAlign: 'left',
+        textAlign: 'center',
         imageSize: { width: '140px', height: '140px' },
         imageMargin: '0 0 15px 0',
         contentDirection: 'column',

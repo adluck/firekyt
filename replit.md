@@ -387,6 +387,10 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Fixed iframe embed code generation for responsive widgets - removed query parameters for 100% width widgets
 ✓ Responsive widgets now generate clean URLs without dimension parameters for true responsive behavior
 ✓ Fixed-size widgets still include query parameters for proper layout detection
+✓ Fixed text alignment in published widgets to match preview designs
+✓ Horizontal layouts (728x90): left-aligned text
+✓ Vertical layouts (160x600, 300x250, 100%): center-aligned text
+✓ Published widgets now display with same text alignment as preview widgets
 
 ## User Preferences
 
