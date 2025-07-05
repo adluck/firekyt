@@ -30,7 +30,9 @@ import {
   PanelLeft,
   Monitor,
   Plus,
-  Ruler
+  Ruler,
+  Sparkles,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -96,6 +98,15 @@ const navigation = [
       { name: 'Create Widget', href: '/ads-widgets/create', icon: Plus },
       { name: 'Manage Widgets', href: '/ads-widgets', icon: Monitor },
       { name: 'Ad Sizes Demo', href: '/ads-widgets/sizes', icon: Ruler }
+    ]
+  },
+  { 
+    name: 'Copy Generator', 
+    href: '/ad-copy-generator', 
+    icon: Sparkles,
+    submenu: [
+      { name: 'Generate Ad Copy', href: '/ad-copy-generator', icon: Sparkles },
+      { name: 'My Campaigns', href: '/my-ads', icon: Eye }
     ]
   },
   { name: 'Publishing', href: '/publishing', icon: Send },

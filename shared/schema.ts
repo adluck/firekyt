@@ -486,6 +486,25 @@ export const adCopyVariations = pgTable("ad_copy_variations", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Insert schemas for ad copy campaigns and variations
+export const insertAdCopyCampaignSchema = createInsertSchema(adCopyCampaigns).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAdCopyVariationSchema = createInsertSchema(adCopyVariations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Types for ad copy
+export type InsertAdCopyCampaign = z.infer<typeof insertAdCopyCampaignSchema>;
+export type InsertAdCopyVariation = z.infer<typeof insertAdCopyVariationSchema>;
+export type SelectAdCopyCampaign = typeof adCopyCampaigns.$inferSelect;
+export type SelectAdCopyVariation = typeof adCopyVariations.$inferSelect;
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,

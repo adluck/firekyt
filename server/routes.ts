@@ -28,6 +28,7 @@ import {
 import { performanceMonitor } from "./performance/PerformanceMonitor";
 import { affiliateManager } from "./affiliateNetworks";
 import { cacheManager } from "./performance/CacheManager";
+import { AdCopyService } from "./services/AdCopyService";
 import { 
   rateLimiter, 
   apiRateLimit, 
@@ -5331,6 +5332,105 @@ async function generateAILinkSuggestions(params: {
   // Test endpoint for widget debugging
   app.get('/test-widget', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'test-widget-direct.html'));
+  });
+
+  // ===== AD COPY GENERATION API ROUTES =====
+
+  // Generate ad copy
+  app.post('/api/generate-ad-copy', authenticateToken, async (req, res) => {
+    try {
+      const {
+        productName,
+        productDescription,
+        targetAudience,
+        primaryBenefit,
+        toneOfVoice,
+        platforms,
+        formats,
+        variationCount,
+        optimizeForConversion,
+        affiliateUrl
+      } = req.body;
+
+      // Validate required fields
+      if (!productName || !targetAudience || !primaryBenefit || !toneOfVoice || !affiliateUrl) {
+        return res.status(400).json({ 
+          message: 'Missing required fields: productName, targetAudience, primaryBenefit, toneOfVoice, affiliateUrl' 
+        });
+      }
+
+      if (!platforms || platforms.length === 0) {
+        return res.status(400).json({ message: 'At least one platform must be selected' });
+      }
+
+      const adCopyRequest = {
+        productName,
+        productDescription: productDescription || '',
+        targetAudience,
+        primaryBenefit,
+        toneOfVoice,
+        platforms,
+        formats: formats || {},
+        variationCount: variationCount || 3,
+        optimizeForConversion: optimizeForConversion || false,
+        affiliateUrl
+      };
+
+      console.log('🤖 Generating ad copy for:', productName);
+      const result = await AdCopyService.generateAdCopy(req.user!.id, adCopyRequest);
+
+      res.json(result);
+    } catch (error: any) {
+      console.error('Generate ad copy error:', error);
+      res.status(500).json({ message: error.message || 'Failed to generate ad copy' });
+    }
+  });
+
+  // Get user's ad copy campaigns
+  app.get('/api/ad-copy-campaigns', authenticateToken, async (req, res) => {
+    try {
+      const campaigns = await AdCopyService.getCampaigns(req.user!.id);
+      
+      res.json({
+        success: true,
+        campaigns
+      });
+    } catch (error: any) {
+      console.error('Get campaigns error:', error);
+      res.status(500).json({ message: 'Failed to fetch campaigns' });
+    }
+  });
+
+  // Get campaign with variations
+  app.get('/api/ad-copy-campaigns/:id', authenticateToken, async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const result = await AdCopyService.getCampaignWithVariations(campaignId, req.user!.id);
+      
+      res.json({
+        success: true,
+        ...result
+      });
+    } catch (error: any) {
+      console.error('Get campaign error:', error);
+      res.status(404).json({ message: error.message || 'Campaign not found' });
+    }
+  });
+
+  // Delete campaign
+  app.delete('/api/ad-copy-campaigns/:id', authenticateToken, async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      await AdCopyService.deleteCampaign(campaignId, req.user!.id);
+      
+      res.json({
+        success: true,
+        message: 'Campaign deleted successfully'
+      });
+    } catch (error: any) {
+      console.error('Delete campaign error:', error);
+      res.status(404).json({ message: error.message || 'Campaign not found' });
+    }
   });
 
   const httpServer = createServer(app);

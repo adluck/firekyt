@@ -52,6 +52,8 @@ import FeedbackDashboard from "@/pages/admin/FeedbackDashboard";
 import CreateWidget from "@/pages/ads-widgets/CreateWidget";
 import ManageWidgets from "@/pages/ads-widgets/ManageWidgets";
 import AdSizesDemo from "@/pages/ads-widgets/AdSizesDemo";
+import AdCopyGenerator from "@/pages/ad-copy-generator/AdCopyGenerator";
+import MyAds from "@/pages/ad-copy-generator/MyAds";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -306,6 +308,22 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <AdSizesDemo />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/ad-copy-generator">
+        <ProtectedRoute>
+          <AppLayout>
+            <AdCopyGenerator />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/my-ads">
+        <ProtectedRoute>
+          <AppLayout>
+            <MyAds />
           </AppLayout>
         </ProtectedRoute>
       </Route>
