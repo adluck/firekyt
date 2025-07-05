@@ -154,7 +154,7 @@ const AdSizesDemo = () => {
                                   adSize.size === '160x600' ? '600px' : '250px',
                           border: 'none',
                           borderRadius: '8px',
-                          maxWidth: '100%'
+                          maxWidth: adSize.size === '100%' ? '100%' : 'none'
                         }}
                         title={`${adSize.name} Widget Preview`}
                       />
