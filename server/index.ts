@@ -85,6 +85,10 @@ app.get('/widgets/:id/iframe', async (req, res) => {
         layoutSize = '300x250'; // Use square layout template
         console.log(`🎯 Layout Detection: ${detectionWidth}x${detectionHeight} → SQUARE (${layoutSize})`);
       }
+    } else if (effectiveSize === '100%') {
+      // For responsive widgets without specific dimensions, use the 100% layout
+      layoutSize = '100%';
+      console.log(`🎯 Layout Detection: Responsive widget → RESPONSIVE (${layoutSize})`);
     }
     
     // Define specific layouts for each widget size
