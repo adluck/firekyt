@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -6,8 +6,9 @@ import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Monitor, BarChart3, Copy, Trash2, ExternalLink, Eye, MousePointer, Edit } from "lucide-react";
+import { Monitor, BarChart3, Copy, Trash2, Edit, ExternalLink, Calendar, Settings } from "lucide-react";
 
 interface AdWidget {
   id: number;
@@ -28,7 +29,7 @@ interface AdWidget {
 
 export default function ManageWidgets() {
   const { toast } = useToast();
-  const [selectedWidget, setSelectedWidget] = useState<AdWidget | null>(null);
+  const [selectedWidgetId, setSelectedWidgetId] = useState<string>("");
 
   const { data: widgetsData, isLoading } = useQuery({
     queryKey: ["/api/widgets"],
@@ -37,6 +38,17 @@ export default function ManageWidgets() {
       return response.json();
     },
   });
+
+  // Auto-select first widget on page load
+  useEffect(() => {
+    const widgets = widgetsData?.widgets || [];
+    if (widgets.length > 0 && !selectedWidgetId) {
+      setSelectedWidgetId(widgets[0].id.toString());
+    }
+  }, [widgetsData, selectedWidgetId]);
+
+  const widgets = widgetsData?.widgets || [];
+  const selectedWidget = widgets.find((w: AdWidget) => w.id.toString() === selectedWidgetId);
 
   const deleteWidget = useMutation({
     mutationFn: async (widgetId: number) => {
@@ -87,8 +99,6 @@ export default function ManageWidgets() {
     });
   };
 
-  const widgets = widgetsData?.widgets || [];
-
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -99,22 +109,13 @@ export default function ManageWidgets() {
     );
   }
 
-  return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+  if (widgets.length === 0) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Manage Ad Widgets</h1>
           <p className="text-muted-foreground">Create, edit, and manage your dynamic affiliate ad widgets</p>
         </div>
-        <Link href="/ads-widgets/create">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Create New Widget
-          </Button>
-        </Link>
-      </div>
-
-      {widgets.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Monitor className="w-12 h-12 text-muted-foreground mb-4" />
@@ -124,110 +125,192 @@ export default function ManageWidgets() {
             </p>
             <Link href="/ads-widgets/create">
               <Button>
-                <Plus className="w-4 h-4 mr-2" />
                 Create Your First Widget
               </Button>
             </Link>
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {widgets.map((widget: AdWidget) => (
-            <Card key={widget.id} className="relative">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between mb-3">
-                  <Badge 
-                    variant={widget.isActive ? "default" : "secondary"} 
-                    className="text-xs font-medium px-2.5 py-0.5"
-                  >
-                    {widget.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                  <div className="flex items-center space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyEmbedCode(widget.id)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                    <Link href={`/ads-widgets/create?edit=${widget.id}`}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                    <Link href={`/ads-widgets/analytics?widget=${widget.id}`}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <BarChart3 className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Widget</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete "{widget.name}"? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => deleteWidget.mutate(widget.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Manage Ad Widgets</h1>
+        <p className="text-muted-foreground">Select a widget to view details and manage settings</p>
+      </div>
+
+      {/* Widget Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Select Widget to Manage</CardTitle>
+          <CardDescription>
+            Choose from your {widgets.length} saved widget{widgets.length !== 1 ? 's' : ''}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <Select value={selectedWidgetId} onValueChange={setSelectedWidgetId}>
+              <SelectTrigger className="w-96">
+                <SelectValue placeholder="Choose a widget to manage..." />
+              </SelectTrigger>
+              <SelectContent>
+                {widgets.map((widget: AdWidget) => (
+                  <SelectItem key={widget.id} value={widget.id.toString()}>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">{widget.name}</span>
+                      <Badge variant={widget.isActive ? "default" : "secondary"} className="text-xs">
+                        {widget.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {widget.size} • {widget.ads.length} ads
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {selectedWidgetId && (
+              <Button 
+                variant="outline" 
+                onClick={() => setSelectedWidgetId("")}
+                className="shrink-0"
+              >
+                Clear Selection
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Widget Management Panel */}
+      {selectedWidget && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Widget Details */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">{selectedWidget.name}</CardTitle>
+                  <CardDescription>
+                    {selectedWidget.size} • {selectedWidget.ads.length} ads • {selectedWidget.rotationInterval}s rotation
+                  </CardDescription>
                 </div>
-                <CardTitle className="text-xl font-semibold mb-1 text-foreground">{widget.name}</CardTitle>
-                <CardDescription className="text-sm text-muted-foreground leading-relaxed">
-                  {widget.size} • {widget.ads.length} ads • {widget.rotationInterval}s rotation
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-3 gap-6">
-                  <div className="text-center space-y-2">
-                    <div className="text-3xl font-bold text-foreground">{widget.stats.views.toLocaleString()}</div>
-                    <div className="text-sm font-medium text-muted-foreground tracking-wide">Views</div>
-                  </div>
-                  <div className="text-center space-y-2">
-                    <div className="text-3xl font-bold text-foreground">{widget.stats.clicks.toLocaleString()}</div>
-                    <div className="text-sm font-medium text-muted-foreground tracking-wide">Clicks</div>
-                  </div>
-                  <div className="text-center space-y-2">
-                    <div className="text-3xl font-bold text-foreground">{widget.stats.ctr.toFixed(1)}%</div>
-                    <div className="text-sm font-medium text-muted-foreground tracking-wide">CTR</div>
-                  </div>
+                <Badge variant={selectedWidget.isActive ? "default" : "secondary"}>
+                  {selectedWidget.isActive ? "Active" : "Inactive"}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Performance Stats */}
+              <div className="grid grid-cols-3 gap-6">
+                <div className="text-center space-y-2">
+                  <div className="text-3xl font-bold">{selectedWidget.stats.views.toLocaleString()}</div>
+                  <div className="text-sm font-medium text-muted-foreground">Views</div>
                 </div>
+                <div className="text-center space-y-2">
+                  <div className="text-3xl font-bold">{selectedWidget.stats.clicks.toLocaleString()}</div>
+                  <div className="text-sm font-medium text-muted-foreground">Clicks</div>
+                </div>
+                <div className="text-center space-y-2">
+                  <div className="text-3xl font-bold">{selectedWidget.stats.ctr.toFixed(1)}%</div>
+                  <div className="text-sm font-medium text-muted-foreground">CTR</div>
+                </div>
+              </div>
+
+              {/* Widget Info */}
+              <div className="border-t pt-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Created:</span>
+                  <span>{new Date(selectedWidget.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Settings className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Last Updated:</span>
+                  <span>{new Date(selectedWidget.updatedAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Management Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Management Actions</CardTitle>
+              <CardDescription>
+                Control your widget settings and access analytics
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Primary Actions */}
+              <div className="grid gap-3">
+                <Button
+                  variant={selectedWidget.isActive ? "outline" : "default"}
+                  className="w-full justify-start"
+                  onClick={() => toggleWidget.mutate({ widgetId: selectedWidget.id, isActive: !selectedWidget.isActive })}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  {selectedWidget.isActive ? "Deactivate Widget" : "Activate Widget"}
+                </Button>
                 
-                <div className="border-t border-border/40 pt-4">
-                  <div className="flex gap-3">
-                    <Button
-                      variant={widget.isActive ? "outline" : "default"}
-                      size="sm"
-                      className="flex-1 h-9 font-medium"
-                      onClick={() => toggleWidget.mutate({ widgetId: widget.id, isActive: !widget.isActive })}
-                    >
-                      {widget.isActive ? "Deactivate" : "Activate"}
+                <Link href={`/ads-widgets/create?edit=${selectedWidget.id}`}>
+                  <Button variant="outline" className="w-full justify-start">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Widget
+                  </Button>
+                </Link>
+                
+                <Link href={`/ads-widgets/analytics?widget=${selectedWidget.id}`}>
+                  <Button variant="outline" className="w-full justify-start">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    View Analytics
+                  </Button>
+                </Link>
+                
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => copyEmbedCode(selectedWidget.id)}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy Embed Code
+                </Button>
+              </div>
+
+              {/* Danger Zone */}
+              <div className="border-t pt-4">
+                <h4 className="font-medium text-sm mb-3 text-muted-foreground">Danger Zone</h4>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="w-full justify-start">
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Widget
                     </Button>
-                    <Link href={`/ads-widgets/create?edit=${widget.id}`}>
-                      <Button variant="outline" size="sm" className="h-9 px-4 font-medium">
-                        Edit
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Widget</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{selectedWidget.name}"? This action cannot be undone and will remove all associated analytics data.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => deleteWidget.mutate(selectedWidget.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete Widget
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
