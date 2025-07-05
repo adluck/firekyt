@@ -95,7 +95,6 @@ const navigation = [
     submenu: [
       { name: 'Create Widget', href: '/ads-widgets/create', icon: Plus },
       { name: 'Manage Widgets', href: '/ads-widgets', icon: Monitor },
-      { name: 'Widget Analytics', href: '/ads-widgets/analytics', icon: BarChart3 },
       { name: 'Ad Sizes Demo', href: '/ads-widgets/sizes', icon: Ruler }
     ]
   },
