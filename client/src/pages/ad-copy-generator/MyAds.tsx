@@ -211,32 +211,159 @@ export default function MyAds() {
           </CardContent>
         </Card>
 
-        {generatedContent.length > 0 && (
+{generatedContent.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>Generated Ad Copy ({generatedContent.length} variations)</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {generatedContent.map((content: any, index: number) => (
-                  <div key={content.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <Badge variant="outline">{content.platform}</Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleCopyToClipboard(content.content, `${content.platform} ad copy`)}
-                      >
-                        <Copy className="w-4 h-4" />
-                        Copy
-                      </Button>
-                    </div>
-                    <div className="whitespace-pre-wrap text-sm bg-muted p-3 rounded">
-                      {content.content}
-                    </div>
+              {(() => {
+                // Group content by platform for better organization
+                const groupedByPlatform = generatedContent.reduce((acc: any, content: any) => {
+                  if (!acc[content.platform]) {
+                    acc[content.platform] = {
+                      headlines: [],
+                      descriptions: [],
+                      ctas: [],
+                      hashtags: []
+                    };
+                  }
+                  
+                  // Group by ad format/type
+                  if (content.headline && !acc[content.platform].headlines.includes(content.headline)) {
+                    acc[content.platform].headlines.push(content.headline);
+                  }
+                  if (content.description && !acc[content.platform].descriptions.includes(content.description)) {
+                    acc[content.platform].descriptions.push(content.description);
+                  }
+                  if (content.callToAction && !acc[content.platform].ctas.includes(content.callToAction)) {
+                    acc[content.platform].ctas.push(content.callToAction);
+                  }
+                  if (content.hashtags && content.hashtags.length > 0) {
+                    acc[content.platform].hashtags = [...new Set([...acc[content.platform].hashtags, ...content.hashtags])];
+                  }
+                  
+                  return acc;
+                }, {});
+
+                return (
+                  <div className="space-y-8">
+                    {Object.entries(groupedByPlatform).map(([platform, data]: [string, any]) => (
+                      <div key={platform} className="border rounded-lg p-6">
+                        <div className="flex items-center justify-between mb-6">
+                          <Badge variant="outline" className="text-lg px-3 py-1">
+                            {platform === 'tiktok_video' ? 'TikTok' : 
+                             platform === 'pinterest_boards' ? 'Pinterest' :
+                             platform === 'facebook_ads' ? 'Facebook' :
+                             platform === 'instagram_stories' ? 'Instagram' : platform}
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Headlines/Captions */}
+                          {data.headlines.length > 0 && (
+                            <div>
+                              <h4 className="font-semibold mb-3 text-green-600">
+                                ✅ {platform === 'tiktok_video' ? 'TikTok Captions' : 
+                                     platform === 'pinterest_boards' ? 'Pinterest Headlines' : 'Headlines'} 
+                                ({data.headlines.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {data.headlines.map((headline: string, index: number) => (
+                                  <div key={index} className="bg-muted p-3 rounded flex items-center justify-between">
+                                    <span className="text-sm">{headline}</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleCopyToClipboard(headline, 'headline')}
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Descriptions */}
+                          {data.descriptions.length > 0 && (
+                            <div>
+                              <h4 className="font-semibold mb-3 text-green-600">
+                                ✅ {platform === 'pinterest_boards' ? 'Pin Descriptions' : 'Ad Copy'} 
+                                ({data.descriptions.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {data.descriptions.map((desc: string, index: number) => (
+                                  <div key={index} className="bg-muted p-3 rounded flex items-center justify-between">
+                                    <span className="text-sm">{desc}</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleCopyToClipboard(desc, 'description')}
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* CTAs */}
+                          {data.ctas.length > 0 && (
+                            <div>
+                              <h4 className="font-semibold mb-3 text-green-600">
+                                ✅ CTAs ({data.ctas.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {data.ctas.map((cta: string, index: number) => (
+                                  <div key={index} className="bg-muted p-3 rounded flex items-center justify-between">
+                                    <span className="text-sm font-medium">{cta}</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleCopyToClipboard(cta, 'CTA')}
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Hashtags */}
+                          {data.hashtags.length > 0 && (
+                            <div>
+                              <h4 className="font-semibold mb-3 text-green-600">
+                                ✅ Suggested Hashtags ({data.hashtags.length})
+                              </h4>
+                              <div className="bg-muted p-3 rounded">
+                                <div className="flex flex-wrap gap-2">
+                                  {data.hashtags.map((hashtag: string, index: number) => (
+                                    <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                                      {hashtag.startsWith('#') ? hashtag : `#${hashtag}`}
+                                    </span>
+                                  ))}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="mt-2"
+                                  onClick={() => handleCopyToClipboard(data.hashtags.map((h: string) => h.startsWith('#') ? h : `#${h}`).join(' '), 'hashtags')}
+                                >
+                                  <Copy className="w-3 h-3 mr-1" />
+                                  Copy All
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </CardContent>
           </Card>
         )}

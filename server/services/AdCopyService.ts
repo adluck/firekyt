@@ -81,6 +81,98 @@ export class AdCopyService {
     const platformName = this.formatPlatformName(platform);
     const limits = platformLimits[platform as keyof typeof platformLimits];
     
+    if (format === 'complete_campaign') {
+      return `Act as a professional ad copywriter specializing in high-converting ${platformName} advertisements.
+
+Input:
+- Product: "${request.productName}"
+- Description: "${request.productDescription || 'High-quality product'}"
+- Target audience: "${request.targetAudience}"
+- Primary benefit: "${request.primaryBenefit}"
+- Tone: ${request.toneOfVoice}
+
+Create a complete ad campaign for ${platformName} with:
+
+${platform === 'tiktok_video' ? `
+**TikTok Captions (3 variations):**
+- Maximum 150 characters each
+- Hook viewers in first 3 seconds
+- Include trending language for ${request.targetAudience}
+- Focus on "${request.primaryBenefit}"
+- Use ${request.toneOfVoice} tone
+
+**Call-to-Actions (2 variations):**
+- Maximum 20 characters each
+- Action-oriented and urgent
+- Examples: "Try Now!", "Get Yours!"
+
+**Hashtags (8-12 total):**
+- Mix of viral and niche hashtags
+- Include ${request.targetAudience}-focused tags
+- Relevant to ${request.productName}
+` : ''}
+
+${platform === 'pinterest_boards' ? `
+**Pinterest Headlines (3 variations):**
+- Maximum 100 characters each
+- SEO-optimized for Pinterest search
+- Focus on "${request.primaryBenefit}"
+- Appeal to ${request.targetAudience}
+- Use ${request.toneOfVoice} tone
+
+**Pin Descriptions (2 variations):**
+- Maximum 500 characters each
+- Include relevant keywords
+- Address pain points of ${request.targetAudience}
+
+**Hashtags (10-15 total):**
+- Mix of broad and specific hashtags
+- Pinterest-optimized tags
+- Include seasonal/trending options
+` : ''}
+
+${platform === 'facebook_ads' ? `
+**Facebook Headlines (3 variations):**
+- Maximum 40 characters each
+- Attention-grabbing and benefit-focused
+- Appeal to ${request.targetAudience}
+
+**Ad Copy (3 variations):**
+- Maximum 125 characters each
+- Focus on "${request.primaryBenefit}"
+- Include social proof elements
+
+**Call-to-Actions (2 variations):**
+- Maximum 20 characters each
+- Clear action-oriented language
+` : ''}
+
+${platform === 'instagram_stories' ? `
+**Instagram Captions (3 variations):**
+- Maximum 125 characters each
+- Visual storytelling approach
+- Focus on "${request.primaryBenefit}"
+- Appeal to ${request.targetAudience}
+
+**Story CTAs (2 variations):**
+- Maximum 15 characters each
+- Swipe-up focused language
+
+**Hashtags (10-15 total):**
+- Instagram-trending hashtags
+- Mix of popular and niche tags
+` : ''}
+
+Output in this exact JSON format:
+{
+  "headlines": ["headline1", "headline2", "headline3"],
+  "descriptions": ["desc1", "desc2"],
+  "ctas": ["cta1", "cta2"],
+  "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3", "..."]
+}`;
+    }
+    
+    // Fallback to original format for backward compatibility
     let prompt = `Act as a professional ad copywriter specializing in high-converting ${platformName} advertisements.
 
 Input:
@@ -162,72 +254,117 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
       const allVariations: InsertAdCopyVariation[] = [];
       const results: PlatformAdCopy[] = [];
 
-      // Generate copy for each platform and format
+      // Generate copy for each platform using complete campaign format
       for (const platform of request.platforms) {
-        const platformFormats = request.formats[platform] || [];
-        const platformResult: PlatformAdCopy = {
-          platform: this.formatPlatformName(platform),
-          headlines: [],
-          descriptions: [],
-          ctas: [],
-          hashtags: []
-        };
-
-        for (const format of platformFormats) {
-          try {
-            const prompt = this.buildPrompt(request, platform, format);
-            
-            const response = await ai.models.generateContent({
-              model: "gemini-2.5-flash",
-              contents: prompt,
-            });
-
-            const generatedText = response.text || '';
-            const lines = generatedText.split('\n').filter(line => line.trim());
-
-            // Store variations in database
-            for (const line of lines) {
-              if (line.trim()) {
-                const variation: InsertAdCopyVariation = {
-                  campaignId: campaign.id,
-                  platform,
-                  adFormat: format,
-                  headline: format === 'headlines' ? line.trim() : platformResult.headlines[0] || request.productName,
-                  description: format === 'descriptions' ? line.trim() : platformResult.descriptions[0] || request.primaryBenefit,
-                  callToAction: format === 'ctas' ? line.trim() : platformResult.ctas[0] || 'Shop Now',
-                  hashtags: format === 'hashtags' ? [line.trim()] : [],
-                  characterCount: line.trim().length,
-                  platformSpecs: platformLimits[platform as keyof typeof platformLimits] || {},
-                };
-                allVariations.push(variation);
+        try {
+          const prompt = this.buildPrompt(request, platform, 'complete_campaign');
+          
+          const response = await ai.models.generateContent({
+            model: "gemini-2.5-pro",
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: "object",
+                properties: {
+                  headlines: {
+                    type: "array",
+                    items: { type: "string" }
+                  },
+                  descriptions: {
+                    type: "array", 
+                    items: { type: "string" }
+                  },
+                  ctas: {
+                    type: "array",
+                    items: { type: "string" }
+                  },
+                  hashtags: {
+                    type: "array",
+                    items: { type: "string" }
+                  }
+                },
+                required: ["headlines", "descriptions", "ctas", "hashtags"]
               }
-            }
+            },
+            contents: prompt,
+          });
 
-            // Add to results for immediate response
-            if (format === 'headlines') {
-              platformResult.headlines = lines.map(line => line.trim()).slice(0, request.variationCount);
-            } else if (format === 'descriptions') {
-              platformResult.descriptions = lines.map(line => line.trim()).slice(0, request.variationCount);
-            } else if (format === 'ctas') {
-              platformResult.ctas = lines.map(line => line.trim()).slice(0, request.variationCount);
-            } else if (format === 'hashtags') {
-              platformResult.hashtags = lines.map(line => line.trim());
-            }
+          const generatedText = response.text || '{}';
+          let platformData;
+          
+          try {
+            platformData = JSON.parse(generatedText);
+          } catch (e) {
+            console.error('JSON parsing error:', e, 'Response:', generatedText);
+            // Fallback to basic structure
+            platformData = {
+              headlines: [`${request.primaryBenefit} for ${request.targetAudience}`],
+              descriptions: [`Discover ${request.productName} and ${request.primaryBenefit}`],
+              ctas: ["Shop Now", "Get Yours"],
+              hashtags: [`#${request.productName.replace(/\s+/g, '')}`, `#${request.targetAudience}`]
+            };
+          }
 
-          } catch (error) {
-            console.error(`Error generating ${format} for ${platform}:`, error);
-            // Add fallback content
-            if (format === 'headlines') {
-              platformResult.headlines = [`${request.productName} - ${request.primaryBenefit}`];
-            } else if (format === 'descriptions') {
-              platformResult.descriptions = [`Discover ${request.productName}. ${request.primaryBenefit}. Perfect for ${request.targetAudience}.`];
-            } else if (format === 'ctas') {
-              platformResult.ctas = ['Shop Now', 'Learn More'];
-            }
+          const platformResult: PlatformAdCopy = {
+            platform: this.formatPlatformName(platform),
+            headlines: platformData.headlines || [],
+            descriptions: platformData.descriptions || [],
+            ctas: platformData.ctas || [],
+            hashtags: platformData.hashtags || []
+          };
+
+          // Store variations in database for each type
+          const headlines = platformData.headlines || [];
+          const descriptions = platformData.descriptions || [];
+          const ctas = platformData.ctas || [];
+          
+          // Create variations for each combination
+          for (let i = 0; i < Math.max(headlines.length, descriptions.length, ctas.length); i++) {
+            allVariations.push({
+              campaignId: campaign.id,
+              platform: platform,
+              adFormat: 'text_ad',
+              headline: headlines[i] || headlines[0] || request.productName,
+              description: descriptions[i] || descriptions[0] || request.primaryBenefit,
+              callToAction: ctas[i] || ctas[0] || 'Shop Now',
+              hashtags: platformData.hashtags || [],
+              characterCount: (headlines[i] || '').length + (descriptions[i] || '').length,
+              platformSpecs: platformLimits[platform as keyof typeof platformLimits] || {},
+              isActive: true
+            });
+          }
+
+          results.push(platformResult);
+
+        } catch (error) {
+          console.error(`Error generating campaign for ${platform}:`, error);
+          // Add fallback content
+          const fallbackResult: PlatformAdCopy = {
+            platform: this.formatPlatformName(platform),
+            headlines: [`${request.productName} - ${request.primaryBenefit}`],
+            descriptions: [`Discover ${request.productName}. ${request.primaryBenefit}. Perfect for ${request.targetAudience}.`],
+            ctas: ['Shop Now', 'Learn More'],
+            hashtags: [`#${request.productName.replace(/\s+/g, '')}`, `#${request.targetAudience}`]
+          };
+          
+          results.push(fallbackResult);
+          
+          // Add fallback variations to database
+          for (let i = 0; i < Math.max(fallbackResult.headlines.length, fallbackResult.descriptions.length, fallbackResult.ctas.length); i++) {
+            allVariations.push({
+              campaignId: campaign.id,
+              platform: platform,
+              adFormat: 'text_ad',
+              headline: fallbackResult.headlines[i] || fallbackResult.headlines[0] || request.productName,
+              description: fallbackResult.descriptions[i] || fallbackResult.descriptions[0] || request.primaryBenefit,
+              callToAction: fallbackResult.ctas[i] || fallbackResult.ctas[0] || 'Shop Now',
+              hashtags: fallbackResult.hashtags || [],
+              characterCount: (fallbackResult.headlines[i] || '').length + (fallbackResult.descriptions[i] || '').length,
+              platformSpecs: platformLimits[platform as keyof typeof platformLimits] || {},
+              isActive: true
+            });
           }
         }
-
-        results.push(platformResult);
       }
 
       // Save all variations to database
