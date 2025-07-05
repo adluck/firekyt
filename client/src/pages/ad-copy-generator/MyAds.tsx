@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
+import { useLocation, useParams } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,10 +46,13 @@ interface AdCopyCampaign {
 
 export default function MyAds() {
   const [, navigate] = useLocation();
+  const params = useParams();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterGoal, setFilterGoal] = useState<string>('all');
   const [filterVoice, setFilterVoice] = useState<string>('all');
+  
+  const campaignId = params.id ? parseInt(params.id) : null;
 
   const { data: campaigns, isLoading, refetch } = useQuery({
     queryKey: ['/api/ad-copy-campaigns'],
@@ -57,7 +60,18 @@ export default function MyAds() {
       const response = await apiRequest('GET', '/api/ad-copy-campaigns');
       const data = await response.json();
       return data.campaigns as AdCopyCampaign[];
-    }
+    },
+    enabled: !campaignId // Only fetch campaigns list when not viewing individual campaign
+  });
+
+  const { data: campaignDetails, isLoading: isLoadingDetails } = useQuery({
+    queryKey: ['/api/ad-copy-campaigns', campaignId],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/ad-copy-campaigns/${campaignId}`);
+      const data = await response.json();
+      return data;
+    },
+    enabled: !!campaignId // Only fetch when we have a campaign ID
   });
 
   const handleViewCampaign = (campaignId: number) => {
@@ -132,6 +146,105 @@ export default function MyAds() {
     return matchesSearch && matchesGoal && matchesVoice;
   }) || [];
 
+  // Show individual campaign details if campaignId is present
+  if (campaignId) {
+    if (isLoadingDetails) {
+      return (
+        <div className="container mx-auto py-8 px-4">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+          </div>
+        </div>
+      );
+    }
+
+    if (!campaignDetails) {
+      return (
+        <div className="container mx-auto py-8 px-4">
+          <Card>
+            <CardContent className="py-12">
+              <div className="text-center">
+                <p className="text-muted-foreground">Campaign not found.</p>
+                <Button onClick={() => navigate('/my-ads')} className="mt-4">
+                  Back to Campaigns
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    const campaign = campaignDetails.campaign;
+    const generatedContent = campaignDetails.generatedContent || [];
+
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="mb-6">
+          <Button onClick={() => navigate('/my-ads')} variant="outline" className="mb-4">
+            ← Back to Campaigns
+          </Button>
+        </div>
+
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">{campaign.name}</CardTitle>
+            <CardDescription>
+              Campaign details and generated ad copy variations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold mb-2">Product Information</h3>
+                <p><strong>Product:</strong> {campaign.productName}</p>
+                <p><strong>Category:</strong> {campaign.productCategory}</p>
+                <p><strong>Target Audience:</strong> {campaign.targetAudience}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Campaign Settings</h3>
+                <p><strong>Brand Voice:</strong> {campaign.brandVoice}</p>
+                <p><strong>Goal:</strong> {campaign.campaignGoal}</p>
+                <p><strong>Affiliate URL:</strong> <a href={campaign.affiliateUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">{campaign.affiliateUrl}</a></p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {generatedContent.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Generated Ad Copy ({generatedContent.length} variations)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {generatedContent.map((content: any, index: number) => (
+                  <div key={content.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <Badge variant="outline">{content.platform}</Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCopyToClipboard(content.content, `${content.platform} ad copy`)}
+                      >
+                        <Copy className="w-4 h-4" />
+                        Copy
+                      </Button>
+                    </div>
+                    <div className="whitespace-pre-wrap text-sm bg-muted p-3 rounded">
+                      {content.content}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // Show campaigns list if no specific campaign ID
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 px-4">

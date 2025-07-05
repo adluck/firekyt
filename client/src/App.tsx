@@ -328,6 +328,14 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
+      <Route path="/my-ads/:id">
+        <ProtectedRoute>
+          <AppLayout>
+            <MyAds />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
       <Route path="/analytics">
         <ProtectedRoute>
           <AppLayout>
