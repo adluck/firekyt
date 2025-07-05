@@ -249,22 +249,22 @@ export default function ManageWidgets() {
               <div className="space-y-2">
                 <Button
                   variant={selectedWidget.isActive ? "outline" : "default"}
-                  className="w-full justify-start h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01]"
+                  className="h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01]"
                   onClick={() => toggleWidget.mutate({ widgetId: selectedWidget.id, isActive: !selectedWidget.isActive })}
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   {selectedWidget.isActive ? "Deactivate Widget" : "Activate Widget"}
                 </Button>
                 
-                <Link href={`/ads-widgets/create?edit=${selectedWidget.id}`} className="block">
-                  <Button variant="outline" className="w-full justify-start h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                <Link href={`/ads-widgets/create?edit=${selectedWidget.id}`}>
+                  <Button variant="outline" className="h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-slate-50 dark:hover:bg-slate-900/50">
                     <Edit className="w-4 h-4 mr-2" />
                     Edit Widget Settings
                   </Button>
                 </Link>
                 
-                <Link href={`/ads-widgets/analytics?widget=${selectedWidget.id}`} className="block">
-                  <Button variant="outline" className="w-full justify-start h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                <Link href={`/ads-widgets/analytics?widget=${selectedWidget.id}`}>
+                  <Button variant="outline" className="h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-slate-50 dark:hover:bg-slate-900/50">
                     <BarChart3 className="w-4 h-4 mr-2" />
                     View Analytics
                   </Button>
@@ -272,7 +272,7 @@ export default function ManageWidgets() {
                 
                 <Button
                   variant="outline"
-                  className="w-full justify-start h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-slate-50 dark:hover:bg-slate-900/50"
+                  className="h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-slate-50 dark:hover:bg-slate-900/50"
                   onClick={() => copyEmbedCode(selectedWidget.id)}
                 >
                   <Copy className="w-4 h-4 mr-2" />
@@ -285,7 +285,7 @@ export default function ManageWidgets() {
                 <h4 className="font-medium text-sm mb-2 text-muted-foreground">Danger Zone</h4>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full justify-start h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-red-600">
+                    <Button variant="destructive" className="h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-red-600">
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete Widget Permanently
                     </Button>
