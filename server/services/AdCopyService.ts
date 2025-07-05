@@ -1,8 +1,10 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 import { db } from "../db.js";
 import { adCopyCampaigns, adCopyVariations } from "../../shared/schema.js";
 import type { InsertAdCopyCampaign, InsertAdCopyVariation } from "../../shared/schema.js";
 import { eq } from "drizzle-orm";
+import * as fs from "fs";
+import * as path from "path";
 
 if (!process.env.GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY environment variable is required');
@@ -65,6 +67,12 @@ const platformLimits = {
 };
 
 export class AdCopyService {
+  private ai: GoogleGenAI;
+
+  constructor() {
+    this.ai = ai;
+  }
+
   private static formatPlatformName(platform: string): string {
     const platformNames = {
       google_search: 'Google Search',
@@ -430,5 +438,126 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
 
     await db.delete(adCopyCampaigns).where(eq(adCopyCampaigns.id, campaignId));
     return { success: true };
+  }
+
+  async generateAdImages(request: any): Promise<any> {
+    try {
+      // Create images directory if it doesn't exist
+      const imagesDir = path.join(process.cwd(), 'client', 'public', 'generated-images');
+      if (!fs.existsSync(imagesDir)) {
+        fs.mkdirSync(imagesDir, { recursive: true });
+      }
+
+      const results = [];
+
+      // Generate images for each platform
+      for (const platform of request.platforms) {
+        const imagePrompt = this.createImagePrompt(request, platform);
+        
+        try {
+          const timestamp = Date.now();
+          const filename = `${platform}-${timestamp}.png`;
+          const filepath = path.join(imagesDir, filename);
+          
+          await this.generateImageWithGemini(imagePrompt, filepath);
+          
+          results.push({
+            platform,
+            imageUrl: `/generated-images/${filename}`,
+            prompt: imagePrompt,
+            filename
+          });
+        } catch (error) {
+          console.error(`Error generating image for ${platform}:`, error);
+          // Add placeholder or suggest stock image alternatives
+          results.push({
+            platform,
+            imageUrl: null,
+            prompt: imagePrompt,
+            error: 'Image generation failed - consider using stock images',
+            suggestedKeywords: this.generateImageKeywords(request, platform)
+          });
+        }
+      }
+
+      return results;
+    } catch (error) {
+      console.error('Error in generateAdImages:', error);
+      throw error;
+    }
+  }
+
+  private createImagePrompt(request: any, platform: string): string {
+    const basePrompt = `Create a professional ${platform} ad image featuring ${request.productName}. `;
+    
+    const platformSpecific = {
+      'tiktok_video': 'Vertical format (9:16), vibrant colors, modern trendy style, mobile-optimized',
+      'pinterest_boards': 'Vertical format (2:3), clean minimalist design, lifestyle photography style',
+      'facebook_ads': 'Square format (1:1), professional look, clear product focus',
+      'instagram_stories': 'Vertical format (9:16), Instagram-style aesthetic, bright and engaging',
+      'youtube_shorts': 'Vertical format (9:16), YouTube thumbnail style, eye-catching design'
+    };
+
+    const stylePrompt = platformSpecific[platform as keyof typeof platformSpecific] || 'Professional marketing image';
+    
+    return `${basePrompt}${stylePrompt}. Product context: ${request.productDescription}. Target audience: ${request.targetAudience}. Key benefit: ${request.keyBenefits?.join(', ') || request.primaryBenefit}. Style: ${request.brandVoice} brand voice. No text overlays needed.`;
+  }
+
+  private async generateImageWithGemini(prompt: string, filepath: string): Promise<void> {
+    try {
+      const response = await this.ai.models.generateContent({
+        model: "gemini-2.0-flash-preview-image-generation",
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        config: {
+          responseModalities: [Modality.TEXT, Modality.IMAGE],
+        },
+      });
+
+      const candidates = response.candidates;
+      if (!candidates || candidates.length === 0) {
+        throw new Error('No image generated');
+      }
+
+      const content = candidates[0].content;
+      if (!content || !content.parts) {
+        throw new Error('No content parts in response');
+      }
+
+      for (const part of content.parts) {
+        if (part.inlineData && part.inlineData.data) {
+          const imageData = Buffer.from(part.inlineData.data, "base64");
+          fs.writeFileSync(filepath, imageData);
+          console.log(`Ad image saved as ${filepath}`);
+          return;
+        }
+      }
+
+      throw new Error('No image data found in response');
+    } catch (error) {
+      console.error('Gemini image generation error:', error);
+      throw error;
+    }
+  }
+
+  private generateImageKeywords(request: any, platform: string): string[] {
+    const keywords = [
+      request.productName,
+      request.productCategory,
+      request.targetAudience,
+      'lifestyle',
+      'professional',
+      'modern',
+      'clean'
+    ];
+
+    const platformKeywords = {
+      'tiktok_video': ['trendy', 'viral', 'mobile'],
+      'pinterest_boards': ['aesthetic', 'minimalist', 'inspiration'],
+      'facebook_ads': ['social', 'engaging', 'community'],
+      'instagram_stories': ['stylish', 'authentic', 'personal'],
+      'youtube_shorts': ['eye-catching', 'thumbnail', 'clickable']
+    };
+
+    return [...keywords, ...(platformKeywords[platform as keyof typeof platformKeywords] || [])];
   }
 }

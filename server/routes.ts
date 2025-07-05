@@ -5433,6 +5433,82 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Generate ad images for campaigns
+  app.post('/api/generate-ad-images', authenticateToken, async (req, res) => {
+    try {
+      const adCopyService = new AdCopyService();
+      const results = await adCopyService.generateAdImages(req.body);
+      
+      res.json({
+        success: true,
+        images: results
+      });
+    } catch (error: any) {
+      console.error('Generate ad images error:', error);
+      res.status(500).json({ 
+        message: error.message || 'Failed to generate ad images',
+        success: false 
+      });
+    }
+  });
+
+  // Generate social graphics with text overlays
+  app.post('/api/generate-text-overlay', authenticateToken, async (req, res) => {
+    try {
+      const { TextOverlayService } = await import('./services/TextOverlayService');
+      const textOverlayService = new TextOverlayService();
+      const result = await textOverlayService.generateSocialGraphic(req.body);
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error('Generate text overlay error:', error);
+      res.status(500).json({ 
+        message: error.message || 'Failed to generate text overlay',
+        success: false 
+      });
+    }
+  });
+
+  // Get text overlay suggestions for ad copy
+  app.post('/api/generate-text-suggestions', authenticateToken, async (req, res) => {
+    try {
+      const { TextOverlayService } = await import('./services/TextOverlayService');
+      const textOverlayService = new TextOverlayService();
+      const { adCopy, platform } = req.body;
+      const suggestions = textOverlayService.generateTextSuggestions(adCopy, platform);
+      
+      res.json({
+        success: true,
+        suggestions
+      });
+    } catch (error: any) {
+      console.error('Generate text suggestions error:', error);
+      res.status(500).json({ 
+        message: error.message || 'Failed to generate text suggestions',
+        success: false 
+      });
+    }
+  });
+
+  // Get available social media formats
+  app.get('/api/social-formats', authenticateToken, async (req, res) => {
+    try {
+      const { TextOverlayService } = await import('./services/TextOverlayService');
+      const formats = TextOverlayService.getSocialFormats();
+      
+      res.json({
+        success: true,
+        formats
+      });
+    } catch (error: any) {
+      console.error('Get social formats error:', error);
+      res.status(500).json({ 
+        message: 'Failed to get social formats',
+        success: false 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Sparkles, 
   Plus, 
@@ -24,7 +25,10 @@ import {
   Calendar,
   Target,
   Search,
-  Filter
+  Filter,
+  Image,
+  Type,
+  ArrowLeft
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -112,6 +116,72 @@ export default function MyAds() {
       title: "Download Started",
       description: "Campaign data downloaded as CSV",
     });
+  };
+
+  const handleGenerateImages = async (campaign: any) => {
+    try {
+      toast({
+        title: "Generating Images",
+        description: "Creating AI-generated images for your campaign...",
+      });
+
+      const response = await apiRequest('POST', '/api/generate-ad-images', {
+        productName: campaign.productName,
+        productDescription: campaign.productDescription,
+        targetAudience: campaign.targetAudience,
+        primaryBenefit: campaign.keyBenefits?.[0] || "great value",
+        brandVoice: campaign.brandVoice,
+        platforms: ['tiktok_video', 'pinterest_boards', 'facebook_ads', 'instagram_stories']
+      });
+
+      if (response.success) {
+        toast({
+          title: "Images Generated!",
+          description: `Successfully created ${response.images.length} images`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate images",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGenerateGraphics = async (campaign: any) => {
+    try {
+      toast({
+        title: "Generating Graphics",
+        description: "Creating social media graphics with text overlays...",
+      });
+
+      const platforms = ['instagram_post', 'instagram_story', 'facebook_post', 'pinterest_pin'];
+      
+      for (const platform of platforms) {
+        await apiRequest('POST', '/api/generate-text-overlay', {
+          text: campaign.productName,
+          platform,
+          style: 'bold',
+          position: 'center',
+          fontSize: 48,
+          textColor: '#ffffff',
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          opacity: 0.8
+        });
+      }
+
+      toast({
+        title: "Graphics Generated!",
+        description: `Successfully created graphics for ${platforms.length} platforms`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate graphics",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteCampaign = async (campaignId: number, campaignName: string) => {
@@ -214,9 +284,17 @@ export default function MyAds() {
 {generatedContent.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Generated Ad Copy ({generatedContent.length} variations)</CardTitle>
+              <CardTitle>Campaign Content & Visuals</CardTitle>
             </CardHeader>
             <CardContent>
+              <Tabs defaultValue="copy" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="copy">Ad Copy ({generatedContent.length})</TabsTrigger>
+                  <TabsTrigger value="images">Image Suggestions</TabsTrigger>
+                  <TabsTrigger value="graphics">Text Overlays</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="copy" className="mt-6">
               {(() => {
                 // Group content by platform for better organization
                 const groupedByPlatform = generatedContent.reduce((acc: any, content: any) => {
@@ -364,6 +442,50 @@ export default function MyAds() {
                   </div>
                 );
               })()}
+                </TabsContent>
+                
+                <TabsContent value="images" className="mt-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">AI-Generated Images</h3>
+                      <Button onClick={() => handleGenerateImages(campaign)} disabled={!campaign}>
+                        <Image className="w-4 h-4 mr-2" />
+                        Generate Images
+                      </Button>
+                    </div>
+                    <p className="text-muted-foreground">
+                      Generate platform-specific ad images using Google Gemini AI based on your campaign details.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Generated images will appear here */}
+                      <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
+                        Click "Generate Images" to create visual content for your campaign
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="graphics" className="mt-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Social Media Graphics</h3>
+                      <Button onClick={() => handleGenerateGraphics(campaign)} disabled={!campaign}>
+                        <Type className="w-4 h-4 mr-2" />
+                        Generate Graphics
+                      </Button>
+                    </div>
+                    <p className="text-muted-foreground">
+                      Create social media graphics with text overlays using your ad copy.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Generated graphics will appear here */}
+                      <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
+                        Click "Generate Graphics" to create text overlay graphics
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         )}
