@@ -384,6 +384,9 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Medium rectangle widgets now display properly in vertical layout with complete product details
 ✓ Fixed widget ID 3 layout configuration - updated stored size from 728x90 to 300x250 for proper medium rectangle display
 ✓ Widget 3 now correctly responds to iframe dimensions and displays vertically when embedded at 300x250 size
+✓ Fixed iframe embed code generation for responsive widgets - removed query parameters for 100% width widgets
+✓ Responsive widgets now generate clean URLs without dimension parameters for true responsive behavior
+✓ Fixed-size widgets still include query parameters for proper layout detection
 
 ## User Preferences
 
