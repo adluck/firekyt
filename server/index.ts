@@ -49,6 +49,25 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     const demoSize = req.query.size as string;
     const effectiveSize = demoSize || widget.size;
     
+    // Auto-detect layout based on dimensions to handle any iframe size
+    let layoutSize = effectiveSize;
+    if (effectiveSize !== '100%') {
+      const [width, height] = effectiveSize.split('x').map(Number);
+      
+      // If width is much larger than height, it's horizontal (leaderboard style)
+      if (width > height * 1.5) {
+        layoutSize = '728x90'; // Use horizontal layout template
+      }
+      // If height is much larger than width, it's vertical (skyscraper style)  
+      else if (height > width * 1.5) {
+        layoutSize = '160x600'; // Use vertical layout template
+      }
+      // Otherwise it's square/rectangular (medium rectangle style)
+      else {
+        layoutSize = '300x250'; // Use square layout template
+      }
+    }
+    
     // Define specific layouts for each widget size
     const widgetLayouts = {
       '728x90': {
@@ -89,7 +108,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       }
     };
     
-    const layout = widgetLayouts[effectiveSize as keyof typeof widgetLayouts] || widgetLayouts['300x250'];
+    const layout = widgetLayouts[layoutSize as keyof typeof widgetLayouts] || widgetLayouts['300x250'];
     
     const iframeHtml = `<!DOCTYPE html>
 <html lang="en">
