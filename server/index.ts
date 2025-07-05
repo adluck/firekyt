@@ -147,7 +147,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
       font-family: ${theme?.font === 'serif' ? 'Georgia, "Times New Roman", Times, serif' : theme?.font === 'monospace' ? '"Courier New", Courier, monospace' : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif'}; 
       background: transparent; 
       color: ${theme?.textColor || '#000000'}; 
-      ${(sizeStyles as any)[effectiveSize] || sizeStyles['300x250']}
+      ${(sizeStyles as any)[layoutSize] || sizeStyles['300x250']}
       display: flex;
       align-items: center;
       justify-content: center;

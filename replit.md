@@ -379,6 +379,9 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Improved universal widget compatibility - any widget now adapts correctly to iframe container dimensions
 ✓ Fixed layout detection logic: width > height × 1.5 = horizontal, height > width × 1.5 = vertical, else square
 ✓ All widget sizes now working correctly with automatic layout adaptation based on actual iframe dimensions
+✓ Fixed critical medium rectangle (300x250) layout issue - container size now uses detected layout instead of stored widget size
+✓ Updated incomplete product descriptions in database with full product information for better display
+✓ Medium rectangle widgets now display properly in vertical layout with complete product details
 
 ## User Preferences
 
