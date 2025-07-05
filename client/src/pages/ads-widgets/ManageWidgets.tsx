@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Monitor, BarChart3, Copy, Trash2, Edit, ExternalLink, Calendar, Settings } from "lucide-react";
+import { Monitor, Copy, Trash2, Edit, ExternalLink, Calendar, Settings } from "lucide-react";
 
 interface AdWidget {
   id: number;
@@ -263,12 +263,7 @@ export default function ManageWidgets() {
                   </Button>
                 </Link>
                 
-                <Link href={`/ads-widgets/analytics?widget=${selectedWidget.id}`}>
-                  <Button variant="outline" className="h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-slate-50 dark:hover:bg-slate-900/50">
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    View Analytics
-                  </Button>
-                </Link>
+
                 
                 <Button
                   variant="outline"
