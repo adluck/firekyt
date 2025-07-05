@@ -14,7 +14,7 @@ const AdSizesDemo = () => {
     enabled: true
   });
 
-  const widgets = widgetsResponse?.widgets || [];
+  const widgets = (widgetsResponse as any)?.widgets || [];
 
   const adSizes = [
     {
@@ -142,7 +142,7 @@ const AdSizesDemo = () => {
                     Live Preview
                   </h4>
                   <div className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50 dark:bg-slate-900/20 overflow-auto">
-                    <div className="flex items-center justify-center min-h-[100px]">
+                    <div className={`${adSize.size === '728x90' ? 'min-w-[728px]' : ''} flex items-center justify-center min-h-[100px]`}>
                       <iframe
                         src={getIframeSrc(adSize.size)}
                         style={{
