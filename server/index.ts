@@ -10,12 +10,14 @@ const app = express();
 app.get('/widgets/:id/iframe', async (req, res) => {
   try {
     // Set no-cache headers for immediate updates
-    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, private');
     res.header('Pragma', 'no-cache');
     res.header('Expires', '0');
     res.header('Last-Modified', new Date().toUTCString());
-    res.header('ETag', `"${Date.now()}"`);
+    res.header('ETag', `"${Date.now()}-${Math.random()}"`);
     res.header('Vary', 'Accept-Encoding');
+    res.header('X-Frame-Options', 'ALLOWALL');
+    res.header('Content-Security-Policy', 'frame-ancestors *');
     
     const { storage } = await import('./storage');
     const widgetId = parseInt(req.params.id);
@@ -116,7 +118,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FireKyt Affiliate Widget</title>
-  <!-- Cache-busting v3: ${Date.now()} -->
+  <!-- Cache-busting v4: ${Date.now()} -->
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
