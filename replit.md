@@ -262,6 +262,8 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Fixed critical AdSizesDemo functionality by implementing size parameter override in iframe route
 ✓ Added query string support allowing demo page to override widget size for proper layout testing
 ✓ Updated iframe route to use effectiveSize (from query parameter or widget default) for both layout and styling
+✓ Fixed published blog widget layout issue by updating widget 2 from vertical (160x600) to horizontal (728x90) leaderboard format
+✓ Confirmed widget now displays with proper horizontal layout: image on left, text on right, instead of stacked vertically
 ✓ Fixed add new ad functionality to start with blank fields instead of pre-filled sample data
 ✓ Replaced default sample data in form initialization with empty fields for clean user experience
 ✓ Enhanced addAd function with form.reset() to properly handle React Hook Form field updates
