@@ -217,6 +217,9 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Made dark mode sidebar background darker for improved contrast and visual depth
 ✓ Made light mode sidebar background lighter for softer, cleaner appearance
 ✓ Implemented auto-closing submenu behavior - only one submenu can be open at a time
+✓ Fixed critical WordPress plugin shortcode URL bug - corrected path from "/widget/" to "/widgets/" for proper iframe embedding
+✓ Updated shortcode function to require domain parameter and removed JavaScript syntax from PHP default values
+✓ WordPress plugin now generates correct URLs matching server routes for functional widget embedding
 ✓ Repositioned site card action buttons to bottom for consistent alignment across all cards
 ✓ Optimized Dynamic Affiliate Ads Widget System with intelligent content sizing for all standard ad dimensions
 ✓ Implemented responsive content layouts that automatically adjust typography, spacing, and layout based on selected ad size
