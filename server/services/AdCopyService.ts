@@ -433,7 +433,7 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
 
     return {
       campaign: campaign[0],
-      variations
+      generatedContent: variations // Frontend expects 'generatedContent' property
     };
   }
 

@@ -289,7 +289,12 @@ export default function MyAds() {
                     acc[content.platform].ctas.push(content.callToAction);
                   }
                   if (content.hashtags && content.hashtags.length > 0) {
-                    acc[content.platform].hashtags = [...new Set([...acc[content.platform].hashtags, ...content.hashtags])];
+                    // Add unique hashtags only
+                    content.hashtags.forEach(hashtag => {
+                      if (!acc[content.platform].hashtags.includes(hashtag)) {
+                        acc[content.platform].hashtags.push(hashtag);
+                      }
+                    });
                   }
                   
                   return acc;
