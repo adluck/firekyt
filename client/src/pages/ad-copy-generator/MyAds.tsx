@@ -416,9 +416,14 @@ export default function MyAds() {
                         
                         {/* Image Suggestions Section */}
                         {(() => {
+                          // Check if campaign has generatedContent with image suggestions for this platform
+                          if (!campaign.generatedContent) return null;
+                          
                           const platformData = campaign.generatedContent.find((item: any) => 
                             item.platform === platform && 
-                            item.data && item.data.imageSuggestions && item.data.imageSuggestions.length > 0
+                            item.data && 
+                            item.data.imageSuggestions && 
+                            item.data.imageSuggestions.length > 0
                           );
                           
                           if (!platformData || !platformData.data.imageSuggestions) return null;
@@ -426,7 +431,7 @@ export default function MyAds() {
                           return (
                             <div className="mt-6 pt-6 border-t">
                               <h4 className="font-semibold mb-3 text-purple-600">
-                                🎨 AI Image Suggestions ({platformData.data.imageSuggestions.length})
+                                AI Image Suggestions ({platformData.data.imageSuggestions.length})
                               </h4>
                               <div className="grid grid-cols-1 gap-4">
                                 {platformData.data.imageSuggestions.map((suggestion: any, index: number) => (
@@ -451,11 +456,11 @@ export default function MyAds() {
                                       </div>
                                       <div>
                                         <strong>Colors:</strong><br />
-                                        {suggestion.colors.join(', ')}
+                                        {Array.isArray(suggestion.colors) ? suggestion.colors.join(', ') : suggestion.colors}
                                       </div>
                                       <div>
                                         <strong>Elements:</strong><br />
-                                        {suggestion.visualElements.join(', ')}
+                                        {Array.isArray(suggestion.visualElements) ? suggestion.visualElements.join(', ') : suggestion.visualElements}
                                       </div>
                                     </div>
                                   </div>
