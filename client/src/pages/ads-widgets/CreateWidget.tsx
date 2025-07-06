@@ -16,6 +16,7 @@ import { Plus, Trash2, Eye, Code, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import JSZip from "jszip";
 
 // Validation schemas
 const adSchema = z.object({
@@ -1343,24 +1344,205 @@ function firekyt_widget_shortcode($atts) {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-                                      // Create a download link for the plugin files
-                                      const pluginFiles = {
-                                        'firekyt-widget-plugin.php': `<?php
+                                      // Create the complete WordPress plugin file content
+                                      const pluginContent = `<?php
 /**
  * Plugin Name: FireKyt Widget Embedder
- * Description: Safely embed FireKyt affiliate widgets with shortcodes.
+ * Description: Safely embed FireKyt affiliate widgets with shortcodes and iframe support.
  * Version: 1.0.0
  * Author: FireKyt
+ * Text Domain: firekyt-widgets
  */
-// Plugin code would be inserted here
-// This is a simplified version for demonstration`,
-                                        'README.md': 'FireKyt Widget Embedder Plugin\n\nInstallation instructions and usage guide.'
-                                      };
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Add iframe allowlist for FireKyt widgets
+add_filter('wp_kses_allowed_html', 'firekyt_allow_iframe_tags', 10, 2);
+function firekyt_allow_iframe_tags($allowed, $context) {
+    if ($context === 'post') {
+        $allowed['iframe'] = array(
+            'src' => true,
+            'width' => true,
+            'height' => true,
+            'frameborder' => true,
+            'style' => true,
+            'allowfullscreen' => true,
+            'loading' => true,
+            'title' => true
+        );
+    }
+    return $allowed;
+}
+
+// Register shortcode for FireKyt widgets
+add_shortcode('firekyt_widget', 'firekyt_widget_shortcode');
+function firekyt_widget_shortcode($atts) {
+    $atts = shortcode_atts(array(
+        'id' => '',
+        'domain' => '${window.location.host}',
+        'width' => '100%',
+        'height' => '250',
+        'style' => ''
+    ), $atts);
+
+    if (empty($atts['id'])) {
+        return '<p style="color: red;">FireKyt Widget Error: No widget ID specified</p>';
+    }
+
+    $widget_url = 'https://' . $atts['domain'] . '/widget/' . $atts['id'] . '/iframe';
+    
+    $style = !empty($atts['style']) ? $atts['style'] : 'border: none; width: 100%; max-width: 100%;';
+    
+    return sprintf(
+        '<iframe src="%s" width="%s" height="%s" style="%s" frameborder="0" loading="lazy" title="FireKyt Affiliate Widget"></iframe>',
+        esc_url($widget_url),
+        esc_attr($atts['width']),
+        esc_attr($atts['height']),
+        esc_attr($style)
+    );
+}
+
+// Add admin menu for plugin settings
+add_action('admin_menu', 'firekyt_admin_menu');
+function firekyt_admin_menu() {
+    add_options_page(
+        'FireKyt Widgets',
+        'FireKyt Widgets',
+        'manage_options',
+        'firekyt-widgets',
+        'firekyt_admin_page'
+    );
+}
+
+function firekyt_admin_page() {
+    ?>
+    <div class="wrap">
+        <h1>FireKyt Widget Settings</h1>
+        <div class="card" style="max-width: 800px;">
+            <h2>How to Use FireKyt Widgets</h2>
+            <p>Use the shortcode <code>[firekyt_widget id="YOUR_WIDGET_ID"]</code> to embed widgets in your posts and pages.</p>
+            
+            <h3>Shortcode Parameters:</h3>
+            <ul>
+                <li><strong>id</strong> (required): Your widget ID from FireKyt dashboard</li>
+                <li><strong>width</strong> (optional): Widget width (default: 100%)</li>
+                <li><strong>height</strong> (optional): Widget height (default: 250px)</li>
+                <li><strong>style</strong> (optional): Custom CSS styles</li>
+            </ul>
+            
+            <h3>Examples:</h3>
+            <code>[firekyt_widget id="123"]</code><br>
+            <code>[firekyt_widget id="123" width="300" height="200"]</code><br>
+            <code>[firekyt_widget id="123" style="border: 1px solid #ccc; border-radius: 8px;"]</code>
+            
+            <h3>Support:</h3>
+            <p>For help and support, visit your FireKyt dashboard or contact support.</p>
+        </div>
+    </div>
+    <?php
+}
+
+// Add TinyMCE button for easy widget insertion
+add_action('init', 'firekyt_add_tinymce_button');
+function firekyt_add_tinymce_button() {
+    if (current_user_can('edit_posts') && current_user_can('edit_pages')) {
+        add_filter('mce_buttons', 'firekyt_register_tinymce_button');
+        add_filter('mce_external_plugins', 'firekyt_add_tinymce_plugin');
+    }
+}
+
+function firekyt_register_tinymce_button($buttons) {
+    array_push($buttons, 'firekyt_widget_button');
+    return $buttons;
+}
+
+function firekyt_add_tinymce_plugin($plugin_array) {
+    $plugin_array['firekyt_widget_button'] = plugin_dir_url(__FILE__) . 'firekyt-tinymce.js';
+    return $plugin_array;
+}
+?>`;
+
+                                      // Create the TinyMCE JavaScript file content
+                                      const tinymceContent = `(function() {
+    tinymce.PluginManager.add('firekyt_widget_button', function(editor, url) {
+        editor.addButton('firekyt_widget_button', {
+            title: 'Insert FireKyt Widget',
+            icon: 'dashicon dashicons-format-image',
+            onclick: function() {
+                var widgetId = prompt('Enter your FireKyt Widget ID:');
+                if (widgetId) {
+                    editor.insertContent('[firekyt_widget id="' + widgetId + '"]');
+                }
+            }
+        });
+    });
+})();`;
+
+                                      // Create and download the plugin as a zip file
+                                      const zip = new JSZip();
+                                      const folder = zip.folder("firekyt-widget-embedder");
                                       
-                                      // For now, just show the installation instructions
-                                      toast({
-                                        title: "Plugin Download",
-                                        description: "Plugin files are available for download. See instructions below.",
+                                      folder!.file("firekyt-widget-embedder.php", pluginContent);
+                                      folder!.file("firekyt-tinymce.js", tinymceContent);
+                                      folder!.file("README.txt", `=== FireKyt Widget Embedder ===
+Contributors: FireKyt
+Tags: affiliate, widgets, shortcode, iframe
+Requires at least: 5.0
+Tested up to: 6.4
+Stable tag: 1.0.0
+License: GPL v2 or later
+
+Safely embed FireKyt affiliate widgets with shortcodes and iframe support.
+
+== Description ==
+
+The FireKyt Widget Embedder plugin allows you to easily embed affiliate widgets from your FireKyt dashboard directly into your WordPress posts and pages using simple shortcodes.
+
+Features:
+* Simple shortcode: [firekyt_widget id="123"]
+* Automatic iframe security handling
+* Customizable widget dimensions
+* TinyMCE editor button for easy insertion
+* Responsive design support
+
+== Installation ==
+
+1. Upload the plugin files to /wp-content/plugins/firekyt-widget-embedder/
+2. Activate the plugin through the 'Plugins' screen in WordPress
+3. Use the shortcode [firekyt_widget id="YOUR_WIDGET_ID"] in your content
+
+== Frequently Asked Questions ==
+
+= How do I get a widget ID? =
+Create widgets in your FireKyt dashboard and copy the widget ID from the embed section.
+
+= Can I customize the widget appearance? =
+Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid #ccc;"]
+
+== Changelog ==
+
+= 1.0.0 =
+* Initial release
+* Shortcode support
+* TinyMCE button
+* Iframe security handling
+`);
+
+                                      zip.generateAsync({type:"blob"}).then((content: Blob) => {
+                                        const link = document.createElement('a');
+                                        link.href = URL.createObjectURL(content);
+                                        link.download = 'firekyt-widget-embedder.zip';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                        
+                                        toast({
+                                          title: "Plugin Downloaded!",
+                                          description: "firekyt-widget-embedder.zip has been downloaded to your computer.",
+                                        });
                                       });
                                     }}
                                     className="text-xs"
