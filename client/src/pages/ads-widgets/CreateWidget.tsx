@@ -1252,20 +1252,52 @@ add_shortcode('firekyt_widget', 'firekyt_widget_shortcode');
 function firekyt_widget_shortcode($atts) {
     $atts = shortcode_atts(array(
         'id' => '',
-        'domain' => '${window.location.origin}',
-        'width' => '300',
-        'height' => '250'
+        'domain' => '',
+        'width' => '',
+        'height' => ''
     ), $atts);
     
     if (empty($atts['id'])) return '';
+    if (empty($atts['domain'])) $atts['domain'] = '${window.location.hostname}';
     
-    $iframe_src = esc_url($atts['domain']) . '/widgets/' . esc_attr($atts['id']) . '/iframe';
+    // Fetch widget data to get actual dimensions
+    $widget_data_url = 'https://' . $atts['domain'] . '/widgets/' . $atts['id'] . '/data';
+    $widget_response = wp_remote_get($widget_data_url);
+    
+    $width = $atts['width'];
+    $height = $atts['height'];
+    
+    // If dimensions not provided, get from widget data
+    if (empty($width) || empty($height)) {
+        if (!is_wp_error($widget_response)) {
+            $widget_data = json_decode(wp_remote_retrieve_body($widget_response), true);
+            if ($widget_data && isset($widget_data['widget']['size'])) {
+                $size = $widget_data['widget']['size'];
+                if ($size === '100%') {
+                    $width = $width ?: '100%';
+                    $height = $height ?: '250';
+                } else {
+                    $dimensions = explode('x', $size);
+                    if (count($dimensions) === 2) {
+                        $width = $width ?: $dimensions[0];
+                        $height = $height ?: $dimensions[1];
+                    }
+                }
+            }
+        }
+        
+        // Fallback dimensions if API call fails
+        if (empty($width)) $width = '300';
+        if (empty($height)) $height = '250';
+    }
+    
+    $iframe_src = 'https://' . $atts['domain'] . '/widgets/' . esc_attr($atts['id']) . '/iframe';
     
     return '<div style="margin: 20px 0; text-align: center;">
         <iframe 
-            src="' . $iframe_src . '" 
-            width="' . esc_attr($atts['width']) . '" 
-            height="' . esc_attr($atts['height']) . '" 
+            src="' . esc_url($iframe_src) . '" 
+            width="' . esc_attr($width) . '" 
+            height="' . esc_attr($height) . '" 
             frameborder="0" 
             scrolling="no" 
             style="border: none; display: block; margin: 0 auto; max-width: 100%;"
@@ -1383,8 +1415,8 @@ function firekyt_widget_shortcode($atts) {
     $atts = shortcode_atts(array(
         'id' => '',
         'domain' => '',
-        'width' => '100%',
-        'height' => '250',
+        'width' => '',
+        'height' => '',
         'style' => ''
     ), $atts);
 
@@ -1396,15 +1428,46 @@ function firekyt_widget_shortcode($atts) {
         return '<p style="color: red;">FireKyt Widget Error: Domain parameter is required</p>';
     }
 
+    // Fetch widget data to get actual dimensions
+    $widget_data_url = 'https://' . $atts['domain'] . '/widgets/' . $atts['id'] . '/data';
+    $widget_response = wp_remote_get($widget_data_url);
+    
+    $width = $atts['width'];
+    $height = $atts['height'];
+    
+    // If dimensions not provided in shortcode, get from widget data
+    if (empty($width) || empty($height)) {
+        if (!is_wp_error($widget_response)) {
+            $widget_data = json_decode(wp_remote_retrieve_body($widget_response), true);
+            if ($widget_data && isset($widget_data['widget']['size'])) {
+                $size = $widget_data['widget']['size'];
+                if ($size === '100%') {
+                    $width = $width ?: '100%';
+                    $height = $height ?: '250';
+                } else {
+                    $dimensions = explode('x', $size);
+                    if (count($dimensions) === 2) {
+                        $width = $width ?: $dimensions[0];
+                        $height = $height ?: $dimensions[1];
+                    }
+                }
+            }
+        }
+        
+        // Fallback dimensions if API call fails
+        if (empty($width)) $width = '300';
+        if (empty($height)) $height = '250';
+    }
+
     $widget_url = 'https://' . $atts['domain'] . '/widgets/' . $atts['id'] . '/iframe';
     
-    $style = !empty($atts['style']) ? $atts['style'] : 'border: none; width: 100%; max-width: 100%;';
+    $style = !empty($atts['style']) ? $atts['style'] : 'border: none; display: block; margin: 10px 0;';
     
     return sprintf(
         '<iframe src="%s" width="%s" height="%s" style="%s" frameborder="0" loading="lazy" title="FireKyt Affiliate Widget"></iframe>',
         esc_url($widget_url),
-        esc_attr($atts['width']),
-        esc_attr($atts['height']),
+        esc_attr($width),
+        esc_attr($height),
         esc_attr($style)
     );
 }
