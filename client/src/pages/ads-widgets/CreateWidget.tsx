@@ -164,7 +164,7 @@ export default function CreateWidget() {
   const [, navigate] = useLocation();
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
-  const [embedMode, setEmbedMode] = useState<'javascript' | 'iframe' | 'plugin' | 'wordpress-plugin'>('javascript');
+  const [embedMode, setEmbedMode] = useState<'javascript' | 'iframe' | 'plugin' | 'wordpress-plugin'>('wordpress-plugin');
   const [previewAdIndex, setPreviewAdIndex] = useState(0);
   
   // Check if we're in edit mode
@@ -1099,6 +1099,16 @@ export default function CreateWidget() {
                           <div className="flex border-b">
                             <button
                               className={`px-3 py-2 text-sm font-medium border-r ${
+                                embedMode === 'wordpress-plugin' 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'hover:bg-muted'
+                              }`}
+                              onClick={() => setEmbedMode('wordpress-plugin')}
+                            >
+                              WP Plugin
+                            </button>
+                            <button
+                              className={`px-3 py-2 text-sm font-medium border-r ${
                                 embedMode === 'javascript' 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'hover:bg-muted'
@@ -1118,7 +1128,7 @@ export default function CreateWidget() {
                               Iframe
                             </button>
                             <button
-                              className={`px-3 py-2 text-sm font-medium border-r ${
+                              className={`px-3 py-2 text-sm font-medium ${
                                 embedMode === 'plugin' 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'hover:bg-muted'
@@ -1126,16 +1136,6 @@ export default function CreateWidget() {
                               onClick={() => setEmbedMode('plugin')}
                             >
                               WP Functions
-                            </button>
-                            <button
-                              className={`px-3 py-2 text-sm font-medium ${
-                                embedMode === 'wordpress-plugin' 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'hover:bg-muted'
-                              }`}
-                              onClick={() => setEmbedMode('wordpress-plugin')}
-                            >
-                              WP Plugin
                             </button>
                           </div>
                           
