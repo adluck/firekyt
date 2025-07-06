@@ -302,14 +302,6 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      <Route path="/ads-widgets/manage">
-        <ProtectedRoute>
-          <AppLayout>
-            <ManageWidgets />
-          </AppLayout>
-        </ProtectedRoute>
-      </Route>
-      
 
       
       <Route path="/ads-widgets/sizes">

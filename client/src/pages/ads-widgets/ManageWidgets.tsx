@@ -8,9 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Monitor, Copy, Trash2, Edit, ExternalLink, Calendar, Settings, Code, Globe, Download } from "lucide-react";
-import JSZip from "jszip";
+import { Monitor, Copy, Trash2, Edit, ExternalLink, Calendar, Settings } from "lucide-react";
 
 interface AdWidget {
   id: number;
@@ -92,60 +90,14 @@ export default function ManageWidgets() {
     },
   });
 
-  // Enhanced embed code functions
-  const copyToClipboard = (text: string, description: string) => {
-    navigator.clipboard.writeText(text);
+  const copyEmbedCode = (widgetId: number) => {
+    const embedCode = `<script src="${window.location.protocol}//${window.location.host}/widgets/${widgetId}/embed.js"></script>`;
+    navigator.clipboard.writeText(embedCode);
     toast({
-      title: "Copied to Clipboard",
-      description: description,
+      title: "Embed Code Copied",
+      description: "The embed code has been copied to your clipboard.",
     });
   };
-
-  const getJavaScriptEmbedCode = (widgetId: number) => {
-    return `<script src="${window.location.protocol}//${window.location.host}/widgets/${widgetId}/embed.js"></script>`;
-  };
-
-  const getIframeEmbedCode = (widgetId: number, widget: AdWidget) => {
-    const baseUrl = `${window.location.protocol}//${window.location.host}`;
-    if (widget.size === "100%") {
-      return `<iframe src="${baseUrl}/widgets/${widgetId}/iframe" style="width: 100%; min-height: 200px; border: none;" allowtransparency="true"></iframe>`;
-    } else {
-      const [width, height] = widget.size.split('x');
-      return `<iframe src="${baseUrl}/widgets/${widgetId}/iframe?w=${width}&h=${height}" width="${width}" height="${height}" style="border: none;" allowtransparency="true"></iframe>`;
-    }
-  };
-
-  const getWordPressShortcode = (widgetId: number) => {
-    return `[firekyt_widget id="${widgetId}" domain="${window.location.hostname}"]`;
-  };
-
-  const getFunctionsPhpCode = (widgetId: number) => {
-    return `// Add to your theme's functions.php file
-// Allowlist iframe sources for FireKyt widgets
-function allow_firekyt_iframes($content) {
-    $content = str_replace('<iframe', '<iframe sandbox="allow-scripts allow-same-origin allow-top-navigation allow-popups"', $content);
-    return $content;
-}
-add_filter('the_content', 'allow_firekyt_iframes');
-
-// FireKyt Widget Shortcode
-function firekyt_widget_shortcode($atts) {
-    $atts = shortcode_atts(array(
-        'id' => '',
-        'domain' => '${window.location.hostname}'
-    ), $atts);
-    
-    if (empty($atts['id'])) {
-        return '<p>Error: Widget ID is required</p>';
-    }
-    
-    $iframe_url = 'https://' . $atts['domain'] . '/widgets/' . $atts['id'] . '/iframe';
-    return '<iframe src="' . esc_url($iframe_url) . '" style="width: 100%; min-height: 200px; border: none;" allowtransparency="true"></iframe>';
-}
-add_shortcode('firekyt_widget', 'firekyt_widget_shortcode');`;
-  };
-
-
 
   if (isLoading) {
     return (
@@ -316,10 +268,10 @@ add_shortcode('firekyt_widget', 'firekyt_widget_shortcode');`;
                 <Button
                   variant="outline"
                   className="h-9 px-3 text-sm font-medium transition-all hover:scale-[1.01] hover:bg-slate-50 dark:hover:bg-slate-900/50"
-                  onClick={() => copyToClipboard(getWordPressShortcode(selectedWidget.id), "WordPress shortcode copied to clipboard")}
+                  onClick={() => copyEmbedCode(selectedWidget.id)}
                 >
                   <Copy className="w-4 h-4 mr-2" />
-                  Copy WordPress Shortcode
+                  Copy Embed Code
                 </Button>
               </div>
 
@@ -352,123 +304,6 @@ add_shortcode('firekyt_widget', 'firekyt_widget_shortcode');`;
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Embed Code Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Embed Code Options</CardTitle>
-              <CardDescription>
-                Choose your preferred embedding method for Widget {selectedWidget.id}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="javascript">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="javascript">
-                    <Code className="w-4 h-4 mr-2" />
-                    JavaScript
-                  </TabsTrigger>
-                  <TabsTrigger value="iframe">
-                    <Globe className="w-4 h-4 mr-2" />
-                    Iframe
-                  </TabsTrigger>
-                  <TabsTrigger value="wordpress">
-                    <Download className="w-4 h-4 mr-2" />
-                    WordPress
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="javascript" className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Standard JavaScript Embed</h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Recommended for most websites. Copy and paste this code into your HTML.
-                    </p>
-                    <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs font-mono break-all">
-                      {getJavaScriptEmbedCode(selectedWidget.id)}
-                    </div>
-                    <Button
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => copyToClipboard(getJavaScriptEmbedCode(selectedWidget.id), "JavaScript embed code copied")}
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy JavaScript Code
-                    </Button>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="iframe" className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Iframe Embed</h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Use this for platforms with JavaScript restrictions.
-                    </p>
-                    <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs font-mono break-all">
-                      {getIframeEmbedCode(selectedWidget.id, selectedWidget)}
-                    </div>
-                    <Button
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => copyToClipboard(getIframeEmbedCode(selectedWidget.id, selectedWidget), "Iframe embed code copied")}
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy Iframe Code
-                    </Button>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="wordpress" className="space-y-4">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium mb-2">WordPress Shortcode</h4>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Use this shortcode in WordPress posts and pages.
-                      </p>
-                      <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs font-mono">
-                        {getWordPressShortcode(selectedWidget.id)}
-                      </div>
-                      <Button
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => copyToClipboard(getWordPressShortcode(selectedWidget.id), "WordPress shortcode copied")}
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy Shortcode
-                      </Button>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium mb-2">Functions.php Code</h4>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        If shortcodes don't work, add this to your theme's functions.php file.
-                      </p>
-                      <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs font-mono max-h-40 overflow-y-auto">
-                        {getFunctionsPhpCode(selectedWidget.id)}
-                      </div>
-                      <Button
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => copyToClipboard(getFunctionsPhpCode(selectedWidget.id), "Functions.php code copied")}
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy Functions Code
-                      </Button>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        <strong>Setup Instructions:</strong><br />
-                        1. Copy the WordPress shortcode above<br />
-                        2. Paste it into any WordPress post or page<br />
-                        3. If it doesn't work, copy the functions.php code and add it to your theme's functions.php file
-                      </p>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
             </CardContent>
           </Card>
         </div>

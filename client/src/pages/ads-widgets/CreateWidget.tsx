@@ -1320,7 +1320,7 @@ function firekyt_widget_shortcode($atts) {
                                       <div>
                                         <p className="text-sm font-medium">Option 1: Shortcode (After functions.php update)</p>
                                         <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono">
-                                          {`[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}" domain="${window.location.hostname}"]`}
+                                          {`[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}"]`}
                                         </div>
                                       </div>
                                       <div>
@@ -1427,21 +1427,20 @@ function firekyt_admin_page() {
         <h1>FireKyt Widget Settings</h1>
         <div class="card" style="max-width: 800px;">
             <h2>How to Use FireKyt Widgets</h2>
-            <p>Use the shortcode <code>[firekyt_widget id="YOUR_WIDGET_ID" domain="your-domain.com"]</code> to embed widgets in your posts and pages.</p>
+            <p>Use the shortcode <code>[firekyt_widget id="YOUR_WIDGET_ID"]</code> to embed widgets in your posts and pages.</p>
             
             <h3>Shortcode Parameters:</h3>
             <ul>
                 <li><strong>id</strong> (required): Your widget ID from FireKyt dashboard</li>
-                <li><strong>domain</strong> (required): Your website domain (e.g. your-site.com)</li>
                 <li><strong>width</strong> (optional): Widget width (default: 100%)</li>
                 <li><strong>height</strong> (optional): Widget height (default: 250px)</li>
                 <li><strong>style</strong> (optional): Custom CSS styles</li>
             </ul>
             
             <h3>Examples:</h3>
-            <code>[firekyt_widget id="123" domain="your-domain.com"]</code><br>
-            <code>[firekyt_widget id="123" domain="your-domain.com" width="300" height="200"]</code><br>
-            <code>[firekyt_widget id="123" domain="your-domain.com" style="border: 1px solid #ccc; border-radius: 8px;"]</code>
+            <code>[firekyt_widget id="123"]</code><br>
+            <code>[firekyt_widget id="123" width="300" height="200"]</code><br>
+            <code>[firekyt_widget id="123" style="border: 1px solid #ccc; border-radius: 8px;"]</code>
             
             <h3>Support:</h3>
             <p>For help and support, visit your FireKyt dashboard or contact support.</p>
@@ -1479,8 +1478,7 @@ function firekyt_add_tinymce_plugin($plugin_array) {
             onclick: function() {
                 var widgetId = prompt('Enter your FireKyt Widget ID:');
                 if (widgetId) {
-                    var domain = prompt('Enter your domain (e.g. your-site.com):') || 'your-domain.com';
-                    editor.insertContent('[firekyt_widget id="' + widgetId + '" domain="' + domain + '"]');
+                    editor.insertContent('[firekyt_widget id="' + widgetId + '"]');
                 }
             }
         });
@@ -1508,7 +1506,7 @@ Safely embed FireKyt affiliate widgets with shortcodes and iframe support.
 The FireKyt Widget Embedder plugin allows you to easily embed affiliate widgets from your FireKyt dashboard directly into your WordPress posts and pages using simple shortcodes.
 
 Features:
-* Simple shortcode: [firekyt_widget id="123" domain="your-domain.com"]
+* Simple shortcode: [firekyt_widget id="123"]
 * Automatic iframe security handling
 * Customizable widget dimensions
 * TinyMCE editor button for easy insertion
@@ -1518,7 +1516,7 @@ Features:
 
 1. Upload the plugin files to /wp-content/plugins/firekyt-widget-embedder/
 2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Use the shortcode [firekyt_widget id="YOUR_WIDGET_ID" domain="your-domain.com"] in your content
+3. Use the shortcode [firekyt_widget id="YOUR_WIDGET_ID"] in your content
 
 == Frequently Asked Questions ==
 
@@ -1526,7 +1524,7 @@ Features:
 Create widgets in your FireKyt dashboard and copy the widget ID from the embed section.
 
 = Can I customize the widget appearance? =
-Yes, use the style parameter: [firekyt_widget id="123" domain="your-domain.com" style="border: 1px solid #ccc;"]
+Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid #ccc;"]
 
 == Changelog ==
 
