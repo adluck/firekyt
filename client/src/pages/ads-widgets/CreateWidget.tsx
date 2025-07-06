@@ -1328,14 +1328,14 @@ function firekyt_widget_shortcode($atts) {
                                   </Button>
                                 </div>
                                 <div className="space-y-4">
-                                  <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
+                                  <div className="bg-muted p-4 rounded-lg">
                                     <p className="text-sm font-medium mb-2">⚠️ Plugin Upload Blocked?</p>
                                     <p className="text-sm text-muted-foreground">
                                       Many WordPress hosts block PHP file uploads for security. Use this functions.php approach instead.
                                     </p>
                                   </div>
                                   
-                                  <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
+                                  <div className="bg-muted p-4 rounded-lg">
                                     <p className="text-sm font-medium mb-2">🔧 Setup Instructions</p>
                                     <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
                                       <li>Copy the code above using the button</li>
@@ -1346,7 +1346,7 @@ function firekyt_widget_shortcode($atts) {
                                     </ol>
                                   </div>
                                   
-                                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                                  <div className="bg-muted p-4 rounded-lg">
                                     <p className="text-sm font-medium mb-2">🎯 Usage Options</p>
                                     <div className="space-y-2">
                                       <div>
@@ -1619,14 +1619,14 @@ Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid 
                                 </div>
                                 
                                 <div className="space-y-4">
-                                  <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
+                                  <div className="bg-muted p-4 rounded-lg">
                                     <p className="text-sm font-medium mb-2">✅ Easiest WordPress Solution</p>
                                     <p className="text-sm text-muted-foreground">
                                       Our WordPress plugin automatically handles iframe security and provides simple shortcodes for widget embedding.
                                     </p>
                                   </div>
                                   
-                                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                                  <div className="bg-muted p-4 rounded-lg">
                                     <p className="text-sm font-medium mb-2">📥 Installation Steps</p>
                                     <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
                                       <li>Download the plugin files using the button above</li>
@@ -1636,7 +1636,7 @@ Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid 
                                     </ol>
                                   </div>
                                   
-                                  <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
+                                  <div className="bg-muted p-4 rounded-lg">
                                     <p className="text-sm font-medium mb-2">🎯 Usage After Installation</p>
                                     <div className="space-y-2">
                                       <div>
@@ -1654,7 +1654,7 @@ Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid 
                                     </div>
                                   </div>
                                   
-                                  <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-lg">
+                                  <div className="bg-muted p-4 rounded-lg">
                                     <p className="text-sm font-medium mb-2">🛡️ Security Features</p>
                                     <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                                       <li>Automatic iframe security validation</li>
@@ -1673,7 +1673,7 @@ Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid 
                           </div>
                         </div>
                         
-                        <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                        <div className="bg-muted p-4 rounded-lg">
                           <h4 className="font-medium text-sm mb-2">WordPress Users - Important:</h4>
                           <div className="text-sm text-muted-foreground space-y-3">
                             <div>
@@ -1701,7 +1701,7 @@ Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid 
                               <p>Use a "Custom HTML" block instead of "Paragraph" block</p>
                             </div>
                             
-                            <p className="text-xs text-blue-600 dark:text-blue-400">
+                            <p className="text-xs text-foreground">
                               This code tells WordPress to allow iframe tags for widget embedding.
                             </p>
                           </div>
