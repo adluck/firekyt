@@ -220,6 +220,9 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Fixed critical WordPress plugin shortcode URL bug - corrected path from "/widget/" to "/widgets/" for proper iframe embedding
 ✓ Updated shortcode function to require domain parameter and removed JavaScript syntax from PHP default values
 ✓ WordPress plugin now generates correct URLs matching server routes for functional widget embedding
+✓ Enhanced WordPress plugin with automatic sizing - shortcode fetches widget dimensions from database instead of using hardcoded defaults
+✓ Updated both plugin and functions.php code to automatically display widgets at their original stored dimensions (160x600 for widget ID 3)
+✓ Fixed sizing issue where widgets were being forced into incorrect 300x250 dimensions regardless of actual widget size
 ✓ Repositioned site card action buttons to bottom for consistent alignment across all cards
 ✓ Optimized Dynamic Affiliate Ads Widget System with intelligent content sizing for all standard ad dimensions
 ✓ Implemented responsive content layouts that automatically adjust typography, spacing, and layout based on selected ad size
