@@ -1382,7 +1382,7 @@ add_shortcode('firekyt_widget', 'firekyt_widget_shortcode');
 function firekyt_widget_shortcode($atts) {
     $atts = shortcode_atts(array(
         'id' => '',
-        'domain' => '${window.location.host}',
+        'domain' => '',
         'width' => '100%',
         'height' => '250',
         'style' => ''
@@ -1392,7 +1392,11 @@ function firekyt_widget_shortcode($atts) {
         return '<p style="color: red;">FireKyt Widget Error: No widget ID specified</p>';
     }
 
-    $widget_url = 'https://' . $atts['domain'] . '/widget/' . $atts['id'] . '/iframe';
+    if (empty($atts['domain'])) {
+        return '<p style="color: red;">FireKyt Widget Error: Domain parameter is required</p>';
+    }
+
+    $widget_url = 'https://' . $atts['domain'] . '/widgets/' . $atts['id'] . '/iframe';
     
     $style = !empty($atts['style']) ? $atts['style'] : 'border: none; width: 100%; max-width: 100%;';
     
