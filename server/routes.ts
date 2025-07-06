@@ -5455,6 +5455,7 @@ async function generateAILinkSuggestions(params: {
   // Generate social graphics with text overlays
   app.post('/api/generate-text-overlay', authenticateToken, async (req, res) => {
     try {
+      console.log('🎨 Text overlay request body:', JSON.stringify(req.body, null, 2));
       const { TextOverlayService } = await import('./services/TextOverlayService');
       const textOverlayService = new TextOverlayService();
       const result = await textOverlayService.generateSocialGraphic(req.body);
@@ -5494,7 +5495,8 @@ async function generateAILinkSuggestions(params: {
   app.get('/api/social-formats', authenticateToken, async (req, res) => {
     try {
       const { TextOverlayService } = await import('./services/TextOverlayService');
-      const formats = TextOverlayService.getSocialFormats();
+      const textOverlayService = new TextOverlayService();
+      const formats = textOverlayService.getSocialFormats();
       
       res.json({
         success: true,

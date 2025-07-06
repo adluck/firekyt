@@ -20,7 +20,7 @@ interface SocialGraphicDimensions {
 }
 
 export class TextOverlayService {
-  private static socialFormats: { [key: string]: SocialGraphicDimensions } = {
+  private socialFormats: { [key: string]: SocialGraphicDimensions } = {
     'instagram_post': { width: 1080, height: 1080, name: 'Instagram Post' },
     'instagram_story': { width: 1080, height: 1920, name: 'Instagram Story' },
     'facebook_post': { width: 1200, height: 630, name: 'Facebook Post' },
@@ -33,9 +33,12 @@ export class TextOverlayService {
 
   async generateSocialGraphic(request: TextOverlayRequest): Promise<any> {
     try {
+      console.log('🎨 Generating social graphic for platform:', request.platform);
+      console.log('🎨 Available formats:', Object.keys(this.socialFormats));
+      
       const format = this.socialFormats[request.platform];
       if (!format) {
-        throw new Error(`Unsupported platform: ${request.platform}`);
+        throw new Error(`Unsupported platform: ${request.platform}. Available platforms: ${Object.keys(this.socialFormats).join(', ')}`);
       }
 
       // Create graphics directory if it doesn't exist
@@ -239,7 +242,7 @@ export class TextOverlayService {
   }
 
   // Get available social media formats
-  static getSocialFormats(): { [key: string]: SocialGraphicDimensions } {
+  getSocialFormats(): { [key: string]: SocialGraphicDimensions } {
     return this.socialFormats;
   }
 }
