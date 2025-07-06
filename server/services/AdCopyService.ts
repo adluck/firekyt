@@ -31,6 +31,16 @@ interface PlatformAdCopy {
   descriptions: string[];
   ctas: string[];
   hashtags?: string[];
+  imageSuggestions?: ImageSuggestion[];
+}
+
+interface ImageSuggestion {
+  type: string;
+  description: string;
+  visualElements: string[];
+  composition: string;
+  colors: string[];
+  mood: string;
 }
 
 const platformLimits = {
@@ -318,7 +328,8 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
             headlines: platformData.headlines || [],
             descriptions: platformData.descriptions || [],
             ctas: platformData.ctas || [],
-            hashtags: platformData.hashtags || []
+            hashtags: platformData.hashtags || [],
+            imageSuggestions: await AdCopyService.generateImageSuggestions(request, platform)
           };
 
           // Store variations in database for each type
@@ -352,7 +363,8 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
             headlines: [`${request.productName} - ${request.primaryBenefit}`],
             descriptions: [`Discover ${request.productName}. ${request.primaryBenefit}. Perfect for ${request.targetAudience}.`],
             ctas: ['Shop Now', 'Learn More'],
-            hashtags: [`#${request.productName.replace(/\s+/g, '')}`, `#${request.targetAudience}`]
+            hashtags: [`#${request.productName.replace(/\s+/g, '')}`, `#${request.targetAudience}`],
+            imageSuggestions: await AdCopyService.generateImageSuggestions(request, platform)
           };
           
           results.push(fallbackResult);
@@ -438,6 +450,108 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
 
     await db.delete(adCopyCampaigns).where(eq(adCopyCampaigns.id, campaignId));
     return { success: true };
+  }
+
+  static async generateImageSuggestions(request: AdCopyRequest, platform: string): Promise<ImageSuggestion[]> {
+    try {
+      const prompt = `Act as a professional creative director specializing in ${platform} advertising visuals.
+
+Product: ${request.productName}
+Description: ${request.productDescription || 'High-quality product'}
+Target Audience: ${request.targetAudience}
+Primary Benefit: ${request.primaryBenefit}
+Tone: ${request.toneOfVoice}
+
+Generate 3 distinct image concepts for ${platform} ads that would maximize engagement with ${request.targetAudience}.
+
+For each concept, provide detailed creative direction including:
+- Visual composition and layout
+- Color palette recommendations
+- Key visual elements to include
+- Mood and aesthetic style
+- Specific photography/design approach
+
+Output in this exact JSON format:
+{
+  "suggestions": [
+    {
+      "type": "Product Hero Shot",
+      "description": "Detailed description of the visual concept",
+      "visualElements": ["element1", "element2", "element3"],
+      "composition": "Description of layout and framing",
+      "colors": ["#color1", "#color2", "#color3"],
+      "mood": "Overall aesthetic and emotional tone"
+    },
+    {
+      "type": "Lifestyle Scene",
+      "description": "Second concept description",
+      "visualElements": ["element1", "element2", "element3"],
+      "composition": "Layout description",
+      "colors": ["#color1", "#color2", "#color3"],
+      "mood": "Aesthetic description"
+    },
+    {
+      "type": "Problem-Solution Visual",
+      "description": "Third concept description",
+      "visualElements": ["element1", "element2", "element3"],
+      "composition": "Composition details",
+      "colors": ["#color1", "#color2", "#color3"],
+      "mood": "Mood and style"
+    }
+  ]
+}`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              suggestions: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    type: { type: "string" },
+                    description: { type: "string" },
+                    visualElements: {
+                      type: "array",
+                      items: { type: "string" }
+                    },
+                    composition: { type: "string" },
+                    colors: {
+                      type: "array",
+                      items: { type: "string" }
+                    },
+                    mood: { type: "string" }
+                  },
+                  required: ["type", "description", "visualElements", "composition", "colors", "mood"]
+                }
+              }
+            },
+            required: ["suggestions"]
+          }
+        },
+        contents: prompt,
+      });
+
+      const result = JSON.parse(response.text || '{"suggestions": []}');
+      return result.suggestions || [];
+    } catch (error) {
+      console.error('Error generating image suggestions:', error);
+      // Return fallback suggestions
+      return [
+        {
+          type: "Product Focus",
+          description: `Clean, professional product shot of ${request.productName} highlighting ${request.primaryBenefit}`,
+          visualElements: ["Product", "Clean background", "Professional lighting"],
+          composition: "Center-focused with minimal distractions",
+          colors: ["#FFFFFF", "#F8F9FA", "#343A40"],
+          mood: "Professional and trustworthy"
+        }
+      ];
+    }
   }
 
   async generateAdImages(request: any): Promise<any> {

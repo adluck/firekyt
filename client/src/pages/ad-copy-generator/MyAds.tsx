@@ -118,36 +118,7 @@ export default function MyAds() {
     });
   };
 
-  const handleGenerateImages = async (campaign: any) => {
-    try {
-      toast({
-        title: "Generating Images",
-        description: "Creating AI-generated images for your campaign...",
-      });
 
-      const response = await apiRequest('POST', '/api/generate-ad-images', {
-        productName: campaign.productName,
-        productDescription: campaign.productDescription,
-        targetAudience: campaign.targetAudience,
-        primaryBenefit: campaign.keyBenefits?.[0] || "great value",
-        brandVoice: campaign.brandVoice,
-        platforms: ['tiktok_video', 'pinterest_boards', 'facebook_ads', 'instagram_stories']
-      });
-
-      if (response.success) {
-        toast({
-          title: "Images Generated!",
-          description: `Successfully created ${response.images.length} images`,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate images",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleGenerateGraphics = async (campaign: any) => {
     try {
@@ -445,23 +416,101 @@ export default function MyAds() {
                 </TabsContent>
                 
                 <TabsContent value="images" className="mt-6">
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">AI-Generated Images</h3>
-                      <Button onClick={() => handleGenerateImages(campaign)} disabled={!campaign}>
-                        <Image className="w-4 h-4 mr-2" />
-                        Generate Images
-                      </Button>
+                      <h3 className="text-lg font-semibold">Creative Image Suggestions</h3>
+                      <Badge variant="secondary">AI-Generated</Badge>
                     </div>
                     <p className="text-muted-foreground">
-                      Generate platform-specific ad images using Google Gemini AI based on your campaign details.
+                      Professional image concepts created by AI to maximize engagement with your target audience.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Generated images will appear here */}
+                    
+                    {(() => {
+                      // Group image suggestions by platform
+                      const platformSuggestions = generatedContent.reduce((acc: any, content: any) => {
+                        if (!acc[content.platform]) {
+                          acc[content.platform] = [];
+                        }
+                        if (content.data && content.data.imageSuggestions) {
+                          acc[content.platform] = content.data.imageSuggestions;
+                        }
+                        return acc;
+                      }, {});
+
+                      return Object.entries(platformSuggestions).map(([platform, suggestions]: [string, any]) => (
+                        <div key={platform} className="border rounded-lg p-6">
+                          <h4 className="font-semibold mb-4 capitalize text-lg">
+                            {platform.replace(/_/g, ' ')} Image Concepts
+                          </h4>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {suggestions.map((suggestion: any, index: number) => (
+                              <Card key={index} className="hover:shadow-lg transition-shadow">
+                                <CardHeader className="pb-3">
+                                  <div className="flex items-center justify-between">
+                                    <CardTitle className="text-sm font-medium">{suggestion.type}</CardTitle>
+                                    <Badge variant="outline" className="text-xs">{suggestion.mood}</Badge>
+                                  </div>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                  <p className="text-sm text-muted-foreground">{suggestion.description}</p>
+                                  
+                                  <div className="space-y-2">
+                                    <div>
+                                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Elements</p>
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {suggestion.visualElements.map((element: string, idx: number) => (
+                                          <Badge key={idx} variant="secondary" className="text-xs">
+                                            {element}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    
+                                    <div>
+                                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Composition</p>
+                                      <p className="text-xs text-muted-foreground mt-1">{suggestion.composition}</p>
+                                    </div>
+                                    
+                                    <div>
+                                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Color Palette</p>
+                                      <div className="flex gap-1 mt-1">
+                                        {suggestion.colors.map((color: string, idx: number) => (
+                                          <div
+                                            key={idx}
+                                            className="w-4 h-4 rounded-full border border-gray-300"
+                                            style={{ backgroundColor: color }}
+                                            title={color}
+                                          />
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full mt-3"
+                                    onClick={() => handleCopyToClipboard(suggestion.description, 'image concept')}
+                                  >
+                                    <Copy className="w-3 h-3 mr-1" />
+                                    Copy Concept
+                                  </Button>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                    
+                    {generatedContent.length === 0 && (
                       <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
-                        Click "Generate Images" to create visual content for your campaign
+                        <Image className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                        <p>No image suggestions available</p>
+                        <p className="text-sm">Image concepts are generated automatically with ad copy</p>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </TabsContent>
                 
