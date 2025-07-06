@@ -486,6 +486,20 @@ export const adCopyVariations = pgTable("ad_copy_variations", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// AI-generated image suggestions for ad campaigns
+export const adCopyImageSuggestions = pgTable("ad_copy_image_suggestions", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => adCopyCampaigns.id, { onDelete: "cascade" }),
+  platform: text("platform").notNull(),
+  type: text("type").notNull(),
+  description: text("description").notNull(),
+  visualElements: text("visual_elements").array().notNull(),
+  composition: text("composition").notNull(),
+  colors: text("colors").array().notNull(),
+  mood: text("mood").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Insert schemas for ad copy campaigns and variations
 export const insertAdCopyCampaignSchema = createInsertSchema(adCopyCampaigns).omit({
   id: true,
@@ -499,9 +513,20 @@ export const insertAdCopyVariationSchema = createInsertSchema(adCopyVariations).
   updatedAt: true,
 });
 
-// Types for ad copy
+export const insertAdCopyImageSuggestionSchema = createInsertSchema(adCopyImageSuggestions).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Type definitions
+export type AdCopyCampaign = typeof adCopyCampaigns.$inferSelect;
 export type InsertAdCopyCampaign = z.infer<typeof insertAdCopyCampaignSchema>;
+export type AdCopyVariation = typeof adCopyVariations.$inferSelect;
 export type InsertAdCopyVariation = z.infer<typeof insertAdCopyVariationSchema>;
+export type AdCopyImageSuggestion = typeof adCopyImageSuggestions.$inferSelect;
+export type InsertAdCopyImageSuggestion = z.infer<typeof insertAdCopyImageSuggestionSchema>;
+
+// Legacy types for compatibility
 export type SelectAdCopyCampaign = typeof adCopyCampaigns.$inferSelect;
 export type SelectAdCopyVariation = typeof adCopyVariations.$inferSelect;
 

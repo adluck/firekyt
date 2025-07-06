@@ -1,7 +1,7 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { db } from "../db.js";
-import { adCopyCampaigns, adCopyVariations } from "../../shared/schema.js";
-import type { InsertAdCopyCampaign, InsertAdCopyVariation } from "../../shared/schema.js";
+import { adCopyCampaigns, adCopyVariations, adCopyImageSuggestions } from "../../shared/schema.js";
+import type { InsertAdCopyCampaign, InsertAdCopyVariation, InsertAdCopyImageSuggestion } from "../../shared/schema.js";
 import { eq } from "drizzle-orm";
 import * as fs from "fs";
 import * as path from "path";
@@ -392,12 +392,36 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
         await db.insert(adCopyVariations).values(allVariations);
       }
 
+      // Save image suggestions to database
+      const allImageSuggestions: InsertAdCopyImageSuggestion[] = [];
+      for (const result of results) {
+        if (result.imageSuggestions && result.imageSuggestions.length > 0) {
+          for (const suggestion of result.imageSuggestions) {
+            allImageSuggestions.push({
+              campaignId: campaign.id,
+              platform: request.platforms.find((p: string) => this.formatPlatformName(p) === result.platform) || result.platform.toLowerCase(),
+              type: suggestion.type,
+              description: suggestion.description,
+              visualElements: suggestion.visualElements,
+              composition: suggestion.composition,
+              colors: suggestion.colors,
+              mood: suggestion.mood
+            });
+          }
+        }
+      }
+
+      if (allImageSuggestions.length > 0) {
+        await db.insert(adCopyImageSuggestions).values(allImageSuggestions);
+      }
+
       return {
         success: true,
         campaignId: campaign.id,
         campaignName: campaign.name,
         platforms: results,
-        totalVariations: allVariations.length
+        totalVariations: allVariations.length,
+        totalImageSuggestions: allImageSuggestions.length
       };
 
     } catch (error) {
@@ -431,9 +455,39 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
       .where(eq(adCopyVariations.campaignId, campaignId))
       .orderBy(adCopyVariations.platform, adCopyVariations.adFormat);
 
+    const imageSuggestions = await db
+      .select()
+      .from(adCopyImageSuggestions)
+      .where(eq(adCopyImageSuggestions.campaignId, campaignId))
+      .orderBy(adCopyImageSuggestions.platform);
+
+    // Group image suggestions by platform
+    const imageSuggestionsByPlatform = imageSuggestions.reduce((acc: any, suggestion) => {
+      if (!acc[suggestion.platform]) {
+        acc[suggestion.platform] = [];
+      }
+      acc[suggestion.platform].push({
+        type: suggestion.type,
+        description: suggestion.description,
+        visualElements: suggestion.visualElements,
+        composition: suggestion.composition,
+        colors: suggestion.colors,
+        mood: suggestion.mood
+      });
+      return acc;
+    }, {});
+
+    // Add image suggestions to variations grouped by platform
+    const enhancedVariations = variations.map(variation => ({
+      ...variation,
+      data: {
+        imageSuggestions: imageSuggestionsByPlatform[variation.platform] || []
+      }
+    }));
+
     return {
       campaign: campaign[0],
-      generatedContent: variations // Frontend expects 'generatedContent' property
+      generatedContent: enhancedVariations // Frontend expects 'generatedContent' property with image suggestions
     };
   }
 

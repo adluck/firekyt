@@ -290,7 +290,7 @@ export default function MyAds() {
                   }
                   if (content.hashtags && content.hashtags.length > 0) {
                     // Add unique hashtags only
-                    content.hashtags.forEach(hashtag => {
+                    content.hashtags.forEach((hashtag: string) => {
                       if (!acc[content.platform].hashtags.includes(hashtag)) {
                         acc[content.platform].hashtags.push(hashtag);
                       }
@@ -413,6 +413,57 @@ export default function MyAds() {
                             </div>
                           )}
                         </div>
+                        
+                        {/* Image Suggestions Section */}
+                        {(() => {
+                          const platformData = campaign.generatedContent.find((item: any) => 
+                            item.platform === platform && 
+                            item.data && item.data.imageSuggestions && item.data.imageSuggestions.length > 0
+                          );
+                          
+                          if (!platformData || !platformData.data.imageSuggestions) return null;
+                          
+                          return (
+                            <div className="mt-6 pt-6 border-t">
+                              <h4 className="font-semibold mb-3 text-purple-600">
+                                🎨 AI Image Suggestions ({platformData.data.imageSuggestions.length})
+                              </h4>
+                              <div className="grid grid-cols-1 gap-4">
+                                {platformData.data.imageSuggestions.map((suggestion: any, index: number) => (
+                                  <div key={index} className="bg-muted p-4 rounded border">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-sm font-medium text-muted-foreground">
+                                        {suggestion.type} • {suggestion.mood}
+                                      </span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleCopyToClipboard(suggestion.description, 'image suggestion')}
+                                      >
+                                        <Copy className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                    <div className="text-sm mb-3">{suggestion.description}</div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-muted-foreground">
+                                      <div>
+                                        <strong>Composition:</strong><br />
+                                        {suggestion.composition}
+                                      </div>
+                                      <div>
+                                        <strong>Colors:</strong><br />
+                                        {suggestion.colors.join(', ')}
+                                      </div>
+                                      <div>
+                                        <strong>Elements:</strong><br />
+                                        {suggestion.visualElements.join(', ')}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     ))}
                   </div>
