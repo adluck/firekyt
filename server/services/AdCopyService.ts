@@ -394,12 +394,17 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
 
       // Save image suggestions to database
       const allImageSuggestions: InsertAdCopyImageSuggestion[] = [];
+      console.log('🎨 Processing image suggestions for', results.length, 'platforms');
+      
       for (const result of results) {
+        console.log('🎨 Platform:', result.platform, 'has', result.imageSuggestions?.length || 0, 'image suggestions');
         if (result.imageSuggestions && result.imageSuggestions.length > 0) {
           for (const suggestion of result.imageSuggestions) {
+            const platformKey = request.platforms.find((p: string) => this.formatPlatformName(p) === result.platform) || result.platform.toLowerCase();
+            console.log('🎨 Adding image suggestion for platform:', platformKey, 'type:', suggestion.type);
             allImageSuggestions.push({
               campaignId: campaign.id,
-              platform: request.platforms.find((p: string) => this.formatPlatformName(p) === result.platform) || result.platform.toLowerCase(),
+              platform: platformKey,
               type: suggestion.type,
               description: suggestion.description,
               visualElements: suggestion.visualElements,
@@ -411,8 +416,12 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
         }
       }
 
+      console.log('🎨 Total image suggestions to save:', allImageSuggestions.length);
       if (allImageSuggestions.length > 0) {
         await db.insert(adCopyImageSuggestions).values(allImageSuggestions);
+        console.log('🎨 Image suggestions saved successfully');
+      } else {
+        console.log('🎨 No image suggestions to save');
       }
 
       return {
@@ -507,6 +516,7 @@ Generate ${request.variationCount} ${format} for ${platformName} ads.`;
   }
 
   static async generateImageSuggestions(request: AdCopyRequest, platform: string): Promise<ImageSuggestion[]> {
+    console.log('🎨 Generating image suggestions for platform:', platform);
     try {
       const prompt = `Act as a professional creative director specializing in ${platform} advertising visuals.
 
@@ -590,7 +600,10 @@ Output in this exact JSON format:
         contents: prompt,
       });
 
-      const result = JSON.parse(response.text || '{"suggestions": []}');
+      const responseText = response.text || '{"suggestions": []}';
+      console.log('🎨 AI Response received, length:', responseText.length);
+      const result = JSON.parse(responseText);
+      console.log('🎨 Parsed suggestions count:', result.suggestions?.length || 0);
       return result.suggestions || [];
     } catch (error) {
       console.error('Error generating image suggestions:', error);
