@@ -41,19 +41,23 @@ export default function Documentation() {
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  Create high-converting ad copy with AI
+                  Create professional affiliate widgets
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  Generate your first AI article with affiliate links
+                  Generate high-converting ad copy with AI
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  Publish the article to your site
+                  Create your first AI article with affiliate links
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  Set up analytics tracking
+                  Publish content and set up analytics tracking
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  Join affiliate programs and start earning
                 </li>
               </ul>
             </div>
