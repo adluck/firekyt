@@ -33,8 +33,7 @@ import {
   Ruler,
   Sparkles,
   Eye,
-  Folder,
-  Shield
+  Folder
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -68,7 +67,6 @@ const navigation = [
       { name: 'AI Generator', href: '/content', icon: FileText },
       { name: 'Rich Editor', href: '/content/editor', icon: FileText },
       { name: 'Content Manager', href: '/content/manage', icon: FileText },
-      { name: 'Plagiarism Check', href: '/content/plagiarism', icon: Shield },
       { name: 'Content Insights', href: '/analytics', icon: Telescope }
     ]
   },
