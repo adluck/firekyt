@@ -58,6 +58,8 @@ export default function MyAds() {
   const [generatedGraphics, setGeneratedGraphics] = useState<any[]>([]);
   const [isGeneratingReal, setIsGeneratingReal] = useState(false);
   const [realGraphics, setRealGraphics] = useState<any[]>([]);
+  const [customGraphics, setCustomGraphics] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   
   const campaignId = params.id ? parseInt(params.id) : null;
 
@@ -206,6 +208,50 @@ export default function MyAds() {
       });
     } finally {
       setIsGeneratingReal(false);
+    }
+  };
+
+  const handleCustomGraphicsUpload = async (files: FileList, platform: string) => {
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', files[0]);
+      formData.append('platform', platform);
+      formData.append('campaignId', campaignId?.toString() || '');
+
+      const response = await fetch('/api/upload-custom-graphic', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        const dimensions = getPlatformDimensions(platform);
+        const newGraphic = {
+          platform,
+          url: result.graphicUrl,
+          filename: files[0].name,
+          dimensions,
+          isCustom: true
+        };
+        
+        setCustomGraphics(prev => [...prev, newGraphic]);
+        
+        toast({
+          title: "Upload Successful!",
+          description: `Custom graphic uploaded for ${dimensions.name}`,
+        });
+      } else {
+        throw new Error(result.message || 'Upload failed');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to upload custom graphic",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -690,6 +736,113 @@ export default function MyAds() {
                                   <h4 className="font-medium text-sm mb-2">{graphic.dimensions.name}</h4>
                                   <p className="text-xs text-muted-foreground mb-2">
                                     {graphic.dimensions.width} × {graphic.dimensions.height}
+                                  </p>
+                                  <div className="flex gap-2 mt-3">
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="flex-1 text-xs"
+                                      onClick={() => window.open(graphic.url, '_blank')}
+                                    >
+                                      View Full
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="flex-1 text-xs"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(window.location.origin + graphic.url);
+                                        toast({
+                                          title: "URL Copied!",
+                                          description: "Image URL copied to clipboard",
+                                        });
+                                      }}
+                                    >
+                                      Copy URL
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Custom Graphics Upload Section */}
+                    <div className="border rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold">Custom Graphics Upload</h3>
+                          <p className="text-sm text-muted-foreground">Upload your own graphics for different platforms</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        {['instagram_post', 'instagram_story', 'facebook_post', 'pinterest_pin'].map((platform) => {
+                          const dimensions = getPlatformDimensions(platform);
+                          return (
+                            <div key={platform} className="border rounded-lg p-4 text-center">
+                              <h4 className="font-medium mb-2">{dimensions.name}</h4>
+                              <p className="text-xs text-muted-foreground mb-3">
+                                {dimensions.width} × {dimensions.height}
+                              </p>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files.length > 0) {
+                                    handleCustomGraphicsUpload(e.target.files, platform);
+                                  }
+                                }}
+                                className="hidden"
+                                id={`upload-${platform}`}
+                                disabled={isUploading}
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => document.getElementById(`upload-${platform}`)?.click()}
+                                disabled={isUploading}
+                              >
+                                {isUploading ? 'Uploading...' : 'Upload Image'}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Display Custom Graphics */}
+                      {customGraphics.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {customGraphics.map((graphic, index) => (
+                            <Card key={index} className="overflow-hidden">
+                              <CardContent className="p-0">
+                                <div className="aspect-square relative bg-muted">
+                                  <img 
+                                    src={graphic.url} 
+                                    alt={`Custom ${graphic.dimensions.name} graphic`}
+                                    className="w-full h-full object-contain"
+                                  />
+                                  <div className="absolute top-2 right-2">
+                                    <Badge variant="secondary" className="text-xs bg-blue-500 text-white">
+                                      Custom Upload
+                                    </Badge>
+                                  </div>
+                                  <div className="absolute bottom-2 left-2">
+                                    <Badge variant="outline" className="text-xs bg-white/90">
+                                      {graphic.dimensions.name}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="p-4">
+                                  <h4 className="font-medium text-sm mb-2">{graphic.dimensions.name}</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">
+                                    {graphic.dimensions.width} × {graphic.dimensions.height}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground truncate mb-2">
+                                    {graphic.filename}
                                   </p>
                                   <div className="flex gap-2 mt-3">
                                     <Button 

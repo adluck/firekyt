@@ -39,6 +39,7 @@ import {
 } from "./performance/RateLimiter";
 import { databaseOptimizer } from "./performance/DatabaseOptimizer";
 import { queryOptimizer } from "./performance/QueryOptimizer";
+import multer from "multer";
 
 // Extend Express Request type to include user
 declare global {
@@ -5551,6 +5552,82 @@ async function generateAILinkSuggestions(params: {
       res.status(500).json({ 
         message: 'Failed to get social formats',
         success: false 
+      });
+    }
+  });
+
+  // Set up multer for file uploads
+  const storage_multer = multer.diskStorage({
+    destination: function (req, file, cb) {
+      const uploadDir = './uploads/custom-graphics';
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const ext = path.extname(file.originalname);
+      cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+  });
+
+  const upload = multer({ 
+    storage: storage_multer,
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed!'));
+      }
+    },
+    limits: {
+      fileSize: 10 * 1024 * 1024 // 10MB limit
+    }
+  });
+
+  // Custom graphics upload endpoint
+  app.post('/api/upload-custom-graphic', authenticateToken, upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No file uploaded'
+        });
+      }
+
+      const { platform, campaignId } = req.body;
+      
+      if (!platform) {
+        return res.status(400).json({
+          success: false,
+          message: 'Platform is required'
+        });
+      }
+
+      // Generate the URL for the uploaded file
+      const graphicUrl = `/uploads/custom-graphics/${req.file.filename}`;
+      
+      console.log('📸 Custom graphic uploaded:', {
+        filename: req.file.filename,
+        platform,
+        campaignId,
+        size: req.file.size,
+        url: graphicUrl
+      });
+
+      res.json({
+        success: true,
+        graphicUrl,
+        filename: req.file.originalname,
+        platform,
+        message: 'Custom graphic uploaded successfully'
+      });
+    } catch (error: any) {
+      console.error('Upload custom graphic error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to upload custom graphic'
       });
     }
   });
