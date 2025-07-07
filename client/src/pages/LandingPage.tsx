@@ -82,7 +82,7 @@ export default function LandingPage() {
             </div>
             <div className="w-px h-4 bg-slate-300 dark:bg-slate-600"></div>
             <span className="text-sm font-bold text-orange-600 dark:text-orange-400">
-              247 seats remaining
+              50 seats remaining
             </span>
           </div>
 
