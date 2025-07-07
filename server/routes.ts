@@ -5644,6 +5644,8 @@ async function generateAILinkSuggestions(params: {
         });
       }
 
+      const { TextOverlayService } = await import('./services/TextOverlayService');
+      const textOverlayService = new TextOverlayService();
       const concepts = await textOverlayService.generateImageConcepts(
         productName, 
         productDescription || '', 
