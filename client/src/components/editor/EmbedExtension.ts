@@ -70,24 +70,10 @@ export const EmbedExtension = Node.create<EmbedOptions>({
         [
           'div',
           {
-            class: 'flex items-center gap-2 text-sm font-medium text-blue-700 dark:text-blue-300 mb-3',
-          },
-          `🛍️ Affiliate Widget (ID: ${widgetId})`,
-        ],
-        [
-          'div',
-          {
-            class: 'text-xs text-blue-600 dark:text-blue-400 mb-2',
-          },
-          'This widget will render when published to your website',
-        ],
-        [
-          'div',
-          {
             class: 'embed-preview bg-white dark:bg-gray-800 rounded border p-3 text-xs font-mono text-gray-600 dark:text-gray-300',
-            style: 'max-height: 80px; overflow: hidden; word-break: break-all;',
+            style: 'word-break: break-all;',
           },
-          embedCode.length > 200 ? embedCode.substring(0, 200) + '...' : embedCode,
+          embedCode,
         ],
       ];
     }
