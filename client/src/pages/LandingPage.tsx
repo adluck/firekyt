@@ -25,9 +25,6 @@ export default function LandingPage() {
               alt="FireKyt" 
               className="h-8 w-auto"
             />
-            <Badge variant="secondary" className="ml-2 text-xs bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-200">
-              Beta
-            </Badge>
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
