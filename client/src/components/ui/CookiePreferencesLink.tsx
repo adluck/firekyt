@@ -22,11 +22,27 @@ export function CookiePreferencesLink() {
     };
   });
 
-  const savePreferences = (prefs: CookiePreferences) => {
+  const savePreferences = async (prefs: CookiePreferences) => {
     localStorage.setItem('cookieConsent', JSON.stringify(prefs));
     localStorage.setItem('cookieConsentDate', new Date().toISOString());
     setPreferences(prefs);
     setShowSettings(false);
+    
+    // Track cookie consent activity
+    try {
+      await fetch('/api/track-cookie-consent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          preferences: prefs,
+          consentType: 'custom'
+        })
+      });
+    } catch (error) {
+      console.log('Failed to track cookie consent:', error);
+    }
     
     // Apply preferences
     if (prefs.analytics) {

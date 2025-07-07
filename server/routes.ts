@@ -4879,6 +4879,22 @@ async function generateAILinkSuggestions(params: {
 
       const widget = await storage.createAdWidget(widgetData);
       
+      // Track widget creation activity
+      await storage.createUserActivity({
+        userId: req.user!.id,
+        activityType: 'widget_created',
+        entityType: 'widget',
+        entityId: widget.id,
+        title: `Created affiliate widget "${widget.name}"`,
+        description: `New ${widget.size} widget with ${sanitizedAds.length} ads using ${widget.theme} template`,
+        metadata: {
+          widgetSize: widget.size,
+          adCount: sanitizedAds.length,
+          theme: widget.theme,
+          rotationInterval: widget.rotationInterval
+        }
+      });
+      
       res.status(201).json({
         success: true,
         widget,
@@ -5435,6 +5451,24 @@ async function generateAILinkSuggestions(params: {
 
       console.log('🤖 Generating ad copy for:', productName);
       const result = await AdCopyService.generateAdCopy(req.user!.id, adCopyRequest);
+      
+      // Track ad copy generation activity
+      await storage.createUserActivity({
+        userId: req.user!.id,
+        activityType: 'ad_copy_generated',
+        entityType: 'campaign',
+        entityId: result.campaignId,
+        title: `Generated ad copy for "${productName}"`,
+        description: `AI-powered ${toneOfVoice} ad copy created for ${platforms.join(', ')} with ${result.totalVariations} variations`,
+        metadata: {
+          productName,
+          targetAudience,
+          platforms: platforms,
+          toneOfVoice,
+          variationCount: result.totalVariations,
+          imageSuggestions: result.totalImageSuggestions
+        }
+      });
 
       res.json(result);
     } catch (error: any) {
@@ -5774,6 +5808,44 @@ async function generateAILinkSuggestions(params: {
         success: false, 
         message: error.message || 'Failed to generate graphics from concept' 
       });
+    }
+  });
+
+  // ===== COOKIE CONSENT TRACKING =====
+  
+  // Track cookie consent preferences
+  app.post('/api/track-cookie-consent', async (req, res) => {
+    try {
+      const { preferences, consentType } = req.body; // consentType: 'accept_all', 'essential_only', 'custom'
+      
+      if (!preferences) {
+        return res.status(400).json({ message: 'Cookie preferences required' });
+      }
+
+      // Track anonymously (no authentication required) but can track if user is logged in
+      const userId = req.user?.id || null;
+      
+      // Only create activity if user is logged in
+      if (userId) {
+        await storage.createUserActivity({
+          userId: userId,
+          activityType: 'cookie_consent_updated',
+          entityType: 'preferences',
+          title: `Updated cookie preferences`,
+          description: `Set cookie consent to ${consentType}: Analytics ${preferences.analytics ? 'enabled' : 'disabled'}, Marketing ${preferences.marketing ? 'enabled' : 'disabled'}`,
+          metadata: {
+            consentType,
+            analytics: preferences.analytics,
+            marketing: preferences.marketing,
+            necessary: preferences.necessary
+          }
+        });
+      }
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Track cookie consent error:', error);
+      res.status(500).json({ message: 'Failed to track cookie consent' });
     }
   });
 

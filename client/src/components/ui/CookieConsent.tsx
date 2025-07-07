@@ -34,12 +34,28 @@ export function CookieConsent() {
     }
   }, []);
 
-  const savePreferences = (prefs: CookiePreferences) => {
+  const savePreferences = async (prefs: CookiePreferences, consentType: string = 'custom') => {
     localStorage.setItem('cookieConsent', JSON.stringify(prefs));
     localStorage.setItem('cookieConsentDate', new Date().toISOString());
     setPreferences(prefs);
     setIsVisible(false);
     setShowSettings(false);
+    
+    // Track cookie consent activity
+    try {
+      await fetch('/api/track-cookie-consent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          preferences: prefs,
+          consentType
+        })
+      });
+    } catch (error) {
+      console.log('Failed to track cookie consent:', error);
+    }
     
     // Apply preferences (for future analytics/marketing features)
     if (prefs.analytics) {
@@ -57,11 +73,11 @@ export function CookieConsent() {
       necessary: true,
       analytics: true,
       marketing: true
-    });
+    }, 'accept_all');
   };
 
   const acceptNecessary = () => {
-    savePreferences(defaultPreferences);
+    savePreferences(defaultPreferences, 'essential_only');
   };
 
   const handlePreferenceChange = (key: keyof CookiePreferences, value: boolean) => {
