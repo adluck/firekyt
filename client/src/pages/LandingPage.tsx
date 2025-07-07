@@ -64,12 +64,11 @@ export default function LandingPage() {
       <nav className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-400 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">F</span>
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
-              FireKyt
-            </span>
+            <img 
+              src={theme === 'dark' ? '/firekyt-dark-logo.png' : '/firekyt-light-logo.png'} 
+              alt="FireKyt" 
+              className="h-8 w-auto"
+            />
             <Badge variant="secondary" className="ml-2 text-xs bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-200">
               Beta
             </Badge>
@@ -236,12 +235,11 @@ export default function LandingPage() {
       <footer className="container mx-auto px-6 py-12 border-t border-slate-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center space-x-2 mb-4 md:mb-0">
-            <div className="w-6 h-6 bg-gradient-to-br from-orange-400 to-pink-400 rounded-md flex items-center justify-center">
-              <span className="text-white font-bold text-xs">F</span>
-            </div>
-            <span className="font-bold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
-              FireKyt
-            </span>
+            <img 
+              src={theme === 'dark' ? '/firekyt-dark-logo.png' : '/firekyt-light-logo.png'} 
+              alt="FireKyt" 
+              className="h-6 w-auto"
+            />
           </div>
           
           <div className="flex items-center space-x-6 text-sm text-slate-500">
