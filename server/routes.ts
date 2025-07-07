@@ -5696,10 +5696,14 @@ async function generateAILinkSuggestions(params: {
         Platform: ${platform || 'social media'}.
         Make it visually appealing, professional, and suitable for affiliate marketing.`;
 
-      const graphics = await textOverlayService.generateRealGraphics(
+      // Generate graphics for the specified platform
+      const graphic = await textOverlayService.generateRealGraphic(
         imagePrompt,
-        [platform || 'instagram_post']
+        platform || 'instagram_post'
       );
+      
+      // Format as array for consistency with frontend
+      const graphics = graphic ? [graphic] : [];
 
       console.log('🎨 Generated graphics from concept:', {
         concept: concept.substring(0, 50) + '...',
