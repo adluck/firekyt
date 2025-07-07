@@ -3,8 +3,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { OnboardingHelpButton } from "@/components/onboarding/OnboardingTrigger";
 import { HelpCircle, Play, BookOpen, Compass } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Documentation() {
+  const [, setLocation] = useLocation();
+
+  const handleBrowseDocumentation = () => {
+    // Scroll to the main tutorial content
+    const tutorialElement = document.getElementById('tutorial-content');
+    if (tutorialElement) {
+      tutorialElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleQuickStartGuide = () => {
+    // Navigate to sites page to start the quick start process
+    setLocation('/sites');
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
@@ -25,10 +41,10 @@ export default function Documentation() {
       </div>
 
       {/* Need Help Section */}
-      <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-orange-200 dark:border-orange-800">
+      <Card className="bg-gradient-to-br from-muted/50 to-muted/80 dark:from-muted/20 dark:to-muted/40 border-border">
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2 text-xl">
-            <HelpCircle className="h-6 w-6 text-orange-600" />
+            <HelpCircle className="h-6 w-6 text-primary" />
             Need Help Getting Started?
           </CardTitle>
           <CardDescription className="text-base">
@@ -38,11 +54,19 @@ export default function Documentation() {
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <OnboardingHelpButton />
-            <Button variant="outline" className="border-orange-200 hover:bg-orange-50 dark:border-orange-800 dark:hover:bg-orange-950/30">
+            <Button 
+              variant="outline" 
+              onClick={handleBrowseDocumentation}
+              className="border-border hover:bg-accent hover:text-accent-foreground"
+            >
               <BookOpen className="h-4 w-4 mr-2" />
               Browse Documentation
             </Button>
-            <Button variant="outline" className="border-orange-200 hover:bg-orange-50 dark:border-orange-800 dark:hover:bg-orange-950/30">
+            <Button 
+              variant="outline" 
+              onClick={handleQuickStartGuide}
+              className="border-border hover:bg-accent hover:text-accent-foreground"
+            >
               <Compass className="h-4 w-4 mr-2" />
               Quick Start Guide
             </Button>
@@ -51,7 +75,7 @@ export default function Documentation() {
       </Card>
 
       {/* Tutorial Overview */}
-      <Card className="border-primary/20">
+      <Card className="border-primary/20" id="tutorial-content">
         <CardHeader>
           <CardTitle>What You'll Accomplish Today</CardTitle>
         </CardHeader>
