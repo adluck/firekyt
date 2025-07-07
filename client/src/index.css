@@ -76,6 +76,41 @@
 
 /* Enhanced image styling */
 
+/* Tour highlighting improvements */
+.tour-highlight {
+  position: relative;
+  z-index: 1001;
+}
+
+.tour-highlight::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: rgba(251, 146, 60, 0.3);
+  border: 2px solid #f97316;
+  border-radius: 8px;
+  z-index: -1;
+  animation: pulse-highlight 2s infinite;
+}
+
+@keyframes pulse-highlight {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Navigation menu highlighting */
+.nav-link[data-tour="widgets-nav"] {
+  transition: all 0.3s ease;
+}
+
+/* Ensure proper highlighting for tour elements */
+[data-tour] {
+  position: relative;
+}
+
 /* Custom range slider styling */
 .range-slider {
   -webkit-appearance: none;

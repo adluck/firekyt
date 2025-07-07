@@ -227,6 +227,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         )}
                         onClick={() => toggleMenu(item.name)}
                         title={item.name}
+                        data-tour={item.name === 'Ad Widgets' ? 'widgets-nav' : undefined}
                       >
                         <item.icon className="h-5 w-5" />
                       </button>
@@ -279,6 +280,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         (isActive || hasActiveSubmenu) && "active"
                       )}
                       onClick={() => toggleMenu(item.name)}
+                      data-tour={item.name === 'Ad Widgets' ? 'widgets-nav' : undefined}
                     >
                       <div className="flex items-center gap-3">
                         <item.icon className="h-5 w-5" />
@@ -333,6 +335,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                     )}
                     onClick={() => setIsMobileOpen(false)}
                     title={isCollapsed ? item.name : undefined}
+                    data-tour={item.name === 'Ad Widgets' ? 'widgets-nav' : undefined}
                   >
                     <item.icon className="h-5 w-5" />
                     {!isCollapsed && <span>{item.name}</span>}
