@@ -670,7 +670,20 @@ export default function AdvancedContentGenerator() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => copyToClipboard(generatedContent.generated_text || '')}
+                              onClick={() => {
+                                const rawText = generatedContent.generated_text || '';
+                                // Try to parse JSON and get the content field
+                                try {
+                                  const parsed = JSON.parse(rawText);
+                                  if (parsed && parsed.content) {
+                                    copyToClipboard(parsed.content);
+                                  } else {
+                                    copyToClipboard(rawText);
+                                  }
+                                } catch {
+                                  copyToClipboard(rawText);
+                                }
+                              }}
                             >
                               <Copy className="h-4 w-4" />
                             </Button>
