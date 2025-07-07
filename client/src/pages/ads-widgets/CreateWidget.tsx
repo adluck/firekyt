@@ -169,9 +169,20 @@ export default function CreateWidget() {
 
   // Prevent body scroll when on this page
   useEffect(() => {
+    console.log('🔧 Adding create-widget-no-scroll class');
     document.body.classList.add('create-widget-no-scroll');
+    document.documentElement.classList.add('create-widget-no-scroll');
+    
+    // Force immediate style application
+    document.body.style.overflow = 'hidden';
+    document.body.style.maxHeight = '100vh';
+    
     return () => {
+      console.log('🔧 Removing create-widget-no-scroll class');
       document.body.classList.remove('create-widget-no-scroll');
+      document.documentElement.classList.remove('create-widget-no-scroll');
+      document.body.style.overflow = '';
+      document.body.style.maxHeight = '';
     };
   }, []);
   
