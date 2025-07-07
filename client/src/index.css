@@ -166,13 +166,26 @@ html, body, #root {
   max-height: 100vh;
 }
 
-/* Clean Create Widget form scrolling - only the form section scrolls */
-[data-page="create-widget"] {
+/* Fix Create Widget page to viewport height - no white space */
+main:has([data-page="create-widget"]) {
+  height: 100vh !important;
+  max-height: 100vh !important;
   overflow: hidden !important;
 }
 
-/* Remove main page scroll on Create Widget */
-main:has([data-page="create-widget"]) {
+/* Make main content container fit exactly */
+main:has([data-page="create-widget"]) #main-content {
+  height: calc(100vh - 0px) !important;
+  max-height: calc(100vh - 0px) !important;
+  min-height: unset !important;
+  overflow: hidden !important;
+  padding: 1.5rem !important;
+}
+
+/* Ensure Create Widget container uses full available height */
+[data-page="create-widget"] .container {
+  height: 100% !important;
+  max-height: 100% !important;
   overflow: hidden !important;
 }
 

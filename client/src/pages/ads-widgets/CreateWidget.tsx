@@ -530,8 +530,8 @@ export default function CreateWidget() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 items-start">
-        {/* Form Section - Scrollable */}
-        <div className="space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
+        {/* Form Section - Scrollable within fixed height */}
+        <div className="space-y-6 h-[calc(100vh-200px)] overflow-y-auto pr-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
               console.log('❌ Form validation errors:', errors);
