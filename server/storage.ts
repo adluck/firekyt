@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, adWidgets, adWidgetAnalytics, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment, type AdWidget, type InsertAdWidget, type AdWidgetAnalytics, type InsertAdWidgetAnalytics } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, adWidgets, adWidgetAnalytics, plagiarismResults, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment, type AdWidget, type InsertAdWidget, type AdWidgetAnalytics, type InsertAdWidgetAnalytics, type PlagiarismResult, type InsertPlagiarismResult } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 
@@ -197,6 +197,12 @@ export interface IStorage {
   createAdWidgetAnalytics(analytics: InsertAdWidgetAnalytics): Promise<AdWidgetAnalytics>;
   getWidgetAnalytics(widgetId: number, startDate?: Date, endDate?: Date): Promise<AdWidgetAnalytics[]>;
   getWidgetStats(widgetId: number): Promise<{ views: number; clicks: number; ctr: number }>;
+
+  // Plagiarism Results
+  savePlagiarismResult(result: Omit<PlagiarismResult, 'createdAt'>): Promise<PlagiarismResult>;
+  getPlagiarismResult(contentId: number): Promise<PlagiarismResult | null>;
+  getUserPlagiarismResults(userId: number): Promise<PlagiarismResult[]>;
+  updatePlagiarismResult(id: string, updates: Partial<PlagiarismResult>): Promise<PlagiarismResult>;
 }
 
 export class MemStorage implements IStorage {
@@ -2064,6 +2070,39 @@ export class DatabaseStorage implements IStorage {
     const ctr = views > 0 ? (clicks / views) * 100 : 0;
     
     return { views, clicks, ctr: Math.round(ctr * 100) / 100 };
+  }
+
+  // Plagiarism Results
+  async savePlagiarismResult(result: Omit<PlagiarismResult, 'createdAt'>): Promise<PlagiarismResult> {
+    const [created] = await db.insert(plagiarismResults).values(result).returning();
+    return created;
+  }
+
+  async getPlagiarismResult(contentId: number): Promise<PlagiarismResult | null> {
+    const [result] = await db
+      .select()
+      .from(plagiarismResults)
+      .where(eq(plagiarismResults.contentId, contentId))
+      .orderBy(desc(plagiarismResults.checkedAt))
+      .limit(1);
+    return result || null;
+  }
+
+  async getUserPlagiarismResults(userId: number): Promise<PlagiarismResult[]> {
+    return await db
+      .select()
+      .from(plagiarismResults)
+      .where(eq(plagiarismResults.userId, userId))
+      .orderBy(desc(plagiarismResults.checkedAt));
+  }
+
+  async updatePlagiarismResult(id: string, updates: Partial<PlagiarismResult>): Promise<PlagiarismResult> {
+    const [updated] = await db
+      .update(plagiarismResults)
+      .set(updates)
+      .where(eq(plagiarismResults.id, id))
+      .returning();
+    return updated;
   }
 }
 

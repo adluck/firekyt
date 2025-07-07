@@ -30,6 +30,7 @@ import { performanceMonitor } from "./performance/PerformanceMonitor";
 import { affiliateManager } from "./affiliateNetworks";
 import { cacheManager } from "./performance/CacheManager";
 import { AdCopyService } from "./services/AdCopyService";
+import { plagiarismService } from "./services/PlagiarismService";
 import { 
   rateLimiter, 
   apiRateLimit, 
@@ -5884,6 +5885,160 @@ async function generateAILinkSuggestions(params: {
     } catch (error: any) {
       console.error('Track onboarding completion error:', error);
       res.status(500).json({ message: 'Failed to track onboarding completion' });
+    }
+  });
+
+  // Plagiarism Detection API endpoints
+  app.post('/api/content/:id/check-plagiarism', authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const contentId = parseInt(req.params.id);
+      if (isNaN(contentId)) {
+        return res.status(400).json({ error: 'Invalid content ID' });
+      }
+
+      // Get the content and verify ownership
+      const content = await storage.getUserContent(req.user.id);
+      const targetContent = content.find(c => c.id === contentId);
+      
+      if (!targetContent) {
+        return res.status(404).json({ error: 'Content not found' });
+      }
+
+      // Check if we already have a recent plagiarism result
+      const existingResult = await plagiarismService.getStoredResult(contentId);
+      
+      if (existingResult && existingResult.status === 'completed') {
+        const resultAge = Date.now() - new Date(existingResult.checkedAt).getTime();
+        const oneHour = 60 * 60 * 1000;
+        
+        // Return existing result if it's less than 1 hour old
+        if (resultAge < oneHour) {
+          return res.json({
+            result: existingResult,
+            interpretation: plagiarismService.interpretScore(existingResult.originalityScore)
+          });
+        }
+      }
+
+      // Perform new plagiarism check
+      const checkRequest = {
+        text: targetContent.content || '',
+        title: targetContent.title,
+        contentId: contentId,
+        userId: req.user.id
+      };
+
+      console.log('🔍 Starting plagiarism check for content:', targetContent.title);
+      
+      const result = await plagiarismService.checkPlagiarism(checkRequest);
+      
+      // Store the result with proper user ID
+      const dbResult = {
+        id: result.id,
+        contentId: result.contentId,
+        userId: req.user.id,
+        originalityScore: result.originalityScore,
+        similarityScore: result.similarityScore,
+        status: result.status,
+        provider: result.provider,
+        totalMatches: result.matches.length,
+        matches: result.matches,
+        rawResults: result.rawResults,
+        checkedAt: result.checkedAt,
+      };
+      
+      await storage.savePlagiarismResult(dbResult);
+      
+      const interpretation = plagiarismService.interpretScore(result.originalityScore);
+      
+      res.json({
+        result: result,
+        interpretation: interpretation
+      });
+      
+    } catch (error: any) {
+      console.error('Plagiarism check error:', error);
+      res.status(500).json({ 
+        error: 'Failed to perform plagiarism check',
+        message: error.message 
+      });
+    }
+  });
+
+  // Get plagiarism results for content
+  app.get('/api/content/:id/plagiarism-result', authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const contentId = parseInt(req.params.id);
+      if (isNaN(contentId)) {
+        return res.status(400).json({ error: 'Invalid content ID' });
+      }
+
+      const result = await plagiarismService.getStoredResult(contentId);
+      
+      if (!result) {
+        return res.status(404).json({ error: 'No plagiarism results found for this content' });
+      }
+
+      // Verify ownership through content
+      const content = await storage.getUserContent(req.user.id);
+      const targetContent = content.find(c => c.id === contentId);
+      
+      if (!targetContent) {
+        return res.status(404).json({ error: 'Content not found' });
+      }
+
+      const interpretation = plagiarismService.interpretScore(result.originalityScore);
+      
+      res.json({
+        result: result,
+        interpretation: interpretation
+      });
+      
+    } catch (error: any) {
+      console.error('Get plagiarism result error:', error);
+      res.status(500).json({ 
+        error: 'Failed to get plagiarism result',
+        message: error.message 
+      });
+    }
+  });
+
+  // Get all plagiarism results for user
+  app.get('/api/plagiarism-results', authenticateToken, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const results = await storage.getUserPlagiarismResults(req.user.id);
+      
+      // Add content titles to results
+      const userContent = await storage.getUserContent(req.user.id);
+      const enrichedResults = results.map(result => {
+        const content = userContent.find(c => c.id === result.contentId);
+        return {
+          ...result,
+          contentTitle: content?.title || 'Unknown Content',
+          interpretation: plagiarismService.interpretScore(result.originalityScore)
+        };
+      });
+      
+      res.json(enrichedResults);
+      
+    } catch (error: any) {
+      console.error('Get user plagiarism results error:', error);
+      res.status(500).json({ 
+        error: 'Failed to get plagiarism results',
+        message: error.message 
+      });
     }
   });
 

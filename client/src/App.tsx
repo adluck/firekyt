@@ -31,6 +31,7 @@ import SiteDetails from "@/pages/sites/SiteDetails";
 import ContentGenerator from "@/pages/content/ContentGenerator";
 import AdvancedContentGenerator from "@/pages/content/AdvancedContentGenerator";
 import ContentManager from "@/pages/content/ContentManager";
+import PlagiarismDashboard from "@/pages/content/PlagiarismDashboard";
 import ProductResearch from "@/pages/research/ProductResearch";
 import SeoAnalysis from "@/pages/research/SeoAnalysis";
 import NicheInsights from "@/pages/research/NicheInsights";
@@ -341,6 +342,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <MyAds />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/content/plagiarism">
+        <ProtectedRoute>
+          <AppLayout>
+            <PlagiarismDashboard />
           </AppLayout>
         </ProtectedRoute>
       </Route>

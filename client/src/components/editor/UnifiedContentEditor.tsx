@@ -15,6 +15,7 @@ import { trackPageView } from '@/utils/analytics';
 import { ComparisonTableRenderer } from '@/components/editor/ComparisonTableRenderer';
 import { KeywordModal } from '@/components/editor/KeywordModal';
 import { LinkManagementWidget } from '@/components/editor/LinkManagementWidget';
+import { PlagiarismChecker } from '@/components/content/PlagiarismChecker';
 import { apiRequest } from '@/lib/queryClient';
 import {
   Save,
@@ -1028,6 +1029,14 @@ export function UnifiedContentEditor({
                 console.log('🔗 Content update completed with lock protection');
               }}
             />
+
+            {/* Plagiarism Checker */}
+            {contentData.id && (
+              <PlagiarismChecker
+                contentId={contentData.id as number}
+                contentTitle={contentData.title || 'Untitled Content'}
+              />
+            )}
 
             {/* Quick Actions */}
             <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 overflow-hidden">

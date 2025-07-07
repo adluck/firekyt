@@ -897,6 +897,22 @@ export const feedbackComments = pgTable("feedback_comments", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Plagiarism detection results
+export const plagiarismResults = pgTable("plagiarism_results", {
+  id: text("id").primaryKey(), // API result ID
+  contentId: integer("content_id").notNull().references(() => content.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  originalityScore: integer("originality_score").notNull(), // 0-100
+  similarityScore: integer("similarity_score").notNull(), // 0-100
+  status: text("status").notNull().default("pending"), // pending, completed, failed
+  provider: text("provider").notNull(), // plagiarismcheck.org, copyleaks, simulation
+  totalMatches: integer("total_matches").default(0),
+  matches: jsonb("matches"), // Array of PlagiarismMatch objects
+  rawResults: jsonb("raw_results"), // Full API response for debugging
+  checkedAt: timestamp("checked_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Feedback schemas
 export const insertFeedbackSchema = createInsertSchema(feedback).omit({
   id: true,
@@ -913,6 +929,14 @@ export type Feedback = typeof feedback.$inferSelect;
 export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
 export type FeedbackComment = typeof feedbackComments.$inferSelect;
 export type InsertFeedbackComment = z.infer<typeof insertFeedbackCommentSchema>;
+
+// Plagiarism schemas
+export const insertPlagiarismResultSchema = createInsertSchema(plagiarismResults).omit({
+  createdAt: true,
+});
+
+export type PlagiarismResult = typeof plagiarismResults.$inferSelect;
+export type InsertPlagiarismResult = z.infer<typeof insertPlagiarismResultSchema>;
 
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {
