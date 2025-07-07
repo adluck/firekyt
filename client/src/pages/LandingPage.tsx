@@ -12,51 +12,7 @@ import { useTheme } from '@/components/layout/ThemeProvider';
 
 
 export default function LandingPage() {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
-
-  const handleBetaSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      toast({
-        title: "Email Required",
-        description: "Please enter your email address to join the beta program.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Generate beta code
-      const betaCode = `BETA${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-      
-      const response = await apiRequest('POST', '/api/beta-signup', {
-        email,
-        betaCode
-      });
-
-      if (response.ok) {
-        toast({
-          title: "Welcome to the Beta!",
-          description: "Check your email for your beta access code and next steps.",
-        });
-        setEmail('');
-      } else {
-        throw new Error('Beta signup failed');
-      }
-    } catch (error) {
-      toast({
-        title: "Signup Failed",
-        description: "There was an error signing up for the beta. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-orange-50 to-pink-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -119,20 +75,16 @@ export default function LandingPage() {
             Get full access during our exclusive beta program.
           </p>
 
-          <form onSubmit={handleBetaSignup} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto mb-8">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1"
-              required
-            />
-            <Button type="submit" disabled={isLoading} className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600">
-              {isLoading ? "Joining..." : "Join Beta Free"}
-              <ArrowRightIcon className="ml-2 h-4 w-4" />
+          <div className="flex justify-center mb-8">
+            <Button 
+              onClick={() => window.location.href = '/register'} 
+              size="lg"
+              className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-8 py-4 text-lg font-semibold"
+            >
+              Sign Up Free
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Button>
-          </form>
+          </div>
 
           <p className="text-sm text-slate-300 dark:text-slate-400">
             Limited to 50 beta testers • Full feature access • No credit card required
@@ -208,26 +160,17 @@ export default function LandingPage() {
             Ready to Transform Your Affiliate Business?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join our exclusive beta program and get full access to all features. Limited to 50 testers.
+            Join thousands of affiliate marketers building profitable content with AI-powered tools.
           </p>
           
-          <form onSubmit={handleBetaSignup} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto" id="hero-signup">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/70"
-              required
-            />
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              className="bg-white text-orange-500 hover:bg-slate-100"
-            >
-              {isLoading ? "Joining..." : "Join Beta Now"}
-            </Button>
-          </form>
+          <Button 
+            onClick={() => window.location.href = '/register'} 
+            size="lg"
+            className="bg-white text-orange-500 hover:bg-slate-100 px-8 py-4 text-lg font-semibold"
+          >
+            Get Started Free
+            <ArrowRightIcon className="ml-2 h-5 w-5" />
+          </Button>
         </div>
       </section>
 
