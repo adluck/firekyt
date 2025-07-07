@@ -177,9 +177,11 @@ export class TextOverlayService {
       : `  <rect x="0" y="0" width="${width}" height="${height}" fill="rgba(0,0,0,0.7)"/>`;
 
     // Create text elements with styling and strong contrast
+    // Use white stroke for dark backgrounds, black stroke for light backgrounds
+    const strokeColor = request.backgroundColor === '#000000' || request.backgroundColor?.includes('rgb(0') ? '#ffffff' : '#000000';
     const textElements = textLines.map((line, index) => {
       const yPos = y + (index * lineHeight);
-      return `  <text x="${x}" y="${yPos}" fill="${request.textColor}" font-size="${request.fontSize}" font-family="Arial, sans-serif" font-weight="${request.style === 'bold' ? 'bold' : 'normal'}" text-anchor="middle" stroke="#000000" stroke-width="1" filter="url(#dropshadow)">${this.escapeXML(line)}</text>`;
+      return `  <text x="${x}" y="${yPos}" fill="${request.textColor}" font-size="${request.fontSize}" font-family="Arial, sans-serif" font-weight="${request.style === 'bold' ? 'bold' : 'normal'}" text-anchor="middle" stroke="${strokeColor}" stroke-width="3" paint-order="stroke fill" filter="url(#dropshadow)">${this.escapeXML(line)}</text>`;
     }).join('\n');
 
     return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
