@@ -166,54 +166,8 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
 
   if (!isActive || !currentStepData) return null;
 
-  const highlightStyle = highlightedElement ? (() => {
-    const rect = highlightedElement.getBoundingClientRect();
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Adjust for viewport and scroll position
-    const adjustedLeft = rect.left + scrollLeft;
-    const adjustedTop = rect.top + scrollTop;
-    
-    console.log('Highlight positioning:', {
-      rect,
-      scrollLeft,
-      scrollTop,
-      adjustedLeft,
-      adjustedTop,
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight
-    });
-    
-    return {
-      position: 'fixed' as const,
-      top: rect.top - 8,
-      left: rect.left - 8,
-      width: rect.width + 16,
-      height: rect.height + 16,
-      border: '4px solid #ea580c',
-      borderRadius: '12px',
-      background: 'rgba(234, 88, 12, 0.1)',
-      boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
-      pointerEvents: 'none' as const,
-      zIndex: 9998,
-      animation: 'pulse 2s infinite'
-    };
-  })() : {};
-
   return createPortal(
     <>
-      {/* Overlay */}
-      <div
-        ref={overlayRef}
-        className="fixed inset-0 z-[9997] pointer-events-none"
-        style={{ background: 'rgba(0, 0, 0, 0.5)' }}
-      />
-
-      {/* Highlight */}
-      {highlightedElement && (
-        <div style={highlightStyle} />
-      )}
 
       {/* Tooltip */}
       <div
