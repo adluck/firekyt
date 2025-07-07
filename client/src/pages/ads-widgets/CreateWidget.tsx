@@ -529,7 +529,7 @@ export default function CreateWidget() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 items-start">
         {/* Form Section */}
         <div className="space-y-6">
           <Form {...form}>
@@ -967,8 +967,8 @@ export default function CreateWidget() {
           </Form>
         </div>
 
-        {/* Live Preview Section */}
-        <div className="space-y-6">
+        {/* Live Preview Section - Fixed Position */}
+        <div className="space-y-6 sticky top-6 self-start">
           <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
             <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center justify-between">

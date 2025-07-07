@@ -166,6 +166,13 @@ html, body, #root {
   max-height: 100vh;
 }
 
+/* Fix sticky positioning white space */
+.sticky {
+  height: fit-content !important;
+  max-height: calc(100vh - 120px) !important;
+  overflow-y: auto;
+}
+
 /* Prevent excessive container heights */
 .container {
   min-height: unset !important;
@@ -191,10 +198,19 @@ html, body, #root {
   padding-bottom: 2rem !important;
 }
 
-/* Fix any grid layout white space */
-.grid.lg\\:grid-cols-2 {
+/* Fix sticky positioning layout issues */
+[data-page="create-widget"] .grid {
+  align-items: start !important;
   height: auto !important;
   min-height: unset !important;
+}
+
+[data-page="create-widget"] .sticky {
+  position: sticky !important;
+  top: 1.5rem !important;
+  height: fit-content !important;
+  max-height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
 }
 
 /* Custom range slider styling */
