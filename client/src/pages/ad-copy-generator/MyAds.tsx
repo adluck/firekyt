@@ -857,19 +857,7 @@ export default function MyAds() {
                           <h3 className="text-lg font-semibold">AI-Generated Graphics</h3>
                           <p className="text-sm text-muted-foreground">Professional product graphics created by AI</p>
                         </div>
-                        <Button onClick={() => handleGenerateRealGraphics(campaign)} disabled={!campaign || isGeneratingReal}>
-                          {isGeneratingReal ? (
-                            <>
-                              <div className="w-4 h-4 mr-2 animate-spin border-2 border-background border-t-transparent rounded-full" />
-                              Generating...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="w-4 h-4 mr-2" />
-                              Generate AI Graphics
-                            </>
-                          )}
-                        </Button>
+                        
                       </div>
                       
                       {/* Display Real AI Graphics */}
