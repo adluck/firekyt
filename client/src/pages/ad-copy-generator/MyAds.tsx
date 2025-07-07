@@ -452,10 +452,10 @@ export default function MyAds() {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="copy" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 h-auto">
-                  <TabsTrigger value="copy" className="text-xs sm:text-sm px-2 py-2">Ad Copy ({generatedContent.length})</TabsTrigger>
-                  <TabsTrigger value="images" className="text-xs sm:text-sm px-2 py-2">Image Suggestions</TabsTrigger>
-                  <TabsTrigger value="graphics" className="text-xs sm:text-sm px-2 py-2">Graphics</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 h-auto min-h-[40px]">
+                  <TabsTrigger value="copy" className="text-[10px] sm:text-xs md:text-sm px-1 sm:px-2 py-2 whitespace-nowrap overflow-hidden">Ad Copy ({generatedContent.length})</TabsTrigger>
+                  <TabsTrigger value="images" className="text-[10px] sm:text-xs md:text-sm px-1 sm:px-2 py-2 whitespace-nowrap overflow-hidden">Image Suggestions</TabsTrigger>
+                  <TabsTrigger value="graphics" className="text-[10px] sm:text-xs md:text-sm px-1 sm:px-2 py-2 whitespace-nowrap overflow-hidden">Graphics</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="copy" className="mt-6">
