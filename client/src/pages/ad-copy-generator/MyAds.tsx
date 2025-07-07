@@ -293,7 +293,7 @@ export default function MyAds() {
   };
 
   const handleGenerateGraphicsFromConcept = async (concept: any) => {
-    const cardKey = `${concept.title || concept.type}-${concept.description?.substring(0, 20)}`;
+    const cardKey = `${concept.title}-${concept.description?.substring(0, 20)}`;
     setIsGeneratingFromConcept(true);
     
     try {
@@ -316,7 +316,7 @@ export default function MyAds() {
         const firstGraphic = result.graphics[0];
         setCardGraphics(prev => ({
           ...prev,
-          [cardKey]: firstGraphic.imageUrl
+          [cardKey]: firstGraphic.url
         }));
         
         // Flip the card to show the generated image
