@@ -57,7 +57,6 @@ export default function LandingPage() {
           </div>
         </div>
       </nav>
-
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 text-center">
         <div className="max-w-4xl mx-auto">
@@ -89,7 +88,6 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
-
       {/* Features Section */}
       <section id="features" className="container mx-auto px-6 py-20">
         <div className="text-center mb-16">
@@ -148,16 +146,13 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
-
-
-
       {/* CTA Section */}
       <section className="container mx-auto px-6 py-20 text-center">
         <div className="max-w-4xl mx-auto p-12 bg-gradient-to-r from-orange-500 to-pink-500 rounded-2xl text-white shadow-xl">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
             Scale Your Affiliate Revenue with AI Automation
           </h2>
-          <p className="text-lg md:text-xl mb-8 opacity-95 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl mb-8 opacity-95 max-w-2xl mx-auto leading-relaxed text-[#ffffff]">
             Join successful affiliate marketers who use FireKyt to automate content creation, 
             optimize link placement, and increase conversions across multiple platforms.
           </p>
@@ -179,7 +174,6 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="container mx-auto px-6 py-12 border-t border-slate-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row justify-between items-center">
