@@ -153,23 +153,39 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-6 py-20 text-center">
-        <div className="max-w-3xl mx-auto p-12 bg-gradient-to-r from-orange-500 to-pink-500 rounded-2xl text-white">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Transform Your Affiliate Business?
+        <div className="max-w-4xl mx-auto p-12 bg-gradient-to-r from-orange-500 to-pink-500 rounded-2xl text-white shadow-xl">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
+            Scale Your Affiliate Revenue with AI Automation
           </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join thousands of affiliate marketers who have scaled their business with AI-powered automation.
+          <p className="text-lg md:text-xl mb-8 opacity-95 max-w-2xl mx-auto leading-relaxed">
+            Join successful affiliate marketers who use FireKyt to automate content creation, 
+            optimize link placement, and increase conversions across multiple platforms.
           </p>
           
-          <Link href="/register">
-            <Button 
-              size="lg"
-              className="bg-white text-orange-500 hover:bg-slate-100 px-8 py-4 text-lg font-semibold"
-            >
-              Get Started Free
-              <ArrowRightIcon className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+            <Link href="/register">
+              <Button 
+                size="lg"
+                className="bg-white text-orange-600 hover:bg-slate-50 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 min-w-[200px]"
+              >
+                Start Free Trial
+                <ArrowRightIcon className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-white text-white hover:bg-white hover:text-orange-600 px-8 py-4 text-lg font-semibold min-w-[160px] transition-all duration-200"
+              >
+                View Demo
+              </Button>
+            </Link>
+          </div>
+          
+          <p className="text-sm opacity-80">
+            No credit card required • Full platform access • Cancel anytime
+          </p>
         </div>
       </section>
 
