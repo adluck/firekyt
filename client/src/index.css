@@ -1198,15 +1198,23 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   }
 }
 
-/* Landing page subtitle override */
+/* Landing page subtitle override - maximum specificity */
+section .container .landing-subtitle,
+section .container .landing-subtitle *,
 .landing-subtitle,
 .landing-subtitle * {
   color: white !important;
   --muted-foreground: white !important;
+  --foreground: white !important;
+  --text: white !important;
 }
 
+.dark section .container .landing-subtitle,
+.dark section .container .landing-subtitle *,
 .dark .landing-subtitle,
 .dark .landing-subtitle * {
   color: #d1d5db !important;
   --muted-foreground: #d1d5db !important;
+  --foreground: #d1d5db !important;
+  --text: #d1d5db !important;
 }
