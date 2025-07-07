@@ -890,7 +890,10 @@ export default function MyAds() {
                                   )}
                                 </div>
                                 <div className="p-4">
-                                  <h4 className="font-medium text-sm mb-2">{graphic.dimensions.name}</h4>
+                                  {/* Hide platform name for Instagram Post */}
+                                  {graphic.dimensions.name !== 'Instagram Post' && (
+                                    <h4 className="font-medium text-sm mb-2">{graphic.dimensions.name}</h4>
+                                  )}
                                   <p className="text-xs text-muted-foreground mb-2">
                                     {graphic.dimensions.width} × {graphic.dimensions.height}
                                   </p>
