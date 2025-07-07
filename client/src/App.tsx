@@ -11,6 +11,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { GlobalNavigationLoader } from "@/components/GlobalNavigationLoader";
 import { PageTransition } from "@/components/PageTransition";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
+import { CookieConsent } from "@/components/ui/CookieConsent";
 
 // Landing page
 import LandingPage from "@/pages/LandingPage";
@@ -406,6 +407,7 @@ function App() {
               <Toaster />
               <Router />
               <FeedbackWidget />
+              <CookieConsent />
             </TooltipProvider>
           </SubscriptionProvider>
         </AuthProvider>

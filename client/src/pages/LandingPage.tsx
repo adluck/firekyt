@@ -8,6 +8,7 @@ import { ArrowRightIcon, SunIcon, MoonIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useTheme } from '@/components/layout/ThemeProvider';
+import { CookiePreferencesLink } from '@/components/ui/CookiePreferencesLink';
 
 
 
@@ -189,6 +190,7 @@ export default function LandingPage() {
             <a href="#" className="hover:text-slate-700 dark:hover:text-slate-300">Privacy</a>
             <a href="#" className="hover:text-slate-700 dark:hover:text-slate-300">Terms</a>
             <a href="#" className="hover:text-slate-700 dark:hover:text-slate-300">Support</a>
+            <CookiePreferencesLink />
           </div>
         </div>
         
