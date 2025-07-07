@@ -17,10 +17,8 @@ import {
   Search, 
   Filter, 
   MoreVertical,
-  Clock,
   CheckCircle,
-  AlertCircle,
-  Globe
+  AlertCircle
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -126,61 +124,7 @@ export default function ContentManager() {
     },
   });
 
-  // Publish content mutation
-  const publishContentMutation = useMutation({
-    mutationFn: async (contentId: number) => {
-      const response = await apiRequest("PUT", `/api/content/${contentId}`, {
-        status: "published",
-        publishedAt: new Date()
-      });
-      if (!response.ok) {
-        throw new Error("Failed to publish content");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/content"] });
-      toast({
-        title: "Content Published",
-        description: "Content has been successfully published",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Publish Failed",
-        description: error.message || "Failed to publish content",
-        variant: "destructive",
-      });
-    },
-  });
 
-  // Unpublish content mutation
-  const unpublishContentMutation = useMutation({
-    mutationFn: async (contentId: number) => {
-      const response = await apiRequest("PUT", `/api/content/${contentId}`, {
-        status: "draft",
-        publishedAt: null
-      });
-      if (!response.ok) {
-        throw new Error("Failed to unpublish content");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/content"] });
-      toast({
-        title: "Content Unpublished",
-        description: "Content has been moved back to draft",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Unpublish Failed",
-        description: error.message || "Failed to unpublish content",
-        variant: "destructive",
-      });
-    },
-  });
 
   // Filter content based on search and filters
   const filteredContent = contentList.filter((content: Content) => {
@@ -201,13 +145,7 @@ export default function ContentManager() {
     deleteContentMutation.mutate(contentId);
   };
 
-  const handlePublish = (contentId: number) => {
-    publishContentMutation.mutate(contentId);
-  };
 
-  const handleUnpublish = (contentId: number) => {
-    unpublishContentMutation.mutate(contentId);
-  };
 
   const handleSaveEdit = (editedContent: any) => {
     if (editingContent) {
@@ -248,7 +186,7 @@ export default function ContentManager() {
       case "published":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case "draft":
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Edit className="h-4 w-4 text-yellow-500" />;
       default:
         return <AlertCircle className="h-4 w-4 text-gray-500" />;
     }
@@ -259,7 +197,7 @@ export default function ContentManager() {
       case "blog_post":
         return <FileText className="h-4 w-4" />;
       case "product_comparison":
-        return <Globe className="h-4 w-4" />;
+        return <FileText className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
     }
@@ -501,7 +439,7 @@ export default function ContentManager() {
                         {getWordCount(content.content)} words
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
+                        <Eye className="h-3 w-3" />
                         {getReadingTime(content.content)} min read
                       </div>
                       {content.contentType && (
@@ -521,28 +459,6 @@ export default function ContentManager() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
-                    {content.status === "draft" ? (
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() => handlePublish(content.id)}
-                        disabled={publishContentMutation.isPending}
-                      >
-                        <Globe className="h-4 w-4 mr-1" />
-                        Publish
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleUnpublish(content.id)}
-                        disabled={unpublishContentMutation.isPending}
-                      >
-                        <Clock className="h-4 w-4 mr-1" />
-                        Unpublish
-                      </Button>
-                    )}
-
                     <Button
                       variant="ghost"
                       size="sm"

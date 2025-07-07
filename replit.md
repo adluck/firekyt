@@ -436,6 +436,8 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Updated tutorial structure and step numbering to accommodate the new Ad Copy feature section
 ✓ Included platform-specific copy types (Google Ads, Facebook/Instagram, Email Marketing, Amazon Listings)
 ✓ Added pro tips for A/B testing variations and campaign management workflow
+✓ Removed Publish and Unpublish buttons from Content Manager interface per user request
+✓ Cleaned up unused mutations, handler functions, and icon imports for cleaner codebase
 
 ## User Preferences
 
