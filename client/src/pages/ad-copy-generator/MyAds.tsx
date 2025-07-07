@@ -750,7 +750,7 @@ export default function MyAds() {
                                             </div>
                                           </div>
                                           
-                                          <div className="flex gap-2 mt-auto">
+                                          <div className="flex gap-2 mt-3 flex-shrink-0">
                                             <Button
                                               variant="ghost"
                                               size="sm"
@@ -929,7 +929,7 @@ export default function MyAds() {
                                           </div>
                                         </div>
                                         
-                                        <div className="flex gap-2 mt-auto">
+                                        <div className="flex gap-2 mt-3 flex-shrink-0">
                                           <Button
                                             variant="ghost"
                                             size="sm"
