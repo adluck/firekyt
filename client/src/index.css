@@ -173,34 +173,10 @@ body:has([data-page="create-widget"]) {
   max-height: 100vh;
 }
 
-/* Fix entire app layout for Create Widget page - no scrolling anywhere */
-.flex.h-screen:has([data-page="create-widget"]) {
-  height: 100vh !important;
+/* Simple fix for Create Widget page - prevent body overflow only */
+body:has([data-page="create-widget"]) {
   max-height: 100vh !important;
-  overflow: hidden !important;
-}
-
-/* Fix main content area on Create Widget page */
-main:has([data-page="create-widget"]) {
-  height: 100vh !important;
-  max-height: 100vh !important;
-  overflow: hidden !important;
-}
-
-/* Make main content container fit exactly */
-main:has([data-page="create-widget"]) #main-content {
-  height: 100vh !important;
-  max-height: 100vh !important;
-  min-height: unset !important;
-  overflow: hidden !important;
-  padding: 1.5rem !important;
-}
-
-/* Ensure Create Widget container uses full available height */
-[data-page="create-widget"] .container {
-  height: calc(100vh - 3rem) !important;
-  max-height: calc(100vh - 3rem) !important;
-  overflow: hidden !important;
+  overflow-y: hidden !important;
 }
 
 /* Custom range slider styling */
