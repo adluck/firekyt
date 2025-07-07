@@ -114,7 +114,7 @@ export default function LandingPage() {
             AI-Powered Affiliate Marketing Platform
           </h1>
           
-          <p className="text-xl text-slate-200 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-white dark:text-slate-300 mb-8 max-w-3xl mx-auto">
             Create high-converting content, embed intelligent affiliate widgets, and automate your publishing across platforms. 
             Get full access during our exclusive beta program.
           </p>
