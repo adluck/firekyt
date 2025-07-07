@@ -22,7 +22,6 @@ import {
   Settings,
   FileText,
   Table,
-  Share,
   Calendar,
   Tag,
   ExternalLink,
@@ -668,23 +667,7 @@ export function UnifiedContentEditor({
     defaultSaveMutation.mutate(dataToSave);
   };
 
-  const handlePublish = () => {
-    if (!handleValidation()) return;
 
-    const dataToSave = {
-      ...contentData,
-      status: 'published',
-      targetKeywords: currentKeywords || [],
-      siteId: contentData.siteId > 0 ? contentData.siteId : null, // Properly handle siteId
-    };
-
-    console.log('Publishing content with keywords:', dataToSave.targetKeywords);
-    console.log('Full data being published:', dataToSave);
-    console.log('SiteId being published:', dataToSave.siteId);
-    console.log('Original contentData.siteId:', contentData.siteId);
-
-    defaultSaveMutation.mutate(dataToSave);
-  };
 
   const handleSaveTable = (config: any) => {
     saveTableMutation.mutate(config);
@@ -748,19 +731,11 @@ export function UnifiedContentEditor({
               </Button>
             )}
             <Button
-              variant="outline"
               onClick={handleSave}
               disabled={isSaving}
             >
               <Save className="w-4 h-4 mr-2" />
               Save Draft
-            </Button>
-            <Button
-              onClick={handlePublish}
-              disabled={isSaving}
-            >
-              <Share className="w-4 h-4 mr-2" />
-              Publish
             </Button>
           </div>
         </div>

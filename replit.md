@@ -438,6 +438,8 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Added pro tips for A/B testing variations and campaign management workflow
 ✓ Removed Publish and Unpublish buttons from Content Manager interface per user request
 ✓ Cleaned up unused mutations, handler functions, and icon imports for cleaner codebase
+✓ Removed Publish button from UnifiedContentEditor and made Save Draft the primary button
+✓ Cleaned up unused handlePublish function and Share icon import from content editor
 
 ## User Preferences
 
