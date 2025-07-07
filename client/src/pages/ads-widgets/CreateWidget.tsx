@@ -967,8 +967,8 @@ export default function CreateWidget() {
           </Form>
         </div>
 
-        {/* Live Preview Section - Sticky */}
-        <div className="space-y-6 sticky top-6 h-fit">
+        {/* Live Preview Section */}
+        <div className="space-y-6">
           <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
             <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center justify-between">

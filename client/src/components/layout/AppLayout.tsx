@@ -27,8 +27,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         onToggleCollapse={handleToggleCollapse}
       />
       
-      <main className="flex-1 overflow-auto">
-        <div className="w-full p-6">
+      <main className="flex-1 overflow-auto min-h-0">
+        <div className="w-full p-6 min-h-full">
           {children}
         </div>
       </main>

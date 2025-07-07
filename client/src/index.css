@@ -153,11 +153,19 @@ html, body, #root {
 
 body {
   overflow-y: auto;
+  margin: 0;
+  padding: 0;
 }
 
 /* Prevent excessive white space on long pages */
 .container {
   min-height: unset !important;
+}
+
+/* Fix Create Widget page layout */
+.max-w-7xl {
+  max-height: calc(100vh - 120px);
+  overflow-y: visible;
 }
 
 /* Custom range slider styling */
