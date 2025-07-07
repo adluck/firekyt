@@ -72,6 +72,20 @@ export default function LandingPage() {
             Scale your affiliate business with AI-powered tools designed for professional marketers.
           </p>
 
+          {/* Beta Counter */}
+          <div className="inline-flex items-center gap-3 mb-8 px-6 py-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full border border-orange-200 dark:border-orange-800 shadow-lg">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                BETA ACCESS
+              </span>
+            </div>
+            <div className="w-px h-4 bg-slate-300 dark:bg-slate-600"></div>
+            <span className="text-sm font-bold text-orange-600 dark:text-orange-400">
+              247 seats remaining
+            </span>
+          </div>
+
           <div className="flex justify-center mb-8">
             <Link href="/register">
               <Button 
