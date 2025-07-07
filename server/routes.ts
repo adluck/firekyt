@@ -2302,9 +2302,6 @@ Format your response as a JSON object with the following structure:
         
         // Process shortcodes to convert widget embeds to iframes
         const processedContent = processShortcodes(content.content);
-        console.log('📝 Publishing Debug - Original content contains shortcode:', content.content.includes('[firekyt_widget'));
-        console.log('📝 Publishing Debug - Processed content contains iframe:', processedContent.includes('<iframe'));
-        console.log('📝 Publishing Debug - Content being sent to WordPress:', processedContent.substring(0, 500) + '...');
         
         const postData = {
           title: content.title,

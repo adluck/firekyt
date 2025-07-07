@@ -445,6 +445,9 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Cleaned up unused mutations, handler functions, and icon imports for cleaner codebase
 ✓ Removed Publish button from UnifiedContentEditor and made Save Draft the primary button
 ✓ Cleaned up unused handlePublish function and Share icon import from content editor
+✓ Fixed widget shortcode display in editor - cleaned up blue widget area to show only shortcode text without descriptive labels
+✓ Updated EmbedExtension to display minimal shortcode format instead of complex HTML structure with titles and descriptions
+✓ Verified shortcode processing works correctly during publishing - shortcodes convert to iframes when published to external platforms
 
 ## User Preferences
 
