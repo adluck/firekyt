@@ -455,7 +455,7 @@ export default function MyAds() {
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="copy">Ad Copy ({generatedContent.length})</TabsTrigger>
                   <TabsTrigger value="images">Image Suggestions</TabsTrigger>
-                  <TabsTrigger value="graphics">Text Overlays</TabsTrigger>
+                  <TabsTrigger value="graphics">Graphics</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="copy" className="mt-6">
