@@ -704,7 +704,7 @@ export default function MyAds() {
                               const graphicUrl = cardGraphics[cardKey];
                               
                               return (
-                                <div key={index} className={`flip-card h-96 ${isFlipped ? 'flipped' : ''}`}>
+                                <div key={index} className={`flip-card h-[28rem] ${isFlipped ? 'flipped' : ''}`}>
                                   <div className="flip-card-inner">
                                     {/* Front of card - Suggestion details */}
                                     <div className="flip-card-front">
@@ -715,10 +715,10 @@ export default function MyAds() {
                                             <Badge variant="outline" className="text-xs">{suggestion.mood}</Badge>
                                           </div>
                                         </CardHeader>
-                                        <CardContent className="space-y-2 h-full flex flex-col">
-                                          <p className="text-sm text-muted-foreground">{suggestion.description}</p>
+                                        <CardContent className="p-4 h-full flex flex-col">
+                                          <p className="text-sm text-muted-foreground mb-3">{suggestion.description}</p>
                                           
-                                          <div className="space-y-2 flex-1 overflow-y-auto">
+                                          <div className="space-y-2 flex-1 overflow-y-auto min-h-0">
                                             <div>
                                               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Elements</p>
                                               <div className="flex flex-wrap gap-1 mt-1">
@@ -878,7 +878,7 @@ export default function MyAds() {
                             const graphicUrl = cardGraphics[cardKey];
                             
                             return (
-                              <div key={index} className={`flip-card h-96 ${isFlipped ? 'flipped' : ''}`}>
+                              <div key={index} className={`flip-card h-[28rem] ${isFlipped ? 'flipped' : ''}`}>
                                 <div className="flip-card-inner">
                                   {/* Front of card - Concept details */}
                                   <div className="flip-card-front">
@@ -889,10 +889,10 @@ export default function MyAds() {
                                           <Badge variant="outline" className="text-xs capitalize">{concept.platform?.replace(/_/g, ' ')}</Badge>
                                         </div>
                                       </CardHeader>
-                                      <CardContent className="space-y-2 h-full flex flex-col">
-                                        <p className="text-sm text-muted-foreground">{concept.description}</p>
+                                      <CardContent className="p-4 h-full flex flex-col">
+                                        <p className="text-sm text-muted-foreground mb-3">{concept.description}</p>
                                         
-                                        <div className="space-y-2 flex-1 overflow-y-auto">
+                                        <div className="space-y-2 flex-1 overflow-y-auto min-h-0">
                                           <div>
                                             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Style</p>
                                             <Badge variant="secondary" className="text-xs">{concept.visual_style}</Badge>
