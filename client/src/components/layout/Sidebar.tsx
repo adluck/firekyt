@@ -55,12 +55,13 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Sites', href: '/sites', icon: Globe },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, dataTour: 'dashboard-nav' },
+  { name: 'Sites', href: '/sites', icon: Globe, dataTour: 'sites-nav' },
   { 
     name: 'Content', 
     href: '/content', 
     icon: FileText,
+    dataTour: 'content-nav',
     submenu: [
       { name: 'AI Generator', href: '/content', icon: FileText },
       { name: 'Rich Editor', href: '/content/editor', icon: FileText },
@@ -72,6 +73,7 @@ const navigation = [
     name: 'Ad Copy', 
     href: '/ad-copy-generator', 
     icon: Sparkles,
+    dataTour: 'ad-copy-nav',
     submenu: [
       { name: 'Generate Ad Copy', href: '/ad-copy-generator', icon: Sparkles },
       { name: 'My Campaigns', href: '/my-ads', icon: Eye }
@@ -81,6 +83,7 @@ const navigation = [
     name: 'Research', 
     href: '/research', 
     icon: Search,
+    dataTour: 'research-nav',
     submenu: [
       { name: 'Niche Insights', href: '/research/niche', icon: Brain },
       { name: 'Product Research', href: '/research', icon: Search },
@@ -92,6 +95,7 @@ const navigation = [
     name: 'Link Management', 
     href: '/links', 
     icon: Link2,
+    dataTour: 'link-management-nav',
     submenu: [
       { name: 'Link Dashboard', href: '/links', icon: Link2 },
       { name: 'Link Intelligence', href: '/links/intelligent', icon: Lightbulb },
@@ -104,16 +108,17 @@ const navigation = [
     name: 'Ad Widgets', 
     href: '/ads-widgets', 
     icon: Monitor,
+    dataTour: 'widgets-nav',
     submenu: [
       { name: 'Create Widget', href: '/ads-widgets/create', icon: Plus },
       { name: 'Manage Widgets', href: '/ads-widgets', icon: Monitor },
       { name: 'Ad Sizes Demo', href: '/ads-widgets/sizes', icon: Ruler }
     ]
   },
-  { name: 'Publishing', href: '/publishing', icon: Send },
+  { name: 'Publishing', href: '/publishing', icon: Send, dataTour: 'publishing-nav' },
   // { name: 'Billing', href: '/billing', icon: CreditCard }, // Temporarily hidden
-  { name: 'Documentation', href: '/docs', icon: BookOpen },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Documentation', href: '/docs', icon: BookOpen, dataTour: 'documentation-nav' },
+  { name: 'Settings', href: '/settings', icon: Settings, dataTour: 'settings-nav' },
 ];
 
 // Admin-only navigation items
@@ -227,7 +232,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         )}
                         onClick={() => toggleMenu(item.name)}
                         title={item.name}
-                        data-tour={item.name === 'Ad Widgets' ? 'widgets-nav' : undefined}
+                        data-tour={item.dataTour}
                       >
                         <item.icon className="h-5 w-5" />
                       </button>
@@ -280,7 +285,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         (isActive || hasActiveSubmenu) && "active"
                       )}
                       onClick={() => toggleMenu(item.name)}
-                      data-tour={item.name === 'Ad Widgets' ? 'widgets-nav' : undefined}
+                      data-tour={item.dataTour}
                     >
                       <div className="flex items-center gap-3">
                         <item.icon className="h-5 w-5" />
@@ -335,7 +340,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                     )}
                     onClick={() => setIsMobileOpen(false)}
                     title={isCollapsed ? item.name : undefined}
-                    data-tour={item.name === 'Ad Widgets' ? 'widgets-nav' : undefined}
+                    data-tour={item.dataTour}
                   >
                     <item.icon className="h-5 w-5" />
                     {!isCollapsed && <span>{item.name}</span>}

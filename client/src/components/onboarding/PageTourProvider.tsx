@@ -4,6 +4,10 @@ import { WidgetsTour } from './tours/WidgetsTour';
 import { ContentTour } from './tours/ContentTour';
 import { AnalyticsTour } from './tours/AnalyticsTour';
 import { AdCopyTour } from './tours/AdCopyTour';
+import { SitesTour } from './tours/SitesTour';
+import { ResearchTour } from './tours/ResearchTour';
+import { LinkManagementTour } from './tours/LinkManagementTour';
+import { PublishingTour } from './tours/PublishingTour';
 
 interface PageTourContextType {
   startPageTour: (pageName: string) => void;
@@ -41,7 +45,8 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       if (pageName === 'dashboard') return;
       
       // Auto-trigger tour for first-time visitors to specific pages
-      if (!hasVisited && ['widgets', 'content', 'analytics', 'ad-copy'].includes(pageName)) {
+      const tourPages = ['widgets', 'content', 'analytics', 'ad-copy', 'sites', 'research', 'links', 'publishing'];
+      if (!hasVisited && tourPages.includes(pageName)) {
         setTimeout(() => {
           startPageTour(pageName);
           localStorage.setItem(visitKey, 'true');
@@ -112,6 +117,38 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       
       {activePageTour === 'ad-copy' && (
         <AdCopyTour
+          isActive={isPageTourActive}
+          onComplete={completeTour}
+          onSkip={skipTour}
+        />
+      )}
+      
+      {activePageTour === 'sites' && (
+        <SitesTour
+          isActive={isPageTourActive}
+          onComplete={completeTour}
+          onSkip={skipTour}
+        />
+      )}
+      
+      {activePageTour === 'research' && (
+        <ResearchTour
+          isActive={isPageTourActive}
+          onComplete={completeTour}
+          onSkip={skipTour}
+        />
+      )}
+      
+      {activePageTour === 'links' && (
+        <LinkManagementTour
+          isActive={isPageTourActive}
+          onComplete={completeTour}
+          onSkip={skipTour}
+        />
+      )}
+      
+      {activePageTour === 'publishing' && (
+        <PublishingTour
           isActive={isPageTourActive}
           onComplete={completeTour}
           onSkip={skipTour}

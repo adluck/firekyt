@@ -16,31 +16,9 @@ export function DashboardTour({ isActive, onComplete, onSkip }: DashboardTourPro
       id: 'welcome',
       target: 'h1', // Dashboard title
       title: 'Welcome to FireKyt!',
-      content: 'This is your command center where you can monitor all your affiliate marketing activities and performance metrics.',
+      content: 'This is your command center. Let\'s take a complete tour through all sections of your affiliate marketing platform.',
       position: 'bottom' as const,
       delay: 1000
-    },
-    {
-      id: 'platform-tour',
-      target: '[data-tour="platform-tour"]', // Platform Tour button
-      title: 'Platform Tour',
-      content: 'Click here anytime to restart this guided tour or explore other features in detail.',
-      position: 'bottom' as const,
-      action: {
-        text: 'Got it!',
-        onClick: () => {}
-      }
-    },
-    {
-      id: 'create-content',
-      target: '[data-tour="create-content"]', // Create Content button
-      title: 'AI Content Creation',
-      content: 'Start here to generate high-converting blog posts, product reviews, and affiliate content using our advanced AI.',
-      position: 'bottom' as const,
-      action: {
-        text: 'Explore Content Creation',
-        onClick: () => setLocation('/content')
-      }
     },
     {
       id: 'performance-metrics',
@@ -60,50 +38,86 @@ export function DashboardTour({ isActive, onComplete, onSkip }: DashboardTourPro
       id: 'sidebar-navigation',
       target: '[data-tour="sidebar"]', // Sidebar
       title: 'Navigation Menu',
-      content: 'Access all platform features from this sidebar: content tools, affiliate widgets, analytics, and research tools.',
+      content: 'Now let\'s explore each section of your affiliate marketing toolkit. Each area has specialized features.',
       position: 'right' as const
     },
     {
-      id: 'widgets-nav',
-      target: '[data-tour="widgets-nav"]', // Widgets navigation item
-      title: 'Affiliate Widgets',
-      content: 'Create dynamic affiliate ad widgets that you can embed anywhere to monetize your content.',
+      id: 'sites-nav',
+      target: '[data-tour="sites-nav"]', // Sites navigation
+      title: 'Sites Management',
+      content: 'Connect and manage your websites, blogs, and publishing destinations.',
       position: 'right' as const,
-      waitForElement: true,
-      action: {
-        text: 'View Widgets',
-        onClick: () => setLocation('/ads-widgets')
-      }
+      waitForElement: true
+    },
+    {
+      id: 'content-nav',
+      target: '[data-tour="content-nav"]', // Content navigation
+      title: 'Content Creation',
+      content: 'Create high-converting affiliate content with AI assistance, rich editing tools, and SEO optimization.',
+      position: 'right' as const,
+      waitForElement: true
     },
     {
       id: 'ad-copy-nav',
-      target: '[href="/ad-copy"]', // Ad Copy navigation item
+      target: '[data-tour="ad-copy-nav"]', // Ad Copy navigation
       title: 'AI Ad Copy Generator',
       content: 'Generate platform-specific ad copy for Google Ads, Facebook, Instagram, and email campaigns.',
       position: 'right' as const,
-      waitForElement: true,
-      action: {
-        text: 'Try Ad Copy Generator',
-        onClick: () => setLocation('/ad-copy')
-      }
+      waitForElement: true
     },
     {
-      id: 'analytics-nav',
-      target: '[href="/analytics"]', // Analytics navigation item
-      title: 'Advanced Analytics',
-      content: 'Deep dive into your performance data with detailed analytics and actionable insights.',
+      id: 'research-nav',
+      target: '[data-tour="research-nav"]', // Research navigation
+      title: 'Research Tools',
+      content: 'Discover profitable niches, analyze competitors, and find high-converting keywords.',
       position: 'right' as const,
-      waitForElement: true,
-      action: {
-        text: 'View Analytics',
-        onClick: () => setLocation('/analytics')
-      }
+      waitForElement: true
+    },
+    {
+      id: 'link-management-nav',
+      target: '[data-tour="link-management-nav"]', // Link Management navigation
+      title: 'Link Management',
+      content: 'Manage affiliate links with AI-powered intelligent placement and performance tracking.',
+      position: 'right' as const,
+      waitForElement: true
+    },
+    {
+      id: 'widgets-nav',
+      target: '[data-tour="widgets-nav"]', // Widgets navigation
+      title: 'Affiliate Widgets',
+      content: 'Create dynamic affiliate ad widgets that you can embed anywhere to monetize your content.',
+      position: 'right' as const,
+      waitForElement: true
+    },
+    {
+      id: 'publishing-nav',
+      target: '[data-tour="publishing-nav"]', // Publishing navigation
+      title: 'Publishing Hub',
+      content: 'Schedule and publish content across multiple platforms with automated distribution.',
+      position: 'right' as const,
+      waitForElement: true
+    },
+    {
+      id: 'documentation-nav',
+      target: '[data-tour="documentation-nav"]', // Documentation navigation
+      title: 'Documentation',
+      content: 'Access comprehensive guides, tutorials, and best practices for affiliate marketing success.',
+      position: 'right' as const,
+      waitForElement: true
+    },
+    {
+      id: 'settings-nav',
+      target: '[data-tour="settings-nav"]', // Settings navigation
+      title: 'Settings',
+      content: 'Configure your account, integrations, and platform preferences.',
+      position: 'right' as const,
+      waitForElement: true
     },
     {
       id: 'tour-complete',
       target: 'body',
-      title: 'Tour Complete!',
-      content: 'You\'re all set! Start by creating your first piece of content or explore any feature that interests you. You can always restart this tour from the Platform Tour button.',
+      title: 'Platform Tour Complete!',
+      content: 'You\'ve seen all the main sections. Each area has its own detailed tour when you visit it for the first time. Ready to start building your affiliate empire?',
       position: 'center' as const
     }
   ];
