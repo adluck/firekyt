@@ -1,10 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { OnboardingTour } from './OnboardingTour';
+import { DashboardTour } from './DashboardTour';
+import { useLocation } from 'wouter';
 
 interface OnboardingContextType {
   isOnboardingComplete: boolean;
   showOnboarding: boolean;
+  showGuidedTour: boolean;
   startOnboarding: () => void;
+  startGuidedTour: () => void;
   completeOnboarding: () => void;
   skipOnboarding: () => void;
 }
@@ -26,26 +30,42 @@ interface OnboardingProviderProps {
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showGuidedTour, setShowGuidedTour] = useState(false);
+  const [location] = useLocation();
 
   useEffect(() => {
     // Check if user has completed onboarding
     const completed = localStorage.getItem('onboardingCompleted');
     const skipped = localStorage.getItem('onboardingSkipped');
+    const guidedTourCompleted = localStorage.getItem('guidedTourCompleted');
     
     if (completed === 'true' || skipped === 'true') {
       setIsOnboardingComplete(true);
+      
+      // Show guided tour for new users on dashboard
+      if (location === '/dashboard' && guidedTourCompleted !== 'true') {
+        const timer = setTimeout(() => {
+          setShowGuidedTour(true);
+        }, 2000);
+        
+        return () => clearTimeout(timer);
+      }
     } else {
-      // Show onboarding for new users after a brief delay
+      // Show modal onboarding for completely new users
       const timer = setTimeout(() => {
         setShowOnboarding(true);
       }, 2000);
       
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [location]);
 
   const startOnboarding = () => {
     setShowOnboarding(true);
+  };
+
+  const startGuidedTour = () => {
+    setShowGuidedTour(true);
   };
 
   const completeOnboarding = () => {
@@ -54,11 +74,16 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     setIsOnboardingComplete(true);
     setShowOnboarding(false);
     
+    // Start guided tour after modal completion
+    if (location === '/dashboard') {
+      setTimeout(() => setShowGuidedTour(true), 1000);
+    }
+    
     // Track onboarding completion
     fetch('/api/track-onboarding-completion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed: true })
+      body: JSON.stringify({ completed: true, tourType: 'modal' })
     }).catch(console.error);
   };
 
@@ -72,8 +97,20 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     fetch('/api/track-onboarding-completion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed: false, skipped: true })
+      body: JSON.stringify({ completed: false, skipped: true, tourType: 'modal' })
     }).catch(console.error);
+  };
+
+  const completeGuidedTour = () => {
+    localStorage.setItem('guidedTourCompleted', 'true');
+    localStorage.setItem('guidedTourCompletedDate', new Date().toISOString());
+    setShowGuidedTour(false);
+  };
+
+  const skipGuidedTour = () => {
+    localStorage.setItem('guidedTourSkipped', 'true');
+    localStorage.setItem('guidedTourSkippedDate', new Date().toISOString());
+    setShowGuidedTour(false);
   };
 
   return (
@@ -81,7 +118,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       value={{
         isOnboardingComplete,
         showOnboarding,
+        showGuidedTour,
         startOnboarding,
+        startGuidedTour,
         completeOnboarding,
         skipOnboarding
       }}
@@ -91,6 +130,11 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         isOpen={showOnboarding}
         onClose={skipOnboarding}
         onComplete={completeOnboarding}
+      />
+      <DashboardTour
+        isActive={showGuidedTour}
+        onComplete={completeGuidedTour}
+        onSkip={skipGuidedTour}
       />
     </OnboardingContext.Provider>
   );
