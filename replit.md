@@ -485,6 +485,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **Enhanced Error Handling** - Added proper null checking for nested properties and improved 404 error handling in plagiarism components
 ✓ **Tabbed Interface Enhancement** - Plagiarism tab only appears for existing content (when contentData.id exists) for better UX
 ✓ **Removed Sidebar Plagiarism Widget** - Cleaned up content editor sidebar by removing plagiarism checker widget per user request
+✓ **Enhanced Plagiarism Tab with Score Display** - Added plagiarism score to tab label showing "Plagiarism (81%)" format for instant visibility
 
 ## User Preferences
 

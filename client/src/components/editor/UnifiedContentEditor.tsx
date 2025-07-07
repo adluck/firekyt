@@ -164,6 +164,31 @@ export function UnifiedContentEditor({
     queryKey: ['/api/products'],
   });
 
+  // Fetch plagiarism score for tab label
+  const { data: plagiarismResult } = useQuery<any>({
+    queryKey: ['plagiarism-result', contentData.id],
+    queryFn: async () => {
+      if (!contentData.id) return null;
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/content/${contentData.id}/plagiarism-result`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null; // No plagiarism result exists yet
+        }
+        throw new Error('Failed to fetch plagiarism result');
+      }
+      return response.json();
+    },
+    enabled: !!contentData.id,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
   // Listen for tab switching events from table builder
   useEffect(() => {
     const handleSwitchToEditor = () => {
@@ -698,7 +723,13 @@ export function UnifiedContentEditor({
     enableTables && { key: 'tables', label: 'Tables', icon: Table },
     enableSEO && { key: 'seo', label: 'SEO', icon: Settings },
     enablePreview && { key: 'preview', label: 'Preview', icon: Eye },
-    contentData.id && { key: 'plagiarism', label: 'Plagiarism', icon: Shield },
+    contentData.id && { 
+      key: 'plagiarism', 
+      label: plagiarismResult?.interpretation?.score 
+        ? `Plagiarism (${plagiarismResult.interpretation.score}%)` 
+        : 'Plagiarism',
+      icon: Shield 
+    },
   ].filter(Boolean) as Array<{ key: string; label: string; icon: any }>;
 
   if (isNavigating) {
