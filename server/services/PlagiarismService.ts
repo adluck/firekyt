@@ -1,5 +1,6 @@
 import { storage } from '../storage';
 import { type PlagiarismResult } from '@shared/schema';
+import { GoogleGenAI } from '@google/genai';
 
 export interface PlagiarismCheckResult {
   id: string;
@@ -30,60 +31,115 @@ export interface PlagiarismCheckRequest {
 }
 
 class PlagiarismService {
-  private readonly baseUrl = 'https://api.plagiarismcheck.org';
-  private readonly apiKey = process.env.PLAGIARISM_API_KEY;
+  private readonly geminiAI: GoogleGenAI;
+  private readonly geminiApiKey = process.env.GEMINI_API_KEY;
 
-  async checkPlagiarism(request: PlagiarismCheckRequest): Promise<PlagiarismCheckResult> {
-    console.log('🔍 Starting plagiarism check for content:', request.contentId || 'new content');
-    
-    // For development/demo purposes, provide a simulated check
-    if (!this.apiKey) {
-      return this.simulatePlagiarismCheck(request);
-    }
-
-    try {
-      return await this.performRealPlagiarismCheck(request);
-    } catch (error) {
-      console.error('Plagiarism check failed:', error);
-      // Fall back to simulation if API fails
-      return this.simulatePlagiarismCheck(request);
-    }
+  constructor() {
+    this.geminiAI = new GoogleGenAI({ apiKey: this.geminiApiKey || '' });
   }
 
-  private async performRealPlagiarismCheck(request: PlagiarismCheckRequest): Promise<PlagiarismCheckResult> {
-    const response = await fetch(`${this.baseUrl}/api/v1/text`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-TOKEN': this.apiKey!,
-      },
-      body: JSON.stringify({
-        text: request.text,
-        title: request.title,
-        language: 'en',
-        excludeUrls: [],
-        includeCitations: true,
-        excludeQuotes: false,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Plagiarism API error: ${response.status}`);
+  async checkPlagiarism(request: PlagiarismCheckRequest): Promise<PlagiarismCheckResult> {
+    console.log('🔍 Starting Gemini AI plagiarism check for content:', request.contentId || 'new content');
+    
+    // Use Gemini AI for plagiarism detection
+    if (this.geminiApiKey) {
+      return await this.performGeminiPlagiarismCheck(request);
     }
 
-    const data = await response.json() as any;
-    
-    return {
-      id: data.id || `check_${Date.now()}`,
-      contentId: request.contentId || 0,
-      originalityScore: Math.round((100 - (data.percent || 0))),
-      similarityScore: Math.round(data.percent || 0),
-      matches: this.parseMatches(data.sources || []),
-      status: 'completed',
-      checkedAt: new Date(),
-      provider: 'plagiarismcheck.org',
-      rawResults: data,
-    };
+    // Fall back to simulation if no API key
+    console.log('⚠️ No Gemini API key found, using simulation');
+    return this.simulatePlagiarismCheck(request);
+  }
+
+  private async performGeminiPlagiarismCheck(request: PlagiarismCheckRequest): Promise<PlagiarismCheckResult> {
+    try {
+      console.log('🤖 Using Gemini AI for plagiarism analysis...');
+      
+      const prompt = `You are an expert plagiarism detector. Analyze the following content for originality and potential plagiarism issues.
+
+Content to analyze:
+Title: ${request.title || 'Untitled'}
+Text: ${request.text}
+
+Please provide a comprehensive analysis including:
+1. Originality score (0-100, where 100 is completely original)
+2. Similarity concerns (identify any phrases that seem commonly used or potentially plagiarized)
+3. Writing quality assessment
+4. Recommendations for improvement
+
+Respond with a JSON object in this exact format:
+{
+  "originalityScore": number,
+  "similarityScore": number,
+  "analysis": "detailed analysis text",
+  "concerns": ["list of specific concerns"],
+  "recommendations": ["list of recommendations"],
+  "potentialMatches": [
+    {
+      "text": "potentially problematic text",
+      "reason": "why this might be plagiarized",
+      "similarity": number
+    }
+  ]
+}`;
+
+      const response = await this.geminiAI.models.generateContent({
+        model: "gemini-2.5-flash",
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              originalityScore: { type: "number" },
+              similarityScore: { type: "number" },
+              analysis: { type: "string" },
+              concerns: { type: "array", items: { type: "string" } },
+              recommendations: { type: "array", items: { type: "string" } },
+              potentialMatches: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    text: { type: "string" },
+                    reason: { type: "string" },
+                    similarity: { type: "number" }
+                  }
+                }
+              }
+            },
+            required: ["originalityScore", "similarityScore", "analysis"]
+          }
+        },
+        contents: prompt,
+      });
+
+      const analysisData = JSON.parse(response.text || '{}');
+      
+      // Convert Gemini analysis to our format
+      const matches: PlagiarismMatch[] = (analysisData.potentialMatches || []).map((match: any, index: number) => ({
+        url: undefined,
+        title: 'AI Analysis',
+        matchedText: match.text || '',
+        similarity: match.similarity || 0,
+        startIndex: index * 10,
+        endIndex: (index * 10) + (match.text?.length || 0),
+      }));
+
+      return {
+        id: `gemini_${Date.now()}`,
+        contentId: request.contentId || 0,
+        originalityScore: Math.min(100, Math.max(0, analysisData.originalityScore || 85)),
+        similarityScore: Math.min(100, Math.max(0, analysisData.similarityScore || 15)),
+        matches,
+        status: 'completed',
+        checkedAt: new Date(),
+        provider: 'Gemini AI',
+        rawResults: analysisData,
+      };
+    } catch (error) {
+      console.error('Gemini plagiarism check failed:', error);
+      throw error;
+    }
   }
 
   private parseMatches(sources: any[]): PlagiarismMatch[] {
