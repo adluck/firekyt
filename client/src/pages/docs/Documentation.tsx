@@ -2,11 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { OnboardingHelpButton } from "@/components/onboarding/OnboardingTrigger";
+import { useOnboarding } from "@/components/onboarding/OnboardingProvider";
 import { HelpCircle, Play, BookOpen, Compass } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function Documentation() {
   const [, setLocation] = useLocation();
+  const { startGuidedTour, startOnboarding } = useOnboarding();
 
   const handleBrowseDocumentation = () => {
     // Scroll to the main tutorial content
@@ -17,8 +19,12 @@ export default function Documentation() {
   };
 
   const handleQuickStartGuide = () => {
-    // Navigate to sites page to start the quick start process
-    setLocation('/sites');
+    // Start guided tour if on dashboard, otherwise start modal tour
+    if (window.location.pathname === '/dashboard') {
+      startGuidedTour();
+    } else {
+      startOnboarding();
+    }
   };
 
   return (
