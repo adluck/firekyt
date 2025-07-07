@@ -44,6 +44,10 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
     const findAndHighlightElement = () => {
       const element = document.querySelector(currentStepData.target);
       if (element) {
+        // Debug logging
+        console.log('Found element for tour:', currentStepData.target, element);
+        console.log('Element rect:', element.getBoundingClientRect());
+        
         setHighlightedElement(element);
         updateTooltipPosition(element);
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -149,6 +153,23 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
 
   const highlightStyle = highlightedElement ? (() => {
     const rect = highlightedElement.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Adjust for viewport and scroll position
+    const adjustedLeft = rect.left + scrollLeft;
+    const adjustedTop = rect.top + scrollTop;
+    
+    console.log('Highlight positioning:', {
+      rect,
+      scrollLeft,
+      scrollTop,
+      adjustedLeft,
+      adjustedTop,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight
+    });
+    
     return {
       position: 'fixed' as const,
       top: rect.top - 4,

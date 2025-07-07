@@ -29,10 +29,10 @@ export function DashboardTour({ isActive, onComplete, onSkip }: DashboardTourPro
     },
     {
       id: 'recent-activity',
-      target: '[data-tour="recent-activity"]', // Recent Activity section
+      target: '.recent-activity-card', // Recent Activity card with specific class
       title: 'Recent Activity',
       content: 'Track all your recent actions including content creation, publishing, link management, and widget activities.',
-      position: 'top' as const
+      position: 'left' as const
     },
     {
       id: 'sidebar-navigation',

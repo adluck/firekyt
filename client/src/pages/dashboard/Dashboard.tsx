@@ -229,7 +229,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Recent Activity */}
-        <Card data-tour="recent-activity">
+        <Card data-tour="recent-activity" className="recent-activity-card">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
