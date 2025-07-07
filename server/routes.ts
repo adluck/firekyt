@@ -223,6 +223,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Beta signup endpoint
+  app.post("/api/beta-signup", async (req, res) => {
+    try {
+      const { email, betaCode } = req.body;
+      
+      // Check if email already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Email already registered. Please sign in instead." 
+        });
+      }
+
+      // Store beta signup (you could create a separate beta_signups table)
+      // For now, we'll just return success - in production you'd send email
+      
+      return res.json({ 
+        success: true, 
+        message: "Beta signup successful! Check your email for next steps.",
+        betaCode 
+      });
+    } catch (error: any) {
+      console.error("Beta signup error:", error);
+      return res.status(500).json({ 
+        success: false, 
+        message: "Beta signup failed. Please try again." 
+      });
+    }
+  });
+
   // Auth routes
   app.post("/api/auth/register", authRateLimit, async (req, res) => {
     try {
@@ -234,12 +265,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+      // Check for beta code in the request
+      const { betaCode, ...userFields } = validatedData;
+      let userRole = 'free';
+      let subscriptionTier = 'free';
+      
+      if (validatedData.email === 'adluck72@gmail.com') {
+        userRole = 'admin';
+        subscriptionTier = 'admin';
+      } else if (betaCode && betaCode.startsWith('BETA')) {
+        userRole = 'beta_tester';
+        subscriptionTier = 'beta_tester';
+      }
+
       const userData = {
-        ...validatedData,
+        ...userFields,
         password: hashedPassword,
-        role: validatedData.email === 'adluck72@gmail.com' ? 'admin' : 'user',
-        subscriptionTier: validatedData.email === 'adluck72@gmail.com' ? 'admin' : 'free',
-        subscriptionStatus: 'active'
+        role: userRole,
+        subscriptionTier: subscriptionTier,
+        subscriptionStatus: 'active',
+        betaCode: betaCode || null,
+        betaExpiresAt: betaCode ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) : null // 90 days
       };
 
       const user = await storage.createUser(userData);

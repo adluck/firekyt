@@ -12,6 +12,9 @@ import { GlobalNavigationLoader } from "@/components/GlobalNavigationLoader";
 import { PageTransition } from "@/components/PageTransition";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 
+// Landing page
+import LandingPage from "@/pages/LandingPage";
+
 // Auth pages
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
@@ -60,6 +63,7 @@ function Router() {
   return (
     <Switch>
       {/* Public routes */}
+      <Route path="/" component={LandingPage} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/forgot-password" component={ForgotPassword} />
@@ -67,7 +71,7 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       
       {/* Protected routes */}
-      <Route path="/">
+      <Route path="/app">
         <ProtectedRoute>
           <AppLayout>
             <Dashboard />

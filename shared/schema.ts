@@ -2,6 +2,33 @@ import { pgTable, text, varchar, serial, integer, boolean, timestamp, jsonb, dec
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// User tier definitions and limits
+export const userTiers = pgTable("user_tiers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(), // beta_tester, free, basic, premium, admin
+  displayName: text("display_name").notNull(), // "Beta Tester", "Free", "Basic", "Premium", "Admin"
+  description: text("description"),
+  monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).default("0.00"),
+  yearlyPrice: decimal("yearly_price", { precision: 10, scale: 2 }).default("0.00"),
+  // Feature limits
+  maxSites: integer("max_sites").default(1),
+  maxContent: integer("max_content").default(10),
+  maxWidgets: integer("max_widgets").default(3),
+  maxAIGenerations: integer("max_ai_generations").default(5),
+  maxPublications: integer("max_publications").default(5),
+  // Feature access
+  hasAdvancedAnalytics: boolean("has_advanced_analytics").default(false),
+  hasCustomBranding: boolean("has_custom_branding").default(false),
+  hasPrioritySupport: boolean("has_priority_support").default(false),
+  hasAPIAccess: boolean("has_api_access").default(false),
+  hasWhitelabel: boolean("has_whitelabel").default(false),
+  // Special features
+  features: jsonb("features"), // Array of feature codes
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Users table with authentication and subscription info
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -10,12 +37,14 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   firstName: text("first_name"),
   lastName: text("last_name"),
-  role: text("role").notNull().default("free"), // free, basic, pro, agency
+  role: text("role").notNull().default("free"), // admin, beta_tester, free, basic, premium
   isActive: boolean("is_active").notNull().default(true),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   subscriptionStatus: text("subscription_status").default("inactive"), // active, inactive, canceled, past_due
-  subscriptionTier: text("subscription_tier").default("free"), // free, basic, pro, agency
+  subscriptionTier: text("subscription_tier").default("free"), // beta_tester, free, basic, premium
+  betaCode: text("beta_code"), // Special code for beta testers
+  betaExpiresAt: timestamp("beta_expires_at"), // When beta access expires
   trialEndsAt: timestamp("trial_ends_at"),
   currentPeriodStart: timestamp("current_period_start"),
   currentPeriodEnd: timestamp("current_period_end"),
