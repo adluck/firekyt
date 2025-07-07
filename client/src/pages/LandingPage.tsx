@@ -162,7 +162,7 @@ export default function LandingPage() {
             optimize link placement, and increase conversions across multiple platforms.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+          <div className="flex justify-center mb-6">
             <Link href="/register">
               <Button 
                 size="lg"
@@ -172,18 +172,9 @@ export default function LandingPage() {
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/login">
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-white text-white hover:bg-white hover:text-orange-600 px-8 py-4 text-lg font-semibold min-w-[160px] transition-all duration-200"
-              >
-                View Demo
-              </Button>
-            </Link>
           </div>
           
-          <p className="text-sm opacity-80">
+          <p className="text-sm text-white">
             No credit card required • Full platform access • Cancel anytime
           </p>
         </div>
