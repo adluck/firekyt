@@ -37,27 +37,12 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     // Check if user has completed onboarding
     const completed = localStorage.getItem('onboardingCompleted');
     const skipped = localStorage.getItem('onboardingSkipped');
-    const guidedTourCompleted = localStorage.getItem('guidedTourCompleted');
     
     if (completed === 'true' || skipped === 'true') {
       setIsOnboardingComplete(true);
-      
-      // Show guided tour for new users on dashboard
-      if (location === '/dashboard' && guidedTourCompleted !== 'true') {
-        const timer = setTimeout(() => {
-          setShowGuidedTour(true);
-        }, 2000);
-        
-        return () => clearTimeout(timer);
-      }
-    } else {
-      // Show modal onboarding for completely new users
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 2000);
-      
-      return () => clearTimeout(timer);
     }
+    
+    // Remove automatic tour triggering - only show when user clicks button
   }, [location]);
 
   const startOnboarding = () => {
