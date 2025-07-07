@@ -172,12 +172,12 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
     
     return {
       position: 'fixed' as const,
-      top: rect.top - 4,
-      left: rect.left - 4,
-      width: rect.width + 8,
-      height: rect.height + 8,
-      border: '3px solid #ea580c',
-      borderRadius: '8px',
+      top: rect.top - 8,
+      left: rect.left - 8,
+      width: rect.width + 16,
+      height: rect.height + 16,
+      border: '4px solid #ea580c',
+      borderRadius: '12px',
       background: 'rgba(234, 88, 12, 0.1)',
       boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
       pointerEvents: 'none' as const,
