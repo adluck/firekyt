@@ -166,95 +166,14 @@ html, body, #root {
   max-height: 100vh;
 }
 
-/* Constrain Create Widget page to viewport */
+/* Clean Create Widget form scrolling - only the form section scrolls */
 [data-page="create-widget"] {
-  max-height: calc(100vh - 3rem) !important;
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 
-/* Limit main content area height on Create Widget page */
-[data-page="create-widget"] #main-content {
-  max-height: calc(100vh - 6rem) !important;
-  overflow-y: auto !important;
-}
-
-/* Prevent excessive container heights */
-.container {
-  min-height: unset !important;
-  height: auto !important;
-}
-
-/* Fix Create Widget specific layout */
-.max-w-7xl {
-  height: auto !important;
-  min-height: unset !important;
-}
-
-/* Completely eliminate white space below content */
-[data-page="create-widget"] {
-  height: auto !important;
-  min-height: unset !important;
-  overflow: visible !important;
-  padding-bottom: 0 !important;
-}
-
-[data-page="create-widget"] .container {
-  height: auto !important;
-  min-height: unset !important;
-  padding-bottom: 2rem !important;
-  margin-bottom: 0 !important;
-}
-
-/* Fix sticky positioning layout issues */
-[data-page="create-widget"] .grid {
-  align-items: start !important;
-  height: auto !important;
-  min-height: unset !important;
-}
-
-[data-page="create-widget"] .sticky {
-  position: sticky !important;
-  top: 1.5rem !important;
-  height: fit-content !important;
-  max-height: calc(100vh - 120px) !important;
-  overflow-y: auto !important;
-}
-
-/* Force content to end naturally without white space */
-.flex-1.overflow-auto {
-  padding-bottom: 0 !important;
-}
-
-[data-page="create-widget"] .flex-1.overflow-auto {
-  height: fit-content !important;
-  min-height: unset !important;
-  max-height: none !important;
-}
-
-/* Target the main content wrapper to eliminate min-height on Create Widget page */
-[data-page="create-widget"] #main-content {
-  min-height: unset !important;
-  height: auto !important;
-}
-
-/* Additional fallback targeting */
-[data-page="create-widget"] #main-content.min-h-full {
-  min-height: unset !important;
-  height: auto !important;
-}
-
-/* Force main scroll container to fit content exactly */
+/* Remove main page scroll on Create Widget */
 main:has([data-page="create-widget"]) {
-  height: 100vh !important;
-  max-height: 100vh !important;
-  overflow-y: auto !important;
-}
-
-/* Prevent over-scrolling by constraining the scrollable content */
-main:has([data-page="create-widget"]) #main-content {
-  height: fit-content !important;
-  min-height: unset !important;
-  max-height: none !important;
+  overflow: hidden !important;
 }
 
 /* Custom range slider styling */
