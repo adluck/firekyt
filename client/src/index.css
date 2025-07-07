@@ -49,6 +49,40 @@
   overflow: hidden;
 }
 
+/* Tour highlighting styles */
+.tour-highlight-active {
+  position: relative !important;
+  z-index: 9999 !important;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border: 2px solid #3b82f6 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 8px 32px rgba(59, 130, 246, 0.3) !important;
+  animation: tour-pulse 2s ease-in-out infinite !important;
+}
+
+@keyframes tour-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 8px 32px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.3), 0 12px 40px rgba(59, 130, 246, 0.4);
+  }
+}
+
+/* Tour overlay */
+.tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  pointer-events: none;
+}
+
 .curved-decoration::before {
   content: '';
   position: absolute;

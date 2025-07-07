@@ -447,9 +447,17 @@ export default function PublishingDashboard() {
             <RefreshCw className={`h-4 w-4 mr-2 ${validateConnectionsMutation.isPending ? 'animate-spin' : ''}`} />
             {validateConnectionsMutation.isPending ? 'Validating...' : 'Validate All Tokens'}
           </Button>
+          <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline" data-tour="schedule-content">
+                <Calendar className="h-4 w-4 mr-2" />
+                Schedule Content
+              </Button>
+            </DialogTrigger>
+          </Dialog>
           <Dialog open={showAddConnectionDialog} onOpenChange={setShowAddConnectionDialog}>
             <DialogTrigger asChild>
-              <Button>
+              <Button data-tour="platform-integrations">
                 <Plus className="h-4 w-4 mr-2" />
                 Connect Platform
               </Button>
@@ -934,7 +942,7 @@ export default function PublishingDashboard() {
       <Tabs defaultValue="connections" className="space-y-4">
         <TabsList>
           <TabsTrigger value="connections">Platform Connections</TabsTrigger>
-          <TabsTrigger value="scheduled">Scheduled Posts</TabsTrigger>
+          <TabsTrigger value="scheduled" data-tour="publishing-queue">Scheduled Posts</TabsTrigger>
           <TabsTrigger value="history">Publication History</TabsTrigger>
           <TabsTrigger value="analytics">Performance Analytics</TabsTrigger>
         </TabsList>
