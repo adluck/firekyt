@@ -717,15 +717,44 @@ export default function MyAds() {
                                     </div>
                                   </div>
                                   
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="w-full mt-3"
-                                    onClick={() => handleCopyToClipboard(suggestion.description, 'image concept')}
-                                  >
-                                    <Copy className="w-3 h-3 mr-1" />
-                                    Copy Concept
-                                  </Button>
+                                  <div className="flex gap-2 mt-3">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="flex-1"
+                                      onClick={() => handleCopyToClipboard(suggestion.description, 'image concept')}
+                                    >
+                                      <Copy className="w-3 h-3 mr-1" />
+                                      Copy
+                                    </Button>
+                                    <Button
+                                      variant="default"
+                                      size="sm"
+                                      className="flex-1"
+                                      onClick={() => handleGenerateGraphicsFromConcept({
+                                        description: suggestion.description,
+                                        platform: suggestion.platform || 'instagram_post',
+                                        visual_style: suggestion.type,
+                                        key_elements: suggestion.visualElements?.join(', '),
+                                        color_scheme: suggestion.colors?.join(', '),
+                                        marketing_angle: suggestion.mood,
+                                        title: suggestion.type
+                                      })}
+                                      disabled={isGeneratingFromConcept}
+                                    >
+                                      {isGeneratingFromConcept ? (
+                                        <>
+                                          <div className="w-3 h-3 mr-1 animate-spin border border-background border-t-transparent rounded-full" />
+                                          Creating...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Sparkles className="w-3 h-3 mr-1" />
+                                          Generate
+                                        </>
+                                      )}
+                                    </Button>
+                                  </div>
                                 </CardContent>
                               </Card>
                             ))}
