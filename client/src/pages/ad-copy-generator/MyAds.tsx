@@ -219,35 +219,25 @@ export default function MyAds() {
       formData.append('platform', platform);
       formData.append('campaignId', campaignId?.toString() || '');
 
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/upload-custom-graphic', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData,
-      });
-
+      // Use apiRequest which handles authentication properly
+      const response = await apiRequest('POST', '/api/upload-custom-graphic', formData);
       const result = await response.json();
-      if (result.success) {
-        const dimensions = getPlatformDimensions(platform);
-        const newGraphic = {
-          platform,
-          url: result.graphicUrl,
-          filename: files[0].name,
-          dimensions,
-          isCustom: true
-        };
-        
-        setCustomGraphics(prev => [...prev, newGraphic]);
-        
-        toast({
-          title: "Upload Successful!",
-          description: `Custom graphic uploaded for ${dimensions.name}`,
-        });
-      } else {
-        throw new Error(result.message || 'Upload failed');
-      }
+      
+      const dimensions = getPlatformDimensions(platform);
+      const newGraphic = {
+        platform,
+        url: result.graphicUrl,
+        filename: files[0].name,
+        dimensions,
+        isCustom: true
+      };
+      
+      setCustomGraphics(prev => [...prev, newGraphic]);
+      
+      toast({
+        title: "Upload Successful!",
+        description: `Custom graphic uploaded for ${dimensions.name}`,
+      });
     } catch (error: any) {
       toast({
         title: "Upload Failed",
