@@ -38,7 +38,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
-import { OnboardingHelpButton } from "@/components/onboarding/OnboardingTrigger";
+
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { User } from "@shared/schema";
@@ -419,8 +419,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
               )}
             </Button>
 
-            {/* Help / Onboarding */}
-            {!isCollapsed && <OnboardingHelpButton />}
+
 
             {/* Logout */}
             <Button
