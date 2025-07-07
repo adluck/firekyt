@@ -32,7 +32,8 @@ import {
   Plus,
   Ruler,
   Sparkles,
-  Eye
+  Eye,
+  Folder
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -76,7 +77,7 @@ const navigation = [
     dataTour: 'ad-copy-nav',
     submenu: [
       { name: 'Generate Ad Copy', href: '/ad-copy-generator', icon: Sparkles },
-      { name: 'My Campaigns', href: '/my-ads', icon: Eye }
+      { name: 'My Campaigns', href: '/my-ads', icon: Folder }
     ]
   },
   { 
