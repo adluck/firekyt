@@ -56,6 +56,8 @@ export default function MyAds() {
   const [filterGoal, setFilterGoal] = useState<string>('all');
   const [filterVoice, setFilterVoice] = useState<string>('all');
   const [generatedGraphics, setGeneratedGraphics] = useState<any[]>([]);
+  const [isGeneratingReal, setIsGeneratingReal] = useState(false);
+  const [realGraphics, setRealGraphics] = useState<any[]>([]);
   
   const campaignId = params.id ? parseInt(params.id) : null;
 
@@ -166,6 +168,44 @@ export default function MyAds() {
         description: "Failed to generate graphics",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleGenerateRealGraphics = async (campaign: any) => {
+    setIsGeneratingReal(true);
+    try {
+      toast({
+        title: "Generating AI Graphics",
+        description: "Creating professional product graphics using AI...",
+      });
+
+      const platforms = ['instagram_post', 'instagram_story', 'facebook_post', 'pinterest_pin'];
+      
+      const response = await apiRequest('POST', '/api/generate-real-graphics', {
+        productName: campaign.productName,
+        platforms
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        const successfulGraphics = result.graphics.filter((g: any) => g.success);
+        setRealGraphics(successfulGraphics);
+        
+        toast({
+          title: "AI Graphics Generated!",
+          description: `Successfully created ${successfulGraphics.length} professional graphics`,
+        });
+      } else {
+        throw new Error('Failed to generate AI graphics');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate AI graphics",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingReal(false);
     }
   };
 
@@ -600,17 +640,102 @@ export default function MyAds() {
                 </TabsContent>
                 
                 <TabsContent value="graphics" className="mt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Social Media Graphics</h3>
-                      <Button onClick={() => handleGenerateGraphics(campaign)} disabled={!campaign}>
-                        <Type className="w-4 h-4 mr-2" />
-                        Generate Graphics
-                      </Button>
+                  <div className="space-y-6">
+                    {/* Real AI Graphics Section */}
+                    <div className="border rounded-lg p-6 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold">AI-Generated Graphics</h3>
+                          <p className="text-sm text-muted-foreground">Professional product graphics created by AI</p>
+                        </div>
+                        <Button onClick={() => handleGenerateRealGraphics(campaign)} disabled={!campaign || isGeneratingReal}>
+                          {isGeneratingReal ? (
+                            <>
+                              <div className="w-4 h-4 mr-2 animate-spin border-2 border-background border-t-transparent rounded-full" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4 mr-2" />
+                              Generate AI Graphics
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      {/* Display Real AI Graphics */}
+                      {realGraphics.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                          {realGraphics.map((graphic, index) => (
+                            <Card key={index} className="overflow-hidden">
+                              <CardContent className="p-0">
+                                <div className="aspect-square relative bg-muted">
+                                  <img 
+                                    src={graphic.url} 
+                                    alt={`${graphic.dimensions.name} AI graphic`}
+                                    className="w-full h-full object-contain"
+                                  />
+                                  <div className="absolute top-2 right-2">
+                                    <Badge variant="secondary" className="text-xs bg-purple-500 text-white">
+                                      AI Generated
+                                    </Badge>
+                                  </div>
+                                  <div className="absolute bottom-2 left-2">
+                                    <Badge variant="outline" className="text-xs bg-white/90">
+                                      {graphic.dimensions.name}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="p-4">
+                                  <h4 className="font-medium text-sm mb-2">{graphic.dimensions.name}</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">
+                                    {graphic.dimensions.width} × {graphic.dimensions.height}
+                                  </p>
+                                  <div className="flex gap-2 mt-3">
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="flex-1 text-xs"
+                                      onClick={() => window.open(graphic.url, '_blank')}
+                                    >
+                                      View Full
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="flex-1 text-xs"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(window.location.origin + graphic.url);
+                                        toast({
+                                          title: "URL Copied!",
+                                          description: "Image URL copied to clipboard",
+                                        });
+                                      }}
+                                    >
+                                      Copy URL
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <p className="text-muted-foreground">
-                      Create social media graphics with text overlays using your ad copy.
-                    </p>
+
+                    {/* Text Overlay Graphics Section */}
+                    <div className="border rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold">Text Overlay Graphics</h3>
+                          <p className="text-sm text-muted-foreground">Simple text overlays on colored backgrounds</p>
+                        </div>
+                        <Button onClick={() => handleGenerateGraphics(campaign)} disabled={!campaign}>
+                          <Type className="w-4 h-4 mr-2" />
+                          Generate Text Overlays
+                        </Button>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {generatedGraphics.length > 0 ? (
                         generatedGraphics.map((graphic, index) => (

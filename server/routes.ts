@@ -5452,6 +5452,50 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Generate real AI graphics using Gemini
+  app.post('/api/generate-real-graphics', authenticateToken, async (req, res) => {
+    try {
+      console.log('🎨 Real graphics request body:', JSON.stringify(req.body, null, 2));
+      const { productName, platforms } = req.body;
+      
+      if (!productName || !platforms || !Array.isArray(platforms)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Product name and platforms array are required'
+        });
+      }
+
+      const { TextOverlayService } = await import('./services/TextOverlayService');
+      const textOverlayService = new TextOverlayService();
+      
+      const results = [];
+      for (const platform of platforms) {
+        try {
+          const result = await textOverlayService.generateRealGraphic(productName, platform);
+          results.push(result);
+        } catch (error: any) {
+          console.error(`❌ Failed to generate graphic for ${platform}:`, error);
+          results.push({
+            success: false,
+            platform: platform,
+            error: error.message
+          });
+        }
+      }
+      
+      res.json({
+        success: true,
+        graphics: results
+      });
+    } catch (error: any) {
+      console.error('Generate real graphics error:', error);
+      res.status(500).json({ 
+        message: error.message || 'Failed to generate real graphics',
+        success: false 
+      });
+    }
+  });
+
   // Generate social graphics with text overlays
   app.post('/api/generate-text-overlay', authenticateToken, async (req, res) => {
     try {
