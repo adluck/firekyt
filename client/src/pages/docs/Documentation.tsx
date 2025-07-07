@@ -41,6 +41,10 @@ export default function Documentation() {
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  Create high-converting ad copy with AI
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                   Generate your first AI article with affiliate links
                 </li>
                 <li className="flex items-center gap-2">
@@ -245,12 +249,101 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 4: AI Content Generation */}
-      <section id="content-generation">
+      {/* Step 4: AI-Powered Ad Copy Generation */}
+      <section id="ad-copy-generation">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</span>
+              Create High-Converting Ad Copy with AI (15 minutes)
+            </CardTitle>
+            <CardDescription>
+              Generate platform-specific ad copy that converts browsers into buyers
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Generate targeted ad copy for your products</h4>
+              <p className="text-sm mb-3">
+                Navigate to <strong>Ad Copy</strong> → <strong>Generate Ad Copy</strong>. The AI will create platform-specific marketing copy that's proven to convert.
+              </p>
+              <div className="space-y-2 text-sm">
+                <p><strong>Step-by-step process:</strong></p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-4">
+                  <li>Enter your product name and key features</li>
+                  <li>Add target audience details (age, interests, pain points)</li>
+                  <li>Select marketing platforms (Google Ads, Facebook, Instagram, etc.)</li>
+                  <li>Choose tone and style for your brand voice</li>
+                  <li>Generate multiple variations for A/B testing</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <h4 className="font-semibold text-primary mb-2">📊 What You'll Get for Each Platform</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Google Ads</p>
+                  <p className="text-muted-foreground text-xs">Headlines, descriptions, and extensions optimized for search intent</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Facebook & Instagram</p>
+                  <p className="text-muted-foreground text-xs">Engaging social copy with hashtags and call-to-actions</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Email Marketing</p>
+                  <p className="text-muted-foreground text-xs">Subject lines and body content for promotional emails</p>
+                </div>
+                <div className="p-3 bg-background rounded border">
+                  <p className="font-bold">Amazon Listings</p>
+                  <p className="text-muted-foreground text-xs">Product titles and bullet points for marketplace sales</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-muted p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">🎯 ACTION: Save and organize your campaigns</h4>
+              <p className="text-sm mb-3">
+                Each generated campaign is automatically saved in <strong>My Campaigns</strong> for future reference. You can:
+              </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>Copy any variation to clipboard for immediate use</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>Generate additional variations for the same product</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>Track which copy performs best across platforms</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>Export campaigns for use in external advertising tools</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-muted/50 p-4 rounded-lg border">
+              <h4 className="font-semibold mb-2">💡 Pro Tip: Test Multiple Variations</h4>
+              <p className="text-sm text-muted-foreground">
+                Generate 3-5 different versions of your ad copy and test them simultaneously. 
+                Small changes in wording can increase click-through rates by 200-300%. 
+                The AI creates variations based on proven marketing psychology principles.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Step 5: AI Content Generation */}
+      <section id="content-generation">
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">5</span>
               Generate Your First AI Article with Affiliate Links (20 minutes)
             </CardTitle>
             <CardDescription>
@@ -295,12 +388,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 5: Connect Site and Publish */}
+      {/* Step 6: Connect Site and Publish */}
       <section id="publishing">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">5</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">6</span>
               Connect Your Site and Publish the Article (15 minutes)
             </CardTitle>
             <CardDescription>
@@ -351,12 +444,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 6: Analytics */}
+      {/* Step 7: Analytics */}
       <section id="analytics-setup">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">6</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">7</span>
               Set Up Analytics Tracking (5 minutes)
             </CardTitle>
             <CardDescription>
@@ -394,12 +487,12 @@ export default function Documentation() {
         </Card>
       </section>
 
-      {/* Step 7: Affiliate Programs */}
+      {/* Step 8: Affiliate Programs */}
       <section id="affiliate-programs">
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">7</span>
+              <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">8</span>
               Set Up Your Affiliate Program Account (15 minutes)
             </CardTitle>
             <CardDescription>
