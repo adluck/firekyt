@@ -18,6 +18,7 @@ import { linkTrackingService } from "./LinkTrackingService";
 import { retroactiveTrackingService } from "./RetroactiveTrackingService";
 import { AIEngineService } from "./AIEngineService";
 import { processContentWithAutoLinks } from "./autoLinkProcessor";
+import { processShortcodes } from "./utils/shortcodeProcessor";
 import { 
   addToQueue, 
   getQueueStatus, 
@@ -2299,9 +2300,12 @@ Format your response as a JSON object with the following structure:
         // For testing with real external blog
         const realBlogUrl = blogUrl.replace('localhost:3001', 'localhost:3002');
         
+        // Process shortcodes to convert widget embeds to iframes
+        const processedContent = processShortcodes(content.content);
+        
         const postData = {
           title: content.title,
-          content: content.content,
+          content: processedContent,
           excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
           tags: content.targetKeywords || [],
           status: publishSettings?.status || 'published'

@@ -1,4 +1,5 @@
 import { storage } from './storage';
+import { processShortcodes } from './utils/shortcodeProcessor';
 
 export interface SocialPlatformConnection {
   id: number;
@@ -102,9 +103,12 @@ export class IntegrationService {
     // Get user's intelligent links for content formatting
     const intelligentLinks = await storage.getUserIntelligentLinks(connection.userId);
     
+    // Process shortcodes first (convert widget shortcodes to iframes)
+    const contentWithIframes = processShortcodes(content.content || '');
+    
     // Format content with intelligent links
     const { ContentFormatter } = await import('./utils/contentFormatter');
-    const formattedContent = ContentFormatter.formatForPublishing(content.content || '', intelligentLinks);
+    const formattedContent = ContentFormatter.formatForPublishing(contentWithIframes, intelligentLinks);
     
     const wpPostData = {
       title: settings.title || content.title,

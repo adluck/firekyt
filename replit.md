@@ -192,6 +192,10 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Successfully tested system with sample rules for "best laptops" and "gaming headset" keywords showing proper link generation with UTM parameters
 ✓ Removed all icons from auto-link rules interface per user preference for clean, text-based UI without visual clutter
 ✓ Replaced icon-based action buttons with text labels (Toggle, Edit, Delete) for better accessibility
+✓ **FIXED: Widget shortcode embedding** - Implemented shortcode processor to convert [firekyt_widget] shortcodes to iframe HTML during publishing
+✓ Added processShortcodes function to both direct publishing routes and IntegrationService for scheduled publications
+✓ Widgets now embed correctly in published content instead of showing "External Embed" placeholder text
+✓ Shortcode processing handles proper iframe URL generation with domain and widget ID parameters
 ✓ Enhanced Link Management Widget with comprehensive background styling for improved contrast and visual distinction
 ✓ Applied consistent slate-themed backgrounds to all sidebar widgets (Publication Settings, Content Statistics, Quick Actions)
 ✓ Implemented proper dark mode support with semi-transparent backgrounds and themed borders
