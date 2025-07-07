@@ -28,7 +28,6 @@ export default function LandingPage() {
           </div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Features</a>
             <Button
               variant="ghost"
               size="sm"
