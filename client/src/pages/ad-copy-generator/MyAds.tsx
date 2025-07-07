@@ -63,6 +63,8 @@ export default function MyAds() {
   const [isGeneratingConcepts, setIsGeneratingConcepts] = useState(false);
   const [isGeneratingFromConcept, setIsGeneratingFromConcept] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [flippedCards, setFlippedCards] = useState<{[key: string]: boolean}>({});
+  const [cardGraphics, setCardGraphics] = useState<{[key: string]: string}>({});
   
   const campaignId = params.id ? parseInt(params.id) : null;
 
@@ -291,7 +293,9 @@ export default function MyAds() {
   };
 
   const handleGenerateGraphicsFromConcept = async (concept: any) => {
+    const cardKey = `${concept.title || concept.type}-${concept.description?.substring(0, 20)}`;
     setIsGeneratingFromConcept(true);
+    
     try {
       const response = await apiRequest('POST', '/api/generate-graphics-from-concept', {
         concept: concept.description,
@@ -305,13 +309,26 @@ export default function MyAds() {
       const result = await response.json();
       
       // Add the generated graphics to our real graphics collection
-      if (result.graphics) {
+      if (result.graphics && result.graphics.length > 0) {
         setRealGraphics(prev => [...prev, ...result.graphics]);
+        
+        // Store the first graphic for this card and flip it
+        const firstGraphic = result.graphics[0];
+        setCardGraphics(prev => ({
+          ...prev,
+          [cardKey]: firstGraphic.imageUrl
+        }));
+        
+        // Flip the card to show the generated image
+        setFlippedCards(prev => ({
+          ...prev,
+          [cardKey]: true
+        }));
       }
       
       toast({
         title: "Graphics Generated!",
-        description: `Created ${result.graphics?.length || 0} graphics from concept: ${concept.title}`,
+        description: `Created ${result.graphics?.length || 0} graphics from concept: ${concept.title || concept.type}`,
       });
     } catch (error: any) {
       toast({
@@ -322,6 +339,13 @@ export default function MyAds() {
     } finally {
       setIsGeneratingFromConcept(false);
     }
+  };
+
+  const handleFlipCard = (cardKey: string) => {
+    setFlippedCards(prev => ({
+      ...prev,
+      [cardKey]: !prev[cardKey]
+    }));
   };
 
   const handleDeleteCampaign = async (campaignId: number, campaignName: string) => {
@@ -674,90 +698,139 @@ export default function MyAds() {
                           </h4>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {suggestions.map((suggestion: any, index: number) => (
-                              <Card key={index} className="hover:shadow-lg transition-shadow">
-                                <CardHeader className="pb-3">
-                                  <div className="flex items-center justify-between">
-                                    <CardTitle className="text-sm font-medium">{suggestion.type}</CardTitle>
-                                    <Badge variant="outline" className="text-xs">{suggestion.mood}</Badge>
-                                  </div>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                  <p className="text-sm text-muted-foreground">{suggestion.description}</p>
-                                  
-                                  <div className="space-y-2">
-                                    <div>
-                                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Elements</p>
-                                      <div className="flex flex-wrap gap-1 mt-1">
-                                        {suggestion.visualElements.map((element: string, idx: number) => (
-                                          <Badge key={idx} variant="secondary" className="text-xs">
-                                            {element}
-                                          </Badge>
-                                        ))}
-                                      </div>
+                            {suggestions.map((suggestion: any, index: number) => {
+                              const cardKey = `${suggestion.type}-${suggestion.description?.substring(0, 20)}`;
+                              const isFlipped = flippedCards[cardKey];
+                              const graphicUrl = cardGraphics[cardKey];
+                              
+                              return (
+                                <div key={index} className={`flip-card h-80 ${isFlipped ? 'flipped' : ''}`}>
+                                  <div className="flip-card-inner">
+                                    {/* Front of card - Suggestion details */}
+                                    <div className="flip-card-front">
+                                      <Card className="h-full hover:shadow-lg transition-shadow">
+                                        <CardHeader className="pb-3">
+                                          <div className="flex items-center justify-between">
+                                            <CardTitle className="text-sm font-medium">{suggestion.type}</CardTitle>
+                                            <Badge variant="outline" className="text-xs">{suggestion.mood}</Badge>
+                                          </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-3 h-full flex flex-col">
+                                          <p className="text-sm text-muted-foreground">{suggestion.description}</p>
+                                          
+                                          <div className="space-y-2 flex-1">
+                                            <div>
+                                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Elements</p>
+                                              <div className="flex flex-wrap gap-1 mt-1">
+                                                {suggestion.visualElements.map((element: string, idx: number) => (
+                                                  <Badge key={idx} variant="secondary" className="text-xs">
+                                                    {element}
+                                                  </Badge>
+                                                ))}
+                                              </div>
+                                            </div>
+                                            
+                                            <div>
+                                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Composition</p>
+                                              <p className="text-xs text-muted-foreground mt-1">{suggestion.composition}</p>
+                                            </div>
+                                            
+                                            <div>
+                                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Color Palette</p>
+                                              <div className="flex gap-1 mt-1">
+                                                {suggestion.colors.map((color: string, idx: number) => (
+                                                  <div
+                                                    key={idx}
+                                                    className="w-4 h-4 rounded-full border border-gray-300"
+                                                    style={{ backgroundColor: color }}
+                                                    title={color}
+                                                  />
+                                                ))}
+                                              </div>
+                                            </div>
+                                          </div>
+                                          
+                                          <div className="flex gap-2 mt-auto">
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="flex-1"
+                                              onClick={() => handleCopyToClipboard(suggestion.description, 'image concept')}
+                                            >
+                                              <Copy className="w-3 h-3 mr-1" />
+                                              Copy
+                                            </Button>
+                                            <Button
+                                              variant="default"
+                                              size="sm"
+                                              className="flex-1"
+                                              onClick={() => handleGenerateGraphicsFromConcept({
+                                                description: suggestion.description,
+                                                platform: suggestion.platform || 'instagram_post',
+                                                visual_style: suggestion.type,
+                                                key_elements: suggestion.visualElements?.join(', '),
+                                                color_scheme: suggestion.colors?.join(', '),
+                                                marketing_angle: suggestion.mood,
+                                                title: suggestion.type
+                                              })}
+                                              disabled={isGeneratingFromConcept}
+                                            >
+                                              {isGeneratingFromConcept ? (
+                                                <>
+                                                  <div className="w-3 h-3 mr-1 animate-spin border border-background border-t-transparent rounded-full" />
+                                                  Creating...
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <Sparkles className="w-3 h-3 mr-1" />
+                                                  Generate
+                                                </>
+                                              )}
+                                            </Button>
+                                          </div>
+                                        </CardContent>
+                                      </Card>
                                     </div>
                                     
-                                    <div>
-                                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Composition</p>
-                                      <p className="text-xs text-muted-foreground mt-1">{suggestion.composition}</p>
-                                    </div>
-                                    
-                                    <div>
-                                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Color Palette</p>
-                                      <div className="flex gap-1 mt-1">
-                                        {suggestion.colors.map((color: string, idx: number) => (
-                                          <div
-                                            key={idx}
-                                            className="w-4 h-4 rounded-full border border-gray-300"
-                                            style={{ backgroundColor: color }}
-                                            title={color}
-                                          />
-                                        ))}
-                                      </div>
+                                    {/* Back of card - Generated image */}
+                                    <div className="flip-card-back">
+                                      <Card className="h-full hover:shadow-lg transition-shadow">
+                                        <CardContent className="p-4 h-full flex flex-col">
+                                          <div className="flex items-center justify-between mb-4">
+                                            <CardTitle className="text-sm font-medium">Generated Graphic</CardTitle>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              onClick={() => handleFlipCard(cardKey)}
+                                            >
+                                              <ArrowLeft className="w-3 h-3 mr-1" />
+                                              Back
+                                            </Button>
+                                          </div>
+                                          
+                                          {graphicUrl ? (
+                                            <div className="flex-1 flex items-center justify-center">
+                                              <img 
+                                                src={graphicUrl} 
+                                                alt="Generated graphic" 
+                                                className="max-w-full max-h-full object-contain rounded-lg shadow-md"
+                                              />
+                                            </div>
+                                          ) : (
+                                            <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                                              <div className="text-center">
+                                                <Image className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                                <p className="text-sm">No graphic generated yet</p>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </CardContent>
+                                      </Card>
                                     </div>
                                   </div>
-                                  
-                                  <div className="flex gap-2 mt-3">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="flex-1"
-                                      onClick={() => handleCopyToClipboard(suggestion.description, 'image concept')}
-                                    >
-                                      <Copy className="w-3 h-3 mr-1" />
-                                      Copy
-                                    </Button>
-                                    <Button
-                                      variant="default"
-                                      size="sm"
-                                      className="flex-1"
-                                      onClick={() => handleGenerateGraphicsFromConcept({
-                                        description: suggestion.description,
-                                        platform: suggestion.platform || 'instagram_post',
-                                        visual_style: suggestion.type,
-                                        key_elements: suggestion.visualElements?.join(', '),
-                                        color_scheme: suggestion.colors?.join(', '),
-                                        marketing_angle: suggestion.mood,
-                                        title: suggestion.type
-                                      })}
-                                      disabled={isGeneratingFromConcept}
-                                    >
-                                      {isGeneratingFromConcept ? (
-                                        <>
-                                          <div className="w-3 h-3 mr-1 animate-spin border border-background border-t-transparent rounded-full" />
-                                          Creating...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Sparkles className="w-3 h-3 mr-1" />
-                                          Generate
-                                        </>
-                                      )}
-                                    </Button>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       ));
@@ -799,87 +872,136 @@ export default function MyAds() {
                       
                       {imageConcepts.length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                          {imageConcepts.map((concept: any, index: number) => (
-                            <Card key={index} className="hover:shadow-lg transition-shadow">
-                              <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                  <CardTitle className="text-sm font-medium">{concept.title}</CardTitle>
-                                  <Badge variant="outline" className="text-xs capitalize">{concept.platform?.replace(/_/g, ' ')}</Badge>
-                                </div>
-                              </CardHeader>
-                              <CardContent className="space-y-3">
-                                <p className="text-sm text-muted-foreground">{concept.description}</p>
-                                
-                                <div className="space-y-2">
-                                  <div>
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Style</p>
-                                    <Badge variant="secondary" className="text-xs">{concept.visual_style}</Badge>
+                          {imageConcepts.map((concept: any, index: number) => {
+                            const cardKey = `${concept.title}-${concept.description?.substring(0, 20)}`;
+                            const isFlipped = flippedCards[cardKey];
+                            const graphicUrl = cardGraphics[cardKey];
+                            
+                            return (
+                              <div key={index} className={`flip-card h-80 ${isFlipped ? 'flipped' : ''}`}>
+                                <div className="flip-card-inner">
+                                  {/* Front of card - Concept details */}
+                                  <div className="flip-card-front">
+                                    <Card className="h-full hover:shadow-lg transition-shadow">
+                                      <CardHeader className="pb-3">
+                                        <div className="flex items-center justify-between">
+                                          <CardTitle className="text-sm font-medium">{concept.title}</CardTitle>
+                                          <Badge variant="outline" className="text-xs capitalize">{concept.platform?.replace(/_/g, ' ')}</Badge>
+                                        </div>
+                                      </CardHeader>
+                                      <CardContent className="space-y-3 h-full flex flex-col">
+                                        <p className="text-sm text-muted-foreground">{concept.description}</p>
+                                        
+                                        <div className="space-y-2 flex-1">
+                                          <div>
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Style</p>
+                                            <Badge variant="secondary" className="text-xs">{concept.visual_style}</Badge>
+                                          </div>
+                                          
+                                          <div>
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Key Elements</p>
+                                            <div className="flex flex-wrap gap-1 mt-1">
+                                              {concept.key_elements?.map((element: string, idx: number) => (
+                                                <Badge key={idx} variant="secondary" className="text-xs">
+                                                  {element}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          </div>
+                                          
+                                          <div>
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Color Scheme</p>
+                                            <div className="flex gap-1 mt-1">
+                                              {concept.color_scheme?.map((color: string, idx: number) => (
+                                                <div
+                                                  key={idx}
+                                                  className="w-4 h-4 rounded-full border border-gray-300"
+                                                  style={{ backgroundColor: color }}
+                                                  title={color}
+                                                />
+                                              ))}
+                                            </div>
+                                          </div>
+                                          
+                                          <div>
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Marketing Angle</p>
+                                            <Badge variant="outline" className="text-xs capitalize">{concept.marketing_angle}</Badge>
+                                          </div>
+                                        </div>
+                                        
+                                        <div className="flex gap-2 mt-auto">
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={() => handleCopyToClipboard(concept.description, 'concept')}
+                                          >
+                                            <Copy className="w-3 h-3 mr-1" />
+                                            Copy
+                                          </Button>
+                                          <Button
+                                            variant="default"
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={() => handleGenerateGraphicsFromConcept(concept)}
+                                            disabled={isGeneratingFromConcept}
+                                          >
+                                            {isGeneratingFromConcept ? (
+                                              <>
+                                                <div className="w-3 h-3 mr-1 animate-spin border border-background border-t-transparent rounded-full" />
+                                                Creating...
+                                              </>
+                                            ) : (
+                                              <>
+                                                <Sparkles className="w-3 h-3 mr-1" />
+                                                Generate
+                                              </>
+                                            )}
+                                          </Button>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
                                   </div>
                                   
-                                  <div>
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Key Elements</p>
-                                    <div className="flex flex-wrap gap-1 mt-1">
-                                      {concept.key_elements?.map((element: string, idx: number) => (
-                                        <Badge key={idx} variant="secondary" className="text-xs">
-                                          {element}
-                                        </Badge>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  
-                                  <div>
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Color Scheme</p>
-                                    <div className="flex gap-1 mt-1">
-                                      {concept.color_scheme?.map((color: string, idx: number) => (
-                                        <div
-                                          key={idx}
-                                          className="w-4 h-4 rounded-full border border-gray-300"
-                                          style={{ backgroundColor: color }}
-                                          title={color}
-                                        />
-                                      ))}
-                                    </div>
-                                  </div>
-                                  
-                                  <div>
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Marketing Angle</p>
-                                    <Badge variant="outline" className="text-xs capitalize">{concept.marketing_angle}</Badge>
+                                  {/* Back of card - Generated image */}
+                                  <div className="flip-card-back">
+                                    <Card className="h-full hover:shadow-lg transition-shadow">
+                                      <CardContent className="p-4 h-full flex flex-col">
+                                        <div className="flex items-center justify-between mb-4">
+                                          <CardTitle className="text-sm font-medium">Generated Graphic</CardTitle>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleFlipCard(cardKey)}
+                                          >
+                                            <ArrowLeft className="w-3 h-3 mr-1" />
+                                            Back
+                                          </Button>
+                                        </div>
+                                        
+                                        {graphicUrl ? (
+                                          <div className="flex-1 flex items-center justify-center">
+                                            <img 
+                                              src={graphicUrl} 
+                                              alt="Generated graphic" 
+                                              className="max-w-full max-h-full object-contain rounded-lg shadow-md"
+                                            />
+                                          </div>
+                                        ) : (
+                                          <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                                            <div className="text-center">
+                                              <Image className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                              <p className="text-sm">No graphic generated yet</p>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </CardContent>
+                                    </Card>
                                   </div>
                                 </div>
-                                
-                                <div className="flex gap-2 mt-3">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="flex-1"
-                                    onClick={() => handleCopyToClipboard(concept.description, 'concept')}
-                                  >
-                                    <Copy className="w-3 h-3 mr-1" />
-                                    Copy
-                                  </Button>
-                                  <Button
-                                    variant="default"
-                                    size="sm"
-                                    className="flex-1"
-                                    onClick={() => handleGenerateGraphicsFromConcept(concept)}
-                                    disabled={isGeneratingFromConcept}
-                                  >
-                                    {isGeneratingFromConcept ? (
-                                      <>
-                                        <div className="w-3 h-3 mr-1 animate-spin border border-background border-t-transparent rounded-full" />
-                                        Creating...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Sparkles className="w-3 h-3 mr-1" />
-                                        Generate
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
