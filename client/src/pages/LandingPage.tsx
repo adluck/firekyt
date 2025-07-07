@@ -76,14 +76,15 @@ export default function LandingPage() {
           </p>
 
           <div className="flex justify-center mb-8">
-            <Button 
-              onClick={() => window.location.href = '/register'} 
-              size="lg"
-              className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-8 py-4 text-lg font-semibold"
-            >
-              Sign Up Free
-              <ArrowRightIcon className="ml-2 h-5 w-5" />
-            </Button>
+            <Link href="/register">
+              <Button 
+                size="lg"
+                className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-8 py-4 text-lg font-semibold"
+              >
+                Sign Up Free
+                <ArrowRightIcon className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
 
           <p className="text-sm text-slate-300 dark:text-slate-400">
@@ -163,14 +164,15 @@ export default function LandingPage() {
             Join thousands of affiliate marketers building profitable content with AI-powered tools.
           </p>
           
-          <Button 
-            onClick={() => window.location.href = '/register'} 
-            size="lg"
-            className="bg-white text-orange-500 hover:bg-slate-100 px-8 py-4 text-lg font-semibold"
-          >
-            Get Started Free
-            <ArrowRightIcon className="ml-2 h-5 w-5" />
-          </Button>
+          <Link href="/register">
+            <Button 
+              size="lg"
+              className="bg-white text-orange-500 hover:bg-slate-100 px-8 py-4 text-lg font-semibold"
+            >
+              Get Started Free
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </div>
       </section>
 
