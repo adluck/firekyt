@@ -145,6 +145,21 @@
   position: relative;
 }
 
+/* Fix white space issue on pages */
+html, body, #root {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-y: auto;
+}
+
+/* Prevent excessive white space on long pages */
+.container {
+  min-height: unset !important;
+}
+
 /* Custom range slider styling */
 .range-slider {
   -webkit-appearance: none;
