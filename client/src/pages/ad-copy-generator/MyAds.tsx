@@ -62,6 +62,7 @@ export default function MyAds() {
   const [imageConcepts, setImageConcepts] = useState<any[]>([]);
   const [isGeneratingConcepts, setIsGeneratingConcepts] = useState(false);
   const [isGeneratingFromConcept, setIsGeneratingFromConcept] = useState(false);
+  const [generatingButtons, setGeneratingButtons] = useState<{[key: string]: boolean}>({});
   const [isUploading, setIsUploading] = useState(false);
   const [flippedCards, setFlippedCards] = useState<{[key: string]: boolean}>({});
   const [cardGraphics, setCardGraphics] = useState<{[key: string]: string}>({});
@@ -292,9 +293,15 @@ export default function MyAds() {
     }
   };
 
-  const handleGenerateGraphicsFromConcept = async (concept: any) => {
+  const handleGenerateGraphicsFromConcept = async (concept: any, buttonKey?: string) => {
     const cardKey = `${concept.title}-${concept.description?.substring(0, 20)}`;
-    setIsGeneratingFromConcept(true);
+    
+    // Set individual button loading state
+    if (buttonKey) {
+      setGeneratingButtons(prev => ({ ...prev, [buttonKey]: true }));
+    } else {
+      setIsGeneratingFromConcept(true);
+    }
     
     try {
       const response = await apiRequest('POST', '/api/generate-graphics-from-concept', {
@@ -337,7 +344,16 @@ export default function MyAds() {
         variant: "destructive",
       });
     } finally {
-      setIsGeneratingFromConcept(false);
+      // Clear individual button loading state
+      if (buttonKey) {
+        setGeneratingButtons(prev => {
+          const newState = { ...prev };
+          delete newState[buttonKey];
+          return newState;
+        });
+      } else {
+        setIsGeneratingFromConcept(false);
+      }
     }
   };
 
@@ -772,10 +788,10 @@ export default function MyAds() {
                                                 color_scheme: suggestion.colors?.join(', '),
                                                 marketing_angle: suggestion.mood,
                                                 title: suggestion.type
-                                              })}
-                                              disabled={isGeneratingFromConcept}
+                                              }, `${platform}-${index}`)}
+                                              disabled={generatingButtons[`${platform}-${index}`]}
                                             >
-                                              {isGeneratingFromConcept ? (
+                                              {generatingButtons[`${platform}-${index}`] ? (
                                                 <>
                                                   <div className="w-3 h-3 mr-1 animate-spin border border-background border-t-transparent rounded-full" />
                                                   Creating...
