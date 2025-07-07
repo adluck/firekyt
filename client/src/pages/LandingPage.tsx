@@ -63,7 +63,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
 
           
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-orange-500 to-pink-500 bg-clip-text text-transparent dark:from-white dark:via-orange-400 dark:to-pink-400">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight pb-2 bg-gradient-to-r from-slate-900 via-orange-500 to-pink-500 bg-clip-text text-transparent dark:from-white dark:via-orange-400 dark:to-pink-400">
             AI-Powered Affiliate Marketing Platform
           </h1>
           
