@@ -55,7 +55,22 @@ export function PlagiarismChecker({ contentId, contentTitle }: PlagiarismChecker
   // Query to get existing plagiarism results
   const { data: existingResult, refetch: refetchResult } = useQuery<PlagiarismResponse>({
     queryKey: ['plagiarism-result', contentId],
-    queryFn: () => fetch(`/api/content/${contentId}/plagiarism-result`).then(res => res.json()),
+    queryFn: async () => {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/content/${contentId}/plagiarism-result`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null; // No plagiarism result exists yet
+        }
+        throw new Error('Failed to fetch plagiarism result');
+      }
+      return response.json();
+    },
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -148,7 +163,7 @@ export function PlagiarismChecker({ contentId, contentTitle }: PlagiarismChecker
           </div>
         )}
 
-        {existingResult && (
+        {existingResult && existingResult.result && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
