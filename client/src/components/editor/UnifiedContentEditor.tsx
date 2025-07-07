@@ -725,8 +725,8 @@ export function UnifiedContentEditor({
     enablePreview && { key: 'preview', label: 'Preview', icon: Eye },
     contentData.id && { 
       key: 'plagiarism', 
-      label: plagiarismResult?.interpretation?.score 
-        ? `Plagiarism (${plagiarismResult.interpretation.score}%)` 
+      label: plagiarismResult?.interpretation?.score || plagiarismResult?.result?.originalityScore
+        ? `Plagiarism (${plagiarismResult?.interpretation?.score || plagiarismResult?.result?.originalityScore}%)` 
         : 'Plagiarism',
       icon: Shield 
     },

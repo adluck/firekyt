@@ -78,14 +78,21 @@ export function PlagiarismChecker({ contentId, contentTitle }: PlagiarismChecker
   // Mutation to check plagiarism
   const checkPlagiarismMutation = useMutation({
     mutationFn: () => apiRequest('POST', `/api/content/${contentId}/check-plagiarism`),
-    onSuccess: (data: PlagiarismResponse) => {
+    onSuccess: (data: any) => {
+      console.log('Plagiarism check response:', data);
+      
+      // Handle different response structures safely
+      const score = data?.result?.originalityScore || data?.interpretation?.score || 0;
+      const message = data?.interpretation?.message || 'Check completed';
+      
       toast({
         title: "Plagiarism Check Complete",
-        description: `Originality score: ${data.result.originalityScore}% - ${data.interpretation.message}`,
+        description: `Originality score: ${score}% - ${message}`,
       });
       refetchResult();
     },
     onError: (error: any) => {
+      console.error('Plagiarism check error:', error);
       toast({
         title: "Plagiarism Check Failed",
         description: error.message || "Unable to perform plagiarism check",
