@@ -219,8 +219,12 @@ export default function MyAds() {
       formData.append('platform', platform);
       formData.append('campaignId', campaignId?.toString() || '');
 
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/upload-custom-graphic', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
 
