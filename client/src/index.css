@@ -163,14 +163,7 @@ html, body, #root {
 .flex-1.overflow-auto {
   flex: 1;
   overflow-y: auto;
-  max-height: 100vh;
-}
-
-/* Fix sticky positioning white space */
-.sticky {
-  height: fit-content !important;
-  max-height: calc(100vh - 120px) !important;
-  overflow-y: auto;
+  max-height: calc(100vh - 60px);
 }
 
 /* Prevent excessive container heights */
@@ -211,6 +204,29 @@ html, body, #root {
   height: fit-content !important;
   max-height: calc(100vh - 120px) !important;
   overflow-y: auto !important;
+}
+
+/* Force content to end naturally without white space */
+.flex-1.overflow-auto {
+  padding-bottom: 0 !important;
+}
+
+[data-page="create-widget"] .flex-1.overflow-auto {
+  height: fit-content !important;
+  min-height: unset !important;
+  max-height: none !important;
+}
+
+/* Target the main content wrapper to eliminate min-height on Create Widget page */
+[data-page="create-widget"] #main-content {
+  min-height: unset !important;
+  height: auto !important;
+}
+
+/* Additional fallback targeting */
+[data-page="create-widget"] #main-content.min-h-full {
+  min-height: unset !important;
+  height: auto !important;
 }
 
 /* Custom range slider styling */
