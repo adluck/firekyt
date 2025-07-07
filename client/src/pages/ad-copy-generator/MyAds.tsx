@@ -872,16 +872,22 @@ export default function MyAds() {
                                     alt={`${graphic.dimensions.name} AI graphic`}
                                     className="w-full h-full object-contain"
                                   />
-                                  <div className="absolute top-2 right-2">
-                                    <Badge variant="secondary" className="text-xs bg-purple-500 text-white">
-                                      AI Generated
-                                    </Badge>
-                                  </div>
-                                  <div className="absolute bottom-2 left-2">
-                                    <Badge variant="outline" className="text-xs bg-white/90">
-                                      {graphic.dimensions.name}
-                                    </Badge>
-                                  </div>
+                                  {/* Removed AI Generated tag for Instagram Post as requested */}
+                                  {graphic.dimensions.name !== 'Instagram Post' && (
+                                    <div className="absolute top-2 right-2">
+                                      <Badge variant="secondary" className="text-xs bg-purple-500 text-white">
+                                        AI Generated
+                                      </Badge>
+                                    </div>
+                                  )}
+                                  {/* Removed platform label tag for Instagram Post as requested */}
+                                  {graphic.dimensions.name !== 'Instagram Post' && (
+                                    <div className="absolute bottom-2 left-2">
+                                      <Badge variant="outline" className="text-xs bg-white/90">
+                                        {graphic.dimensions.name}
+                                      </Badge>
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="p-4">
                                   <h4 className="font-medium text-sm mb-2">{graphic.dimensions.name}</h4>

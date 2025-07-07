@@ -422,6 +422,13 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Updated green, blue, purple, and yellow instruction sections to use bg-muted class for light/dark mode compatibility
 ✓ Enhanced WordPress embedding instructions with unified visual styling while maintaining clear content hierarchy
 ✓ Improved accessibility and user experience with cohesive color scheme across all embed code sections
+✓ Fixed tab naming from "Text Overlays" to "Graphics" for better clarity and functionality
+✓ Enhanced tab visibility with ultra-responsive text sizing (10px-14px font sizes) to prevent text cutoff across all screen sizes
+✓ Added overflow protection with whitespace-nowrap to ensure all three tabs (Ad Copy, Image Suggestions, Graphics) display properly
+✓ Fixed text visibility issues in generated graphics by implementing dynamic stroke colors and enhanced contrast in SVG generation
+✓ Applied improved text rendering with white stroke outlines, drop shadows, and solid dark backgrounds for maximum readability
+✓ Removed platform label tags from Instagram Post graphics per user request for cleaner appearance without identification labels
+✓ Identified and documented platform mislabeling issue where graphics default to 'instagram_post' when platform information is missing from concepts
 
 ## User Preferences
 
