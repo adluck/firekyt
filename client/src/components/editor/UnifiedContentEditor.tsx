@@ -27,6 +27,7 @@ import {
   Tag,
   ExternalLink,
   X,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
@@ -144,7 +145,7 @@ export function UnifiedContentEditor({
     }
   }, [initialContent]);
   
-  const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview'>('editor');
+  const [activeTab, setActiveTab] = useState<'editor' | 'tables' | 'seo' | 'preview' | 'plagiarism'>('editor');
   const [comparisonTableConfig, setComparisonTableConfig] = useState<any>(null);
   const [editorInstance, setEditorInstance] = useState<any>(null);
   const [, setLocation] = useLocation();
@@ -696,6 +697,7 @@ export function UnifiedContentEditor({
     enableTables && { key: 'tables', label: 'Tables', icon: Table },
     enableSEO && { key: 'seo', label: 'SEO', icon: Settings },
     enablePreview && { key: 'preview', label: 'Preview', icon: Eye },
+    contentData.id && { key: 'plagiarism', label: 'Plagiarism', icon: Shield },
   ].filter(Boolean) as Array<{ key: string; label: string; icon: any }>;
 
   if (isNavigating) {
@@ -903,6 +905,25 @@ export function UnifiedContentEditor({
                           </div>
                         </div>
                       )}
+                    </div>
+                  </TabsContent>
+                )}
+
+                {/* Plagiarism Tab - Only show for existing content */}
+                {contentData.id && (
+                  <TabsContent value="plagiarism" className="p-6">
+                    <div className="space-y-6">
+                      <div className="border-b pb-4">
+                        <h2 className="text-2xl font-semibold mb-2">Content Originality Check</h2>
+                        <p className="text-muted-foreground">
+                          Verify your content's originality and detect potential plagiarism issues.
+                        </p>
+                      </div>
+                      
+                      <PlagiarismChecker 
+                        contentId={contentData.id}
+                        contentTitle={contentData.title}
+                      />
                     </div>
                   </TabsContent>
                 )}
