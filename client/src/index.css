@@ -173,10 +173,15 @@ body:has([data-page="create-widget"]) {
   max-height: 100vh;
 }
 
-/* Simple fix for Create Widget page - prevent body overflow only */
+/* Complete fix for Create Widget page - prevent all scrolling */
 body:has([data-page="create-widget"]) {
   max-height: 100vh !important;
-  overflow-y: hidden !important;
+  overflow: hidden !important;
+}
+
+/* Fix the main element overflow that creates the second scroll */
+main:has([data-page="create-widget"]) {
+  overflow: hidden !important;
 }
 
 /* Custom range slider styling */
