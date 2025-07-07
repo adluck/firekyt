@@ -150,7 +150,7 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
   const highlightStyle = highlightedElement ? (() => {
     const rect = highlightedElement.getBoundingClientRect();
     return {
-      position: 'absolute' as const,
+      position: 'fixed' as const,
       top: rect.top - 4,
       left: rect.left - 4,
       width: rect.width + 8,
