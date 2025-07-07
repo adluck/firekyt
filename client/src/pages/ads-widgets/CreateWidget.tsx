@@ -508,7 +508,7 @@ export default function CreateWidget() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl h-auto min-h-0" data-page="create-widget">
       <div className="mb-8 flex items-center gap-4">
         <div 
           className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors group" 
@@ -529,7 +529,7 @@ export default function CreateWidget() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 min-h-0">
         {/* Form Section */}
         <div className="space-y-6">
           <Form {...form}>

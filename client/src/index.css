@@ -147,25 +147,54 @@
 
 /* Fix white space issue on pages */
 html, body, #root {
-  height: 100%;
+  height: 100vh;
   overflow-x: hidden;
-}
-
-body {
-  overflow-y: auto;
   margin: 0;
   padding: 0;
 }
 
-/* Prevent excessive white space on long pages */
+/* Flex layout for main container */
+.flex.h-screen {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden;
+}
+
+.flex-1.overflow-auto {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+/* Prevent excessive container heights */
 .container {
+  min-height: unset !important;
+  height: auto !important;
+}
+
+/* Fix Create Widget specific layout */
+.max-w-7xl {
+  height: auto !important;
   min-height: unset !important;
 }
 
-/* Fix Create Widget page layout */
-.max-w-7xl {
-  max-height: calc(100vh - 120px);
-  overflow-y: visible;
+/* Completely eliminate white space below content */
+[data-page="create-widget"] {
+  height: auto !important;
+  min-height: unset !important;
+  overflow: visible !important;
+}
+
+[data-page="create-widget"] .container {
+  height: auto !important;
+  min-height: unset !important;
+  padding-bottom: 2rem !important;
+}
+
+/* Fix any grid layout white space */
+.grid.lg\\:grid-cols-2 {
+  height: auto !important;
+  min-height: unset !important;
 }
 
 /* Custom range slider styling */
