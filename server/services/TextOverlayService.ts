@@ -311,6 +311,102 @@ export class TextOverlayService {
     return suggestions;
   }
 
+  // Generate image concepts for social media graphics
+  async generateImageConcepts(productName: string, productDescription: string, platforms: string[]): Promise<any> {
+    try {
+      const prompt = `Generate creative image concepts for social media marketing graphics for this product:
+
+Product: ${productName}
+Description: ${productDescription}
+
+For each platform (${platforms.join(', ')}), suggest 3 different visual concepts that would work well for affiliate marketing. Focus on:
+
+1. Visual composition ideas
+2. Color schemes that convert well
+3. Background concepts (lifestyle, product focus, minimalist, etc.)
+4. Text overlay placement suggestions
+5. Visual elements that build trust and drive clicks
+
+Respond with structured JSON format:
+{
+  "concepts": [
+    {
+      "platform": "platform_name",
+      "concept_id": 1,
+      "title": "Concept Title",
+      "description": "Detailed description of the visual concept",
+      "visual_style": "modern/minimalist/lifestyle/product-focused",
+      "color_scheme": ["#color1", "#color2", "#color3"],
+      "background_type": "solid/gradient/lifestyle/product/texture",
+      "text_placement": "top/center/bottom/overlay",
+      "key_elements": ["element1", "element2", "element3"],
+      "marketing_angle": "trust/urgency/lifestyle/features"
+    }
+  ]
+}`;
+
+      const response = await this.ai.models.generateContent({
+        model: "gemini-2.5-pro",
+        config: {
+          responseMimeType: "application/json",
+        },
+        contents: prompt,
+      });
+
+      const result = JSON.parse(response.text || '{"concepts": []}');
+      return result;
+    } catch (error) {
+      console.error('Error generating image concepts:', error);
+      return this.generateFallbackConcepts(productName, platforms);
+    }
+  }
+
+  // Fallback concepts if AI generation fails
+  private generateFallbackConcepts(productName: string, platforms: string[]): any {
+    const baseConcepts = [
+      {
+        title: "Product Showcase",
+        description: "Clean product image with bold text overlay highlighting key benefits",
+        visual_style: "product-focused",
+        color_scheme: ["#ffffff", "#000000", "#ff6b6b"],
+        background_type: "solid",
+        text_placement: "bottom",
+        key_elements: ["product image", "benefit text", "call-to-action"],
+        marketing_angle: "features"
+      },
+      {
+        title: "Lifestyle Context",
+        description: "Product in real-world usage with lifestyle photography",
+        visual_style: "lifestyle",
+        color_scheme: ["#f8f9fa", "#495057", "#28a745"],
+        background_type: "lifestyle",
+        text_placement: "overlay",
+        key_elements: ["lifestyle scene", "product in use", "social proof"],
+        marketing_angle: "lifestyle"
+      },
+      {
+        title: "Minimalist Appeal",
+        description: "Clean, minimal design with strong typography and subtle product presence",
+        visual_style: "minimalist",
+        color_scheme: ["#ffffff", "#6c757d", "#007bff"],
+        background_type: "gradient",
+        text_placement: "center",
+        key_elements: ["clean typography", "minimal graphics", "trust badges"],
+        marketing_angle: "trust"
+      }
+    ];
+
+    const concepts = platforms.flatMap((platform, platformIndex) => 
+      baseConcepts.map((concept, conceptIndex) => ({
+        platform,
+        concept_id: conceptIndex + 1,
+        ...concept
+      }))
+    );
+
+    return { concepts };
+  }
+
   private getOptimalFontSize(platform: string, textType: 'headline' | 'cta' | 'description'): number {
     const baseSizes = {
       headline: { base: 48, mobile: 36 },

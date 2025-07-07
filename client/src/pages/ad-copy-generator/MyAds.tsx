@@ -59,6 +59,8 @@ export default function MyAds() {
   const [isGeneratingReal, setIsGeneratingReal] = useState(false);
   const [realGraphics, setRealGraphics] = useState<any[]>([]);
   const [customGraphics, setCustomGraphics] = useState<any[]>([]);
+  const [imageConcepts, setImageConcepts] = useState<any[]>([]);
+  const [isGeneratingConcepts, setIsGeneratingConcepts] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   
   const campaignId = params.id ? parseInt(params.id) : null;
@@ -257,6 +259,34 @@ export default function MyAds() {
       'pinterest_pin': { width: 1000, height: 1500, name: 'Pinterest Pin' }
     };
     return dimensions[platform] || { width: 1080, height: 1080, name: 'Social Media' };
+  };
+
+  const handleGenerateImageConcepts = async (campaign: AdCopyCampaign) => {
+    setIsGeneratingConcepts(true);
+    try {
+      const platforms = ['instagram_post', 'facebook_post', 'pinterest_pin', 'instagram_story'];
+      const response = await apiRequest('POST', '/api/generate-image-concepts', {
+        productName: campaign.productName,
+        productDescription: `${campaign.productCategory} product for ${campaign.targetAudience}`,
+        platforms
+      });
+      
+      const result = await response.json();
+      setImageConcepts(result.concepts || []);
+      
+      toast({
+        title: "Image Concepts Generated!",
+        description: `Created ${result.concepts?.length || 0} creative concepts for your graphics`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate image concepts",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingConcepts(false);
+    }
   };
 
   const handleDeleteCampaign = async (campaignId: number, campaignName: string) => {
@@ -681,6 +711,94 @@ export default function MyAds() {
                 
                 <TabsContent value="graphics" className="mt-6">
                   <div className="space-y-6">
+                    {/* Image Concepts Section */}
+                    <div className="border rounded-lg p-6 bg-gradient-to-r from-green-50/50 to-teal-50/50 dark:from-green-950/20 dark:to-teal-950/20">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold">Image Concepts</h3>
+                          <p className="text-sm text-muted-foreground">AI-generated creative concepts for your graphics</p>
+                        </div>
+                        <Button onClick={() => handleGenerateImageConcepts(campaign)} disabled={!campaign || isGeneratingConcepts}>
+                          {isGeneratingConcepts ? (
+                            <>
+                              <div className="w-4 h-4 mr-2 animate-spin border-2 border-background border-t-transparent rounded-full" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Type className="w-4 h-4 mr-2" />
+                              Generate Concepts
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      {imageConcepts.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                          {imageConcepts.map((concept: any, index: number) => (
+                            <Card key={index} className="hover:shadow-lg transition-shadow">
+                              <CardHeader className="pb-3">
+                                <div className="flex items-center justify-between">
+                                  <CardTitle className="text-sm font-medium">{concept.title}</CardTitle>
+                                  <Badge variant="outline" className="text-xs capitalize">{concept.platform?.replace(/_/g, ' ')}</Badge>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="space-y-3">
+                                <p className="text-sm text-muted-foreground">{concept.description}</p>
+                                
+                                <div className="space-y-2">
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Style</p>
+                                    <Badge variant="secondary" className="text-xs">{concept.visual_style}</Badge>
+                                  </div>
+                                  
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Key Elements</p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {concept.key_elements?.map((element: string, idx: number) => (
+                                        <Badge key={idx} variant="secondary" className="text-xs">
+                                          {element}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Color Scheme</p>
+                                    <div className="flex gap-1 mt-1">
+                                      {concept.color_scheme?.map((color: string, idx: number) => (
+                                        <div
+                                          key={idx}
+                                          className="w-4 h-4 rounded-full border border-gray-300"
+                                          style={{ backgroundColor: color }}
+                                          title={color}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Marketing Angle</p>
+                                    <Badge variant="outline" className="text-xs capitalize">{concept.marketing_angle}</Badge>
+                                  </div>
+                                </div>
+                                
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full mt-3"
+                                  onClick={() => handleCopyToClipboard(concept.description, 'concept')}
+                                >
+                                  <Copy className="w-3 h-3 mr-1" />
+                                  Copy Concept
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Real AI Graphics Section */}
                     <div className="border rounded-lg p-6 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
                       <div className="flex items-center justify-between mb-4">

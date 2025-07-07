@@ -5632,6 +5632,45 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Generate image concepts for social media graphics
+  app.post('/api/generate-image-concepts', authenticateToken, async (req, res) => {
+    try {
+      const { productName, productDescription, platforms } = req.body;
+      
+      if (!productName) {
+        return res.status(400).json({
+          success: false,
+          message: 'Product name is required'
+        });
+      }
+
+      const textOverlayService = new TextOverlayService();
+      const concepts = await textOverlayService.generateImageConcepts(
+        productName, 
+        productDescription || '', 
+        platforms || ['instagram_post', 'facebook_post', 'pinterest_pin', 'instagram_story']
+      );
+
+      console.log('🎨 Generated image concepts:', {
+        productName,
+        platformCount: platforms?.length || 4,
+        conceptCount: concepts.concepts?.length || 0
+      });
+
+      res.json({
+        success: true,
+        concepts: concepts.concepts || [],
+        message: 'Image concepts generated successfully'
+      });
+    } catch (error: any) {
+      console.error('Generate image concepts error:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to generate image concepts'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
