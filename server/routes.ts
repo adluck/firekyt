@@ -1308,8 +1308,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('🔍 PUT Final cleanUpdates:', JSON.stringify(cleanUpdates));
 
-      // Update the content
-      const updatedContent = await storage.updateContent(contentId, userId, cleanUpdates);
+      // Update the content using ContentService for activity tracking
+      const updatedContent = await contentService.updateContent(contentId, userId, cleanUpdates);
 
       console.log('🔍 PUT Updated content siteId:', updatedContent.siteId);
 
@@ -1391,8 +1391,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('🔍 PATCH Final cleanUpdates:', JSON.stringify(cleanUpdates));
 
-      // Update the content
-      const updatedContent = await storage.updateContent(contentId, userId, cleanUpdates);
+      // Update the content using ContentService for activity tracking
+      const updatedContent = await contentService.updateContent(contentId, userId, cleanUpdates);
 
       console.log('🔍 PATCH Updated content siteId:', updatedContent.siteId);
 
