@@ -5672,6 +5672,51 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Generate actual graphics from concept descriptions
+  app.post('/api/generate-graphics-from-concept', authenticateToken, async (req: Request, res: Response) => {
+    try {
+      const { concept, platform, visualStyle, keyElements, colorScheme, marketingAngle } = req.body;
+      
+      if (!concept) {
+        return res.status(400).json({
+          success: false,
+          message: 'Concept description is required'
+        });
+      }
+
+      const { TextOverlayService } = await import('./services/TextOverlayService');
+      const textOverlayService = new TextOverlayService();
+      
+      // Create detailed prompt from concept data
+      const imagePrompt = `Create a professional marketing graphic based on this concept: ${concept}. 
+        Visual style: ${visualStyle || 'modern'}. 
+        Key elements to include: ${keyElements || 'product focus'}. 
+        Color scheme: ${colorScheme || 'brand colors'}. 
+        Marketing angle: ${marketingAngle || 'benefits-focused'}.
+        Platform: ${platform || 'social media'}.
+        Make it visually appealing, professional, and suitable for affiliate marketing.`;
+
+      const graphics = await textOverlayService.generateRealGraphics(
+        imagePrompt,
+        [platform || 'instagram_post']
+      );
+
+      console.log('🎨 Generated graphics from concept:', {
+        concept: concept.substring(0, 50) + '...',
+        platform,
+        graphicsCount: graphics.length
+      });
+
+      res.json({ success: true, graphics });
+    } catch (error: any) {
+      console.error('Generate graphics from concept error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: error.message || 'Failed to generate graphics from concept' 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -61,6 +61,7 @@ export default function MyAds() {
   const [customGraphics, setCustomGraphics] = useState<any[]>([]);
   const [imageConcepts, setImageConcepts] = useState<any[]>([]);
   const [isGeneratingConcepts, setIsGeneratingConcepts] = useState(false);
+  const [isGeneratingFromConcept, setIsGeneratingFromConcept] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   
   const campaignId = params.id ? parseInt(params.id) : null;
@@ -286,6 +287,40 @@ export default function MyAds() {
       });
     } finally {
       setIsGeneratingConcepts(false);
+    }
+  };
+
+  const handleGenerateGraphicsFromConcept = async (concept: any) => {
+    setIsGeneratingFromConcept(true);
+    try {
+      const response = await apiRequest('POST', '/api/generate-graphics-from-concept', {
+        concept: concept.description,
+        platform: concept.platform || 'instagram_post',
+        visualStyle: concept.visual_style,
+        keyElements: concept.key_elements,
+        colorScheme: concept.color_scheme,
+        marketingAngle: concept.marketing_angle
+      });
+      
+      const result = await response.json();
+      
+      // Add the generated graphics to our real graphics collection
+      if (result.graphics) {
+        setRealGraphics(prev => [...prev, ...result.graphics]);
+      }
+      
+      toast({
+        title: "Graphics Generated!",
+        description: `Created ${result.graphics?.length || 0} graphics from concept: ${concept.title}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate graphics from concept",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingFromConcept(false);
     }
   };
 
@@ -783,15 +818,36 @@ export default function MyAds() {
                                   </div>
                                 </div>
                                 
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="w-full mt-3"
-                                  onClick={() => handleCopyToClipboard(concept.description, 'concept')}
-                                >
-                                  <Copy className="w-3 h-3 mr-1" />
-                                  Copy Concept
-                                </Button>
+                                <div className="flex gap-2 mt-3">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="flex-1"
+                                    onClick={() => handleCopyToClipboard(concept.description, 'concept')}
+                                  >
+                                    <Copy className="w-3 h-3 mr-1" />
+                                    Copy
+                                  </Button>
+                                  <Button
+                                    variant="default"
+                                    size="sm"
+                                    className="flex-1"
+                                    onClick={() => handleGenerateGraphicsFromConcept(concept)}
+                                    disabled={isGeneratingFromConcept}
+                                  >
+                                    {isGeneratingFromConcept ? (
+                                      <>
+                                        <div className="w-3 h-3 mr-1 animate-spin border border-background border-t-transparent rounded-full" />
+                                        Creating...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Sparkles className="w-3 h-3 mr-1" />
+                                        Generate
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
                               </CardContent>
                             </Card>
                           ))}
