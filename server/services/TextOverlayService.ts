@@ -79,42 +79,29 @@ export class TextOverlayService {
 
     // Generate background if specified
     const backgroundRect = request.backgroundColor 
-      ? `<rect x="0" y="0" width="${width}" height="${height}" fill="${request.backgroundColor}" opacity="${request.opacity}"/>`
+      ? `  <rect x="0" y="0" width="${width}" height="${height}" fill="${request.backgroundColor}" opacity="${request.opacity}"/>`
       : '';
 
     // Create text elements with styling
     const textElements = textLines.map((line, index) => {
       const yPos = y + (index * lineHeight);
-      return `<text x="${x}" y="${yPos}" 
-                fill="${request.textColor}" 
-                font-size="${request.fontSize}" 
-                font-family="Arial, sans-serif" 
-                font-weight="${request.style === 'bold' ? 'bold' : 'normal'}"
-                text-anchor="middle"
-                ${this.getTextStyling(request.style)}>
-                ${this.escapeXML(line)}
-              </text>`;
+      return `  <text x="${x}" y="${yPos}" fill="${request.textColor}" font-size="${request.fontSize}" font-family="Arial, sans-serif" font-weight="${request.style === 'bold' ? 'bold' : 'normal'}" text-anchor="middle" ${this.getTextStyling(request.style)}>${this.escapeXML(line)}</text>`;
     }).join('\n');
 
-    return `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
-          </filter>
-          <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#ff6b6b"/>
-            <stop offset="100%" style="stop-color:#4ecdc4"/>
-          </linearGradient>
-        </defs>
-        
-        <!-- Background overlay if specified -->
-        ${backgroundRect}
-        
-        <!-- Text content -->
-        ${textElements}
-      </svg>
-    `;
+    return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+    </filter>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b"/>
+      <stop offset="100%" style="stop-color:#4ecdc4"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="${width}" height="${height}" fill="#f0f0f0"/>
+  ${backgroundRect}
+  ${textElements}
+</svg>`;
   }
 
   private wrapText(text: string, maxCharsPerLine: number): string[] {
