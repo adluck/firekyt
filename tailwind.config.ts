@@ -7,6 +7,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
+          "Lexend Deca",
           "Inter",
           "-apple-system",
           "BlinkMacSystemFont",
