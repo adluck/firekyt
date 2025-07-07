@@ -704,7 +704,7 @@ export default function MyAds() {
                               const graphicUrl = cardGraphics[cardKey];
                               
                               return (
-                                <div key={index} className={`flip-card h-[32rem] ${isFlipped ? 'flipped' : ''}`}>
+                                <div key={index} className={`flip-card h-[600px] ${isFlipped ? 'flipped' : ''}`}>
                                   <div className="flip-card-inner">
                                     {/* Front of card - Suggestion details */}
                                     <div className="flip-card-front">
@@ -878,7 +878,7 @@ export default function MyAds() {
                             const graphicUrl = cardGraphics[cardKey];
                             
                             return (
-                              <div key={index} className={`flip-card h-[32rem] ${isFlipped ? 'flipped' : ''}`}>
+                              <div key={index} className={`flip-card h-[600px] ${isFlipped ? 'flipped' : ''}`}>
                                 <div className="flip-card-inner">
                                   {/* Front of card - Concept details */}
                                   <div className="flip-card-front">
