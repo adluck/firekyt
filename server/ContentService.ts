@@ -59,7 +59,24 @@ export class ContentService {
       publishedAt: request.status === 'published' ? new Date() : null,
     });
 
-    return await storage.createContent(contentData);
+    const createdContent = await storage.createContent(contentData);
+    
+    // Track user activity
+    await storage.createUserActivity({
+      userId,
+      activityType: 'content_created',
+      entityType: 'content',
+      entityId: createdContent.id,
+      title: `Created "${request.title}"`,
+      description: `Created new ${request.contentType} content`,
+      metadata: {
+        contentType: request.contentType,
+        status: request.status || 'draft',
+        wordCount: this.calculateWordCount(request.content)
+      }
+    });
+
+    return createdContent;
   }
 
   async getContentById(contentId: number, userId: number): Promise<Content | null> {
@@ -116,11 +133,37 @@ export class ContentService {
       updateData.wordCount = this.calculateWordCount(request.content);
     }
 
-    if (request.status === 'published' && existingContent.status !== 'published') {
+    const wasPublishing = request.status === 'published' && existingContent.status !== 'published';
+    if (wasPublishing) {
       updateData.publishedAt = new Date();
     }
 
-    return await storage.updateContent(contentId, userId, updateData);
+    const updatedContent = await storage.updateContent(contentId, userId, updateData);
+    
+    // Track user activity
+    let activityTitle = `Updated "${existingContent.title}"`;
+    let activityDescription = `Updated content`;
+    
+    if (wasPublishing) {
+      activityTitle = `Published "${existingContent.title}"`;
+      activityDescription = `Published content to live`;
+    }
+    
+    await storage.createUserActivity({
+      userId,
+      activityType: wasPublishing ? 'content_published' : 'content_updated',
+      entityType: 'content',
+      entityId: contentId,
+      title: activityTitle,
+      description: activityDescription,
+      metadata: {
+        contentType: existingContent.contentType,
+        status: request.status || existingContent.status,
+        changes: Object.keys(request)
+      }
+    });
+
+    return updatedContent;
   }
 
   async deleteContent(contentId: number, userId: number): Promise<void> {

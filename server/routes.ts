@@ -31,6 +31,7 @@ import { affiliateManager } from "./affiliateNetworks";
 import { cacheManager } from "./performance/CacheManager";
 import { AdCopyService } from "./services/AdCopyService";
 import { plagiarismService } from "./services/PlagiarismService";
+import { ContentService } from "./ContentService";
 import { 
   rateLimiter, 
   apiRateLimit, 
@@ -128,6 +129,8 @@ const checkSubscriptionLimit = (limitType: string) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize services
+  const contentService = new ContentService();
   // Health check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
@@ -537,15 +540,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('POST /api/content - Request body:', JSON.stringify(req.body));
       console.log('POST /api/content - siteId in request:', req.body.siteId);
       
-      const validatedData = insertContentSchema.parse(req.body);
-      console.log('POST /api/content - Validated data:', JSON.stringify(validatedData));
-      console.log('POST /api/content - Validated siteId:', validatedData.siteId);
-      
-      const content = await storage.createContent({
-        ...validatedData,
-        userId: req.user!.id,
-        siteId: validatedData.siteId || null // Ensure siteId is properly passed
-      } as any);
+      const content = await contentService.createContent(req.user!.id, req.body);
       
       console.log('POST /api/content - Created content siteId:', content.siteId);
       res.json(content);
@@ -624,8 +619,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       // Create and save content to database with proper siteId handling
-      const content = await storage.createContent({
-        userId: req.user!.id,
+      const content = await contentService.createContent(req.user!.id, {
         siteId: validatedData.siteId || null, // Ensure siteId is properly set or null
         title: `Generated Content - ${validatedData.keyword}`,
         content: 'Content generation in progress',
@@ -640,7 +634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         aiRequest, 
         content.id, 
         async (contentId: number, updates: any) => {
-          await storage.updateContent(contentId, req.user!.id, updates);
+          await contentService.updateContent(contentId, req.user!.id, updates);
         }
       );
 
