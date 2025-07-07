@@ -114,7 +114,7 @@ export default function LandingPage() {
             AI-Powered Affiliate Marketing Platform
           </h1>
           
-          <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-slate-200 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
             Create high-converting content, embed intelligent affiliate widgets, and automate your publishing across platforms. 
             Get full access during our exclusive beta program.
           </p>
@@ -134,7 +134,7 @@ export default function LandingPage() {
             </Button>
           </form>
 
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-300 dark:text-slate-400">
             Limited to 50 beta testers • Full feature access • No credit card required
           </p>
         </div>
