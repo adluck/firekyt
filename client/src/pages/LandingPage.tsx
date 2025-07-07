@@ -4,129 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckIcon, ArrowRightIcon, StarIcon, PlayIcon } from 'lucide-react';
+import { ArrowRightIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-interface TierFeature {
-  name: string;
-  included: boolean;
-  limit?: string;
-}
 
-interface PricingTier {
-  name: string;
-  displayName: string;
-  description: string;
-  price: string;
-  period: string;
-  popular?: boolean;
-  features: TierFeature[];
-  buttonText: string;
-  buttonVariant: "default" | "outline" | "secondary";
-}
-
-const pricingTiers: PricingTier[] = [
-  {
-    name: "beta_tester",
-    displayName: "Beta Tester",
-    description: "Full access during beta period",
-    price: "Free",
-    period: "Limited Time",
-    popular: true,
-    features: [
-      { name: "Unlimited Sites", included: true },
-      { name: "Unlimited Content", included: true },
-      { name: "Unlimited AI Widgets", included: true },
-      { name: "Advanced Analytics", included: true },
-      { name: "Priority Support", included: true },
-      { name: "All Publishing Platforms", included: true },
-      { name: "Custom Branding", included: true },
-      { name: "API Access", included: true }
-    ],
-    buttonText: "Join Beta",
-    buttonVariant: "default"
-  },
-  {
-    name: "free",
-    displayName: "Free",
-    description: "Perfect for getting started",
-    price: "$0",
-    period: "forever",
-    features: [
-      { name: "Sites", included: true, limit: "1" },
-      { name: "Content Pieces", included: true, limit: "10" },
-      { name: "AI Widgets", included: true, limit: "3" },
-      { name: "AI Generations", included: true, limit: "5/month" },
-      { name: "Basic Analytics", included: true },
-      { name: "Community Support", included: true },
-      { name: "Advanced Analytics", included: false },
-      { name: "Custom Branding", included: false }
-    ],
-    buttonText: "Get Started",
-    buttonVariant: "outline"
-  },
-  {
-    name: "basic",
-    displayName: "Basic",
-    description: "For serious affiliate marketers",
-    price: "$29",
-    period: "per month",
-    features: [
-      { name: "Sites", included: true, limit: "5" },
-      { name: "Content Pieces", included: true, limit: "100" },
-      { name: "AI Widgets", included: true, limit: "25" },
-      { name: "AI Generations", included: true, limit: "50/month" },
-      { name: "Advanced Analytics", included: true },
-      { name: "Email Support", included: true },
-      { name: "Publishing Automation", included: true },
-      { name: "Custom Branding", included: false }
-    ],
-    buttonText: "Start Free Trial",
-    buttonVariant: "outline"
-  },
-  {
-    name: "premium",
-    displayName: "Premium",
-    description: "For agencies and power users",
-    price: "$99",
-    period: "per month",
-    features: [
-      { name: "Unlimited Sites", included: true },
-      { name: "Unlimited Content", included: true },
-      { name: "Unlimited AI Widgets", included: true },
-      { name: "Unlimited AI Generations", included: true },
-      { name: "Advanced Analytics", included: true },
-      { name: "Priority Support", included: true },
-      { name: "Custom Branding", included: true },
-      { name: "API Access", included: true },
-      { name: "White-label Options", included: true }
-    ],
-    buttonText: "Start Free Trial",
-    buttonVariant: "outline"
-  }
-];
-
-const testimonials = [
-  {
-    name: "Sarah Johnson",
-    role: "Affiliate Marketer",
-    content: "FireKyt transformed my content creation process. I'm generating 3x more affiliate revenue with half the effort.",
-    rating: 5
-  },
-  {
-    name: "Mike Chen",
-    role: "Digital Agency Owner",
-    content: "The AI-powered widgets are game changers. Our clients are seeing 40% higher click-through rates.",
-    rating: 5
-  },
-  {
-    name: "Emma Rodriguez", 
-    role: "Content Creator",
-    content: "Publishing to multiple platforms simultaneously saved me 10+ hours per week. Incredible time saver!",
-    rating: 5
-  }
-];
 
 export default function LandingPage() {
   const [email, setEmail] = useState('');
@@ -193,8 +75,6 @@ export default function LandingPage() {
           
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Features</a>
-            <a href="#pricing" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a>
-            <a href="#testimonials" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Testimonials</a>
             <Link href="/login">
               <Button variant="outline" size="sm">Sign In</Button>
             </Link>
@@ -298,91 +178,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="container mx-auto px-6 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-white">
-            Choose Your Plan
-          </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Start with our beta program for full access, then choose the plan that fits your growth.
-          </p>
-        </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          {pricingTiers.map((tier) => (
-            <Card key={tier.name} className={`relative p-6 ${tier.popular ? 'ring-2 ring-orange-500 shadow-xl scale-105' : 'shadow-lg'} bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm`}>
-              {tier.popular && (
-                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-pink-500">
-                  Most Popular
-                </Badge>
-              )}
-              
-              <CardHeader className="pb-6">
-                <CardTitle className="text-xl">{tier.displayName}</CardTitle>
-                <CardDescription>{tier.description}</CardDescription>
-                <div className="mt-4">
-                  <span className="text-3xl font-bold">{tier.price}</span>
-                  {tier.price !== "Free" && <span className="text-slate-500 ml-1">/{tier.period}</span>}
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  {tier.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <CheckIcon className={`h-4 w-4 mt-0.5 ${feature.included ? 'text-green-500' : 'text-slate-300'}`} />
-                      <span className={`text-sm ${feature.included ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 line-through'}`}>
-                        {feature.name}
-                        {feature.limit && <span className="text-slate-500 ml-1">({feature.limit})</span>}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Button 
-                  className={`w-full mt-6 ${tier.popular ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600' : ''}`}
-                  variant={tier.buttonVariant}
-                  onClick={() => tier.name === 'beta_tester' ? document.getElementById('hero-signup')?.scrollIntoView() : null}
-                >
-                  {tier.buttonText}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section id="testimonials" className="container mx-auto px-6 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-white">
-            Loved by Affiliate Marketers
-          </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-300">
-            See what our beta users are saying about FireKyt
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="p-6 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-              <CardContent>
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <StarIcon key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-slate-600 dark:text-slate-300 mb-4">"{testimonial.content}"</p>
-                <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">{testimonial.name}</p>
-                  <p className="text-sm text-slate-500">{testimonial.role}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="container mx-auto px-6 py-20 text-center">

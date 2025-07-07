@@ -448,6 +448,8 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Fixed widget shortcode display in editor - cleaned up blue widget area to show only shortcode text without descriptive labels
 ✓ Updated EmbedExtension to display minimal shortcode format instead of complex HTML structure with titles and descriptions
 ✓ Verified shortcode processing works correctly during publishing - shortcodes convert to iframes when published to external platforms
+✓ Simplified landing page by removing pricing and testimonials sections for cleaner focus on beta signup
+✓ Fixed CSS overflow constraints to enable proper scrolling on landing page
 
 ## User Preferences
 
