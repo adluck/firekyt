@@ -244,15 +244,18 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
                 </Button>
 
                 <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSkip}
-                    className="text-xs text-muted-foreground"
-                  >
-                    <SkipForward className="h-3 w-3 mr-1" />
-                    Skip Tour
-                  </Button>
+                  {/* Only show skip button if not on the final step */}
+                  {currentStep < steps.length - 1 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSkip}
+                      className="text-xs text-muted-foreground"
+                    >
+                      <SkipForward className="h-3 w-3 mr-1" />
+                      Skip Tour
+                    </Button>
+                  )}
                   
                   <Button
                     size="sm"
