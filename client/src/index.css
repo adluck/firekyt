@@ -1199,10 +1199,14 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
 }
 
 /* Landing page subtitle override */
-.landing-subtitle {
+.landing-subtitle,
+.landing-subtitle * {
   color: white !important;
+  --muted-foreground: white !important;
 }
 
-.dark .landing-subtitle {
+.dark .landing-subtitle,
+.dark .landing-subtitle * {
   color: #d1d5db !important;
+  --muted-foreground: #d1d5db !important;
 }
