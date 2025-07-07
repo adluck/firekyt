@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+
 import { ArrowRightIcon, SunIcon, MoonIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -41,8 +41,8 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Mobile theme toggle */}
-          <div className="md:hidden">
+          {/* Mobile navigation */}
+          <div className="md:hidden flex items-center space-x-2">
             <Button
               variant="ghost"
               size="sm"
@@ -51,6 +51,9 @@ export default function LandingPage() {
             >
               {theme === 'dark' ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
             </Button>
+            <Link href="/login">
+              <Button variant="outline" size="sm">Sign In</Button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -58,9 +61,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 text-center">
         <div className="max-w-4xl mx-auto">
-          <Badge variant="secondary" className="mb-6 bg-gradient-to-r from-orange-100 to-pink-100 text-orange-700 border-orange-200">
-            🚀 Join 50 Beta Testers - Limited Time
-          </Badge>
+
           
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-orange-500 to-pink-500 bg-clip-text text-transparent dark:from-white dark:via-orange-400 dark:to-pink-400">
             AI-Powered Affiliate Marketing Platform
@@ -68,7 +69,7 @@ export default function LandingPage() {
           
           <p className="text-xl mb-8 max-w-3xl mx-auto landing-subtitle">
             Create high-converting content, embed intelligent affiliate widgets, and automate your publishing across platforms. 
-            Get full access during our exclusive beta program.
+            Scale your affiliate business with AI-powered tools designed for professional marketers.
           </p>
 
           <div className="flex justify-center mb-8">
@@ -77,14 +78,14 @@ export default function LandingPage() {
                 size="lg"
                 className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-8 py-4 text-lg font-semibold"
               >
-                Sign Up Free
+                Get Started Free
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Button>
             </Link>
           </div>
 
-          <p className="text-sm text-slate-300 dark:text-slate-400">
-            Limited to 50 beta testers • Full feature access • No credit card required
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            No credit card required • Full feature access • Join thousands of affiliate marketers
           </p>
         </div>
       </section>
@@ -157,7 +158,7 @@ export default function LandingPage() {
             Ready to Transform Your Affiliate Business?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join thousands of affiliate marketers building profitable content with AI-powered tools.
+            Join thousands of affiliate marketers who have scaled their business with AI-powered automation.
           </p>
           
           <Link href="/register">
