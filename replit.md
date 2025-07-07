@@ -429,6 +429,8 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Applied improved text rendering with white stroke outlines, drop shadows, and solid dark backgrounds for maximum readability
 ✓ Removed platform label tags from Instagram Post graphics per user request for cleaner appearance without identification labels
 ✓ Identified and documented platform mislabeling issue where graphics default to 'instagram_post' when platform information is missing from concepts
+✓ Fixed individual loading states for Generate buttons - each button now shows "Creating..." independently instead of all buttons showing loading simultaneously
+✓ Updated sidebar navigation: renamed "Copy Generator" to "Ad Copy" and moved it above "Research" menu per user request
 
 ## User Preferences
 
