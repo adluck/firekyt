@@ -2372,9 +2372,11 @@ Format your response as a JSON object with the following structure:
       switch (platformType.toLowerCase()) {
         case 'wordpress':
           publishUrl = `${blogUrl}/wp-json/wp/v2/posts`;
+          // Process shortcodes to convert widget embeds to iframes
+          const processedContent = processShortcodes(content.content);
           postData = {
             title: content.title,
-            content: content.content,
+            content: processedContent,
             excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
             status: publishSettings?.status || 'publish',
             tags: content.targetKeywords?.join(',') || '',
@@ -2388,10 +2390,12 @@ Format your response as a JSON object with the following structure:
 
         case 'ghost':
           publishUrl = `${blogUrl}/ghost/api/v3/admin/posts/`;
+          // Process shortcodes to convert widget embeds to iframes
+          const processedGhostContent = processShortcodes(content.content);
           postData = {
             posts: [{
               title: content.title,
-              html: content.content,
+              html: processedGhostContent,
               excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
               status: publishSettings?.status || 'published',
               tags: content.targetKeywords?.map((tag: string) => ({ name: tag })) || []
@@ -2405,9 +2409,11 @@ Format your response as a JSON object with the following structure:
 
         default: // Custom API
           publishUrl = `${blogUrl}/api/posts`;
+          // Process shortcodes to convert widget embeds to iframes
+          const processedDefaultContent = processShortcodes(content.content);
           postData = {
             title: content.title,
-            content: content.content,
+            content: processedDefaultContent,
             excerpt: publishSettings?.excerpt || content.content.substring(0, 200) + '...',
             tags: content.targetKeywords || [],
             status: publishSettings?.status || 'published'
