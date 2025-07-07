@@ -40,7 +40,6 @@ export class ContentService {
     this.validateContentRequest(request);
     
     const contentData = insertContentSchema.parse({
-      userId,
       siteId: request.siteId,
       title: request.title,
       content: request.content,
@@ -59,7 +58,10 @@ export class ContentService {
       publishedAt: request.status === 'published' ? new Date() : null,
     });
 
-    const createdContent = await storage.createContent(contentData);
+    const createdContent = await storage.createContent({
+      ...contentData,
+      userId
+    });
     
     // Track user activity
     await storage.createUserActivity({
