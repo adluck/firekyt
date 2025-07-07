@@ -55,16 +55,14 @@ export function PlagiarismChecker({ contentId, contentTitle }: PlagiarismChecker
   // Query to get existing plagiarism results
   const { data: existingResult, refetch: refetchResult } = useQuery<PlagiarismResponse>({
     queryKey: ['plagiarism-result', contentId],
-    queryFn: () => apiRequest(`/api/content/${contentId}/plagiarism-result`),
+    queryFn: () => fetch(`/api/content/${contentId}/plagiarism-result`).then(res => res.json()),
     retry: false,
     refetchOnWindowFocus: false,
   });
 
   // Mutation to check plagiarism
   const checkPlagiarismMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/content/${contentId}/check-plagiarism`, {
-      method: 'POST',
-    }),
+    mutationFn: () => apiRequest('POST', `/api/content/${contentId}/check-plagiarism`),
     onSuccess: (data: PlagiarismResponse) => {
       toast({
         title: "Plagiarism Check Complete",

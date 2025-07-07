@@ -48,7 +48,13 @@ export default function PlagiarismDashboard() {
 
   const { data: plagiarismResults = [], isLoading, error } = useQuery<PlagiarismResultWithContent[]>({
     queryKey: ['plagiarism-results'],
-    queryFn: () => fetch('/api/plagiarism-results').then(res => res.json()),
+    queryFn: async () => {
+      const response = await fetch('/api/plagiarism-results');
+      if (!response.ok) {
+        throw new Error('Failed to fetch plagiarism results');
+      }
+      return response.json();
+    },
     refetchOnWindowFocus: false,
   });
 
