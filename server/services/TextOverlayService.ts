@@ -85,7 +85,7 @@ export class TextOverlayService {
     // Create text elements with styling
     const textElements = textLines.map((line, index) => {
       const yPos = y + (index * lineHeight);
-      return `  <text x="${x}" y="${yPos}" fill="${request.textColor}" font-size="${request.fontSize}" font-family="Arial, sans-serif" font-weight="${request.style === 'bold' ? 'bold' : 'normal'}" text-anchor="middle" ${this.getTextStyling(request.style)}>${this.escapeXML(line)}</text>`;
+      return `  <text x="${x}" y="${yPos}" fill="${request.textColor}" font-size="${request.fontSize}" font-family="Arial, sans-serif" font-weight="${request.style === 'bold' ? 'bold' : 'normal'}" text-anchor="middle">${this.escapeXML(line)}</text>`;
     }).join('\n');
 
     return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
