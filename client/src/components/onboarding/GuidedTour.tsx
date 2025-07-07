@@ -41,12 +41,19 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
   useEffect(() => {
     if (!isActive || !currentStepData) return;
 
+    // Clean up previous highlights
+    const previousHighlights = document.querySelectorAll('.tour-highlight-active');
+    previousHighlights.forEach(el => el.classList.remove('tour-highlight-active'));
+
     const findAndHighlightElement = () => {
       const element = document.querySelector(currentStepData.target);
       if (element) {
         // Debug logging
         console.log('Found element for tour:', currentStepData.target, element);
         console.log('Element rect:', element.getBoundingClientRect());
+        
+        // Add tour highlight class directly to element
+        element.classList.add('tour-highlight-active');
         
         setHighlightedElement(element);
         updateTooltipPosition(element);
@@ -119,6 +126,10 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
   };
 
   const handleComplete = () => {
+    // Clean up all highlights
+    const previousHighlights = document.querySelectorAll('.tour-highlight-active');
+    previousHighlights.forEach(el => el.classList.remove('tour-highlight-active'));
+    
     // Track tour completion
     fetch('/api/track-onboarding-completion', {
       method: 'POST',
@@ -134,6 +145,10 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
   };
 
   const handleSkip = () => {
+    // Clean up all highlights
+    const previousHighlights = document.querySelectorAll('.tour-highlight-active');
+    previousHighlights.forEach(el => el.classList.remove('tour-highlight-active'));
+    
     // Track tour skip
     fetch('/api/track-onboarding-completion', {
       method: 'POST',
