@@ -13,41 +13,33 @@ export function SitesTour({ isActive, onComplete, onSkip }: SitesTourProps) {
   const tourSteps = [
     {
       id: 'sites-welcome',
-      target: 'h1', // Page title
+      target: 'h1',
       title: 'Sites Management Hub!',
       content: 'Connect and manage all your websites, blogs, and publishing destinations from one central location.',
       position: 'bottom' as const,
       delay: 1000
     },
     {
+      id: 'empty-state',
+      target: '.space-y-6, main, .container',
+      title: 'Getting Started with Sites',
+      content: 'This page will show all your connected websites once you add them. Start by connecting your first site to begin publishing content.',
+      position: 'center' as const,
+      waitForElement: true
+    },
+    {
       id: 'add-site-btn',
-      target: '[data-tour="add-site"]', // Add Site button
+      target: 'button',
       title: 'Connect Your First Site',
-      content: 'Click here to connect your website or blog. Add WordPress sites, custom APIs, or other publishing platforms.',
+      content: 'Click any "Add Site" or "Create Site" button to connect your website or blog. You can add WordPress sites, custom APIs, or other publishing platforms.',
       position: 'bottom' as const,
-      waitForElement: true
-    },
-    {
-      id: 'sites-list',
-      target: '[data-tour="sites-list"]', // Sites list/grid
-      title: 'Your Connected Sites',
-      content: 'All your connected sites are displayed here. Monitor status, manage settings, and view publishing statistics.',
-      position: 'top' as const,
-      waitForElement: true
-    },
-    {
-      id: 'site-settings',
-      target: '[data-tour="site-settings"]', // Site settings or actions
-      title: 'Site Management',
-      content: 'Configure publishing settings, API credentials, and content distribution preferences for each site.',
-      position: 'left' as const,
       waitForElement: true
     },
     {
       id: 'sites-complete',
       target: 'body',
-      title: 'Sites Management Complete!',
-      content: 'You\'re ready to connect and manage multiple publishing destinations. Start by adding your first site.',
+      title: 'Ready to Connect Sites!',
+      content: 'Once you connect a site, you\'ll be able to publish content directly from FireKyt to your website. Start by adding your first site.',
       position: 'center' as const
     }
   ];

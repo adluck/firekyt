@@ -46,7 +46,19 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
     previousHighlights.forEach(el => el.classList.remove('tour-highlight-active'));
 
     const findAndHighlightElement = () => {
-      const element = document.querySelector(currentStepData.target);
+      // Try multiple selectors if provided (comma-separated)
+      const selectors = currentStepData.target.split(',').map(s => s.trim());
+      let element = null;
+      
+      for (const selector of selectors) {
+        try {
+          element = document.querySelector(selector);
+          if (element) break;
+        } catch (e) {
+          console.warn('Invalid selector:', selector, e);
+        }
+      }
+      
       if (element) {
         // Debug logging
         console.log('Found element for tour:', currentStepData.target, element);

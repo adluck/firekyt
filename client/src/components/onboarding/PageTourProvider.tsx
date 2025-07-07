@@ -34,9 +34,9 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
   const [activePageTour, setActivePageTour] = useState<string | null>(null);
   const [isPageTourActive, setIsPageTourActive] = useState(false);
 
-  // Auto-trigger tours on first visit to pages
+  // Auto-trigger tours on first visit to pages (only for empty states)
   useEffect(() => {
-    const checkAndTriggerPageTour = () => {
+    const checkAndTriggerPageTour = async () => {
       const pageName = location.replace('/', '') || 'dashboard';
       const visitKey = `pageTour_${pageName}_visited`;
       const hasVisited = localStorage.getItem(visitKey);
@@ -44,20 +44,66 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       // Don't auto-trigger dashboard tour (handled by onboarding system)
       if (pageName === 'dashboard') return;
       
-      // Auto-trigger tour for first-time visitors to specific pages
-      const tourPages = ['widgets', 'content', 'analytics', 'ad-copy', 'sites', 'research', 'links', 'publishing'];
+      // Check if page is in empty state before triggering tour
+      const tourPages = ['widgets', 'content', 'ad-copy', 'sites', 'research', 'links', 'publishing'];
       if (!hasVisited && tourPages.includes(pageName)) {
-        setTimeout(() => {
-          startPageTour(pageName);
-          localStorage.setItem(visitKey, 'true');
-        }, 1500);
+        // Check if page has existing data
+        const hasExistingData = await checkPageHasData(pageName);
+        
+        // Only trigger tour if page is empty
+        if (!hasExistingData) {
+          setTimeout(() => {
+            startPageTour(pageName);
+            localStorage.setItem(visitKey, 'true');
+          }, 1500);
+        }
       }
     };
 
     checkAndTriggerPageTour();
   }, [location]);
 
+  // Check if a page has existing data
+  const checkPageHasData = async (pageName: string): Promise<boolean> => {
+    try {
+      switch (pageName) {
+        case 'sites':
+          // Check if user has any sites
+          const sites = await fetch('/api/sites').then(r => r.json()).catch(() => []);
+          return Array.isArray(sites) && sites.length > 0;
+          
+        case 'content':
+          // Check if user has any content
+          const content = await fetch('/api/content').then(r => r.json()).catch(() => []);
+          return Array.isArray(content) && content.length > 0;
+          
+        case 'widgets':
+          // Check if user has any widgets
+          const widgets = await fetch('/api/widgets').then(r => r.json()).catch(() => []);
+          return Array.isArray(widgets) && widgets.length > 0;
+          
+        case 'links':
+          // Check if user has any intelligent links
+          const links = await fetch('/api/intelligent-links').then(r => r.json()).catch(() => []);
+          return Array.isArray(links) && links.length > 0;
+          
+        case 'ad-copy':
+          // Check if user has any ad copy campaigns
+          const campaigns = await fetch('/api/ad-copy/campaigns').then(r => r.json()).catch(() => []);
+          return Array.isArray(campaigns) && campaigns.length > 0;
+          
+        default:
+          // For research and publishing, always show tour on first visit
+          return false;
+      }
+    } catch (error) {
+      console.warn('Error checking page data:', error);
+      return false; // Default to showing tour if check fails
+    }
+  };
+
   const startPageTour = (pageName: string) => {
+    console.log('🎯 Starting page tour for:', pageName);
     setActivePageTour(pageName);
     setIsPageTourActive(true);
   };

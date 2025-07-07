@@ -14,44 +14,33 @@ export function ContentTour({ isActive, onComplete, onSkip }: ContentTourProps) 
   const tourSteps = [
     {
       id: 'content-welcome',
-      target: 'h1', // Page title
+      target: 'h1',
       title: 'AI Content Creation Hub!',
       content: 'This is where you create high-converting affiliate content using our advanced AI. Generate blog posts, product reviews, and comparison articles.',
       position: 'bottom' as const,
       delay: 1000
     },
     {
-      id: 'create-content-btn',
-      target: '[data-tour="create-content"]', // Create Content button
-      title: 'Start Creating Content',
-      content: 'Click here to create new AI-powered content. Choose from blog posts, product reviews, comparison articles, and more.',
-      position: 'bottom' as const,
-      action: {
-        text: 'Create Content',
-        onClick: () => setLocation('/content/create')
-      }
-    },
-    {
-      id: 'content-list',
-      target: '[data-tour="content-list"]', // Content grid/list
-      title: 'Your Content Library',
-      content: 'All your created content appears here. You can edit, publish, schedule, or manage any piece of content.',
-      position: 'top' as const,
+      id: 'empty-state',
+      target: '.space-y-6, main, .container',
+      title: 'Getting Started with Content',
+      content: 'This page will show all your created content once you start writing. FireKyt helps you create blog posts, product reviews, and affiliate content with AI assistance.',
+      position: 'center' as const,
       waitForElement: true
     },
     {
-      id: 'content-filters',
-      target: '[data-tour="content-filters"]', // Filter buttons
-      title: 'Content Organization',
-      content: 'Filter your content by status (drafts, published, scheduled) and content type for easy management.',
-      position: 'left' as const,
+      id: 'create-content-btn',
+      target: 'button',
+      title: 'Start Creating Content',
+      content: 'Click any "Create Content" or "New Content" button to create AI-powered content. Choose from blog posts, product reviews, comparison articles, and more.',
+      position: 'bottom' as const,
       waitForElement: true
     },
     {
       id: 'content-complete',
       target: 'body',
-      title: 'Content Creation Mastered!',
-      content: 'You\'re ready to create compelling affiliate content that converts. Start with your first AI-generated article.',
+      title: 'Content Creation Ready!',
+      content: 'Once you create content, you can edit, schedule, and publish it directly to your connected sites. Start with your first AI-generated article.',
       position: 'center' as const
     }
   ];
