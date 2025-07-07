@@ -124,7 +124,7 @@ export default function ManageWidgets() {
               Create your first dynamic affiliate ad widget to start generating revenue from your content.
             </p>
             <Link href="/ads-widgets/create">
-              <Button>
+              <Button data-tour="create-widget">
                 Create Your First Widget
               </Button>
             </Link>
@@ -151,7 +151,7 @@ export default function ManageWidgets() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
-            <Select value={selectedWidgetId} onValueChange={setSelectedWidgetId}>
+            <Select value={selectedWidgetId} onValueChange={setSelectedWidgetId} data-tour="widget-list">
               <SelectTrigger className="w-full max-w-2xl">
                 <SelectValue placeholder="Choose a widget to manage..." />
               </SelectTrigger>

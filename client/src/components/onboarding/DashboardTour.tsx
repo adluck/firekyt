@@ -65,14 +65,14 @@ export function DashboardTour({ isActive, onComplete, onSkip }: DashboardTourPro
     },
     {
       id: 'widgets-nav',
-      target: '[href="/widgets"]', // Widgets navigation item
+      target: '[href="/ads-widgets"]', // Widgets navigation item
       title: 'Affiliate Widgets',
       content: 'Create dynamic affiliate ad widgets that you can embed anywhere to monetize your content.',
       position: 'right' as const,
       waitForElement: true,
       action: {
         text: 'View Widgets',
-        onClick: () => setLocation('/widgets')
+        onClick: () => setLocation('/ads-widgets')
       }
     },
     {

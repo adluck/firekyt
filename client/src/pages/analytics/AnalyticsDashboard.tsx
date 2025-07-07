@@ -301,7 +301,7 @@ export default function AnalyticsDashboard() {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2" data-tour="analytics-controls">
           <Calendar className="h-4 w-4" />
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-[180px]">
@@ -318,7 +318,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" data-tour="performance-cards">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>

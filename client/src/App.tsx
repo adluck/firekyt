@@ -13,6 +13,7 @@ import { PageTransition } from "@/components/PageTransition";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
+import { PageTourProvider } from "@/components/onboarding/PageTourProvider";
 
 // Landing page
 import LandingPage from "@/pages/LandingPage";
@@ -405,12 +406,14 @@ function App() {
         <AuthProvider>
           <SubscriptionProvider>
             <OnboardingProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Router />
-                <FeedbackWidget />
-                <CookieConsent />
-              </TooltipProvider>
+              <PageTourProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Router />
+                  <FeedbackWidget />
+                  <CookieConsent />
+                </TooltipProvider>
+              </PageTourProvider>
             </OnboardingProvider>
           </SubscriptionProvider>
         </AuthProvider>
