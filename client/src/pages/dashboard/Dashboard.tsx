@@ -20,6 +20,7 @@ import {
 import { Link } from "wouter";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useSubscription } from "@/components/subscription/SubscriptionProvider";
+import { OnboardingTrigger } from "@/components/onboarding/OnboardingTrigger";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -72,6 +73,7 @@ export default function Dashboard() {
         </div>
         
         <div className="flex gap-2">
+          <OnboardingTrigger />
           <Link href="/sites">
             <Button variant="outline">
               <Plus className="h-4 w-4 mr-2" />

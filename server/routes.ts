@@ -5849,6 +5849,44 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // ===== ONBOARDING TRACKING =====
+  
+  // Track onboarding completion
+  app.post('/api/track-onboarding-completion', async (req, res) => {
+    try {
+      const { completed, skipped } = req.body;
+      
+      // Track anonymously (no authentication required) but can track if user is logged in
+      const userId = req.user?.id || null;
+      
+      // Only create activity if user is logged in
+      if (userId) {
+        const title = completed ? 'Completed platform onboarding' : 'Skipped platform onboarding';
+        const description = completed 
+          ? 'Successfully completed the full FireKyt platform tour and feature walkthrough'
+          : 'Chose to skip the platform tour - ready to explore independently';
+          
+        await storage.createUserActivity({
+          userId: userId,
+          activityType: 'onboarding_completed',
+          entityType: 'tutorial',
+          title,
+          description,
+          metadata: {
+            completed: completed || false,
+            skipped: skipped || false,
+            completedAt: new Date().toISOString()
+          }
+        });
+      }
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Track onboarding completion error:', error);
+      res.status(500).json({ message: 'Failed to track onboarding completion' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

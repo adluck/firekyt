@@ -12,6 +12,7 @@ import { GlobalNavigationLoader } from "@/components/GlobalNavigationLoader";
 import { PageTransition } from "@/components/PageTransition";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { CookieConsent } from "@/components/ui/CookieConsent";
+import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 
 // Landing page
 import LandingPage from "@/pages/LandingPage";
@@ -403,12 +404,14 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <SubscriptionProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Router />
-              <FeedbackWidget />
-              <CookieConsent />
-            </TooltipProvider>
+            <OnboardingProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Router />
+                <FeedbackWidget />
+                <CookieConsent />
+              </TooltipProvider>
+            </OnboardingProvider>
           </SubscriptionProvider>
         </AuthProvider>
       </ThemeProvider>
