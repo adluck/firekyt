@@ -1197,3 +1197,12 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
     display: none !important;
   }
 }
+
+/* Landing page subtitle override */
+.landing-subtitle {
+  color: white !important;
+}
+
+.dark .landing-subtitle {
+  color: #d1d5db !important;
+}

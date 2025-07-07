@@ -457,6 +457,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ Replaced placeholder logos with authentic FireKyt brand assets that adapt to current theme
 ✓ Theme preferences automatically saved to localStorage for persistent user experience
 ✓ Fixed dark text visibility issues in light mode by updating text colors for better contrast against gradient backgrounds
+✓ Added landing page subtitle CSS override with !important declarations to force white text visibility in light mode
 
 ## User Preferences
 
