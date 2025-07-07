@@ -65,7 +65,7 @@ export default function LandingPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <img 
-              src={theme === 'dark' ? '/firekyt-dark-logo.png' : '/firekyt-light-logo.png'} 
+              src={theme === 'dark' ? '/firekyt-light-logo.png' : '/firekyt-dark-logo.png'} 
               alt="FireKyt" 
               className="h-8 w-auto"
             />
@@ -236,7 +236,7 @@ export default function LandingPage() {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center space-x-2 mb-4 md:mb-0">
             <img 
-              src={theme === 'dark' ? '/firekyt-dark-logo.png' : '/firekyt-light-logo.png'} 
+              src={theme === 'dark' ? '/firekyt-light-logo.png' : '/firekyt-dark-logo.png'} 
               alt="FireKyt" 
               className="h-6 w-auto"
             />
