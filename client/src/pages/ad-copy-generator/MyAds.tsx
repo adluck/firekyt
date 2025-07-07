@@ -55,6 +55,7 @@ export default function MyAds() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterGoal, setFilterGoal] = useState<string>('all');
   const [filterVoice, setFilterVoice] = useState<string>('all');
+  const [generatedGraphics, setGeneratedGraphics] = useState<any[]>([]);
   
   const campaignId = params.id ? parseInt(params.id) : null;
 
@@ -128,9 +129,10 @@ export default function MyAds() {
       });
 
       const platforms = ['instagram_post', 'instagram_story', 'facebook_post', 'pinterest_pin'];
+      const graphics = [];
       
       for (const platform of platforms) {
-        await apiRequest('POST', '/api/generate-text-overlay', {
+        const response = await apiRequest('POST', '/api/generate-text-overlay', {
           text: campaign.productName,
           platform,
           style: 'bold',
@@ -140,11 +142,23 @@ export default function MyAds() {
           backgroundColor: 'rgba(0,0,0,0.7)',
           opacity: 0.8
         });
+        
+        const result = await response.json();
+        if (result.success && result.graphicUrl) {
+          graphics.push({
+            platform,
+            url: result.graphicUrl,
+            text: campaign.productName,
+            dimensions: getPlatformDimensions(platform)
+          });
+        }
       }
 
+      setGeneratedGraphics(graphics);
+      
       toast({
         title: "Graphics Generated!",
-        description: `Successfully created graphics for ${platforms.length} platforms`,
+        description: `Successfully created ${graphics.length} graphics for ${platforms.length} platforms`,
       });
     } catch (error) {
       toast({
@@ -153,6 +167,16 @@ export default function MyAds() {
         variant: "destructive",
       });
     }
+  };
+
+  const getPlatformDimensions = (platform: string) => {
+    const dimensions: { [key: string]: { width: number; height: number; name: string } } = {
+      'instagram_post': { width: 1080, height: 1080, name: 'Instagram Post' },
+      'instagram_story': { width: 1080, height: 1920, name: 'Instagram Story' },
+      'facebook_post': { width: 1200, height: 630, name: 'Facebook Post' },
+      'pinterest_pin': { width: 1000, height: 1500, name: 'Pinterest Pin' }
+    };
+    return dimensions[platform] || { width: 1080, height: 1080, name: 'Social Media' };
   };
 
   const handleDeleteCampaign = async (campaignId: number, campaignName: string) => {
@@ -588,10 +612,63 @@ export default function MyAds() {
                       Create social media graphics with text overlays using your ad copy.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Generated graphics will appear here */}
-                      <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
-                        Click "Generate Graphics" to create text overlay graphics
-                      </div>
+                      {generatedGraphics.length > 0 ? (
+                        generatedGraphics.map((graphic, index) => (
+                          <Card key={index} className="overflow-hidden">
+                            <CardContent className="p-0">
+                              <div className="aspect-square relative bg-muted">
+                                <img 
+                                  src={graphic.url} 
+                                  alt={`${graphic.dimensions.name} graphic`}
+                                  className="w-full h-full object-contain"
+                                />
+                                <div className="absolute top-2 right-2">
+                                  <Badge variant="secondary" className="text-xs">
+                                    {graphic.dimensions.name}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div className="p-4">
+                                <h4 className="font-medium text-sm mb-2">{graphic.dimensions.name}</h4>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  {graphic.dimensions.width} × {graphic.dimensions.height}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  "{graphic.text}"
+                                </p>
+                                <div className="flex gap-2 mt-3">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="flex-1 text-xs"
+                                    onClick={() => window.open(graphic.url, '_blank')}
+                                  >
+                                    View Full
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="flex-1 text-xs"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(window.location.origin + graphic.url);
+                                      toast({
+                                        title: "URL Copied",
+                                        description: "Graphic URL copied to clipboard",
+                                      });
+                                    }}
+                                  >
+                                    Copy URL
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      ) : (
+                        <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
+                          Click "Generate Graphics" to create text overlay graphics
+                        </div>
+                      )}
                     </div>
                   </div>
                 </TabsContent>
