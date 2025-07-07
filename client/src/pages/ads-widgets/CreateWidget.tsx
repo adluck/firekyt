@@ -621,7 +621,7 @@ export default function CreateWidget() {
                       className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-sm hover:shadow-md transition-all"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Advertisement
+                      Add Ad
                     </Button>
                   </div>
                 </CardHeader>
