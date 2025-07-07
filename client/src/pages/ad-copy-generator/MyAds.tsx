@@ -148,8 +148,8 @@ export default function MyAds() {
           position: 'center',
           fontSize: 48,
           textColor: '#ffffff',
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          opacity: 0.8
+          backgroundColor: '#000000',
+          opacity: 0.9
         });
         
         const result = await response.json();

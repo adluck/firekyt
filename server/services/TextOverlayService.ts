@@ -171,15 +171,15 @@ export class TextOverlayService {
     const totalTextHeight = textLines.length * lineHeight;
     const { x, y } = this.calculateTextPosition(request.position, width, height, totalTextHeight);
 
-    // Generate background if specified
+    // Generate background if specified - ensure it's visible
     const backgroundRect = request.backgroundColor 
-      ? `  <rect x="0" y="0" width="${width}" height="${height}" fill="${request.backgroundColor}" opacity="${request.opacity}"/>`
-      : '';
+      ? `  <rect x="0" y="0" width="${width}" height="${height}" fill="${request.backgroundColor}" opacity="${Math.max(request.opacity, 0.8)}"/>`
+      : `  <rect x="0" y="0" width="${width}" height="${height}" fill="rgba(0,0,0,0.7)"/>`;
 
-    // Create text elements with styling
+    // Create text elements with styling and strong contrast
     const textElements = textLines.map((line, index) => {
       const yPos = y + (index * lineHeight);
-      return `  <text x="${x}" y="${yPos}" fill="${request.textColor}" font-size="${request.fontSize}" font-family="Arial, sans-serif" font-weight="${request.style === 'bold' ? 'bold' : 'normal'}" text-anchor="middle">${this.escapeXML(line)}</text>`;
+      return `  <text x="${x}" y="${yPos}" fill="${request.textColor}" font-size="${request.fontSize}" font-family="Arial, sans-serif" font-weight="${request.style === 'bold' ? 'bold' : 'normal'}" text-anchor="middle" stroke="#000000" stroke-width="1" filter="url(#dropshadow)">${this.escapeXML(line)}</text>`;
     }).join('\n');
 
     return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
