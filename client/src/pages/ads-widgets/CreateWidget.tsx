@@ -166,6 +166,14 @@ export default function CreateWidget() {
   const [previewMode, setPreviewMode] = useState<'preview' | 'code'>('preview');
   const [embedMode, setEmbedMode] = useState<'javascript' | 'iframe' | 'plugin' | 'wordpress-plugin'>('wordpress-plugin');
   const [previewAdIndex, setPreviewAdIndex] = useState(0);
+
+  // Prevent body scroll when on this page
+  useEffect(() => {
+    document.body.classList.add('create-widget-no-scroll');
+    return () => {
+      document.body.classList.remove('create-widget-no-scroll');
+    };
+  }, []);
   
   // Check if we're in edit mode
   const urlParams = new URLSearchParams(window.location.search);
@@ -531,7 +539,7 @@ export default function CreateWidget() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 items-start">
         {/* Form Section - Scrollable within fixed height */}
-        <div className="space-y-6 h-[calc(100vh-200px)] overflow-y-auto pr-2">
+        <div className="space-y-6 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
               console.log('❌ Form validation errors:', errors);
@@ -968,7 +976,7 @@ export default function CreateWidget() {
         </div>
 
         {/* Live Preview Section - Fixed Position */}
-        <div className="space-y-6 sticky top-6 self-start">
+        <div className="space-y-6 max-h-[calc(100vh-300px)] overflow-hidden">
           <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
             <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center justify-between">
