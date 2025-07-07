@@ -15,6 +15,7 @@ import { trackPageView } from '@/utils/analytics';
 import { ComparisonTableRenderer } from '@/components/editor/ComparisonTableRenderer';
 import { KeywordModal } from '@/components/editor/KeywordModal';
 import { LinkManagementWidget } from '@/components/editor/LinkManagementWidget';
+import { PlagiarismChecker } from '@/components/content/PlagiarismChecker';
 
 import { apiRequest } from '@/lib/queryClient';
 import {
