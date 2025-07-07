@@ -113,6 +113,17 @@ export function generateContentPrompt(request: ContentGenerationRequest): string
   
   let prompt = `You are an expert content creator specializing in ${request.content_type.replace('_', ' ')} writing.
 
+CRITICAL ORIGINALITY REQUIREMENTS:
+- Create 100% original content with unique perspectives and fresh insights
+- Avoid generic phrases, common templates, or overused expressions
+- Use distinctive angles, personal observations, and innovative comparisons
+- Include specific examples, data points, or real-world case studies
+- Write in a unique voice that stands out from typical content
+- Avoid clichéd openings like "In today's world", "Finding the right", or "When it comes to"
+- Use sophisticated vocabulary and varied sentence structures
+- Provide expert-level insights that demonstrate deep knowledge
+- Focus on actionable advice rather than general statements
+
 CONTENT SPECIFICATIONS:
 - Content Type: ${request.content_type.replace('_', ' ').toUpperCase()}
 - Primary Keyword: ${request.keyword}
@@ -121,6 +132,15 @@ CONTENT SPECIFICATIONS:
 - Word Count Target: ${wordCount} words
 - Brand Voice: ${request.brand_voice || 'Authentic and trustworthy'}
 - Current Year: 2025 (use this for references to current products, trends, and recommendations)
+
+QUALITY STANDARDS:
+- Every paragraph must add unique value and insights
+- Include specific details, numbers, or examples wherever possible
+- Use industry expertise and professional knowledge
+- Create content that reads as expert-written, not AI-generated
+- Ensure originality scores above 85% for plagiarism detection
+- Use fresh metaphors, analogies, and explanations
+- Provide genuine recommendations based on real criteria
 
 REQUIREMENTS:
 `;
@@ -235,26 +255,44 @@ Adopt the "${request.tone_of_voice}" voice throughout. This should influence:
 - Use of humor, technical terms, or colloquialisms
 - Overall personality and approach
 
+ORIGINALITY CHECKLIST:
+- Avoid phrases like "ultimate guide", "best practices", "comprehensive overview"
+- Don't use predictable patterns like "benefits and drawbacks", "pros and cons"
+- Skip overused transitional phrases like "on the other hand", "in addition to"
+- Create unique section headings instead of generic ones
+- Use fresh metaphors and original analogies
+- Include surprising insights or lesser-known facts
+- Provide specific recommendations with clear reasoning
+
 OUTPUT FORMAT:
 Please provide the content in the following JSON structure:
 {
-  "title": "Engaging, benefit-focused title",
-  "content": "Well-formatted Markdown content with proper structure, headings, and formatting",
+  "title": "Unique, compelling title that avoids generic patterns",
+  "content": "Highly original Markdown content with fresh perspectives and expert insights",
   "seo_title": "SEO-optimized title (under 60 characters)",
   "seo_description": "Compelling meta description (under 160 characters)",
   "meta_tags": ["relevant", "keyword", "tags"],
   "estimated_reading_time": number_in_minutes
 }
 
-Generate high-quality, original content that provides genuine value to the target audience while naturally promoting affiliate opportunities through well-structured, professional formatting.`;
+Generate exceptionally original, high-value content that will score 85%+ on plagiarism checks by providing unique insights, fresh perspectives, and expert-level analysis that stands apart from typical online content.`;
 
   return prompt;
 }
 
 export async function generateWithGemini(prompt: string): Promise<any> {
   try {
-    console.log('Attempting Gemini API call...');
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    console.log('Attempting Gemini API call with enhanced model...');
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        temperature: 0.8,
+        topP: 0.9,
+        topK: 40,
+        maxOutputTokens: 8192,
+      },
+      systemInstruction: "You are an expert content creator focused on producing highly original, plagiarism-free content. Always use unique perspectives, fresh insights, and avoid common phrases or templates. Your goal is to create content that will score 85%+ on originality checks."
+    });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
