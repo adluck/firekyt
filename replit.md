@@ -498,6 +498,8 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **Fixed Entire App Layout** - Applied CSS constraints at body, app layout, main content, and container levels to prevent any viewport overflow
 ✓ **Perfect Flexbox Implementation** - Container uses full height with flex-col, grid takes flex-1, form section scrolls internally, Live Preview takes full height
 ✓ **Eliminated Sidebar Scrolling** - Main application layout including sidebar is now completely fixed to viewport height with no unwanted scroll behavior
+✓ **Fixed Landing Page Light Mode Text Visibility** - Updated landing-subtitle CSS class to use proper dark text in light mode and light text in dark mode
+✓ **Removed Plagiarism Check Submenu** - Cleaned up navigation by removing Plagiarism Check from Content submenu per user request
 
 ## User Preferences
 

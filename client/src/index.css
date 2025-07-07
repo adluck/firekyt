@@ -1325,10 +1325,10 @@ section .container .landing-subtitle,
 section .container .landing-subtitle *,
 .landing-subtitle,
 .landing-subtitle * {
-  color: white !important;
-  --muted-foreground: white !important;
-  --foreground: white !important;
-  --text: white !important;
+  color: #374151 !important;
+  --muted-foreground: #374151 !important;
+  --foreground: #374151 !important;
+  --text: #374151 !important;
 }
 
 .dark section .container .landing-subtitle,
