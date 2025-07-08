@@ -337,7 +337,7 @@ export function Sidebar({
                                 "nav-link text-sm ml-0",
                                 isSubActive && "active"
                               )}
-                              onClick={() => setIsMobileOpen(false)}
+                              onClick={() => onMobileClose()}
                             >
                               <subItem.icon className="h-4 w-4" />
                               {subItem.name}
@@ -358,7 +358,7 @@ export function Sidebar({
                       isCollapsed ? "justify-center px-0" : "",
                       isActive && "active"
                     )}
-                    onClick={() => setIsMobileOpen(false)}
+                    onClick={() => onMobileClose()}
                     title={isCollapsed ? item.name : undefined}
                     data-tour={item.dataTour}
                   >
@@ -388,7 +388,7 @@ export function Sidebar({
                           isCollapsed ? "justify-center px-0" : "",
                           isActive && "active"
                         )}
-                        onClick={() => setIsMobileOpen(false)}
+                        onClick={() => onMobileClose()}
                         title={isCollapsed ? item.name : undefined}
                       >
                         <item.icon className="h-5 w-5" />
