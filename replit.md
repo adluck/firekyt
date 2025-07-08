@@ -501,7 +501,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **Fixed Landing Page Light Mode Text Visibility** - Updated landing-subtitle CSS class to use proper dark text in light mode and light text in dark mode
 ✓ **Removed Plagiarism Check Submenu** - Cleaned up navigation by removing Plagiarism Check from Content submenu per user request
 ✓ **Fixed Landing Page Gradient Text** - Added proper line height and padding to prevent gradient text clipping of descenders (letter "g" now fully visible)
-✓ **Added Beta Seat Counter** - Implemented professional beta tester seat counter on landing page with live indicator, glass effect design, and urgency messaging showing "50 seats remaining"
+✓ **Added Beta Seat Counter** - Implemented professional beta tester seat counter on landing page with live indicator, glass effect design, and urgency messaging showing "47 seats remaining" (updated based on actual signups)
 ✓ **Fixed Quick Start Guide Auto-Display** - Removed automatic onboarding tour triggering on page load, now only shows when user clicks button to prevent conflicts with cookie consent
 
 ## User Preferences
