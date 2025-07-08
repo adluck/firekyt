@@ -177,7 +177,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
           <div className="flex items-center justify-center px-4 py-4">
-            {isCollapsed ? (
+            {effectiveIsCollapsed ? (
               /* Collapsed state - show icon only */
               <div className="flex justify-center">
                 <img 
@@ -208,10 +208,10 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                 (item.href !== '/dashboard' && location.startsWith(item.href));
               
               if (item.submenu) {
-                const isExpanded = expandedMenus.includes(item.name) && !isCollapsed;
+                const isExpanded = expandedMenus.includes(item.name) && !effectiveIsCollapsed;
                 const hasActiveSubmenu = item.submenu.some(subItem => location === subItem.href);
                 
-                if (isCollapsed) {
+                if (effectiveIsCollapsed) {
                   // Collapsed state - show dropdown menu on hover/click
                   return (
                     <div key={item.name} className="relative group">
@@ -327,17 +327,17 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                   <div 
                     className={cn(
                       "nav-link",
-                      isCollapsed ? "justify-center px-0" : "",
+                      effectiveIsCollapsed ? "justify-center px-0" : "",
                       isActive && "active"
                     )}
                     onClick={() => {
                       onMobileClose?.();
                     }}
-                    title={isCollapsed ? item.name : undefined}
+                    title={effectiveIsCollapsed ? item.name : undefined}
                     data-tour={item.dataTour}
                   >
                     <item.icon className="h-5 w-5" />
-                    {!isCollapsed && <span>{item.name}</span>}
+                    {!effectiveIsCollapsed && <span>{item.name}</span>}
                   </div>
                 </WouterLink>
               );
@@ -346,7 +346,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
             {/* Admin navigation - only show for admin users */}
             {user?.role === 'admin' && (
               <div className="pt-4 border-t border-sidebar-border/50">
-                {!isCollapsed && (
+                {!effectiveIsCollapsed && (
                   <div className="text-xs font-medium text-sidebar-foreground/50 mb-2 px-3">
                     ADMIN
                   </div>
@@ -359,17 +359,16 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                       <div 
                         className={cn(
                           "nav-link",
-                          isCollapsed ? "justify-center px-0" : "",
+                          effectiveIsCollapsed ? "justify-center px-0" : "",
                           isActive && "active"
                         )}
                         onClick={() => {
-                          setIsMobileOpen(false);
                           onMobileClose?.();
                         }}
-                        title={isCollapsed ? item.name : undefined}
+                        title={effectiveIsCollapsed ? item.name : undefined}
                       >
                         <item.icon className="h-5 w-5" />
-                        {!isCollapsed && <span>{item.name}</span>}
+                        {!effectiveIsCollapsed && <span>{item.name}</span>}
                       </div>
                     </WouterLink>
                   );
@@ -379,9 +378,9 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
           </nav>
 
           {/* User info & controls */}
-          <div className={cn("border-t border-sidebar-border space-y-4", isCollapsed ? "p-2" : "p-4")}>
+          <div className={cn("border-t border-sidebar-border space-y-4", effectiveIsCollapsed ? "p-2" : "p-4")}>
             {/* User info with subscription badge */}
-            {user && !isCollapsed && (
+            {user && !effectiveIsCollapsed && (
               <div className="text-xs text-sidebar-foreground/70">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium">{user.firstName || user.username}</span>
@@ -399,19 +398,19 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
               onClick={toggleTheme}
               className={cn(
                 "w-full text-sidebar-foreground hover:bg-sidebar-accent",
-                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
+                effectiveIsCollapsed ? "justify-center px-0" : "justify-start gap-2"
               )}
-              title={isCollapsed ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : undefined}
+              title={effectiveIsCollapsed ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : undefined}
             >
               {theme === 'dark' ? (
                 <>
                   <Sun className="h-4 w-4" />
-                  {!isCollapsed && <span>Light Mode</span>}
+                  {!effectiveIsCollapsed && <span>Light Mode</span>}
                 </>
               ) : (
                 <>
                   <Moon className="h-4 w-4" />
-                  {!isCollapsed && <span>Dark Mode</span>}
+                  {!effectiveIsCollapsed && <span>Dark Mode</span>}
                 </>
               )}
             </Button>
@@ -425,37 +424,39 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
               onClick={handleLogout}
               className={cn(
                 "w-full text-sidebar-foreground hover:bg-sidebar-accent",
-                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
+                effectiveIsCollapsed ? "justify-center px-0" : "justify-start gap-2"
               )}
-              title={isCollapsed ? 'Logout' : undefined}
+              title={effectiveIsCollapsed ? 'Logout' : undefined}
             >
               <LogOut className="h-4 w-4" />
-              {!isCollapsed && <span>Logout</span>}
+              {!effectiveIsCollapsed && <span>Logout</span>}
             </Button>
 
-            {/* Toggle button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleCollapse}
-              className={cn(
-                "flex w-full text-sidebar-foreground hover:bg-sidebar-accent",
-                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
-              )}
-              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            >
-              {isCollapsed ? (
-                <>
-                  <PanelLeft className="h-4 w-4" />
-                  {!isCollapsed && <span>Expand</span>}
-                </>
-              ) : (
-                <>
-                  <PanelLeftClose className="h-4 w-4" />
-                  {!isCollapsed && <span>Collapse</span>}
-                </>
-              )}
-            </Button>
+            {/* Toggle button - only show on desktop */}
+            {!isMobile && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleCollapse}
+                className={cn(
+                  "flex w-full text-sidebar-foreground hover:bg-sidebar-accent",
+                  effectiveIsCollapsed ? "justify-center px-0" : "justify-start gap-2"
+                )}
+                title={effectiveIsCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              >
+                {effectiveIsCollapsed ? (
+                  <>
+                    <PanelLeft className="h-4 w-4" />
+                    {!effectiveIsCollapsed && <span>Expand</span>}
+                  </>
+                ) : (
+                  <>
+                    <PanelLeftClose className="h-4 w-4" />
+                    {!effectiveIsCollapsed && <span>Collapse</span>}
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </aside>
