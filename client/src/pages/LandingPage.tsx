@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 
@@ -14,6 +14,27 @@ import { CookiePreferencesLink } from '@/components/ui/CookiePreferencesLink';
 
 export default function LandingPage() {
   const { theme, toggleTheme } = useTheme();
+  const [remainingSeats, setRemainingSeats] = useState(47); // Default fallback
+  const TOTAL_BETA_SEATS = 50;
+
+  useEffect(() => {
+    // Fetch current user count to calculate remaining seats
+    const fetchUserCount = async () => {
+      try {
+        const response = await fetch('/api/public/user-count');
+        if (response.ok) {
+          const data = await response.json();
+          const remaining = Math.max(0, TOTAL_BETA_SEATS - data.count);
+          setRemainingSeats(remaining);
+        }
+      } catch (error) {
+        // Keep default fallback value if fetch fails
+        console.log('Using fallback seat count');
+      }
+    };
+
+    fetchUserCount();
+  }, []);
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-orange-50 to-pink-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -82,7 +103,7 @@ export default function LandingPage() {
             </div>
             <div className="w-px h-4 bg-slate-300 dark:bg-slate-600"></div>
             <span className="text-sm font-bold text-orange-600 dark:text-orange-400">
-              47 seats remaining
+              {remainingSeats} seats remaining
             </span>
           </div>
 

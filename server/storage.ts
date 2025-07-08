@@ -1,6 +1,6 @@
 import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, adWidgets, adWidgetAnalytics, plagiarismResults, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment, type AdWidget, type InsertAdWidget, type AdWidgetAnalytics, type InsertAdWidgetAnalytics, type PlagiarismResult, type InsertPlagiarismResult } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
+import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User management
@@ -12,6 +12,7 @@ export interface IStorage {
   updateUserStripeInfo(id: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User>;
   updateUserSubscription(id: number, status: string, tier: string, periodStart?: Date, periodEnd?: Date): Promise<User>;
   updateUserPassword(id: number, hashedPassword: string): Promise<User>;
+  getTotalUserCount(): Promise<number>;
 
   // Password reset token management
   createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken>;
@@ -304,6 +305,10 @@ export class MemStorage implements IStorage {
 
   async updateUserPassword(id: number, hashedPassword: string): Promise<User> {
     return this.updateUser(id, { password: hashedPassword });
+  }
+
+  async getTotalUserCount(): Promise<number> {
+    return this.users.size;
   }
 
   // Password reset token management
@@ -613,6 +618,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async getTotalUserCount(): Promise<number> {
+    const [result] = await db.select({ count: sql`count(*)` }).from(users);
+    return Number(result.count);
   }
 
   // Password reset token management

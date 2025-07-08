@@ -6036,6 +6036,27 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // ===== PUBLIC API ENDPOINTS =====
+  
+  // Public endpoint to get user count (for beta seat counter)
+  app.get('/api/public/user-count', async (req, res) => {
+    try {
+      const totalUsers = await storage.getTotalUserCount();
+      
+      res.json({
+        success: true,
+        count: totalUsers
+      });
+    } catch (error: any) {
+      console.error('Get user count error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get user count',
+        error: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
