@@ -454,7 +454,7 @@ export default function AdvancedContentGenerator() {
 
                   {/* Content Type */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium">Content Type</Label>
+                    <Label className="text-sm sm:text-base font-medium">Content Type</Label>
                     <Select value={formData.content_type} onValueChange={(value: any) => setFormData(prev => ({ ...prev, content_type: value }))}>
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select content type" />
@@ -523,7 +523,7 @@ export default function AdvancedContentGenerator() {
               {/* Site Selection */}
               {sites.length > 0 && (
                 <div className="space-y-2">
-                  <Label>Target Site (Optional)</Label>
+                  <Label className="text-sm sm:text-base font-medium">Target Site (Optional)</Label>
                   <Select value={formData.siteId?.toString() || "none"} onValueChange={(value) => setFormData(prev => ({ ...prev, siteId: value === "none" ? undefined : parseInt(value) }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a site or leave empty" />
@@ -545,7 +545,7 @@ export default function AdvancedContentGenerator() {
                 <h3 className="text-lg font-semibold mb-2">Advanced Options</h3>
                 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="seo-focus" className="text-sm">SEO Optimization</Label>
+                  <Label htmlFor="seo-focus" className="text-sm sm:text-base font-medium">SEO Optimization</Label>
                   <Switch
                     id="seo-focus"
                     checked={formData.seo_focus}
@@ -554,7 +554,7 @@ export default function AdvancedContentGenerator() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="word-count">Target Word Count</Label>
+                  <Label htmlFor="word-count" className="text-sm sm:text-base font-medium">Target Word Count</Label>
                   <Input
                     id="word-count"
                     type="number"
@@ -562,27 +562,30 @@ export default function AdvancedContentGenerator() {
                     max="3000"
                     value={formData.word_count || 800}
                     onChange={(e) => setFormData(prev => ({ ...prev, word_count: parseInt(e.target.value) || 800 }))}
+                    className="h-10 sm:h-12 text-sm sm:text-base"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="brand-voice">Brand Voice (Optional)</Label>
+                  <Label htmlFor="brand-voice" className="text-sm sm:text-base font-medium">Brand Voice (Optional)</Label>
                   <Input
                     id="brand-voice"
                     value={formData.brand_voice || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, brand_voice: e.target.value }))}
                     placeholder="e.g., Innovative, customer-focused, trustworthy"
+                    className="h-10 sm:h-12 text-sm sm:text-base"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="context">Additional Context</Label>
+                  <Label htmlFor="context" className="text-sm sm:text-base font-medium">Additional Context</Label>
                   <Textarea
                     id="context"
                     value={formData.additional_context || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, additional_context: e.target.value }))}
                     placeholder="Any specific requirements, competitor mentions, or additional guidelines..."
                     rows={3}
+                    className="text-sm sm:text-base"
                   />
                 </div>
               </div>
