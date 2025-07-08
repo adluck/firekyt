@@ -2,135 +2,298 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Complete Mobile Responsive Overhaul */
-/* Force single column layout on mobile devices */
-@media (max-width: 768px) {
-  /* Override ALL grid layouts to single column */
-  .grid {
+/* Complete Mobile-First Responsive System */
+
+/* Mobile Base Styles - Applied to ALL screen sizes below 768px */
+@media (max-width: 767px) {
+  /* Force mobile sidebar behavior */
+  .flex.h-screen.bg-background {
+    position: relative !important;
+    flex-direction: column !important;
+  }
+  
+  /* Hide sidebar on mobile by default */
+  aside,
+  nav[role="navigation"],
+  .w-64,
+  .w-16 {
+    display: none !important;
+  }
+  
+  /* Main content full width on mobile */
+  main.flex-1 {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  
+  /* Adjust main content padding for mobile */
+  #main-content {
+    padding: 1rem !important;
+  }
+  
+  /* Force ALL grids to single column */
+  .grid,
+  [class*="grid-cols"] {
     grid-template-columns: 1fr !important;
     display: grid !important;
   }
   
-  /* Dashboard cards - fix responsive text */
-  .dashboard-card .text-5xl.md\\:text-4xl.lg\\:text-3xl {
-    font-size: 2.5rem !important;
-    line-height: 1.2 !important;
-  }
-  
-  .dashboard-card .text-xs.md\\:text-sm {
-    font-size: 0.875rem !important;
-  }
-  
-  .dashboard-card .text-sm {
-    font-size: 0.875rem !important;
-  }
-  
-  /* Dashboard header mobile layout */
-  .flex-col.lg\\:flex-row {
-    flex-direction: column !important;
-  }
-  
-  /* Stack buttons in header */
-  div.flex.flex-col.gap-2.w-full.lg\\:w-auto {
-    width: 100% !important;
-  }
-  
-  div.flex.flex-col.gap-2.w-full.lg\\:w-auto > div.flex.gap-2 {
-    flex-direction: column !important;
-    width: 100% !important;
-  }
-  
-  div.flex.flex-col.gap-2.w-full.lg\\:w-auto button {
-    width: 100% !important;
-  }
-  
-  /* Full width links containing buttons */
-  a[href="/sites"],
-  a[href="/content"] {
-    width: 100% !important;
-  }
-  
-  /* Dashboard title adjustments */
-  h1.text-3xl.sm\\:text-3xl {
-    font-size: 1.875rem !important;
-  }
-  
-  p.text-base.sm\\:text-base {
-    font-size: 0.875rem !important;
-  }
-  
-  /* Recent activity card mobile optimization */
-  .card h3 {
-    font-size: 1.125rem !important;
-  }
-  
-  /* Adjust card icon sizes */
-  .dashboard-card .h-8.w-8.md\\:h-9.md\\:w-9 {
-    height: 2rem !important;
-    width: 2rem !important;
-  }
-  
-  /* Fix grid gaps */
-  .grid.gap-4.md\\:gap-6 {
+  /* Dashboard specific overrides */
+  .grid.grid-cols-1.md\\:grid-cols-2.xl\\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
     gap: 0.75rem !important;
   }
   
-  /* Adjust page padding */
-  .space-y-4.sm\\:space-y-6.px-2.sm\\:px-0 {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
+  /* Dashboard header responsive */
+  .flex.flex-col.lg\\:flex-row {
+    flex-direction: column !important;
+    gap: 1rem !important;
   }
   
-  /* Fix OnboardingTrigger button */
-  button[data-tour="platform-tour"] {
+  /* Button groups - stack vertically */
+  .flex.flex-col.gap-2.w-full.lg\\:w-auto {
     width: 100% !important;
   }
   
-  /* Performance Analytics card fixes */
-  .grid.grid-cols-2.gap-4 {
-    grid-template-columns: 1fr !important;
+  .flex.gap-2 {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
   }
   
-  /* Recent Activity mobile optimizations */
-  .space-y-3 > div {
+  /* All buttons full width */
+  button,
+  a > button,
+  [role="button"] {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* Dashboard card value text */
+  .dashboard-card [class*="text-5xl"],
+  .dashboard-card [class*="text-4xl"],
+  .dashboard-card [class*="text-3xl"] {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Dashboard card titles */
+  .dashboard-card [class*="text-xs"],
+  .dashboard-card [class*="text-sm"] {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Page headers */
+  h1[class*="text-3xl"] {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  p[class*="text-base"] {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Card padding */
+  .card,
+  [class*="rounded-lg"][class*="border"] {
     padding: 0.75rem !important;
   }
   
-  /* Traffic Overview chart container */
-  div[style*="aspect-ratio"] {
-    height: 200px !important;
-  }
-}
-
-/* Further optimizations for small mobile */
-@media (max-width: 640px) {
-  .dashboard-card .text-5xl.md\\:text-4xl.lg\\:text-3xl {
-    font-size: 2rem !important;
+  /* Dashboard card specific padding */
+  .dashboard-card .space-y-0 {
+    padding: 0.5rem !important;
   }
   
-  h1.text-3xl.sm\\:text-3xl {
-    font-size: 1.5rem !important;
+  /* Icon containers */
+  .h-8.w-8,
+  .h-9.w-9 {
+    height: 1.75rem !important;
+    width: 1.75rem !important;
   }
   
-  /* Smaller gaps on very small screens */
-  .grid {
+  /* Performance Analytics grid */
+  .grid.grid-cols-2.gap-4 {
+    grid-template-columns: 1fr !important;
     gap: 0.5rem !important;
   }
+  
+  /* Chart containers */
+  [style*="aspect-ratio"] {
+    height: 180px !important;
+    aspect-ratio: unset !important;
+  }
+  
+  /* Recent Activity */
+  .space-y-3 > div {
+    padding: 0.5rem !important;
+  }
+  
+  /* Mobile page spacing */
+  .space-y-4,
+  .space-y-6 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
 }
 
-/* Extremely small devices */
-@media (max-width: 475px) {
-  .dashboard-card .text-5xl.md\\:text-4xl.lg\\:text-3xl {
+/* Small mobile optimizations */
+@media (max-width: 640px) {
+  /* Even smaller text for tiny screens */
+  .dashboard-card [class*="text-5xl"],
+  .dashboard-card [class*="text-4xl"],
+  .dashboard-card [class*="text-3xl"] {
     font-size: 1.75rem !important;
   }
   
-  .dashboard-card .text-xs.md\\:text-sm,
-  .dashboard-card .text-sm {
+  h1[class*="text-3xl"] {
+    font-size: 1.25rem !important;
+  }
+  
+  /* Tighter spacing */
+  .grid {
+    gap: 0.5rem !important;
+  }
+  
+  #main-content {
+    padding: 0.75rem !important;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 475px) {
+  .dashboard-card [class*="text-5xl"],
+  .dashboard-card [class*="text-4xl"],
+  .dashboard-card [class*="text-3xl"] {
+    font-size: 1.5rem !important;
+  }
+  
+  .dashboard-card [class*="text-xs"],
+  .dashboard-card [class*="text-sm"] {
     font-size: 0.75rem !important;
   }
   
-  h1.text-3xl.sm\\:text-3xl {
-    font-size: 1.25rem !important;
+  h1[class*="text-3xl"] {
+    font-size: 1.125rem !important;
+  }
+  
+  #main-content {
+    padding: 0.5rem !important;
+  }
+}
+
+/* Additional mobile sidebar styles */
+@media (max-width: 767px) {
+  /* Mobile menu button */
+  .mobile-menu-button {
+    display: block !important;
+    position: fixed !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    z-index: 50 !important;
+    background: var(--background) !important;
+    border: 1px solid var(--border) !important;
+    padding: 0.5rem !important;
+    border-radius: 0.375rem !important;
+  }
+  
+  /* Override Tailwind responsive utilities */
+  .md\\:grid-cols-2,
+  .lg\\:grid-cols-3,
+  .lg\\:grid-cols-4,
+  .xl\\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Fix flex layouts */
+  .lg\\:flex-row {
+    flex-direction: column !important;
+  }
+  
+  .lg\\:w-auto {
+    width: 100% !important;
+  }
+  
+  /* Dashboard adjustments */
+  .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Feedback widget mobile positioning */
+  .fixed.bottom-6.right-6 {
+    bottom: 1rem !important;
+    right: 1rem !important;
+  }
+  
+  /* Cookie consent mobile fix */
+  .fixed.bottom-0.left-0.right-0 {
+    position: fixed !important;
+    z-index: 100 !important;
+  }
+}
+
+/* Aggressive Mobile Override System */
+@media screen and (max-width: 768px) {
+  /* Force all grids to single column */
+  [class*="grid"],
+  [class*="grid-cols"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Force all flex items to stack */
+  [class*="flex-row"] {
+    flex-direction: column !important;
+  }
+  
+  /* Dashboard specific fixes */
+  .grid.grid-cols-1.md\\:grid-cols-2.xl\\:grid-cols-4,
+  .grid.md\\:grid-cols-2.xl\\:grid-cols-4,
+  .grid.xl\\:grid-cols-4 {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Dashboard card text sizes */
+  .text-5xl.md\\:text-4xl.lg\\:text-3xl,
+  [class*="text-5xl"],
+  [class*="text-4xl"],
+  [class*="text-3xl"] {
+    font-size: 1.875rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* All buttons full width */
+  button,
+  a button,
+  [type="button"],
+  [role="button"] {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  
+  /* Links containing buttons */
+  a:has(button) {
+    width: 100% !important;
+    display: block !important;
+  }
+  
+  /* Mobile padding overrides */
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .py-6 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
   }
 }
 
