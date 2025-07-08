@@ -411,46 +411,55 @@ export default function ContentManager() {
         <div className="space-y-4">
           {filteredContent.map((content: Content) => (
             <Card key={content.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
+              <CardContent className="p-4 sm:p-6">
+                {/* Mobile-optimized layout */}
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
+                    {/* Title and status row */}
+                    <div className="flex items-start gap-2 mb-3">
                       {getContentTypeIcon(content.contentType)}
-                      <h3 className="text-lg font-semibold truncate">{content.title}</h3>
-                      <div className="flex items-center gap-1">
-                        {getStatusIcon(content.status)}
-                        <Badge variant={content.status === "published" ? "default" : "secondary"}>
-                          {content.status}
-                        </Badge>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold leading-tight mb-1 pr-2">{content.title}</h3>
+                        <div className="flex items-center gap-1">
+                          {getStatusIcon(content.status)}
+                          <Badge variant={content.status === "published" ? "default" : "secondary"}>
+                            {content.status}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
 
-                    <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                    {/* Content preview */}
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2 leading-relaxed">
                       {content.content.substring(0, 150)}...
                     </p>
 
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    {/* Metadata - responsive grid */}
+                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground mb-3">
                       <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {formatDate(content.createdAt)}
+                        <Calendar className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{formatDate(content.createdAt)}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <FileText className="h-3 w-3" />
-                        {getWordCount(content.content)} words
+                        <FileText className="h-3 w-3 flex-shrink-0" />
+                        <span>{getWordCount(content.content)} words</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        {getReadingTime(content.content)} min read
+                        <Eye className="h-3 w-3 flex-shrink-0" />
+                        <span>{getReadingTime(content.content)} min read</span>
                       </div>
                       {content.contentType && (
-                        <Badge variant="outline" className="text-xs">
-                          {content.contentType.replace('_', ' ')}
-                        </Badge>
+                        <div className="sm:ml-auto">
+                          <Badge variant="outline" className="text-xs">
+                            {content.contentType.replace('_', ' ')}
+                          </Badge>
+                        </div>
                       )}
                     </div>
 
+                    {/* SEO Title */}
                     {content.seoTitle && (
-                      <div className="mt-2">
+                      <div className="mt-3 pt-3 border-t border-border">
                         <p className="text-xs text-muted-foreground">
                           <strong>SEO Title:</strong> {content.seoTitle}
                         </p>
@@ -458,13 +467,16 @@ export default function ContentManager() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 ml-4">
+                  {/* Action buttons - mobile optimized */}
+                  <div className="flex items-center gap-2 sm:ml-4 sm:flex-col sm:items-stretch">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(content)}
+                      className="flex-1 sm:flex-none"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-4 w-4 mr-2 sm:mr-0" />
+                      <span className="sm:hidden">Edit</span>
                     </Button>
 
                     <AlertDialog>
@@ -472,9 +484,10 @@ export default function ContentManager() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-destructive hover:text-destructive"
+                          className="text-destructive hover:text-destructive flex-1 sm:flex-none"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 mr-2 sm:mr-0" />
+                          <span className="sm:hidden">Delete</span>
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
