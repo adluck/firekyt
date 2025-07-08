@@ -94,7 +94,7 @@ export function FeedbackWidget() {
           >
             <MessageSquareMore className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
             <span className="hidden xs:inline">Feedback</span>
-            <span className="xs:hidden">💬</span>
+            
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
