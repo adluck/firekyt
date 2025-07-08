@@ -204,11 +204,11 @@ export function RichTextEditor({
         disabled={disabled || !editor}
         title={title}
         className={cn(
-          'h-8 w-8 p-0 sm:h-10 sm:w-10 touch-manipulation',
+          'h-10 w-10 p-0 sm:h-8 sm:w-8 touch-manipulation',
           isActive && 'bg-primary text-primary-foreground'
         )}
       >
-        <span className="h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
+        <span className="h-5 w-5 sm:h-4 sm:w-4 flex items-center justify-center">
           {children}
         </span>
       </Button>
@@ -226,24 +226,24 @@ export function RichTextEditor({
               isActive={editor.isActive('bold')}
               title="Bold (Ctrl+B)"
             >
-              <Bold className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Bold className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleItalic().run()}
               isActive={editor.isActive('italic')}
               title="Italic (Ctrl+I)"
             >
-              <Italic className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Italic className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleCode().run()}
               isActive={editor.isActive('code')}
               title="Code"
             >
-              <Code className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Code className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
 
-            <Separator orientation="vertical" className="h-6 sm:h-8 mx-1" />
+            <Separator orientation="vertical" className="h-8 sm:h-6 mx-1" />
 
             {/* Headings */}
             <ToolbarButton
@@ -251,24 +251,24 @@ export function RichTextEditor({
               isActive={editor.isActive('heading', { level: 1 })}
               title="Heading 1"
             >
-              <Heading1 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Heading1 className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
               isActive={editor.isActive('heading', { level: 2 })}
               title="Heading 2"
             >
-              <Heading2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Heading2 className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
               isActive={editor.isActive('heading', { level: 3 })}
               title="Heading 3"
             >
-              <Heading3 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Heading3 className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
 
-            <Separator orientation="vertical" className="h-6 sm:h-8 mx-1" />
+            <Separator orientation="vertical" className="h-8 sm:h-6 mx-1" />
 
             {/* Lists */}
             <ToolbarButton
@@ -276,40 +276,40 @@ export function RichTextEditor({
               isActive={editor.isActive('bulletList')}
               title="Bullet List"
             >
-              <List className="h-4 w-4 sm:h-5 sm:w-5" />
+              <List className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               isActive={editor.isActive('orderedList')}
               title="Numbered List"
             >
-              <ListOrdered className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ListOrdered className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
               isActive={editor.isActive('blockquote')}
               title="Quote"
             >
-              <Quote className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Quote className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
 
-            <Separator orientation="vertical" className="h-6 sm:h-8 mx-1" />
+            <Separator orientation="vertical" className="h-8 sm:h-6 mx-1" />
 
             {/* Media and links */}
             <ToolbarButton onClick={() => setShowLinkInput(!showLinkInput)}>
-              <LinkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <LinkIcon className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton onClick={() => setShowImageInput(!showImageInput)}>
-              <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ImageIcon className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton onClick={addTable}>
-              <TableIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <TableIcon className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             
             <Dialog open={showEmbedDialog} onOpenChange={setShowEmbedDialog}>
               <DialogTrigger asChild>
                 <ToolbarButton onClick={() => setShowEmbedDialog(true)} title="Insert Widget Embed">
-                  <Monitor className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Monitor className="h-5 w-5 sm:h-4 sm:w-4" />
                 </ToolbarButton>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px]">
@@ -345,7 +345,7 @@ export function RichTextEditor({
               </DialogContent>
             </Dialog>
 
-            <Separator orientation="vertical" className="h-6 sm:h-8 mx-1" />
+            <Separator orientation="vertical" className="h-8 sm:h-6 mx-1" />
 
             {/* Undo/Redo */}
             <ToolbarButton
@@ -353,14 +353,14 @@ export function RichTextEditor({
               disabled={!editor.can().undo()}
               title="Undo"
             >
-              <Undo className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Undo className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().redo().run()}
               disabled={!editor.can().redo()}
               title="Redo"
             >
-              <Redo className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Redo className="h-5 w-5 sm:h-4 sm:w-4" />
             </ToolbarButton>
           </div>
 
