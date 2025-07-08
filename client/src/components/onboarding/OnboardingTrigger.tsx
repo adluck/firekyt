@@ -20,7 +20,7 @@ export function OnboardingTrigger() {
       variant="outline"
       size="sm"
       onClick={handleClick}
-      className="text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400"
+      className="hidden sm:inline-flex text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400"
       data-tour="platform-tour"
     >
       <Play className="h-4 w-4 mr-1" />
