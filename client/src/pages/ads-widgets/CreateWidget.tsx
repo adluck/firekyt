@@ -527,19 +527,19 @@ export default function CreateWidget() {
   }
 
   return (
-    <div className="h-full flex flex-col max-w-7xl mx-auto px-4 py-6" data-page="create-widget">
-      <div className="mb-6 flex items-center gap-4 flex-shrink-0">
+    <div className="h-full flex flex-col max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6" data-page="create-widget">
+      <div className="mb-4 sm:mb-6 flex items-start sm:items-center gap-3 sm:gap-4 flex-shrink-0">
         <div 
-          className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors group" 
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors group flex-shrink-0" 
           onClick={() => navigate('/ads-widgets')}
         >
-          <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors" />
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
             {isEditMode ? "Edit Ad Widget" : "Create Ad Widget"}
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
             {isEditMode 
               ? "Modify and optimize your existing ad widget configuration"
               : "Design and customize a professional affiliate ad widget with real-time preview"
@@ -548,9 +548,9 @@ export default function CreateWidget() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 flex-1 min-h-0">
+      <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 flex-1 min-h-0">
         {/* Form Section - Scrollable within remaining height */}
-        <div className="flex-1 space-y-6 overflow-y-auto pr-2">
+        <div className="flex-1 space-y-4 sm:space-y-6 overflow-y-auto pr-1 sm:pr-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
               console.log('❌ Form validation errors:', errors);
@@ -858,7 +858,7 @@ export default function CreateWidget() {
                   <p className="text-sm text-slate-600 dark:text-slate-400">Fine-tune colors and typography for perfect brand alignment</p>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="theme.bgColor"
@@ -867,10 +867,10 @@ export default function CreateWidget() {
                           <FormLabel>Background Color</FormLabel>
                           <div className="flex gap-2">
                             <FormControl>
-                              <Input type="color" {...field} className="w-16 h-10" />
+                              <Input type="color" {...field} className="w-12 h-8 sm:w-16 sm:h-10 flex-shrink-0" />
                             </FormControl>
                             <FormControl>
-                              <Input {...field} placeholder="#ffffff" />
+                              <Input {...field} placeholder="#ffffff" className="flex-1" />
                             </FormControl>
                           </div>
                           <FormMessage />
@@ -886,10 +886,10 @@ export default function CreateWidget() {
                           <FormLabel>Title Color</FormLabel>
                           <div className="flex gap-2">
                             <FormControl>
-                              <Input type="color" {...field} className="w-16 h-10" />
+                              <Input type="color" {...field} className="w-12 h-8 sm:w-16 sm:h-10 flex-shrink-0" />
                             </FormControl>
                             <FormControl>
-                              <Input {...field} placeholder="#333333" />
+                              <Input {...field} placeholder="#333333" className="flex-1" />
                             </FormControl>
                           </div>
                           <FormMessage />
@@ -898,7 +898,7 @@ export default function CreateWidget() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="theme.descriptionColor"
@@ -907,10 +907,10 @@ export default function CreateWidget() {
                           <FormLabel>Description Color</FormLabel>
                           <div className="flex gap-2">
                             <FormControl>
-                              <Input type="color" {...field} className="w-16 h-10" />
+                              <Input type="color" {...field} className="w-12 h-8 sm:w-16 sm:h-10 flex-shrink-0" />
                             </FormControl>
                             <FormControl>
-                              <Input {...field} placeholder="#666666" />
+                              <Input {...field} placeholder="#666666" className="flex-1" />
                             </FormControl>
                           </div>
                           <FormMessage />
@@ -926,10 +926,10 @@ export default function CreateWidget() {
                           <FormLabel>Action Button Color</FormLabel>
                           <div className="flex gap-2">
                             <FormControl>
-                              <Input type="color" {...field} className="w-16 h-10" />
+                              <Input type="color" {...field} className="w-12 h-8 sm:w-16 sm:h-10 flex-shrink-0" />
                             </FormControl>
                             <FormControl>
-                              <Input {...field} placeholder="#007cba" />
+                              <Input {...field} placeholder="#007cba" className="flex-1" />
                             </FormControl>
                           </div>
                           <FormMessage />
@@ -987,34 +987,34 @@ export default function CreateWidget() {
         </div>
 
         {/* Live Preview Section - Fixed in viewport */}
-        <div className="flex-1 space-y-6 overflow-hidden">
+        <div className="flex-1 space-y-4 sm:space-y-6 overflow-hidden">
           <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
-            <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <CardHeader className="pb-3 sm:pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                <CardTitle className="text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
                   Live Preview
                 </CardTitle>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4">
                   {watchedValues.ads?.length > 1 && (
-                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    <div className="text-xs text-muted-foreground flex items-center gap-1 justify-center xs:justify-start">
                       <span>Ad {previewAdIndex + 1} of {watchedValues.ads.length}</span>
                       <span>•</span>
                       <span>{watchedValues.rotationInterval}s rotation</span>
                     </div>
                   )}
-                  <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
+                  <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg justify-center xs:justify-start">
                     <Button
                       type="button"
                       variant={previewMode === 'preview' ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setPreviewMode('preview')}
-                      className={previewMode === 'preview' 
+                      className={`${previewMode === 'preview' 
                         ? 'bg-white dark:bg-slate-800 shadow-sm' 
                         : 'hover:bg-white/50 dark:hover:bg-slate-600/50'
-                      }
+                      } text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9`}
                     >
-                      <Eye className="w-4 h-4 mr-2" />
+                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       Preview
                     </Button>
                     <Button
@@ -1022,12 +1022,12 @@ export default function CreateWidget() {
                       variant={previewMode === 'code' ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setPreviewMode('code')}
-                      className={previewMode === 'code' 
+                      className={`${previewMode === 'code' 
                         ? 'bg-white dark:bg-slate-800 shadow-sm' 
                         : 'hover:bg-white/50 dark:hover:bg-slate-600/50'
-                      }
+                      } text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9`}
                     >
-                      <Code className="w-4 h-4 mr-2" />
+                      <Code className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       Embed Code
                     </Button>
                   </div>

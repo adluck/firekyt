@@ -432,12 +432,12 @@ export default function PublishingDashboard() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <NetworkStatus />
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Publishing Dashboard</h1>
-          <p className="text-muted-foreground">Manage your content publishing across multiple platforms</p>
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold">Publishing Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage your content publishing across multiple platforms</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col xs:flex-row gap-2 lg:flex-shrink-0">
           <Button 
             variant="outline" 
             size="sm"
@@ -948,7 +948,7 @@ export default function PublishingDashboard() {
         </TabsList>
 
         <TabsContent value="connections">
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {connectionsLoading ? (
               <p>Loading connections...</p>
             ) : connections.length === 0 ? (
@@ -968,14 +968,14 @@ export default function PublishingDashboard() {
             ) : (
               connections.map((connection: any) => (
                 <Card key={connection.id}>
-                  <CardHeader className="flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between space-y-2 2xl:space-y-0 pb-2">
+                  <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 pb-2">
                     <CardTitle className="text-base flex items-center gap-2 capitalize">
                       {getPlatformIcon(connection.platform)}
                       {connection.platform}
                     </CardTitle>
                     <Badge 
                       variant={connection.isActive ? "default" : "secondary"}
-                      className={`${connection.isActive ? "bg-green-600 hover:bg-green-700 text-white" : ""} self-start 2xl:self-center`}
+                      className={`${connection.isActive ? "bg-green-600 hover:bg-green-700 text-white" : ""} self-start sm:self-center`}
                     >
                       {connection.isActive ? "Connected" : "Inactive"}
                     </Badge>
@@ -993,42 +993,42 @@ export default function PublishingDashboard() {
                       <p className="text-sm text-muted-foreground">
                         Connected: {new Date(connection.createdAt).toLocaleDateString()}
                       </p>
-                      <div className="flex flex-col 2xl:flex-row gap-2 pt-2">
+                      <div className="flex flex-col sm:flex-row gap-2 pt-2">
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="w-full 2xl:w-auto justify-center 2xl:justify-start"
+                          className="w-full sm:w-auto justify-center sm:justify-start text-xs sm:text-sm"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowConnectionDialog(true);
                           }}
                         >
-                          <Settings className="h-4 w-4 mr-1" />
+                          <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           Settings
                         </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="w-full 2xl:w-auto justify-center 2xl:justify-start"
+                          className="w-full sm:w-auto justify-center sm:justify-start text-xs sm:text-sm"
                           onClick={() => {
                             setSelectedContent(userContent[0]);
                             setShowScheduleDialog(true);
                           }}
                         >
-                          <Calendar className="h-4 w-4 mr-1" />
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           Schedule
                         </Button>
                         <Button 
                           size="sm" 
                           variant="default"
-                          className="w-full 2xl:w-auto justify-center 2xl:justify-start"
+                          className="w-full sm:w-auto justify-center sm:justify-start text-xs sm:text-sm"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowPublishDialog(true);
                           }}
                           disabled={publishNowMutation.isPending}
                         >
-                          <Play className="h-4 w-4 mr-1" />
+                          <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
                         </Button>
                       </div>
