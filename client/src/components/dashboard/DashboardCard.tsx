@@ -34,7 +34,7 @@ export function DashboardCard({
       </CardHeader>
       
       <CardContent className="px-4 pb-4">
-        <div className="text-3xl sm:text-2xl font-bold text-foreground mb-1">{value}</div>
+        <div className="text-4xl sm:text-3xl font-bold text-foreground mb-1">{value}</div>
         
         {description && (
           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
