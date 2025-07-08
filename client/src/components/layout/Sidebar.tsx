@@ -343,7 +343,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                     title={effectiveIsCollapsed ? item.name : undefined}
                     data-tour={item.dataTour}
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className="h-4 w-4" />
                     {!effectiveIsCollapsed && <span>{item.name}</span>}
                   </div>
                 </WouterLink>
