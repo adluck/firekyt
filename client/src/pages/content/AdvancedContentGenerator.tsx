@@ -428,7 +428,7 @@ export default function AdvancedContentGenerator() {
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 flex-1 min-h-0">
             {/* Content Generation Form */}
-            <Card className="lg:col-span-2 flex flex-col h-full">
+            <Card className="lg:col-span-2 flex flex-col h-full lg:max-h-none max-h-[calc(100vh-200px)]">
               <CardHeader>
                 <CardTitle>Content Specification</CardTitle>
                 <CardDescription>
@@ -436,7 +436,7 @@ export default function AdvancedContentGenerator() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 overflow-y-auto p-6">
-                <form onSubmit={handleSubmit} className="space-y-4 h-full flex flex-col">
+                <form onSubmit={handleSubmit} className="space-y-4 flex flex-col min-h-0 pb-4">
                   {/* Primary Keyword */}
                   <div className="space-y-2">
                     <Label htmlFor="keyword" className="text-sm sm:text-base font-medium">
@@ -589,7 +589,7 @@ export default function AdvancedContentGenerator() {
 
               <Button 
                 type="submit" 
-                className="w-full" 
+                className="w-full mt-4 sm:mt-6 h-12 sm:h-10 text-base font-medium" 
                 disabled={generateMutation.isPending || isPolling}
               >
                 {generateMutation.isPending || isPolling ? (
