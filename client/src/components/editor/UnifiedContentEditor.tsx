@@ -786,11 +786,12 @@ export function UnifiedContentEditor({
           <Card className="overflow-hidden">
             <CardContent className="p-0">
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
-                <TabsList className="w-full justify-start border-b rounded-t-lg rounded-b-none h-12 bg-slate-100 dark:bg-slate-800">
+                <TabsList className="w-full justify-start border-b rounded-t-lg rounded-b-none h-12 bg-slate-100 dark:bg-slate-800 overflow-x-auto">
                   {tabsToShow.map(({ key, label, icon: Icon }) => (
-                    <TabsTrigger key={key} value={key} className="gap-2">
-                      <Icon className="w-4 h-4" />
-                      {label}
+                    <TabsTrigger key={key} value={key} className="gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-2 sm:px-4 flex-shrink-0">
+                      <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden xs:inline sm:inline">{label}</span>
+                      <span className="xs:hidden sm:hidden">{label.charAt(0)}</span>
                     </TabsTrigger>
                   ))}
                 </TabsList>
