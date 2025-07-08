@@ -397,9 +397,9 @@ export function ComparisonTableBuilder({
       <div className="min-h-[400px]">
         {activeTab === 'columns' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <h3 className="text-lg font-semibold">Table Columns</h3>
-              <Button onClick={addColumn}>
+              <Button onClick={addColumn} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Column
               </Button>
@@ -417,12 +417,12 @@ export function ComparisonTableBuilder({
                             {...provided.draggableProps}
                             className="p-4"
                           >
-                            <div className="flex items-center gap-4">
-                              <div {...provided.dragHandleProps}>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <div {...provided.dragHandleProps} className="flex items-center justify-center sm:justify-start">
                                 <GripVertical className="w-4 h-4 text-muted-foreground" />
                               </div>
                               
-                              <div className="flex-1 grid grid-cols-4 gap-4">
+                              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div>
                                   <Label>Column Name</Label>
                                   <Input
@@ -486,7 +486,7 @@ export function ComparisonTableBuilder({
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeColumn(column.id)}
-                                className="text-red-500 hover:text-red-700"
+                                className="text-red-500 hover:text-red-700 self-start sm:self-center"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
