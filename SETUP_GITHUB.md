@@ -97,7 +97,7 @@ STRIPE_SECRET_KEY=your_stripe_secret_key
 VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key
 
 # Email Service
-SENDGRID_API_KEY=your_sendgrid_key
+RESEND_API_KEY=your_resend_key
 
 # Optional
 SERP_API_KEY=your_serp_api_key
