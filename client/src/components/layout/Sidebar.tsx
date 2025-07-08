@@ -151,14 +151,11 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
   };
 
   const toggleMenu = (menuName: string) => {
+    console.log('🔄 Toggle menu clicked:', menuName, 'Current expanded:', expandedMenus, 'effectiveIsCollapsed:', effectiveIsCollapsed);
     setExpandedMenus(prev => {
-      if (prev.includes(menuName)) {
-        // Close the menu if it's already open
-        return [];
-      } else {
-        // Close all other menus and open only this one
-        return [menuName];
-      }
+      const newMenus = prev.includes(menuName) ? [] : [menuName];
+      console.log('📝 Setting expanded menus to:', newMenus);
+      return newMenus;
     });
   };
 
@@ -232,6 +229,8 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
               if (item.submenu) {
                 const isExpanded = expandedMenus.includes(item.name);
                 const hasActiveSubmenu = item.submenu.some(subItem => location === subItem.href);
+                
+                console.log(`🔍 Menu "${item.name}": isExpanded=${isExpanded}, effectiveIsCollapsed=${effectiveIsCollapsed}, expandedMenus=${JSON.stringify(expandedMenus)}`);
                 
                 if (effectiveIsCollapsed) {
                   // Collapsed state - show dropdown menu on hover/click
