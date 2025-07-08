@@ -30,8 +30,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <>
       {/* Mobile Layout */}
-      <div className="lg:hidden h-screen bg-background flex flex-col">
-        {/* Mobile Sidebar Overlay */}
+      <div className="lg:hidden">
+        {/* Mobile Sidebar Overlay - completely outside layout flow */}
         <Sidebar 
           user={user} 
           subscription={subscription}
@@ -43,12 +43,14 @@ export function AppLayout({ children }: AppLayoutProps) {
           onMobileClose={handleMobileSidebarClose}
         />
         
-        {/* Mobile Main Content */}
-        <main className="flex-1 overflow-auto pt-16">
-          <div className="w-full p-6" id="main-content">
-            {children}
-          </div>
-        </main>
+        {/* Mobile Main Content Container */}
+        <div className="h-screen bg-background">
+          <main className="h-full overflow-auto pt-16">
+            <div className="w-full p-6" id="main-content">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
 
       {/* Desktop Layout */}
