@@ -228,8 +228,17 @@
   /* Mobile menu button styling */
   button.lg\\:hidden {
     display: flex !important;
-    background: var(--background) !important;
-    border: 1px solid var(--border) !important;
+    background: hsl(var(--background)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  }
+  
+  /* Ensure mobile menu button is visible */
+  .fixed.top-2.left-2 {
+    position: fixed !important;
+    top: 0.5rem !important;
+    left: 0.5rem !important;
+    z-index: 50 !important;
   }
   
   /* Ensure sidebar has proper width on mobile */
@@ -1515,7 +1524,16 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   }
   
   /* Mobile responsive */
-  @media (max-width: 768px) {
+  /* Mobile menu button must be visible */
+@media (max-width: 1024px) {
+  button.lg\\:hidden {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+@media (max-width: 768px) {
     .sidebar {
       @apply fixed inset-y-0 left-0 z-50 w-64 transform -translate-x-full transition-transform duration-300 ease-in-out;
     }

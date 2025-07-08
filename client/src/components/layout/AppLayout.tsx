@@ -29,12 +29,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="flex h-screen bg-background overflow-hidden relative">
       {/* Mobile Menu Button */}
       <Button
-        variant="outline"
-        size="icon"
-        className="lg:hidden fixed top-4 left-4 z-50"
+        variant="ghost"
+        size="sm"
+        className="lg:hidden fixed top-2 left-2 z-50 h-8 w-8 p-0"
         onClick={handleMobileMenuToggle}
       >
-        <Menu className="h-5 w-5" />
+        <Menu className="h-4 w-4" />
       </Button>
 
       {/* Mobile Overlay */}
@@ -59,8 +59,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         />
       </div>
       
-      <main className="flex-1 overflow-auto min-h-0 lg:pl-0 pl-0">
-        <div className="w-full p-6 min-h-full lg:pl-6 pl-16" id="main-content">
+      <main className="flex-1 overflow-auto min-h-0">
+        <div className="w-full p-6 min-h-full lg:pt-6 pt-12" id="main-content">
           {children}
         </div>
       </main>
