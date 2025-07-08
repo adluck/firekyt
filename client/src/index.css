@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile dashboard card optimization */
+@media (max-width: 640px) {
+  .dashboard-card .text-5xl {
+    font-size: 3.5rem !important;
+    line-height: 1.1 !important;
+  }
+}
+
+@media (max-width: 475px) {
+  .dashboard-card .text-5xl {
+    font-size: 4rem !important;
+    line-height: 1.1 !important;
+  }
+}
+
 /* Text truncation utilities for ad widgets */
 .line-clamp-2 {
   display: -webkit-box;
