@@ -426,17 +426,17 @@ export default function AdvancedContentGenerator() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 flex-1 min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 flex-1 min-h-0">
             {/* Content Generation Form */}
             <Card className="lg:col-span-2 flex flex-col h-full">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg sm:text-xl">Content Specification</CardTitle>
-                <CardDescription className="text-sm sm:text-base">
+              <CardHeader>
+                <CardTitle>Content Specification</CardTitle>
+                <CardDescription>
                   Configure your AI-powered content generation with advanced parameters
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto p-4 sm:p-6">
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 h-full flex flex-col">
+              <CardContent className="flex-1 overflow-y-auto p-6">
+                <form onSubmit={handleSubmit} className="space-y-4 h-full flex flex-col">
                   {/* Primary Keyword */}
                   <div className="space-y-2">
                     <Label htmlFor="keyword" className="text-sm sm:text-base font-medium">
@@ -541,11 +541,11 @@ export default function AdvancedContentGenerator() {
               )}
 
               {/* Advanced Options */}
-              <div className="space-y-4 p-4 sm:p-6 border rounded-lg">
-                <h3 className="text-base sm:text-lg font-semibold mb-2">Advanced Options</h3>
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h3 className="text-lg font-semibold mb-2">Advanced Options</h3>
                 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="seo-focus" className="text-sm sm:text-base font-medium">SEO Optimization</Label>
+                  <Label htmlFor="seo-focus" className="text-sm">SEO Optimization</Label>
                   <Switch
                     id="seo-focus"
                     checked={formData.seo_focus}
@@ -554,7 +554,7 @@ export default function AdvancedContentGenerator() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="word-count" className="text-sm sm:text-base font-medium">Target Word Count</Label>
+                  <Label htmlFor="word-count">Target Word Count</Label>
                   <Input
                     id="word-count"
                     type="number"
@@ -562,49 +562,45 @@ export default function AdvancedContentGenerator() {
                     max="3000"
                     value={formData.word_count || 800}
                     onChange={(e) => setFormData(prev => ({ ...prev, word_count: parseInt(e.target.value) || 800 }))}
-                    className="h-10 sm:h-12 text-sm sm:text-base"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="brand-voice" className="text-sm sm:text-base font-medium">Brand Voice (Optional)</Label>
+                  <Label htmlFor="brand-voice">Brand Voice (Optional)</Label>
                   <Input
                     id="brand-voice"
                     value={formData.brand_voice || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, brand_voice: e.target.value }))}
                     placeholder="e.g., Innovative, customer-focused, trustworthy"
-                    className="h-10 sm:h-12 text-sm sm:text-base"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="context" className="text-sm sm:text-base font-medium">Additional Context</Label>
+                  <Label htmlFor="context">Additional Context</Label>
                   <Textarea
                     id="context"
                     value={formData.additional_context || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, additional_context: e.target.value }))}
                     placeholder="Any specific requirements, competitor mentions, or additional guidelines..."
                     rows={3}
-                    className="text-sm sm:text-base min-h-[80px] sm:min-h-[100px]"
                   />
                 </div>
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium mt-2 sm:mt-4" 
+                className="w-full" 
                 disabled={generateMutation.isPending || isPolling}
-                size="default"
               >
                 {generateMutation.isPending || isPolling ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    <span>Generating Content...</span>
+                    Generating Content...
                   </>
                 ) : (
                   <>
                     <Wand2 className="mr-2 h-4 w-4" />
-                    <span>Generate AI Content</span>
+                    Generate AI Content
                   </>
                 )}
               </Button>
@@ -614,13 +610,13 @@ export default function AdvancedContentGenerator() {
 
         {/* Generation Status & Results */}
         <Card className="lg:col-span-3 flex flex-col">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg sm:text-xl">Generation Status</CardTitle>
-            <CardDescription className="text-sm sm:text-base">
+          <CardHeader>
+            <CardTitle>Generation Status</CardTitle>
+            <CardDescription>
               Real-time status of your content generation request
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 flex-1 flex flex-col p-4 sm:p-6">
+          <CardContent className="space-y-4 flex-1 flex flex-col">
             {isPolling && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
