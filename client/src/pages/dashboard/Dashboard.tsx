@@ -94,7 +94,7 @@ export default function Dashboard() {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6" data-tour="performance-metrics">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6" data-tour="performance-metrics">
         <DashboardCard
           title="Sites"
           value={overview.totalSites || 0}
@@ -241,17 +241,17 @@ export default function Dashboard() {
             {activityData?.activities?.length > 0 ? (
               <div className="space-y-2 sm:space-y-3">
                 {activityData.activities.map((activity: any, index: number) => (
-                  <div key={activity.id || index} className="flex items-start space-x-3 p-2 sm:p-3 bg-muted/50 rounded-lg">
+                  <div key={activity.id || index} className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3 bg-muted/50 rounded-lg">
                     <div className="flex-shrink-0 mt-0.5">
-                      {activity.activityType === 'content_created' && <FileText className="h-4 w-4 text-blue-600" />}
-                      {activity.activityType === 'site_created' && <Globe className="h-4 w-4 text-green-600" />}
-                      {activity.activityType === 'content_published' && <TrendingUp className="h-4 w-4 text-purple-600" />}
-                      {activity.activityType === 'platform_connected' && <Users className="h-4 w-4 text-orange-600" />}
-                      {activity.activityType === 'link_created' && <MousePointer className="h-4 w-4 text-pink-600" />}
-                      {!['content_created', 'site_created', 'content_published', 'platform_connected', 'link_created'].includes(activity.activityType) && <Clock className="h-4 w-4 text-gray-600" />}
+                      {activity.activityType === 'content_created' && <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />}
+                      {activity.activityType === 'site_created' && <Globe className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />}
+                      {activity.activityType === 'content_published' && <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />}
+                      {activity.activityType === 'platform_connected' && <Users className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />}
+                      {activity.activityType === 'link_created' && <MousePointer className="h-3 w-3 sm:h-4 sm:w-4 text-pink-600" />}
+                      {!['content_created', 'site_created', 'content_published', 'platform_connected', 'link_created'].includes(activity.activityType) && <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-gray-600" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground line-clamp-1">
+                      <p className="text-xs sm:text-sm font-medium text-foreground line-clamp-1">
                         {activity.title}
                       </p>
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
