@@ -3,14 +3,32 @@
 @tailwind utilities;
 
 /* Mobile dashboard card optimization */
-@media (max-width: 640px) {
+/* Force responsive layout on all mobile devices */
+@media screen and (max-width: 768px) {
+  /* Override grid columns for mobile */
+  .grid.md\\:grid-cols-2,
+  .grid.xl\\:grid-cols-4,
+  [data-tour="performance-metrics"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  /* Larger text for mobile */
   .dashboard-card .text-5xl {
     font-size: 4.5rem !important;
     line-height: 1.1 !important;
   }
 }
 
-@media (max-width: 475px) {
+@media screen and (max-width: 640px) {
+  .dashboard-card .text-5xl {
+    font-size: 5rem !important;
+    line-height: 1.1 !important;
+  }
+}
+
+@media screen and (max-width: 475px) {
   .dashboard-card .text-5xl {
     font-size: 5.5rem !important;
     line-height: 1.1 !important;
