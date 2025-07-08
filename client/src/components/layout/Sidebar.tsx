@@ -306,62 +306,58 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                       )}
                     </div>
                   );
-                }
-                
-                // Expanded state - original behavior
-                return (
-                  <div key={item.name}>
-                    <button 
-                      className={cn(
-                        "nav-link w-full justify-between",
-                        (isActive || hasActiveSubmenu) && "active"
+                } else {
+                  // Expanded state - show submenu inline
+                  return (
+                    <div key={item.name}>
+                      <button 
+                        className={cn(
+                          "nav-link w-full justify-between",
+                          (isActive || hasActiveSubmenu) && "active"
+                        )}
+                        onClick={() => toggleMenu(item.name)}
+                        data-tour={item.dataTour}
+                      >
+                        <div className="flex items-center gap-3">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.name}</span>
+                        </div>
+                        <ChevronRight 
+                          className={cn(
+                            "h-4 w-4 transition-transform duration-200",
+                            isExpanded && "rotate-90"
+                          )}
+                        />
+                      </button>
+                      
+                      {isExpanded && (
+                        <div className="ml-7 mt-1 space-y-1">
+                          {item.submenu.map((subItem) => {
+                            const isSubActive = location === subItem.href;
+                            return (
+                              <WouterLink 
+                                key={subItem.name} 
+                                href={subItem.href}
+                                className="no-underline"
+                              >
+                                <div 
+                                  className={cn(
+                                    "flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-orange-50 hover:text-orange-700 dark:hover:bg-orange-900/20 dark:hover:text-orange-400 transition-all duration-150",
+                                    isSubActive && "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300 font-medium border-r-2 border-orange-500"
+                                  )}
+                                  onClick={() => onMobileClose?.()}
+                                >
+                                  <subItem.icon className="h-4 w-4" />
+                                  {subItem.name}
+                                </div>
+                              </WouterLink>
+                            );
+                          })}
+                        </div>
                       )}
-                      onClick={() => toggleMenu(item.name)}
-                      data-tour={item.dataTour}
-                    >
-                      <div className="flex items-center gap-3">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.name}</span>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                    </button>
-                    <div 
-                      className={cn(
-                        "ml-8 overflow-hidden transition-all duration-200",
-                        isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                      )}
-                      style={{display: 'flex', flexDirection: 'column', gap: '4px'}}
-                    >
-                      {item.submenu.map((subItem) => {
-                        const isSubActive = location === subItem.href;
-                        return (
-                          <WouterLink 
-                            key={subItem.name} 
-                            href={subItem.href}
-                            className="no-underline"
-                          >
-                            <div 
-                              className={cn(
-                                "nav-link text-sm ml-0",
-                                isSubActive && "active"
-                              )}
-                              onClick={() => {
-                              onMobileClose?.();
-                            }}
-                            >
-                              <subItem.icon className="h-4 w-4" />
-                              {subItem.name}
-                            </div>
-                          </WouterLink>
-                        );
-                      })}
                     </div>
-                  </div>
-                );
+                  );
+                }
               }
               
               return (
