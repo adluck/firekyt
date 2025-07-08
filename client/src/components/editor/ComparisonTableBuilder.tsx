@@ -295,13 +295,13 @@ export function ComparisonTableBuilder({
   return (
     <div className={cn('space-y-6', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Comparison Table Builder</h2>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl sm:text-2xl font-bold">Comparison Table Builder</h2>
           <p className="text-muted-foreground">Create and customize product comparison tables</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setActiveTab('preview')}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-2 flex-shrink-0">
+          <Button variant="outline" onClick={() => setActiveTab('preview')} className="w-full sm:w-auto">
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button>
@@ -324,10 +324,11 @@ export function ComparisonTableBuilder({
               }
             }}
             disabled={!currentConfig.rows.length || !onInsertTable}
+            className="w-full sm:w-auto"
           >
             Insert into Editor
           </Button>
-          <Button onClick={() => onSave?.(currentConfig)}>
+          <Button onClick={() => onSave?.(currentConfig)} className="w-full sm:w-auto">
             Save Table
           </Button>
         </div>
@@ -339,7 +340,7 @@ export function ComparisonTableBuilder({
           <CardTitle>Table Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="table-name">Table Name</Label>
               <Input
@@ -374,13 +375,13 @@ export function ComparisonTableBuilder({
 
       {/* Tabs */}
       <div className="border-b">
-        <div className="flex space-x-8">
+        <div className="flex space-x-4 sm:space-x-8 overflow-x-auto">
           {['columns', 'products', 'styling', 'preview'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
               className={cn(
-                'py-2 px-1 border-b-2 font-medium text-sm capitalize',
+                'py-2 px-1 sm:px-2 border-b-2 font-medium text-xs sm:text-sm capitalize whitespace-nowrap flex-shrink-0',
                 activeTab === tab
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
