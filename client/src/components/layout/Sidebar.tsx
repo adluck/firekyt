@@ -9,6 +9,8 @@ import {
   Sun,
   Moon,
   LogOut,
+  Menu,
+  X,
   Search,
   ChevronDown,
   ChevronRight,
@@ -38,7 +40,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { User } from "@shared/schema";
 // Use direct paths to public assets for better production compatibility
@@ -51,7 +53,6 @@ interface SidebarProps {
   subscription?: any;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
-  onMobileClose?: () => void;
 }
 
 const navigation = [
@@ -126,27 +127,20 @@ const adminNavigation = [
   { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
 ];
 
-export function Sidebar({ user, subscription, isCollapsed = false, onToggleCollapse, onMobileClose }: SidebarProps) {
+export function Sidebar({ user, subscription, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const [location, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   const handleLogout = async () => {
     await logout();
     setLocation('/login');
+  };
+
+  const toggleMobile = () => {
+    setIsMobileOpen(!isMobileOpen);
   };
 
   const toggleMenu = (menuName: string) => {
@@ -161,23 +155,40 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
     });
   };
 
-  // Force collapsed state on mobile
-  const effectiveIsCollapsed = isMobile ? true : isCollapsed;
-
   return (
     <>
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={toggleMobile}
+          className="bg-background"
+        >
+          {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+        </Button>
+      </div>
+
+      {/* Mobile overlay */}
+      {isMobileOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
-      <aside 
+      <div 
         data-tour="sidebar"
         className={cn(
-        "bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out h-full overflow-y-auto flex-shrink-0",
-        effectiveIsCollapsed ? "w-16 min-w-16 max-w-16" : "w-64 min-w-64 max-w-64"
+        "fixed inset-y-0 left-0 z-50 bg-sidebar-background border-r border-sidebar-border transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full",
+        isCollapsed ? "w-16" : "w-64"
       )}>
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
           <div className="flex items-center justify-center px-4 py-4">
-            {effectiveIsCollapsed ? (
+            {isCollapsed ? (
               /* Collapsed state - show icon only */
               <div className="flex justify-center">
                 <img 
@@ -208,10 +219,10 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                 (item.href !== '/dashboard' && location.startsWith(item.href));
               
               if (item.submenu) {
-                const isExpanded = expandedMenus.includes(item.name) && !effectiveIsCollapsed;
+                const isExpanded = expandedMenus.includes(item.name) && !isCollapsed;
                 const hasActiveSubmenu = item.submenu.some(subItem => location === subItem.href);
                 
-                if (effectiveIsCollapsed) {
+                if (isCollapsed) {
                   // Collapsed state - show dropdown menu on hover/click
                   return (
                     <div key={item.name} className="relative group">
@@ -250,8 +261,8 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                                     isSubActive && "bg-accent text-accent-foreground"
                                   )}
                                   onClick={() => {
+                                    setIsMobileOpen(false);
                                     setExpandedMenus([]);
-                                    onMobileClose?.();
                                   }}
                                 >
                                   <subItem.icon className="h-4 w-4" />
@@ -307,9 +318,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                                 "nav-link text-sm ml-0",
                                 isSubActive && "active"
                               )}
-                              onClick={() => {
-                              onMobileClose?.();
-                            }}
+                              onClick={() => setIsMobileOpen(false)}
                             >
                               <subItem.icon className="h-4 w-4" />
                               {subItem.name}
@@ -327,17 +336,15 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                   <div 
                     className={cn(
                       "nav-link",
-                      effectiveIsCollapsed ? "justify-center px-0" : "",
+                      isCollapsed ? "justify-center px-0" : "",
                       isActive && "active"
                     )}
-                    onClick={() => {
-                      onMobileClose?.();
-                    }}
-                    title={effectiveIsCollapsed ? item.name : undefined}
+                    onClick={() => setIsMobileOpen(false)}
+                    title={isCollapsed ? item.name : undefined}
                     data-tour={item.dataTour}
                   >
                     <item.icon className="h-5 w-5" />
-                    {!effectiveIsCollapsed && <span>{item.name}</span>}
+                    {!isCollapsed && <span>{item.name}</span>}
                   </div>
                 </WouterLink>
               );
@@ -346,7 +353,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
             {/* Admin navigation - only show for admin users */}
             {user?.role === 'admin' && (
               <div className="pt-4 border-t border-sidebar-border/50">
-                {!effectiveIsCollapsed && (
+                {!isCollapsed && (
                   <div className="text-xs font-medium text-sidebar-foreground/50 mb-2 px-3">
                     ADMIN
                   </div>
@@ -359,16 +366,14 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                       <div 
                         className={cn(
                           "nav-link",
-                          effectiveIsCollapsed ? "justify-center px-0" : "",
+                          isCollapsed ? "justify-center px-0" : "",
                           isActive && "active"
                         )}
-                        onClick={() => {
-                          onMobileClose?.();
-                        }}
-                        title={effectiveIsCollapsed ? item.name : undefined}
+                        onClick={() => setIsMobileOpen(false)}
+                        title={isCollapsed ? item.name : undefined}
                       >
                         <item.icon className="h-5 w-5" />
-                        {!effectiveIsCollapsed && <span>{item.name}</span>}
+                        {!isCollapsed && <span>{item.name}</span>}
                       </div>
                     </WouterLink>
                   );
@@ -378,9 +383,9 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
           </nav>
 
           {/* User info & controls */}
-          <div className={cn("border-t border-sidebar-border space-y-4", effectiveIsCollapsed ? "p-2" : "p-4")}>
+          <div className={cn("border-t border-sidebar-border space-y-4", isCollapsed ? "p-2" : "p-4")}>
             {/* User info with subscription badge */}
-            {user && !effectiveIsCollapsed && (
+            {user && !isCollapsed && (
               <div className="text-xs text-sidebar-foreground/70">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium">{user.firstName || user.username}</span>
@@ -398,19 +403,19 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
               onClick={toggleTheme}
               className={cn(
                 "w-full text-sidebar-foreground hover:bg-sidebar-accent",
-                effectiveIsCollapsed ? "justify-center px-0" : "justify-start gap-2"
+                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
               )}
-              title={effectiveIsCollapsed ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : undefined}
+              title={isCollapsed ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : undefined}
             >
               {theme === 'dark' ? (
                 <>
                   <Sun className="h-4 w-4" />
-                  {!effectiveIsCollapsed && <span>Light Mode</span>}
+                  {!isCollapsed && <span>Light Mode</span>}
                 </>
               ) : (
                 <>
                   <Moon className="h-4 w-4" />
-                  {!effectiveIsCollapsed && <span>Dark Mode</span>}
+                  {!isCollapsed && <span>Dark Mode</span>}
                 </>
               )}
             </Button>
@@ -424,42 +429,40 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
               onClick={handleLogout}
               className={cn(
                 "w-full text-sidebar-foreground hover:bg-sidebar-accent",
-                effectiveIsCollapsed ? "justify-center px-0" : "justify-start gap-2"
+                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
               )}
-              title={effectiveIsCollapsed ? 'Logout' : undefined}
+              title={isCollapsed ? 'Logout' : undefined}
             >
               <LogOut className="h-4 w-4" />
-              {!effectiveIsCollapsed && <span>Logout</span>}
+              {!isCollapsed && <span>Logout</span>}
             </Button>
 
-            {/* Toggle button - only show on desktop */}
-            {!isMobile && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onToggleCollapse}
-                className={cn(
-                  "flex w-full text-sidebar-foreground hover:bg-sidebar-accent",
-                  effectiveIsCollapsed ? "justify-center px-0" : "justify-start gap-2"
-                )}
-                title={effectiveIsCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-              >
-                {effectiveIsCollapsed ? (
-                  <>
-                    <PanelLeft className="h-4 w-4" />
-                    {!effectiveIsCollapsed && <span>Expand</span>}
-                  </>
-                ) : (
-                  <>
-                    <PanelLeftClose className="h-4 w-4" />
-                    {!effectiveIsCollapsed && <span>Collapse</span>}
-                  </>
-                )}
-              </Button>
-            )}
+            {/* Toggle button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCollapse}
+              className={cn(
+                "flex w-full text-sidebar-foreground hover:bg-sidebar-accent",
+                isCollapsed ? "justify-center px-0" : "justify-start gap-2"
+              )}
+              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            >
+              {isCollapsed ? (
+                <>
+                  <PanelLeft className="h-4 w-4" />
+                  {!isCollapsed && <span>Expand</span>}
+                </>
+              ) : (
+                <>
+                  <PanelLeftClose className="h-4 w-4" />
+                  {!isCollapsed && <span>Collapse</span>}
+                </>
+              )}
+            </Button>
           </div>
         </div>
-      </aside>
+      </div>
     </>
   );
 }

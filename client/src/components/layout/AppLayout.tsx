@@ -4,8 +4,6 @@ import { SessionManager } from "../auth/SessionManager";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { cn } from "@/lib/utils";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -15,41 +13,21 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const { subscription } = useSubscription();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const handleToggleCollapse = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
-  const handleMobileMenuToggle = () => {
-    setIsMobileSidebarOpen(!isMobileSidebarOpen);
-  };
-
   return (
-    <div className="flex h-screen bg-background overflow-hidden relative">
-      {/* Sidebar - always visible but collapsed on mobile */}
+    <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar 
         user={user} 
         subscription={subscription}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleCollapse}
-        onMobileClose={handleMobileMenuToggle}
       />
       
-      <main className="flex-1 overflow-auto min-h-0 min-w-0">
-        {/* Mobile Hamburger Header */}
-        <div className="lg:hidden flex items-center p-4 border-b border-border bg-background">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleToggleCollapse}
-            className="mr-3"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-semibold">FireKyt</h1>
-        </div>
-        
+      <main className="flex-1 overflow-auto min-h-0">
         <div className="w-full p-6 min-h-full" id="main-content">
           {children}
         </div>

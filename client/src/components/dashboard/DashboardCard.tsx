@@ -24,17 +24,17 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <Card className={cn("dashboard-card", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 md:px-4 pt-3 md:pt-4">
-        <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground truncate pr-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 pt-4">
+        <CardTitle className="text-sm font-medium text-muted-foreground truncate pr-2">
           {title}
         </CardTitle>
-        <div className="h-8 w-8 md:h-9 md:w-9 rounded-lg gradient-bg flex items-center justify-center flex-shrink-0">
-          <Icon className="h-3 w-3 md:h-4 md:w-4 text-white" />
+        <div className="h-9 w-9 rounded-lg gradient-bg flex items-center justify-center flex-shrink-0">
+          <Icon className="h-4 w-4 text-white" />
         </div>
       </CardHeader>
       
-      <CardContent className="px-3 md:px-4 pb-3 md:pb-4">
-        <div className="text-5xl md:text-4xl lg:text-3xl font-bold text-foreground mb-1">{value}</div>
+      <CardContent className="px-4 pb-4">
+        <div className="text-3xl sm:text-2xl font-bold text-foreground mb-1">{value}</div>
         
         {description && (
           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
