@@ -164,8 +164,11 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
 
   // Close submenu when clicking outside
   React.useEffect(() => {
-    const handleClickOutside = () => {
-      setExpandedMenus([]);
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-menu]') && !target.closest('.fixed')) {
+        setExpandedMenus([]);
+      }
     };
 
     if (expandedMenus.length > 0) {
@@ -250,42 +253,56 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         <item.icon className="h-4 w-4" />
                       </button>
                       
-                      {/* Dropdown menu for collapsed state with better positioning */}
+                      {/* Dropdown menu for collapsed state - fixed overlay positioning */}
                       {expandedMenus.includes(item.name) && (
-                        <div 
-                          className="absolute left-full top-0 ml-1 w-56 bg-popover border border-border rounded-md shadow-xl z-[100] min-w-48"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="py-2">
-                            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
-                              {item.name}
-                            </div>
-                            {item.submenu.map((subItem) => {
-                              const isSubActive = location === subItem.href;
-                              return (
-                                <WouterLink 
-                                  key={subItem.name} 
-                                  href={subItem.href}
-                                  className="no-underline"
-                                >
-                                  <div 
-                                    className={cn(
-                                      "flex items-center gap-3 px-3 py-3 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
-                                      isSubActive && "bg-accent text-accent-foreground font-medium"
-                                    )}
-                                    onClick={() => {
-                                      setExpandedMenus([]);
-                                      onMobileClose?.();
-                                    }}
+                        <>
+                          {/* Backdrop overlay */}
+                          <div 
+                            className="fixed inset-0 z-[9998] bg-black/20"
+                            onClick={() => setExpandedMenus([])}
+                          />
+                          
+                          {/* Submenu */}
+                          <div 
+                            className="fixed left-12 w-64 bg-background border border-border rounded-lg shadow-2xl z-[9999]"
+                            style={{ 
+                              top: '50px',
+                              maxHeight: 'calc(100vh - 100px)',
+                              overflowY: 'auto'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="py-1">
+                              <div className="px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/50">
+                                {item.name}
+                              </div>
+                              {item.submenu.map((subItem) => {
+                                const isSubActive = location === subItem.href;
+                                return (
+                                  <WouterLink 
+                                    key={subItem.name} 
+                                    href={subItem.href}
+                                    className="no-underline"
                                   >
-                                    <subItem.icon className="h-4 w-4" />
-                                    {subItem.name}
-                                  </div>
-                                </WouterLink>
-                              );
-                            })}
+                                    <div 
+                                      className={cn(
+                                        "flex items-center gap-3 px-4 py-3 text-sm hover:bg-orange-50 hover:text-orange-700 dark:hover:bg-orange-900/20 dark:hover:text-orange-400 cursor-pointer transition-all duration-150",
+                                        isSubActive && "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300 font-medium border-r-2 border-orange-500"
+                                      )}
+                                      onClick={() => {
+                                        setExpandedMenus([]);
+                                        onMobileClose?.();
+                                      }}
+                                    >
+                                      <subItem.icon className="h-4 w-4" />
+                                      {subItem.name}
+                                    </div>
+                                  </WouterLink>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
+                        </>
                       )}
                     </div>
                   );

@@ -1529,21 +1529,25 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   }
   
   .nav-link:hover {
-    @apply bg-sidebar-accent text-sidebar-accent-foreground;
+    background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%) !important;
+    @apply text-orange-700 dark:text-orange-400;
+    transform: translateX(2px) !important;
+    transition: all 0.2s ease !important;
   }
   
   .nav-link.active {
     background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%) !important;
-    @apply text-orange-800 dark:text-orange-300;
-    border-right: 3px solid #ea580c !important;
-    border-left: 3px solid #ea580c !important;
-    font-weight: 600 !important;
+    @apply text-orange-900 dark:text-orange-200;
+    border-right: 4px solid #ea580c !important;
+    border-left: 4px solid #ea580c !important;
+    font-weight: 700 !important;
     /* Increase selected state width */
-    margin-left: -6px !important;
-    margin-right: -6px !important;
-    padding-left: 1.25rem !important;
-    padding-right: 1.25rem !important;
-    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.2) !important;
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3) !important;
+    transform: translateX(3px) !important;
   }
   
   /* Logo styles */
