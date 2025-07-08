@@ -203,9 +203,14 @@ export function RichTextEditor({
         onClick={handleClick}
         disabled={disabled || !editor}
         title={title}
-        className={cn('h-8 w-8 p-0', isActive && 'bg-primary text-primary-foreground')}
+        className={cn(
+          'h-8 w-8 p-0 sm:h-10 sm:w-10 touch-manipulation',
+          isActive && 'bg-primary text-primary-foreground'
+        )}
       >
-        {children}
+        <span className="h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
+          {children}
+        </span>
       </Button>
     );
   };
@@ -213,32 +218,32 @@ export function RichTextEditor({
   return (
     <div className={cn('overflow-hidden', className)}>
       {editable && (
-        <div className="border-b bg-muted/50 p-2">
-          <div className="flex flex-wrap items-center gap-1">
+        <div className="border-b bg-muted/50 p-2 sm:p-3">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
             {/* Text formatting */}
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleBold().run()}
               isActive={editor.isActive('bold')}
               title="Bold (Ctrl+B)"
             >
-              <Bold className="h-4 w-4" />
+              <Bold className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleItalic().run()}
               isActive={editor.isActive('italic')}
               title="Italic (Ctrl+I)"
             >
-              <Italic className="h-4 w-4" />
+              <Italic className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleCode().run()}
               isActive={editor.isActive('code')}
               title="Code"
             >
-              <Code className="h-4 w-4" />
+              <Code className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
 
-            <Separator orientation="vertical" className="h-6 mx-1" />
+            <Separator orientation="vertical" className="h-6 sm:h-8 mx-1" />
 
             {/* Headings */}
             <ToolbarButton
@@ -246,24 +251,24 @@ export function RichTextEditor({
               isActive={editor.isActive('heading', { level: 1 })}
               title="Heading 1"
             >
-              <Heading1 className="h-4 w-4" />
+              <Heading1 className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
               isActive={editor.isActive('heading', { level: 2 })}
               title="Heading 2"
             >
-              <Heading2 className="h-4 w-4" />
+              <Heading2 className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
               isActive={editor.isActive('heading', { level: 3 })}
               title="Heading 3"
             >
-              <Heading3 className="h-4 w-4" />
+              <Heading3 className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
 
-            <Separator orientation="vertical" className="h-6 mx-1" />
+            <Separator orientation="vertical" className="h-6 sm:h-8 mx-1" />
 
             {/* Lists */}
             <ToolbarButton
@@ -271,40 +276,40 @@ export function RichTextEditor({
               isActive={editor.isActive('bulletList')}
               title="Bullet List"
             >
-              <List className="h-4 w-4" />
+              <List className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               isActive={editor.isActive('orderedList')}
               title="Numbered List"
             >
-              <ListOrdered className="h-4 w-4" />
+              <ListOrdered className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
               isActive={editor.isActive('blockquote')}
               title="Quote"
             >
-              <Quote className="h-4 w-4" />
+              <Quote className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
 
-            <Separator orientation="vertical" className="h-6 mx-1" />
+            <Separator orientation="vertical" className="h-6 sm:h-8 mx-1" />
 
             {/* Media and links */}
             <ToolbarButton onClick={() => setShowLinkInput(!showLinkInput)}>
-              <LinkIcon className="h-4 w-4" />
+              <LinkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton onClick={() => setShowImageInput(!showImageInput)}>
-              <ImageIcon className="h-4 w-4" />
+              <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton onClick={addTable}>
-              <TableIcon className="h-4 w-4" />
+              <TableIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             
             <Dialog open={showEmbedDialog} onOpenChange={setShowEmbedDialog}>
               <DialogTrigger asChild>
                 <ToolbarButton onClick={() => setShowEmbedDialog(true)} title="Insert Widget Embed">
-                  <Monitor className="h-4 w-4" />
+                  <Monitor className="h-4 w-4 sm:h-5 sm:w-5" />
                 </ToolbarButton>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px]">
@@ -340,54 +345,60 @@ export function RichTextEditor({
               </DialogContent>
             </Dialog>
 
-            <Separator orientation="vertical" className="h-6 mx-1" />
+            <Separator orientation="vertical" className="h-6 sm:h-8 mx-1" />
 
             {/* Undo/Redo */}
             <ToolbarButton
               onClick={() => editor.chain().focus().undo().run()}
               disabled={!editor.can().undo()}
+              title="Undo"
             >
-              <Undo className="h-4 w-4" />
+              <Undo className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
             <ToolbarButton
               onClick={() => editor.chain().focus().redo().run()}
               disabled={!editor.can().redo()}
+              title="Redo"
             >
-              <Redo className="h-4 w-4" />
+              <Redo className="h-4 w-4 sm:h-5 sm:w-5" />
             </ToolbarButton>
           </div>
 
           {/* Link input */}
           {showLinkInput && (
-            <div className="flex items-center gap-2 mt-2 p-2 bg-background border rounded">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-2 p-2 sm:p-3 bg-background border rounded">
               <Input
                 placeholder="Enter URL"
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addLink()}
-                className="flex-1"
+                className="flex-1 h-10 sm:h-9"
               />
-              <Button size="sm" onClick={addLink}>Add Link</Button>
-              <Button size="sm" variant="outline" onClick={() => setShowLinkInput(false)}>
-                Cancel
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={addLink} className="h-10 sm:h-9 flex-1 sm:flex-none">Add Link</Button>
+                <Button size="sm" variant="outline" onClick={() => setShowLinkInput(false)} className="h-10 sm:h-9 flex-1 sm:flex-none">
+                  Cancel
+                </Button>
+              </div>
             </div>
           )}
 
           {/* Image input */}
           {showImageInput && (
-            <div className="flex items-center gap-2 mt-2 p-2 bg-background border rounded">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-2 p-2 sm:p-3 bg-background border rounded">
               <Input
                 placeholder="Enter image URL"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addImage()}
-                className="flex-1"
+                className="flex-1 h-10 sm:h-9"
               />
-              <Button size="sm" onClick={addImage}>Add Image</Button>
-              <Button size="sm" variant="outline" onClick={() => setShowImageInput(false)}>
-                Cancel
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={addImage} className="h-10 sm:h-9 flex-1 sm:flex-none">Add Image</Button>
+                <Button size="sm" variant="outline" onClick={() => setShowImageInput(false)} className="h-10 sm:h-9 flex-1 sm:flex-none">
+                  Cancel
+                </Button>
+              </div>
             </div>
           )}
         </div>
