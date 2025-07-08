@@ -426,17 +426,17 @@ export default function AdvancedContentGenerator() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 flex-1 min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6 lg:flex-1 lg:min-h-0">
             {/* Content Generation Form */}
-            <Card className="lg:col-span-2 flex flex-col h-full lg:max-h-none max-h-[calc(100vh-200px)]">
+            <Card className="lg:col-span-2 flex flex-col lg:h-full h-auto">
               <CardHeader>
                 <CardTitle>Content Specification</CardTitle>
                 <CardDescription>
                   Configure your AI-powered content generation with advanced parameters
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto p-6">
-                <form onSubmit={handleSubmit} className="space-y-4 flex flex-col min-h-0 pb-4">
+              <CardContent className="lg:flex-1 lg:overflow-y-auto p-6">
+                <form onSubmit={handleSubmit} className="space-y-4 lg:flex lg:flex-col lg:min-h-0 pb-4">
                   {/* Primary Keyword */}
                   <div className="space-y-2">
                     <Label htmlFor="keyword" className="text-sm sm:text-base font-medium">
@@ -609,14 +609,14 @@ export default function AdvancedContentGenerator() {
         </Card>
 
         {/* Generation Status & Results */}
-        <Card className="lg:col-span-3 flex flex-col lg:max-h-none max-h-[calc(100vh-200px)]">
+        <Card className="lg:col-span-3 flex flex-col lg:h-full h-auto">
           <CardHeader>
             <CardTitle>Generation Status</CardTitle>
             <CardDescription>
               Real-time status of your content generation request
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 flex-1 flex flex-col overflow-y-auto">
+          <CardContent className="space-y-4 lg:flex-1 lg:flex lg:flex-col lg:overflow-y-auto">
             {isPolling && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -642,15 +642,15 @@ export default function AdvancedContentGenerator() {
                 </div>
 
                 {generatedContent.status === 'completed' && generatedContent.generated_text && (
-                  <div className="space-y-4 flex-1 flex flex-col">
-                    <Tabs defaultValue="content" className="w-full flex-1 flex flex-col">
+                  <div className="space-y-4 lg:flex-1 lg:flex lg:flex-col">
+                    <Tabs defaultValue="content" className="w-full lg:flex-1 lg:flex lg:flex-col">
                       <TabsList className="grid w-full grid-cols-3 h-10 sm:h-12">
                         <TabsTrigger value="content" className="text-xs sm:text-sm">Content</TabsTrigger>
                         <TabsTrigger value="seo" className="text-xs sm:text-sm">SEO Data</TabsTrigger>
                         <TabsTrigger value="meta" className="text-xs sm:text-sm">Metadata</TabsTrigger>
                       </TabsList>
                       
-                      <TabsContent value="content" className="space-y-4 flex-1 flex flex-col">
+                      <TabsContent value="content" className="space-y-4 lg:flex-1 lg:flex lg:flex-col">
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <Label className="text-sm font-medium">Generated Title</Label>
@@ -691,7 +691,7 @@ export default function AdvancedContentGenerator() {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="p-4 bg-muted rounded-md flex-1 overflow-y-auto min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]">
+                          <div className="p-4 bg-muted rounded-md lg:flex-1 lg:overflow-y-auto min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]">
                             <div className="prose prose-sm max-w-none dark:prose-invert">
                               <ReactMarkdown 
                                 remarkPlugins={[remarkGfm]}
