@@ -13,21 +13,52 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const { subscription } = useSubscription();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const handleToggleCollapse = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
+  const handleMobileSidebarToggle = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
+  const handleMobileSidebarClose = () => {
+    setIsMobileSidebarOpen(false);
+  };
+
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar 
-        user={user} 
-        subscription={subscription}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={handleToggleCollapse}
-      />
+    <div className="relative flex h-screen bg-background overflow-hidden">
+      {/* Desktop Sidebar - normal flex behavior */}
+      <div className="hidden lg:flex">
+        <Sidebar 
+          user={user} 
+          subscription={subscription}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={handleToggleCollapse}
+          isMobile={false}
+          isMobileOpen={false}
+          onMobileToggle={handleMobileSidebarToggle}
+          onMobileClose={handleMobileSidebarClose}
+        />
+      </div>
+
+      {/* Mobile Sidebar - overlay behavior */}
+      <div className="lg:hidden">
+        <Sidebar 
+          user={user} 
+          subscription={subscription}
+          isCollapsed={false}
+          onToggleCollapse={handleToggleCollapse}
+          isMobile={true}
+          isMobileOpen={isMobileSidebarOpen}
+          onMobileToggle={handleMobileSidebarToggle}
+          onMobileClose={handleMobileSidebarClose}
+        />
+      </div>
       
-      <main className="flex-1 overflow-auto min-h-0">
+      {/* Main content - full width on mobile, flex-1 on desktop */}
+      <main className="flex-1 lg:flex-1 w-full overflow-auto min-h-0">
         <div className="w-full p-6 min-h-full" id="main-content">
           {children}
         </div>

@@ -53,6 +53,10 @@ interface SidebarProps {
   subscription?: any;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  isMobile?: boolean;
+  isMobileOpen?: boolean;
+  onMobileToggle?: () => void;
+  onMobileClose?: () => void;
 }
 
 const navigation = [
@@ -127,20 +131,24 @@ const adminNavigation = [
   { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
 ];
 
-export function Sidebar({ user, subscription, isCollapsed = false, onToggleCollapse }: SidebarProps) {
+export function Sidebar({ 
+  user, 
+  subscription, 
+  isCollapsed = false, 
+  onToggleCollapse,
+  isMobile = false,
+  isMobileOpen = false,
+  onMobileToggle,
+  onMobileClose
+}: SidebarProps) {
   const [location, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
   const handleLogout = async () => {
     await logout();
     setLocation('/login');
-  };
-
-  const toggleMobile = () => {
-    setIsMobileOpen(!isMobileOpen);
   };
 
   const toggleMenu = (menuName: string) => {
@@ -158,22 +166,24 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
   return (
     <>
       {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={toggleMobile}
-          className="bg-background"
-        >
-          {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-        </Button>
-      </div>
+      {isMobile && (
+        <div className="fixed top-4 left-4 z-50">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onMobileToggle}
+            className="bg-background"
+          >
+            {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
+        </div>
+      )}
 
-      {/* Mobile overlay */}
-      {isMobileOpen && (
+      {/* Mobile overlay backdrop */}
+      {isMobile && isMobileOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
-          onClick={() => setIsMobileOpen(false)}
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={onMobileClose}
         />
       )}
 
@@ -181,10 +191,19 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
       <div 
         data-tour="sidebar"
         className={cn(
-        "fixed inset-y-0 left-0 z-50 bg-sidebar-background border-r border-sidebar-border transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
-        isMobileOpen ? "translate-x-0" : "-translate-x-full",
-        isCollapsed ? "w-16" : "w-64"
-      )}>
+          // Base styles for all screen sizes
+          "bg-sidebar-background border-r border-sidebar-border",
+          // Mobile: fixed overlay with slide-in animation
+          isMobile ? [
+            "fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out",
+            isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          ] : [
+            // Desktop: static sidebar with collapse animation
+            "relative transform transition-all duration-300 ease-in-out"
+          ],
+          // Width based on collapsed state
+          isCollapsed && !isMobile ? "w-16" : "w-64"
+        )}>
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
           <div className="flex items-center justify-center px-4 py-4">
