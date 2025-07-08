@@ -5,17 +5,15 @@
 /* Mobile dashboard card optimization */
 @media (max-width: 640px) {
   .dashboard-card .text-5xl {
-    font-size: 3.5rem !important;
+    font-size: 4.5rem !important;
     line-height: 1.1 !important;
-    color: red !important; /* Debug: temp red color to verify CSS is applied */
   }
 }
 
 @media (max-width: 475px) {
   .dashboard-card .text-5xl {
-    font-size: 4rem !important;
+    font-size: 5.5rem !important;
     line-height: 1.1 !important;
-    color: blue !important; /* Debug: temp blue color to verify CSS is applied */
   }
 }
 
