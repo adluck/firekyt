@@ -5,16 +5,29 @@
 /* Complete Mobile-First Responsive System */
 
 /* Mobile Base Styles - Applied to ALL screen sizes below 768px */
-@media (max-width: 767px) {
-  /* Keep sidebar and content side-by-side on mobile */
+@media (max-width: 1023px) {
+  /* Keep layout horizontal on mobile */
   .flex.h-screen.bg-background {
     position: relative !important;
     flex-direction: row !important;
   }
   
-  /* Main content takes remaining space after collapsed sidebar */
+  /* Hide sidebar by default on mobile */
+  aside[data-tour="sidebar"] {
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease-in-out !important;
+    position: absolute !important;
+    z-index: 50 !important;
+  }
+  
+  /* Show sidebar when mobile open */
+  aside[data-tour="sidebar"].mobile-open {
+    transform: translateX(0) !important;
+  }
+  
+  /* Main content takes full width when sidebar is hidden */
   main.flex-1 {
-    width: calc(100% - 4rem) !important;
+    width: 100% !important;
     margin-left: 0 !important;
   }
   

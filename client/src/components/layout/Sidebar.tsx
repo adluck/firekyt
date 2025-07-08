@@ -52,6 +52,7 @@ interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   onMobileClose?: () => void;
+  isMobileOpen?: boolean;
 }
 
 const navigation = [
@@ -126,7 +127,7 @@ const adminNavigation = [
   { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
 ];
 
-export function Sidebar({ user, subscription, isCollapsed = false, onToggleCollapse, onMobileClose }: SidebarProps) {
+export function Sidebar({ user, subscription, isCollapsed = false, onToggleCollapse, onMobileClose, isMobileOpen = false }: SidebarProps) {
   const [location, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
@@ -172,7 +173,8 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
         data-tour="sidebar"
         className={cn(
         "bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out h-full overflow-y-auto flex-shrink-0",
-        effectiveIsCollapsed ? "w-16 min-w-16 max-w-16" : "w-64 min-w-64 max-w-64"
+        effectiveIsCollapsed ? "w-16 min-w-16 max-w-16" : "w-64 min-w-64 max-w-64",
+        isMobileOpen ? "mobile-open" : ""
       )}>
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
