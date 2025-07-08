@@ -2,9 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* FORCE MOBILE STYLES - ULTRA PRIORITY */
+html body * {
+  box-sizing: border-box !important;
+}
+
 /* Complete Mobile-First Responsive System */
 
-/* Mobile Base Styles - Applied to ALL screen sizes below 768px */
+/* Mobile Base Styles - Applied to ALL screen sizes below 1024px */
 @media (max-width: 1023px) {
   /* Keep layout horizontal on mobile */
   .flex.h-screen.bg-background {
@@ -18,6 +23,9 @@
     transition: transform 0.3s ease-in-out !important;
     position: absolute !important;
     z-index: 50 !important;
+    width: 3rem !important; /* Force 48px width */
+    min-width: 3rem !important;
+    max-width: 3rem !important;
   }
   
   /* Show sidebar when mobile open */
@@ -29,6 +37,72 @@
   main.flex-1 {
     width: 100% !important;
     margin-left: 0 !important;
+  }
+  
+  /* Force smaller hamburger button - multiple targeting approaches */
+  .lg\\:hidden button,
+  div.lg\\:hidden button,
+  [class*="lg:hidden"] button {
+    height: 2rem !important;
+    width: 2rem !important;
+    padding: 0.25rem !important;
+    min-height: 2rem !important;
+    max-height: 2rem !important;
+    min-width: 2rem !important;
+    max-width: 2rem !important;
+  }
+  
+  /* Force smaller hamburger icon - multiple targeting approaches */
+  .lg\\:hidden button svg,
+  div.lg\\:hidden button svg,
+  [class*="lg:hidden"] button svg,
+  button svg[class*="h-4"],
+  button svg[class*="w-4"] {
+    height: 0.75rem !important;
+    width: 0.75rem !important;
+    min-height: 0.75rem !important;
+    max-height: 0.75rem !important;
+    min-width: 0.75rem !important;
+    max-width: 0.75rem !important;
+  }
+  
+  /* Target all mobile header buttons */
+  [class*="border-b"] button {
+    height: 2rem !important;
+    width: 2rem !important;
+  }
+  
+  /* Target all mobile header button icons */
+  [class*="border-b"] button svg {
+    height: 0.75rem !important;
+    width: 0.75rem !important;
+  }
+  
+  /* Ultra-specific mobile targeting with new classes */
+  .mobile-header-v2 .mobile-hamburger-btn-v2 {
+    height: 32px !important;
+    width: 32px !important;
+    padding: 4px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+  }
+  
+  .mobile-hamburger-icon-v2 {
+    height: 12px !important;
+    width: 12px !important;
+    min-height: 12px !important;
+    max-height: 12px !important;
+    min-width: 12px !important;
+    max-width: 12px !important;
+  }
+  
+  /* Force 48px sidebar width on mobile */
+  .mobile-open {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
   }
   
   /* Adjust main content padding for mobile */
@@ -1697,3 +1771,4 @@ section .container .landing-subtitle *,
     opacity: 0.7;
   }
 }
+/* Cache buster: 1751983090 */

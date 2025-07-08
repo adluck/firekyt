@@ -175,7 +175,12 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
         "bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out h-full overflow-y-auto flex-shrink-0",
         effectiveIsCollapsed ? "w-12 min-w-12 max-w-12" : "w-64 min-w-64 max-w-64",
         isMobileOpen ? "mobile-open" : ""
-      )}>
+      )}
+      style={{
+        width: isMobileOpen ? '48px' : undefined,
+        minWidth: isMobileOpen ? '48px' : undefined,
+        maxWidth: isMobileOpen ? '48px' : undefined
+      }}>
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
           <div className="flex items-center justify-center px-2 py-4">

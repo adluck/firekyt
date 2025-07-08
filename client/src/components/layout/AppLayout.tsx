@@ -47,14 +47,15 @@ export function AppLayout({ children }: AppLayoutProps) {
       
       <main className="flex-1 overflow-auto min-h-0 min-w-0">
         {/* Mobile Hamburger Header */}
-        <div className="lg:hidden flex items-center p-4 border-b border-border bg-background">
+        <div className="lg:hidden flex items-center p-4 border-b border-border bg-background mobile-header-v2">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleMobileMenuToggle}
-            className="mr-3 p-1"
+            className="mr-3"
+            style={{height: '32px', width: '32px', padding: '4px', minHeight: '32px', maxHeight: '32px', minWidth: '32px', maxWidth: '32px'}}
           >
-            <Menu className="h-4 w-4" />
+            <Menu style={{height: '12px', width: '12px', minHeight: '12px', maxHeight: '12px', minWidth: '12px', maxWidth: '12px'}} />
           </Button>
           <h1 className="text-lg font-semibold">FireKyt</h1>
         </div>
