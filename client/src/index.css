@@ -23,6 +23,11 @@
     padding: 1rem !important;
   }
   
+  /* Ensure hamburger header stays visible */
+  .lg\\:hidden {
+    display: flex !important;
+  }
+  
   /* Force ALL grids to single column */
   .grid,
   [class*="grid-cols"] {
