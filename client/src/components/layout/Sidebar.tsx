@@ -173,19 +173,19 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
         data-tour="sidebar"
         className={cn(
         "bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out h-full overflow-y-auto flex-shrink-0",
-        effectiveIsCollapsed ? "w-16 min-w-16 max-w-16" : "w-64 min-w-64 max-w-64",
+        effectiveIsCollapsed ? "w-12 min-w-12 max-w-12" : "w-64 min-w-64 max-w-64",
         isMobileOpen ? "mobile-open" : ""
       )}>
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
-          <div className="flex items-center justify-center px-4 py-4">
+          <div className="flex items-center justify-center px-2 py-4">
             {effectiveIsCollapsed ? (
               /* Collapsed state - show icon only */
               <div className="flex justify-center">
                 <img 
                   src={iconPath}
                   alt="FireKyt" 
-                  className="h-8 w-8"
+                  className="h-6 w-6"
                 />
               </div>
             ) : (
@@ -226,7 +226,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         title={item.name}
                         data-tour={item.dataTour}
                       >
-                        <item.icon className="h-5 w-5" />
+                        <item.icon className="h-4 w-4" />
                       </button>
                       
                       {/* Dropdown menu for collapsed state */}
@@ -280,7 +280,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                       data-tour={item.dataTour}
                     >
                       <div className="flex items-center gap-3">
-                        <item.icon className="h-5 w-5" />
+                        <item.icon className="h-4 w-4" />
                         <span>{item.name}</span>
                       </div>
                       {isExpanded ? (
@@ -369,7 +369,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         }}
                         title={effectiveIsCollapsed ? item.name : undefined}
                       >
-                        <item.icon className="h-5 w-5" />
+                        <item.icon className="h-4 w-4" />
                         {!effectiveIsCollapsed && <span>{item.name}</span>}
                       </div>
                     </WouterLink>

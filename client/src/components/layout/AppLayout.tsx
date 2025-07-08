@@ -52,9 +52,9 @@ export function AppLayout({ children }: AppLayoutProps) {
             variant="ghost"
             size="sm"
             onClick={handleMobileMenuToggle}
-            className="mr-3"
+            className="mr-3 p-1"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-4 w-4" />
           </Button>
           <h1 className="text-lg font-semibold">FireKyt</h1>
         </div>
