@@ -27,40 +27,17 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
-      {/* Mobile Menu Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="lg:hidden fixed top-2 left-2 z-50 h-8 w-8 p-0"
-        onClick={handleMobileMenuToggle}
-      >
-        <Menu className="h-4 w-4" />
-      </Button>
-
-      {/* Mobile Overlay */}
-      {isMobileSidebarOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
-          onClick={handleMobileMenuToggle}
-        />
-      )}
-
-      {/* Sidebar with mobile drawer behavior */}
-      <div className={cn(
-        "lg:relative fixed inset-y-0 left-0 z-40 transition-transform duration-300 lg:translate-x-0",
-        isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-      )}>
-        <Sidebar 
-          user={user} 
-          subscription={subscription}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={handleToggleCollapse}
-          onMobileClose={handleMobileMenuToggle}
-        />
-      </div>
+      {/* Sidebar - always visible but collapsed on mobile */}
+      <Sidebar 
+        user={user} 
+        subscription={subscription}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleCollapse}
+        onMobileClose={handleMobileMenuToggle}
+      />
       
       <main className="flex-1 overflow-auto min-h-0">
-        <div className="w-full p-6 min-h-full lg:pt-6 pt-12" id="main-content">
+        <div className="w-full p-6 min-h-full" id="main-content">
           {children}
         </div>
       </main>
