@@ -609,14 +609,14 @@ export default function AdvancedContentGenerator() {
         </Card>
 
         {/* Generation Status & Results */}
-        <Card className="lg:col-span-3 flex flex-col">
+        <Card className="lg:col-span-3 flex flex-col lg:max-h-none max-h-[calc(100vh-200px)]">
           <CardHeader>
             <CardTitle>Generation Status</CardTitle>
             <CardDescription>
               Real-time status of your content generation request
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 flex-1 flex flex-col">
+          <CardContent className="space-y-4 flex-1 flex flex-col overflow-y-auto">
             {isPolling && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -644,10 +644,10 @@ export default function AdvancedContentGenerator() {
                 {generatedContent.status === 'completed' && generatedContent.generated_text && (
                   <div className="space-y-4 flex-1 flex flex-col">
                     <Tabs defaultValue="content" className="w-full flex-1 flex flex-col">
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="content">Content</TabsTrigger>
-                        <TabsTrigger value="seo">SEO Data</TabsTrigger>
-                        <TabsTrigger value="meta">Metadata</TabsTrigger>
+                      <TabsList className="grid w-full grid-cols-3 h-10 sm:h-12">
+                        <TabsTrigger value="content" className="text-xs sm:text-sm">Content</TabsTrigger>
+                        <TabsTrigger value="seo" className="text-xs sm:text-sm">SEO Data</TabsTrigger>
+                        <TabsTrigger value="meta" className="text-xs sm:text-sm">Metadata</TabsTrigger>
                       </TabsList>
                       
                       <TabsContent value="content" className="space-y-4 flex-1 flex flex-col">
@@ -691,7 +691,7 @@ export default function AdvancedContentGenerator() {
                               <Copy className="h-4 w-4" />
                             </Button>
                           </div>
-                          <div className="p-4 bg-muted rounded-md flex-1 overflow-y-auto min-h-[500px]">
+                          <div className="p-4 bg-muted rounded-md flex-1 overflow-y-auto min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]">
                             <div className="prose prose-sm max-w-none dark:prose-invert">
                               <ReactMarkdown 
                                 remarkPlugins={[remarkGfm]}
