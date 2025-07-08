@@ -396,11 +396,11 @@ export async function generateContent(
     
     const generationTime = Date.now() - startTime;
     
-    // Update response - store the complete JSON structure in generated_text
+    // Update response - store only the content text in generated_text for proper frontend display
     const response: ContentGenerationResponse = {
       content_id: contentId,
       status: 'completed',
-      generated_text: JSON.stringify(generatedContent),
+      generated_text: generatedContent.content || JSON.stringify(generatedContent),
       title: generatedContent.title,
       seo_title: generatedContent.seo_title,
       seo_description: generatedContent.seo_description,

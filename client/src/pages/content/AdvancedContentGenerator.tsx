@@ -673,20 +673,7 @@ export default function AdvancedContentGenerator() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => {
-                                const rawText = generatedContent.generated_text || '';
-                                // Try to parse JSON and get the content field
-                                try {
-                                  const parsed = JSON.parse(rawText);
-                                  if (parsed && parsed.content) {
-                                    copyToClipboard(parsed.content);
-                                  } else {
-                                    copyToClipboard(rawText);
-                                  }
-                                } catch {
-                                  copyToClipboard(rawText);
-                                }
-                              }}
+                              onClick={() => copyToClipboard(generatedContent.generated_text || '')}
                             >
                               <Copy className="h-4 w-4" />
                             </Button>
@@ -710,31 +697,16 @@ export default function AdvancedContentGenerator() {
                                 }}
                               >
                                 {(() => {
-                                  const rawText = generatedContent.generated_text || '';
+                                  const content = generatedContent.generated_text || '';
+                                  const title = generatedContent.title || '';
                                   
-                                  // First check if the raw text looks like JSON (starts with { and ends with })
-                                  if (rawText.trim().startsWith('{') && rawText.trim().endsWith('}')) {
-                                    try {
-                                      const parsed = JSON.parse(rawText);
-                                      
-                                      // If we successfully parsed JSON and have a content field
-                                      if (parsed && typeof parsed === 'object' && parsed.content) {
-                                        // Check if content already starts with the title to avoid duplication
-                                        const content = parsed.content;
-                                        const title = parsed.title;
-                                        
-                                        if (title && content && !content.startsWith(`# ${title}`)) {
-                                          return `# ${title}\n\n${content}`;
-                                        }
-                                        return content;
-                                      }
-                                    } catch (error) {
-                                      // JSON parsing failed, fall through to show raw text
-                                    }
+                                  // If we have both title and content, and content doesn't start with title
+                                  if (title && content && !content.startsWith(`# ${title}`)) {
+                                    return `# ${title}\n\n${content}`;
                                   }
                                   
-                                  // If not JSON or parsing failed, show as-is (might be plain markdown)
-                                  return rawText;
+                                  // Otherwise just show the content
+                                  return content;
                                 })()}
                               </ReactMarkdown>
                             </div>
