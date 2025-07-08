@@ -398,6 +398,21 @@ div[dangerouslySetInnerHTML] a *,
   border-bottom: none !important;
 }
 
+/* Rich Text Editor Mobile Responsive Toolbar */
+@media (min-width: 640px) {
+  .toolbar-button {
+    height: 32px !important;
+    width: 32px !important;
+    min-height: 32px !important;
+    min-width: 32px !important;
+  }
+  
+  .toolbar-icon {
+    height: 16px !important;
+    width: 16px !important;
+  }
+}
+
 /* Specifically target submenu items and all sidebar elements */
 .sidebar .submenu a,
 .sidebar .submenu button,

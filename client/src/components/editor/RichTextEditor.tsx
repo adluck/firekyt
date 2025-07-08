@@ -204,11 +204,25 @@ export function RichTextEditor({
         disabled={disabled || !editor}
         title={title}
         className={cn(
-          'h-10 w-10 p-0 sm:h-8 sm:w-8 touch-manipulation',
+          'toolbar-button touch-manipulation p-0',
           isActive && 'bg-primary text-primary-foreground'
         )}
+        style={{
+          // Force mobile-first sizing with CSS
+          height: '40px',
+          width: '40px',
+          minHeight: '40px',
+          minWidth: '40px'
+        }}
       >
-        <span className="h-5 w-5 sm:h-4 sm:w-4 flex items-center justify-center">
+        <span 
+          className="toolbar-icon flex items-center justify-center"
+          style={{
+            // Force mobile-first icon sizing
+            height: '20px',
+            width: '20px'
+          }}
+        >
           {children}
         </span>
       </Button>
