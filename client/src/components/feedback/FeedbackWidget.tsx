@@ -85,15 +85,16 @@ export function FeedbackWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Button
             size="lg"
-            className="rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-primary hover:bg-primary/90"
+            className="rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-primary hover:bg-primary/90 text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-3"
           >
-            <MessageSquareMore className="h-5 w-5 mr-2" />
-            Feedback
+            <MessageSquareMore className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+            <span className="hidden xs:inline">Feedback</span>
+            <span className="xs:hidden">💬</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">

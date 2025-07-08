@@ -62,35 +62,39 @@ export default function Dashboard() {
   ] : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {user?.firstName || user?.username}!
-          </p>
-        </div>
-        
-        <div className="flex gap-2">
-          <OnboardingTrigger />
-          <Link href="/sites">
-            <Button variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              New Site
-            </Button>
-          </Link>
-          <Link href="/content">
-            <Button className="btn-gradient" data-tour="create-content">
-              <FileText className="h-4 w-4 mr-2" />
-              Create Content
-            </Button>
-          </Link>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Welcome back, {user?.firstName || user?.username}!
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <div className="flex gap-2">
+              <OnboardingTrigger />
+              <Link href="/sites" className="flex-1 sm:flex-none">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Site
+                </Button>
+              </Link>
+            </div>
+            <Link href="/content" className="w-full sm:w-auto">
+              <Button className="btn-gradient w-full sm:w-auto" data-tour="create-content">
+                <FileText className="h-4 w-4 mr-2" />
+                Create Content
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6" data-tour="performance-metrics">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6" data-tour="performance-metrics">
         <DashboardCard
           title="Sites"
           value={overview.totalSites || 0}
@@ -186,11 +190,11 @@ export default function Dashboard() {
       </div>
 
       {/* Usage and Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Usage Limits */}
         <Card>
-          <CardHeader>
-            <CardTitle>Usage This Month</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Usage This Month</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -230,15 +234,15 @@ export default function Dashboard() {
 
         {/* Recent Activity */}
         <Card data-tour="recent-activity" className="recent-activity-card">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
             {activityData?.activities?.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {activityData.activities.map((activity: any, index: number) => (
-                  <div key={activity.id || index} className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
-                    <div className="flex-shrink-0">
+                  <div key={activity.id || index} className="flex items-start space-x-3 p-2 sm:p-3 bg-muted/50 rounded-lg">
+                    <div className="flex-shrink-0 mt-0.5">
                       {activity.activityType === 'content_created' && <FileText className="h-4 w-4 text-blue-600" />}
                       {activity.activityType === 'site_created' && <Globe className="h-4 w-4 text-green-600" />}
                       {activity.activityType === 'content_published' && <TrendingUp className="h-4 w-4 text-purple-600" />}
@@ -247,19 +251,25 @@ export default function Dashboard() {
                       {!['content_created', 'site_created', 'content_published', 'platform_connected', 'link_created'].includes(activity.activityType) && <Clock className="h-4 w-4 text-gray-600" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
+                      <p className="text-sm font-medium text-foreground line-clamp-1">
                         {activity.title}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
                         {activity.description}
                       </p>
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground flex-shrink-0 hidden sm:block">
                       {new Date(activity.createdAt).toLocaleDateString('en-US', { 
                         month: 'short', 
                         day: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit'
+                      })}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex-shrink-0 block sm:hidden">
+                      {new Date(activity.createdAt).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric'
                       })}
                     </div>
                   </div>

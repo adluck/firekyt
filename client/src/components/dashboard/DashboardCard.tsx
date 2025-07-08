@@ -24,36 +24,35 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <Card className={cn("dashboard-card", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 pt-4">
         <CardTitle className="text-sm font-medium text-muted-foreground truncate pr-2">
           {title}
         </CardTitle>
-        <div className="h-8 w-8 rounded-lg gradient-bg flex items-center justify-center flex-shrink-0">
+        <div className="h-9 w-9 rounded-lg gradient-bg flex items-center justify-center flex-shrink-0">
           <Icon className="h-4 w-4 text-white" />
         </div>
       </CardHeader>
       
-      <CardContent>
-        <div className="text-2xl font-bold text-foreground">{value}</div>
+      <CardContent className="px-4 pb-4">
+        <div className="text-3xl sm:text-2xl font-bold text-foreground mb-1">{value}</div>
         
         {description && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
             {description}
           </p>
         )}
         
         {trend && (
           <div className={cn(
-            "flex items-center gap-1 text-xs mt-2",
+            "flex items-center gap-1 text-sm mt-3",
             trend.positive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
           )}>
             {trend.positive ? (
-              <TrendingUp className="h-3 w-3 flex-shrink-0" />
+              <TrendingUp className="h-4 w-4 flex-shrink-0" />
             ) : (
-              <TrendingDown className="h-3 w-3 flex-shrink-0" />
+              <TrendingDown className="h-4 w-4 flex-shrink-0" />
             )}
-            <span className="whitespace-nowrap">{trend.value}</span>
-            <span className="text-muted-foreground whitespace-nowrap">from last month</span>
+            <span className="truncate">{trend.value}</span>
           </div>
         )}
       </CardContent>
