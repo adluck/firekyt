@@ -2,36 +2,135 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mobile dashboard card optimization */
-/* Force responsive layout on all mobile devices */
-@media screen and (max-width: 768px) {
-  /* Override grid columns for mobile */
-  .grid.md\\:grid-cols-2,
-  .grid.xl\\:grid-cols-4,
-  [data-tour="performance-metrics"] {
-    display: grid !important;
+/* Complete Mobile Responsive Overhaul */
+/* Force single column layout on mobile devices */
+@media (max-width: 768px) {
+  /* Override ALL grid layouts to single column */
+  .grid {
     grid-template-columns: 1fr !important;
-    gap: 1rem !important;
+    display: grid !important;
   }
   
-  /* Larger text for mobile */
-  .dashboard-card .text-5xl {
-    font-size: 4.5rem !important;
-    line-height: 1.1 !important;
+  /* Dashboard cards - fix responsive text */
+  .dashboard-card .text-5xl.md\\:text-4xl.lg\\:text-3xl {
+    font-size: 2.5rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  .dashboard-card .text-xs.md\\:text-sm {
+    font-size: 0.875rem !important;
+  }
+  
+  .dashboard-card .text-sm {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Dashboard header mobile layout */
+  .flex-col.lg\\:flex-row {
+    flex-direction: column !important;
+  }
+  
+  /* Stack buttons in header */
+  div.flex.flex-col.gap-2.w-full.lg\\:w-auto {
+    width: 100% !important;
+  }
+  
+  div.flex.flex-col.gap-2.w-full.lg\\:w-auto > div.flex.gap-2 {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  div.flex.flex-col.gap-2.w-full.lg\\:w-auto button {
+    width: 100% !important;
+  }
+  
+  /* Full width links containing buttons */
+  a[href="/sites"],
+  a[href="/content"] {
+    width: 100% !important;
+  }
+  
+  /* Dashboard title adjustments */
+  h1.text-3xl.sm\\:text-3xl {
+    font-size: 1.875rem !important;
+  }
+  
+  p.text-base.sm\\:text-base {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Recent activity card mobile optimization */
+  .card h3 {
+    font-size: 1.125rem !important;
+  }
+  
+  /* Adjust card icon sizes */
+  .dashboard-card .h-8.w-8.md\\:h-9.md\\:w-9 {
+    height: 2rem !important;
+    width: 2rem !important;
+  }
+  
+  /* Fix grid gaps */
+  .grid.gap-4.md\\:gap-6 {
+    gap: 0.75rem !important;
+  }
+  
+  /* Adjust page padding */
+  .space-y-4.sm\\:space-y-6.px-2.sm\\:px-0 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Fix OnboardingTrigger button */
+  button[data-tour="platform-tour"] {
+    width: 100% !important;
+  }
+  
+  /* Performance Analytics card fixes */
+  .grid.grid-cols-2.gap-4 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Recent Activity mobile optimizations */
+  .space-y-3 > div {
+    padding: 0.75rem !important;
+  }
+  
+  /* Traffic Overview chart container */
+  div[style*="aspect-ratio"] {
+    height: 200px !important;
   }
 }
 
-@media screen and (max-width: 640px) {
-  .dashboard-card .text-5xl {
-    font-size: 5rem !important;
-    line-height: 1.1 !important;
+/* Further optimizations for small mobile */
+@media (max-width: 640px) {
+  .dashboard-card .text-5xl.md\\:text-4xl.lg\\:text-3xl {
+    font-size: 2rem !important;
+  }
+  
+  h1.text-3xl.sm\\:text-3xl {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Smaller gaps on very small screens */
+  .grid {
+    gap: 0.5rem !important;
   }
 }
 
-@media screen and (max-width: 475px) {
-  .dashboard-card .text-5xl {
-    font-size: 5.5rem !important;
-    line-height: 1.1 !important;
+/* Extremely small devices */
+@media (max-width: 475px) {
+  .dashboard-card .text-5xl.md\\:text-4xl.lg\\:text-3xl {
+    font-size: 1.75rem !important;
+  }
+  
+  .dashboard-card .text-xs.md\\:text-sm,
+  .dashboard-card .text-sm {
+    font-size: 0.75rem !important;
+  }
+  
+  h1.text-3xl.sm\\:text-3xl {
+    font-size: 1.25rem !important;
   }
 }
 

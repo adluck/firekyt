@@ -65,26 +65,26 @@ export default function Dashboard() {
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Header */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <h1 className="text-3xl sm:text-3xl font-bold">Dashboard</h1>
+            <p className="text-base sm:text-base text-muted-foreground">
               Welcome back, {user?.firstName || user?.username}!
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <div className="flex flex-col gap-2 w-full lg:w-auto">
             <div className="flex gap-2">
               <OnboardingTrigger />
-              <Link href="/sites" className="flex-1 sm:flex-none">
-                <Button variant="outline" className="w-full sm:w-auto">
+              <Link href="/sites" className="flex-1">
+                <Button variant="outline" className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
                   New Site
                 </Button>
               </Link>
             </div>
-            <Link href="/content" className="w-full sm:w-auto">
-              <Button className="btn-gradient w-full sm:w-auto" data-tour="create-content">
+            <Link href="/content" className="w-full">
+              <Button className="btn-gradient w-full" data-tour="create-content">
                 <FileText className="h-4 w-4 mr-2" />
                 Create Content
               </Button>
