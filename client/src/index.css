@@ -2,107 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FORCE MOBILE STYLES - ULTRA PRIORITY */
-html body * {
-  box-sizing: border-box !important;
-}
-
 /* Complete Mobile-First Responsive System */
 
-/* Mobile Base Styles - Applied to ALL screen sizes below 1024px */
-@media (max-width: 1023px) {
-  /* Keep layout horizontal on mobile */
+/* Mobile Base Styles - Applied to ALL screen sizes below 768px */
+@media (max-width: 767px) {
+  /* Keep sidebar and content side-by-side on mobile */
   .flex.h-screen.bg-background {
     position: relative !important;
     flex-direction: row !important;
   }
   
-  /* Hide sidebar by default on mobile */
-  aside[data-tour="sidebar"] {
-    transform: translateX(-100%) !important;
-    transition: transform 0.3s ease-in-out !important;
-    position: absolute !important;
-    z-index: 50 !important;
-    width: 3rem !important; /* Force 48px width */
-    min-width: 3rem !important;
-    max-width: 3rem !important;
-  }
-  
-  /* Show sidebar when mobile open */
-  aside[data-tour="sidebar"].mobile-open {
-    transform: translateX(0) !important;
-  }
-  
-  /* Main content takes full width when sidebar is hidden */
+  /* Main content takes remaining space after collapsed sidebar */
   main.flex-1 {
-    width: 100% !important;
+    width: calc(100% - 4rem) !important;
     margin-left: 0 !important;
-  }
-  
-  /* Force smaller hamburger button - multiple targeting approaches */
-  .lg\\:hidden button,
-  div.lg\\:hidden button,
-  [class*="lg:hidden"] button {
-    height: 2rem !important;
-    width: 2rem !important;
-    padding: 0.25rem !important;
-    min-height: 2rem !important;
-    max-height: 2rem !important;
-    min-width: 2rem !important;
-    max-width: 2rem !important;
-  }
-  
-  /* Force smaller hamburger icon - multiple targeting approaches */
-  .lg\\:hidden button svg,
-  div.lg\\:hidden button svg,
-  [class*="lg:hidden"] button svg,
-  button svg[class*="h-4"],
-  button svg[class*="w-4"] {
-    height: 0.75rem !important;
-    width: 0.75rem !important;
-    min-height: 0.75rem !important;
-    max-height: 0.75rem !important;
-    min-width: 0.75rem !important;
-    max-width: 0.75rem !important;
-  }
-  
-  /* Target all mobile header buttons */
-  [class*="border-b"] button {
-    height: 2rem !important;
-    width: 2rem !important;
-  }
-  
-  /* Target all mobile header button icons */
-  [class*="border-b"] button svg {
-    height: 0.75rem !important;
-    width: 0.75rem !important;
-  }
-  
-  /* Ultra-specific mobile targeting with new classes */
-  .mobile-header-v2 .mobile-hamburger-btn-v2 {
-    height: 32px !important;
-    width: 32px !important;
-    padding: 4px !important;
-    min-height: 32px !important;
-    max-height: 32px !important;
-    min-width: 32px !important;
-    max-width: 32px !important;
-  }
-  
-  .mobile-hamburger-icon-v2 {
-    height: 12px !important;
-    width: 12px !important;
-    min-height: 12px !important;
-    max-height: 12px !important;
-    min-width: 12px !important;
-    max-width: 12px !important;
-  }
-  
-  /* Force 48px sidebar width on mobile */
-  .mobile-open {
-    width: 48px !important;
-    min-width: 48px !important;
-    max-width: 48px !important;
   }
   
   /* Adjust main content padding for mobile */
@@ -1529,25 +1442,13 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   }
   
   .nav-link:hover {
-    background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%) !important;
-    @apply text-orange-700 dark:text-orange-400;
-    transform: translateX(2px) !important;
-    transition: all 0.2s ease !important;
+    @apply bg-sidebar-accent text-sidebar-accent-foreground;
   }
   
   .nav-link.active {
-    background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%) !important;
-    @apply text-orange-900 dark:text-orange-200;
-    border-right: 4px solid #ea580c !important;
-    border-left: 4px solid #ea580c !important;
-    font-weight: 700 !important;
-    /* Increase selected state width */
-    margin-left: -8px !important;
-    margin-right: -8px !important;
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
-    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3) !important;
-    transform: translateX(3px) !important;
+    background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%);
+    @apply text-orange-600 dark:text-orange-400;
+    border-right: 2px solid var(--primary-orange);
   }
   
   /* Logo styles */
@@ -1783,4 +1684,3 @@ section .container .landing-subtitle *,
     opacity: 0.7;
   }
 }
-/* Cache buster: 1751983090 */

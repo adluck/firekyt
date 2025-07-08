@@ -27,14 +27,6 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
-      {/* Mobile Overlay - only visible when sidebar is open on mobile */}
-      {isMobileSidebarOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={handleMobileMenuToggle}
-        />
-      )}
-      
       {/* Sidebar - always visible but collapsed on mobile */}
       <Sidebar 
         user={user} 
@@ -42,20 +34,18 @@ export function AppLayout({ children }: AppLayoutProps) {
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleCollapse}
         onMobileClose={handleMobileMenuToggle}
-        isMobileOpen={isMobileSidebarOpen}
       />
       
       <main className="flex-1 overflow-auto min-h-0 min-w-0">
         {/* Mobile Hamburger Header */}
-        <div className="lg:hidden flex items-center p-4 border-b border-border bg-background mobile-header-v2">
+        <div className="lg:hidden flex items-center p-4 border-b border-border bg-background">
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleMobileMenuToggle}
+            onClick={handleToggleCollapse}
             className="mr-3"
-            style={{height: '32px', width: '32px', padding: '4px', minHeight: '32px', maxHeight: '32px', minWidth: '32px', maxWidth: '32px'}}
           >
-            <Menu style={{height: '12px', width: '12px', minHeight: '12px', maxHeight: '12px', minWidth: '12px', maxWidth: '12px'}} />
+            <Menu className="h-5 w-5" />
           </Button>
           <h1 className="text-lg font-semibold">FireKyt</h1>
         </div>
