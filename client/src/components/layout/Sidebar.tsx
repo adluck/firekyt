@@ -230,7 +230,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                 (item.href !== '/dashboard' && location.startsWith(item.href));
               
               if (item.submenu) {
-                const isExpanded = expandedMenus.includes(item.name) && !effectiveIsCollapsed;
+                const isExpanded = expandedMenus.includes(item.name);
                 const hasActiveSubmenu = item.submenu.some(subItem => location === subItem.href);
                 
                 if (effectiveIsCollapsed) {
@@ -254,7 +254,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                       </button>
                       
                       {/* Dropdown menu for collapsed state - fixed overlay positioning */}
-                      {expandedMenus.includes(item.name) && (
+                      {isExpanded && (
                         <>
                           {/* Backdrop overlay */}
                           <div 
@@ -330,7 +330,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                         />
                       </button>
                       
-                      {isExpanded && (
+                      {isExpanded && !effectiveIsCollapsed && (
                         <div className="ml-7 mt-1 space-y-1">
                           {item.submenu.map((subItem) => {
                             const isSubActive = location === subItem.href;
