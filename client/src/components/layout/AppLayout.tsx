@@ -30,7 +30,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <>
       {/* Mobile Layout */}
-      <div className="lg:hidden">
+      <div className="lg:hidden h-screen bg-background overflow-hidden">
         {/* Mobile Sidebar Overlay - completely outside layout flow */}
         <Sidebar 
           user={user} 
@@ -44,13 +44,11 @@ export function AppLayout({ children }: AppLayoutProps) {
         />
         
         {/* Mobile Main Content Container */}
-        <div className="h-screen bg-background">
-          <main className="h-full overflow-auto pt-16">
-            <div className="w-full p-6" id="main-content">
-              {children}
-            </div>
-          </main>
-        </div>
+        <main className="h-full overflow-auto pt-16">
+          <div className="w-full p-6" id="main-content">
+            {children}
+          </div>
+        </main>
       </div>
 
       {/* Desktop Layout */}
