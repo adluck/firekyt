@@ -398,16 +398,68 @@ div[dangerouslySetInnerHTML] a *,
   border-bottom: none !important;
 }
 
-/* Rich Text Editor Mobile Responsive Toolbar */
+/* Rich Text Editor Mobile Responsive Toolbar - Ultra Specific Selectors */
+.toolbar-button,
+.toolbar-button.button,
+button.toolbar-button,
+[class*="toolbar-button"] {
+  height: 40px !important;
+  width: 40px !important;
+  min-height: 40px !important;
+  min-width: 40px !important;
+  max-height: 40px !important;
+  max-width: 40px !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+}
+
+.toolbar-icon,
+.toolbar-icon span,
+.toolbar-icon svg,
+[class*="toolbar-icon"] svg {
+  height: 20px !important;
+  width: 20px !important;
+  min-height: 20px !important;
+  min-width: 20px !important;
+  max-height: 20px !important;
+  max-width: 20px !important;
+}
+
+/* Desktop override */
 @media (min-width: 640px) {
-  .toolbar-button {
+  .toolbar-button,
+  .toolbar-button.button,
+  button.toolbar-button,
+  [class*="toolbar-button"] {
     height: 32px !important;
     width: 32px !important;
     min-height: 32px !important;
     min-width: 32px !important;
+    max-height: 32px !important;
+    max-width: 32px !important;
   }
   
-  .toolbar-icon {
+  .toolbar-icon,
+  .toolbar-icon span,
+  .toolbar-icon svg,
+  [class*="toolbar-icon"] svg {
+    height: 16px !important;
+    width: 16px !important;
+    min-height: 16px !important;
+    min-width: 16px !important;
+    max-height: 16px !important;
+    max-width: 16px !important;
+  }
+}
+
+/* Additional responsive styling for custom buttons */
+@media (min-width: 640px) {
+  button.toolbar-button {
+    height: 32px !important;
+    width: 32px !important;
+  }
+  
+  button.toolbar-button .toolbar-icon {
     height: 16px !important;
     width: 16px !important;
   }

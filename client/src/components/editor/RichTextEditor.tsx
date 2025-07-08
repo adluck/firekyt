@@ -197,35 +197,38 @@ export function RichTextEditor({
     };
 
     return (
-      <Button
-        variant={isActive ? 'default' : 'ghost'}
-        size="sm"
+      <button
         onClick={handleClick}
         disabled={disabled || !editor}
         title={title}
         className={cn(
-          'toolbar-button touch-manipulation p-0',
-          isActive && 'bg-primary text-primary-foreground'
+          'toolbar-button touch-manipulation',
+          'inline-flex items-center justify-center',
+          'rounded-md font-medium transition-colors',
+          'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+          'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+          'disabled:pointer-events-none disabled:opacity-50',
+          isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
         )}
         style={{
-          // Force mobile-first sizing with CSS
           height: '40px',
           width: '40px',
           minHeight: '40px',
-          minWidth: '40px'
+          minWidth: '40px',
+          padding: '0',
+          fontSize: '14px'
         }}
       >
         <span 
           className="toolbar-icon flex items-center justify-center"
           style={{
-            // Force mobile-first icon sizing
             height: '20px',
             width: '20px'
           }}
         >
           {children}
         </span>
-      </Button>
+      </button>
     );
   };
 
