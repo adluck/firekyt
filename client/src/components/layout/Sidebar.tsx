@@ -250,7 +250,6 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                                     isSubActive && "bg-accent text-accent-foreground"
                                   )}
                                   onClick={() => {
-                                    setIsMobileOpen(false);
                                     setExpandedMenus([]);
                                     onMobileClose?.();
                                   }}
@@ -309,7 +308,6 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                                 isSubActive && "active"
                               )}
                               onClick={() => {
-                              setIsMobileOpen(false);
                               onMobileClose?.();
                             }}
                             >
@@ -333,7 +331,6 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                       isActive && "active"
                     )}
                     onClick={() => {
-                      setIsMobileOpen(false);
                       onMobileClose?.();
                     }}
                     title={isCollapsed ? item.name : undefined}
