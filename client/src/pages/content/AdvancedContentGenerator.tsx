@@ -439,7 +439,7 @@ export default function AdvancedContentGenerator() {
                 <form onSubmit={handleSubmit} className="space-y-4 lg:flex lg:flex-col lg:min-h-0 pb-4">
                   {/* Primary Keyword */}
                   <div className="space-y-2">
-                    <Label htmlFor="keyword" className="text-sm sm:text-base font-medium">
+                    <Label htmlFor="keyword" className="text-xs sm:text-sm font-medium">
                       Primary Keyword *
                     </Label>
                     <Input
@@ -454,7 +454,7 @@ export default function AdvancedContentGenerator() {
 
                   {/* Content Type */}
                   <div className="space-y-3">
-                    <Label className="text-sm sm:text-base font-medium">Content Type</Label>
+                    <Label className="text-xs sm:text-sm font-medium">Content Type</Label>
                     <Select value={formData.content_type} onValueChange={(value: any) => setFormData(prev => ({ ...prev, content_type: value }))}>
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select content type" />
@@ -488,7 +488,7 @@ export default function AdvancedContentGenerator() {
 
               {/* Tone of Voice */}
               <div className="space-y-2">
-                <Label className="text-sm sm:text-base font-medium">
+                <Label className="text-xs sm:text-sm font-medium">
                   Tone of Voice
                 </Label>
                 <Select value={formData.tone_of_voice} onValueChange={(value) => setFormData(prev => ({ ...prev, tone_of_voice: value }))}>
@@ -505,7 +505,7 @@ export default function AdvancedContentGenerator() {
 
               {/* Target Audience */}
               <div className="space-y-2">
-                <Label className="text-sm sm:text-base font-medium">
+                <Label className="text-xs sm:text-sm font-medium">
                   Target Audience
                 </Label>
                 <Select value={formData.target_audience} onValueChange={(value) => setFormData(prev => ({ ...prev, target_audience: value }))}>
@@ -523,7 +523,7 @@ export default function AdvancedContentGenerator() {
               {/* Site Selection */}
               {sites.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm sm:text-base font-medium">Target Site (Optional)</Label>
+                  <Label className="text-xs sm:text-sm font-medium">Target Site (Optional)</Label>
                   <Select value={formData.siteId?.toString() || "none"} onValueChange={(value) => setFormData(prev => ({ ...prev, siteId: value === "none" ? undefined : parseInt(value) }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a site or leave empty" />
@@ -545,7 +545,7 @@ export default function AdvancedContentGenerator() {
                 <h3 className="text-lg font-semibold mb-2">Advanced Options</h3>
                 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="seo-focus" className="text-sm sm:text-base font-medium">SEO Optimization</Label>
+                  <Label htmlFor="seo-focus" className="text-xs sm:text-sm font-medium">SEO Optimization</Label>
                   <Switch
                     id="seo-focus"
                     checked={formData.seo_focus}
@@ -554,7 +554,7 @@ export default function AdvancedContentGenerator() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="word-count" className="text-sm sm:text-base font-medium">Target Word Count</Label>
+                  <Label htmlFor="word-count" className="text-xs sm:text-sm font-medium">Target Word Count</Label>
                   <Input
                     id="word-count"
                     type="number"
@@ -567,7 +567,7 @@ export default function AdvancedContentGenerator() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="brand-voice" className="text-sm sm:text-base font-medium">Brand Voice (Optional)</Label>
+                  <Label htmlFor="brand-voice" className="text-xs sm:text-sm font-medium">Brand Voice (Optional)</Label>
                   <Input
                     id="brand-voice"
                     value={formData.brand_voice || ''}
@@ -578,7 +578,7 @@ export default function AdvancedContentGenerator() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="context" className="text-sm sm:text-base font-medium">Additional Context</Label>
+                  <Label htmlFor="context" className="text-xs sm:text-sm font-medium">Additional Context</Label>
                   <Textarea
                     id="context"
                     value={formData.additional_context || ''}
