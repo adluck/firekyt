@@ -38,7 +38,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { User } from "@shared/schema";
 // Use direct paths to public assets for better production compatibility
@@ -154,13 +154,25 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
     setExpandedMenus(prev => {
       if (prev.includes(menuName)) {
         // Close the menu if it's already open
-        return prev.filter(name => name !== menuName);
+        return [];
       } else {
         // Close all other menus and open only this one
         return [menuName];
       }
     });
   };
+
+  // Close submenu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      setExpandedMenus([]);
+    };
+
+    if (expandedMenus.length > 0) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [expandedMenus]);
 
   // Force collapsed state on mobile
   const effectiveIsCollapsed = isMobile ? true : isCollapsed;
@@ -227,48 +239,54 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                           "nav-link w-full justify-center px-0",
                           (isActive || hasActiveSubmenu) && "active"
                         )}
-                        onClick={() => toggleMenu(item.name)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMenu(item.name);
+                        }}
                         title={item.name}
                         data-tour={item.dataTour}
+                        data-menu={item.name}
                       >
                         <item.icon className="h-4 w-4" />
                       </button>
                       
-                      {/* Dropdown menu for collapsed state */}
-                      <div className={cn(
-                        "absolute left-full top-0 ml-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50",
-                        expandedMenus.includes(item.name) ? "block" : "hidden"
-                      )}>
-                        <div className="py-2">
-                          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                            {item.name}
-                          </div>
-                          {item.submenu.map((subItem) => {
-                            const isSubActive = location === subItem.href;
-                            return (
-                              <WouterLink 
-                                key={subItem.name} 
-                                href={subItem.href}
-                                className="no-underline"
-                              >
-                                <div 
-                                  className={cn(
-                                    "flex items-center gap-3 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer",
-                                    isSubActive && "bg-accent text-accent-foreground"
-                                  )}
-                                  onClick={() => {
-                                    setExpandedMenus([]);
-                                    onMobileClose?.();
-                                  }}
+                      {/* Dropdown menu for collapsed state with better positioning */}
+                      {expandedMenus.includes(item.name) && (
+                        <div 
+                          className="absolute left-full top-0 ml-1 w-56 bg-popover border border-border rounded-md shadow-xl z-[100] min-w-48"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="py-2">
+                            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
+                              {item.name}
+                            </div>
+                            {item.submenu.map((subItem) => {
+                              const isSubActive = location === subItem.href;
+                              return (
+                                <WouterLink 
+                                  key={subItem.name} 
+                                  href={subItem.href}
+                                  className="no-underline"
                                 >
-                                  <subItem.icon className="h-4 w-4" />
-                                  {subItem.name}
-                                </div>
-                              </WouterLink>
-                            );
-                          })}
+                                  <div 
+                                    className={cn(
+                                      "flex items-center gap-3 px-3 py-3 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors",
+                                      isSubActive && "bg-accent text-accent-foreground font-medium"
+                                    )}
+                                    onClick={() => {
+                                      setExpandedMenus([]);
+                                      onMobileClose?.();
+                                    }}
+                                  >
+                                    <subItem.icon className="h-4 w-4" />
+                                    {subItem.name}
+                                  </div>
+                                </WouterLink>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   );
                 }

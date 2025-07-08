@@ -1533,14 +1533,17 @@ a[target="_blank"][rel*="nofollow"]:hover:not(.sidebar *):not(.nav-link):not([ro
   }
   
   .nav-link.active {
-    background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%);
-    @apply text-orange-600 dark:text-orange-400;
-    border-right: 2px solid var(--primary-orange);
+    background: linear-gradient(135deg, #fed7aa 0%, #fce7f3 100%) !important;
+    @apply text-orange-800 dark:text-orange-300;
+    border-right: 3px solid #ea580c !important;
+    border-left: 3px solid #ea580c !important;
+    font-weight: 600 !important;
     /* Increase selected state width */
-    margin-left: -4px !important;
-    margin-right: -4px !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    margin-left: -6px !important;
+    margin-right: -6px !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.2) !important;
   }
   
   /* Logo styles */
