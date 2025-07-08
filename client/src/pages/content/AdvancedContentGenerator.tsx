@@ -328,7 +328,7 @@ export default function AdvancedContentGenerator() {
   };
 
   return (
-    <div className="h-screen flex flex-col p-4 space-y-4">
+    <div className="lg:h-screen flex flex-col p-4 space-y-4">
       {showEditor && generatedContent ? (
         <UnifiedContentEditor
           mode="create"
