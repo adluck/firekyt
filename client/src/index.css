@@ -12,13 +12,7 @@
     flex-direction: column !important;
   }
   
-  /* Hide sidebar on mobile by default */
-  aside,
-  nav[role="navigation"],
-  .w-64,
-  .w-16 {
-    display: none !important;
-  }
+  /* Remove sidebar hiding - handled by transform in AppLayout */
   
   /* Main content full width on mobile */
   main.flex-1 {
@@ -229,6 +223,20 @@
   .fixed.bottom-0.left-0.right-0 {
     position: fixed !important;
     z-index: 100 !important;
+  }
+  
+  /* Mobile menu button styling */
+  button.lg\\:hidden {
+    display: flex !important;
+    background: var(--background) !important;
+    border: 1px solid var(--border) !important;
+  }
+  
+  /* Ensure sidebar has proper width on mobile */
+  aside,
+  nav[role="navigation"] {
+    width: 16rem !important;
+    max-width: 80vw !important;
   }
 }
 

@@ -53,6 +53,7 @@ interface SidebarProps {
   subscription?: any;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onMobileClose?: () => void;
 }
 
 const navigation = [
@@ -127,7 +128,7 @@ const adminNavigation = [
   { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
 ];
 
-export function Sidebar({ user, subscription, isCollapsed = false, onToggleCollapse }: SidebarProps) {
+export function Sidebar({ user, subscription, isCollapsed = false, onToggleCollapse, onMobileClose }: SidebarProps) {
   const [location, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
@@ -263,6 +264,7 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                                   onClick={() => {
                                     setIsMobileOpen(false);
                                     setExpandedMenus([]);
+                                    onMobileClose?.();
                                   }}
                                 >
                                   <subItem.icon className="h-4 w-4" />
@@ -318,7 +320,10 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                                 "nav-link text-sm ml-0",
                                 isSubActive && "active"
                               )}
-                              onClick={() => setIsMobileOpen(false)}
+                              onClick={() => {
+                              setIsMobileOpen(false);
+                              onMobileClose?.();
+                            }}
                             >
                               <subItem.icon className="h-4 w-4" />
                               {subItem.name}
@@ -339,7 +344,10 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                       isCollapsed ? "justify-center px-0" : "",
                       isActive && "active"
                     )}
-                    onClick={() => setIsMobileOpen(false)}
+                    onClick={() => {
+                      setIsMobileOpen(false);
+                      onMobileClose?.();
+                    }}
                     title={isCollapsed ? item.name : undefined}
                     data-tour={item.dataTour}
                   >
@@ -369,7 +377,10 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
                           isCollapsed ? "justify-center px-0" : "",
                           isActive && "active"
                         )}
-                        onClick={() => setIsMobileOpen(false)}
+                        onClick={() => {
+                          setIsMobileOpen(false);
+                          onMobileClose?.();
+                        }}
                         title={isCollapsed ? item.name : undefined}
                       >
                         <item.icon className="h-5 w-5" />
