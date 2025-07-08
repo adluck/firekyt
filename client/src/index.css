@@ -6,17 +6,15 @@
 
 /* Mobile Base Styles - Applied to ALL screen sizes below 768px */
 @media (max-width: 767px) {
-  /* Force mobile sidebar behavior */
+  /* Keep sidebar and content side-by-side on mobile */
   .flex.h-screen.bg-background {
     position: relative !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
   }
   
-  /* Remove sidebar hiding - handled by transform in AppLayout */
-  
-  /* Main content full width on mobile */
+  /* Main content takes remaining space after collapsed sidebar */
   main.flex-1 {
-    width: 100% !important;
+    width: calc(100% - 4rem) !important;
     margin-left: 0 !important;
   }
   
