@@ -28,22 +28,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   return (
-    <div className="relative flex h-screen bg-background overflow-hidden">
-      {/* Desktop Sidebar - normal flex behavior */}
-      <div className="hidden lg:flex">
-        <Sidebar 
-          user={user} 
-          subscription={subscription}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={handleToggleCollapse}
-          isMobile={false}
-          isMobileOpen={false}
-          onMobileToggle={handleMobileSidebarToggle}
-          onMobileClose={handleMobileSidebarClose}
-        />
-      </div>
-
-      {/* Mobile Sidebar - overlay behavior */}
+    <div className="relative h-screen bg-background overflow-hidden">
+      {/* Mobile Sidebar - overlay behavior (outside flex layout) */}
       <div className="lg:hidden">
         <Sidebar 
           user={user} 
@@ -56,13 +42,30 @@ export function AppLayout({ children }: AppLayoutProps) {
           onMobileClose={handleMobileSidebarClose}
         />
       </div>
-      
-      {/* Main content - full width on mobile, flex-1 on desktop */}
-      <main className="flex-1 lg:flex-1 w-full overflow-auto min-h-0">
-        <div className="w-full p-6 min-h-full" id="main-content">
-          {children}
+
+      {/* Main layout container */}
+      <div className="flex h-full">
+        {/* Desktop Sidebar - normal flex behavior */}
+        <div className="hidden lg:flex">
+          <Sidebar 
+            user={user} 
+            subscription={subscription}
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapse={handleToggleCollapse}
+            isMobile={false}
+            isMobileOpen={false}
+            onMobileToggle={handleMobileSidebarToggle}
+            onMobileClose={handleMobileSidebarClose}
+          />
         </div>
-      </main>
+        
+        {/* Main content - full width on mobile, flex-1 on desktop */}
+        <main className="flex-1 w-full overflow-auto min-h-0">
+          <div className="w-full p-6 min-h-full" id="main-content">
+            {children}
+          </div>
+        </main>
+      </div>
 
       {/* Session Manager - Only active when user is logged in */}
       {user && (
