@@ -1147,14 +1147,14 @@ export default function MyAds() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">My Ad Campaigns</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">My Ad Campaigns</h1>
           <p className="text-muted-foreground">Manage and view your AI-generated ad copy campaigns</p>
         </div>
         <Button 
           onClick={() => navigate('/ad-copy-generator')}
-          className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600"
+          className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 flex-shrink-0"
         >
           <Plus className="w-4 h-4 mr-2" />
           Create New Campaign
