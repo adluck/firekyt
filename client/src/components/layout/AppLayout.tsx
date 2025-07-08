@@ -36,7 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         onMobileClose={handleMobileMenuToggle}
       />
       
-      <main className="flex-1 overflow-auto min-h-0">
+      <main className="flex-1 overflow-auto min-h-0 min-w-0">
         <div className="w-full p-6 min-h-full" id="main-content">
           {children}
         </div>

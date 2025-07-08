@@ -171,8 +171,8 @@ export function Sidebar({ user, subscription, isCollapsed = false, onToggleColla
       <aside 
         data-tour="sidebar"
         className={cn(
-        "bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out h-full overflow-y-auto",
-        effectiveIsCollapsed ? "w-16" : "w-64"
+        "bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out h-full overflow-y-auto flex-shrink-0",
+        effectiveIsCollapsed ? "w-16 min-w-16 max-w-16" : "w-64 min-w-64 max-w-64"
       )}>
         <div className="flex flex-col h-full">
           {/* Header with logo and toggle button */}
