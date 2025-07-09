@@ -225,7 +225,7 @@ export default function SeoAnalysisStorage() {
                     <div>
                       <div className="text-sm text-gray-500">Search Volume</div>
                       <div className="text-lg font-semibold">
-                        {selectedAnalysis.searchVolume.toLocaleString()}
+                        {Number(selectedAnalysis.searchVolume).toLocaleString()}
                       </div>
                     </div>
                   )}
@@ -233,7 +233,7 @@ export default function SeoAnalysisStorage() {
                     <div>
                       <div className="text-sm text-gray-500">Keyword Difficulty</div>
                       <div className="text-lg font-semibold">
-                        {selectedAnalysis.keywordDifficulty}/100
+                        {Number(selectedAnalysis.keywordDifficulty)}/100
                       </div>
                     </div>
                   )}
@@ -241,7 +241,7 @@ export default function SeoAnalysisStorage() {
                     <div>
                       <div className="text-sm text-gray-500">CPC Estimate</div>
                       <div className="text-lg font-semibold">
-                        ${selectedAnalysis.cpcEstimate.toFixed(2)}
+                        ${Number(selectedAnalysis.cpcEstimate).toFixed(2)}
                       </div>
                     </div>
                   )}
