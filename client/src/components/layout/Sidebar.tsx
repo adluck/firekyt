@@ -34,7 +34,8 @@ import {
   Sparkles,
   Eye,
   Folder,
-  Mail
+  Mail,
+  Database
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -94,6 +95,7 @@ const navigation = [
       { name: 'Niche Insights', href: '/research/niche', icon: Brain },
       { name: 'Product Research', href: '/research', icon: Search },
       { name: 'SEO Analysis', href: '/research/seo', icon: SearchCheck },
+      { name: 'Saved Analyses', href: '/research/seo-storage', icon: Database },
       { name: 'Keyword Analytics', href: '/research/keywords', icon: Key }
     ]
   },
