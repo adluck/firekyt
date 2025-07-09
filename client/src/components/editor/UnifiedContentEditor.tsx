@@ -769,8 +769,7 @@ export function UnifiedContentEditor({
               onClick={handleBack}
               className="shrink-0"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              <ArrowLeft className="w-4 h-4" />
             </Button>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold">
