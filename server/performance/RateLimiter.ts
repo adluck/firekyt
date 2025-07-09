@@ -186,10 +186,10 @@ export class RateLimiter {
    * Setup default rate limiting rules
    */
   private setupDefaultRules(): void {
-    // Authentication endpoints - strict limits
+    // Authentication endpoints - production-friendly limits
     this.rules.set('auth', {
-      windowMs: 15 * 60 * 1000, // 15 minutes
-      maxRequests: 5,
+      windowMs: 5 * 60 * 1000, // 5 minutes
+      maxRequests: 25, // Allow 25 attempts per 5 minutes
       keyGenerator: (req) => `auth:${req.ip}:${req.body?.email || 'unknown'}`
     });
 
