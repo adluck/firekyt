@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail, Edit3, X } from "lucide-react";
+import { Wand2, Clock, CheckCircle, AlertCircle, Copy, Save, RefreshCw, Sparkles, Target, Megaphone, Users, FileText, Scale, Star, Video, MessageSquare, Mail, Edit3, X, Send } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { UnifiedContentEditor } from "@/components/editor/UnifiedContentEditor";
@@ -140,6 +141,7 @@ export default function AdvancedContentGenerator() {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   // Auto-dismiss success modal after 5 seconds
   useEffect(() => {
@@ -305,6 +307,11 @@ export default function AdvancedContentGenerator() {
       title: "Copied to clipboard",
       description: "Content has been copied to your clipboard",
     });
+  };
+
+  // Handle publish content navigation
+  const handlePublish = () => {
+    setLocation('/publishing');
   };
 
   const getStatusIcon = (status: string) => {
@@ -852,6 +859,14 @@ export default function AdvancedContentGenerator() {
                         <Copy className="mr-2 h-4 w-4" />
                         Copy All
                       </Button>
+
+                      <Button
+                        variant="outline"
+                        onClick={handlePublish}
+                      >
+                        <Send className="mr-2 h-4 w-4" />
+                        Publish
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -915,6 +930,10 @@ export default function AdvancedContentGenerator() {
             <div className="mt-4 flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setSavedContent(null)}>
                 Close
+              </Button>
+              <Button variant="outline" onClick={handlePublish}>
+                <Send className="mr-2 h-4 w-4" />
+                Publish
               </Button>
               <Button onClick={() => window.location.href = '/content'}>
                 View All Content
