@@ -135,6 +135,14 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
+      <Route path="/content/generate">
+        <ProtectedRoute>
+          <AppLayout>
+            <AdvancedContentGenerator />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
       <Route path="/content/manage">
         <ProtectedRoute>
           <AppLayout>
