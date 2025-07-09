@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, Eye, Code, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, Eye, Code, ArrowLeft, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -1158,7 +1158,7 @@ export default function CreateWidget() {
                             </button>
                           </div>
                           
-                          <div className="p-4">
+                          <div className="p-4 max-h-96 overflow-y-auto">
                             {embedMode === 'javascript' ? (
                               <>
                                 <div className="flex items-center justify-between mb-3">
@@ -1186,7 +1186,7 @@ export default function CreateWidget() {
                                     Copy to Clipboard
                                   </Button>
                                 </div>
-                                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-3">
+                                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-3 overflow-auto max-h-32">
                                   <code className="text-sm break-all">{generateEmbedCode()}</code>
                                 </div>
                                 <p className="text-sm text-muted-foreground">
@@ -1220,7 +1220,7 @@ export default function CreateWidget() {
                                     Copy to Clipboard
                                   </Button>
                                 </div>
-                                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-3">
+                                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-3 overflow-auto max-h-32">
                                   <code className="text-sm break-all">{generateIframeCode()}</code>
                                 </div>
                                 <p className="text-sm text-muted-foreground">
@@ -1369,8 +1369,34 @@ function firekyt_widget_shortcode($atts) {
                                     <p className="text-sm font-medium mb-2">🎯 Usage Options</p>
                                     <div className="space-y-2">
                                       <div>
-                                        <p className="text-sm font-medium">Option 1: Shortcode (After functions.php update)</p>
-                                        <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <p className="text-sm font-medium">Option 1: Shortcode (After functions.php update)</p>
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={async () => {
+                                              const shortcode = `[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}"]`;
+                                              try {
+                                                await navigator.clipboard.writeText(shortcode);
+                                                toast({
+                                                  title: "Copied!",
+                                                  description: "WordPress shortcode copied to clipboard",
+                                                });
+                                              } catch (error) {
+                                                toast({
+                                                  title: "Copy failed",
+                                                  description: "Please copy the shortcode manually",
+                                                  variant: "destructive",
+                                                });
+                                              }
+                                            }}
+                                            className="text-xs h-7"
+                                          >
+                                            <Copy className="w-3 h-3 mr-1" />
+                                            Copy
+                                          </Button>
+                                        </div>
+                                        <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono overflow-auto max-h-20">
                                           {`[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}"]`}
                                         </div>
                                       </div>
@@ -1659,8 +1685,34 @@ Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid 
                                     <p className="text-sm font-medium mb-2">🎯 Usage After Installation</p>
                                     <div className="space-y-2">
                                       <div>
-                                        <p className="text-sm font-medium">Shortcode Method:</p>
-                                        <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <p className="text-sm font-medium">Shortcode Method:</p>
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={async () => {
+                                              const shortcode = `[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}" domain="${window.location.hostname}"]`;
+                                              try {
+                                                await navigator.clipboard.writeText(shortcode);
+                                                toast({
+                                                  title: "Copied!",
+                                                  description: "WordPress shortcode copied to clipboard",
+                                                });
+                                              } catch (error) {
+                                                toast({
+                                                  title: "Copy failed",
+                                                  description: "Please copy the shortcode manually",
+                                                  variant: "destructive",
+                                                });
+                                              }
+                                            }}
+                                            className="text-xs h-7"
+                                          >
+                                            <Copy className="w-3 h-3 mr-1" />
+                                            Copy
+                                          </Button>
+                                        </div>
+                                        <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono overflow-auto max-h-20">
                                           {`[firekyt_widget id="${(isEditMode && editWidgetId) || createdWidgetId || '{widget-id}'}" domain="${window.location.hostname}"]`}
                                         </div>
                                       </div>
