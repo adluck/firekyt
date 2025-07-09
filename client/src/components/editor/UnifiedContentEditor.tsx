@@ -513,8 +513,8 @@ export function UnifiedContentEditor({
   };
 
   const handleBack = () => {
-    // Navigate back to content management
-    setLocation('/content');
+    // Navigate back to content manager
+    setLocation('/content/manager');
   };
 
   // Default save mutation
