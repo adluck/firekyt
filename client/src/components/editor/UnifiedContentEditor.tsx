@@ -763,14 +763,6 @@ export function UnifiedContentEditor({
       {showHeader && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-              className="shrink-0"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold">
                 {mode === 'edit' ? 'Edit Content' : 'Create New Content'}
