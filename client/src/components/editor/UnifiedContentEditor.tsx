@@ -30,6 +30,7 @@ import {
   X,
   Shield,
   Send,
+  ArrowLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
@@ -511,6 +512,11 @@ export function UnifiedContentEditor({
     });
   };
 
+  const handleBack = () => {
+    // Navigate back to content management
+    setLocation('/content');
+  };
+
   // Default save mutation
   const defaultSaveMutation = useMutation({
     mutationFn: async (data: ContentData) => {
@@ -756,13 +762,24 @@ export function UnifiedContentEditor({
       {/* Header */}
       {showHeader && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold">
-              {mode === 'edit' ? 'Edit Content' : 'Create New Content'}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Create and edit rich content with comparison tables
-            </p>
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBack}
+              className="shrink-0"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                {mode === 'edit' ? 'Edit Content' : 'Create New Content'}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Create and edit rich content with comparison tables
+              </p>
+            </div>
           </div>
           <div className="flex gap-2 flex-shrink-0">
             {onClose && (
