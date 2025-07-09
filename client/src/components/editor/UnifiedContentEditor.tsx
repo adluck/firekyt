@@ -29,6 +29,7 @@ import {
   ExternalLink,
   X,
   Shield,
+  Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
@@ -496,6 +497,20 @@ export function UnifiedContentEditor({
     });
   };
 
+  const handlePublish = () => {
+    // Save content first, then navigate to publishing dashboard
+    defaultSaveMutation.mutate(contentData, {
+      onSuccess: () => {
+        // Navigate to publishing dashboard
+        setLocation('/publishing');
+        toast({
+          title: 'Ready to publish',
+          description: 'Content saved. Redirecting to publishing dashboard...',
+        });
+      }
+    });
+  };
+
   // Default save mutation
   const defaultSaveMutation = useMutation({
     mutationFn: async (data: ContentData) => {
@@ -765,6 +780,15 @@ export function UnifiedContentEditor({
                 Preview
               </Button>
             )}
+            <Button
+              variant="outline"
+              onClick={handlePublish}
+              disabled={isSaving}
+              className="bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700 hover:text-orange-800"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Publish
+            </Button>
             <Button
               onClick={handleSave}
               disabled={isSaving}
