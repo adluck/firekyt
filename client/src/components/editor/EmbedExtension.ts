@@ -70,10 +70,25 @@ export const EmbedExtension = Node.create<EmbedOptions>({
         [
           'div',
           {
-            class: 'embed-preview bg-white dark:bg-gray-800 rounded border p-3 text-xs font-mono text-gray-600 dark:text-gray-300',
-            style: 'word-break: break-all;',
+            class: 'embed-preview bg-white dark:bg-gray-800 rounded border relative',
           },
-          embedCode,
+          [
+            'div',
+            {
+              class: 'p-3 text-xs font-mono text-gray-600 dark:text-gray-300 pr-16',
+              style: 'word-break: break-all;',
+            },
+            embedCode,
+          ],
+          [
+            'button',
+            {
+              class: 'absolute top-2 right-2 px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors copy-shortcode-btn',
+              'data-shortcode': embedCode,
+              title: 'Copy shortcode',
+            },
+            'Copy',
+          ],
         ],
       ];
     }
