@@ -77,42 +77,13 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
             element.style.visibility = 'visible';
           }
           
-          // For navigation elements, ensure they're properly sized
-          if (element.classList.contains('nav-link') || element.hasAttribute('data-tour')) {
-            element.style.minHeight = '44px';
-            element.style.minWidth = '120px';
-            element.style.display = 'flex';
-            element.style.alignItems = 'center';
-            element.style.padding = '12px 16px';
-          }
-          
-          // Additional fixes for desktop navigation
-          if (element.closest('.sidebar') || element.closest('nav')) {
-            element.style.position = 'relative';
-            element.style.zIndex = '10000';
-            element.style.backgroundColor = 'var(--background)';
-            element.style.border = '1px solid var(--border)';
-            element.style.borderRadius = '8px';
-          }
-          
-          // Force layout recalculation
-          element.offsetHeight; // Trigger reflow
-          const newRect = element.getBoundingClientRect();
-          console.log('New rect after fixes:', newRect);
-          
           // If still zero dimensions, try to find parent container
+          const newRect = element.getBoundingClientRect();
           if (newRect.width === 0 || newRect.height === 0) {
             const parent = element.parentElement;
-            if (parent) {
+            if (parent && parent.getBoundingClientRect().width > 0) {
               console.log('Using parent element instead');
               parent.classList.add('tour-highlight-active');
-              parent.style.minHeight = '44px';
-              parent.style.minWidth = '120px';
-              parent.style.display = 'flex';
-              parent.style.alignItems = 'center';
-              parent.style.padding = '12px 16px';
-              parent.style.position = 'relative';
-              parent.style.zIndex = '10000';
               setHighlightedElement(parent);
               updateTooltipPosition(parent);
               return;
@@ -256,8 +227,8 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
     <>
       {/* Background overlay to dim everything except highlighted element */}
       <div 
-        className="fixed inset-0 bg-black/30 z-[9997] pointer-events-none"
-        style={{ backdropFilter: 'blur(2px)' }}
+        className="fixed inset-0 bg-black/10 z-[9997] pointer-events-none"
+        style={{ backdropFilter: 'blur(1px)' }}
       />
 
       {/* Tooltip */}
