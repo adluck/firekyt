@@ -33,7 +33,8 @@ import {
   Ruler,
   Sparkles,
   Eye,
-  Folder
+  Folder,
+  Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -129,6 +130,7 @@ const navigation = [
 // Admin-only navigation items
 const adminNavigation = [
   { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
+  { name: 'Test Email', href: '/admin/test-email', icon: Mail },
 ];
 
 export function Sidebar({ 

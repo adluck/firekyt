@@ -56,6 +56,7 @@ import SubscribeSimple from "@/pages/subscription/SubscribeSimple";
 import Settings from "@/pages/settings/Settings";
 import Documentation from "@/pages/docs/Documentation";
 import FeedbackDashboard from "@/pages/admin/FeedbackDashboard";
+import TestEmail from "@/pages/admin/TestEmail";
 import CreateWidget from "@/pages/ads-widgets/CreateWidget";
 import ManageWidgets from "@/pages/ads-widgets/ManageWidgets";
 import AdSizesDemo from "@/pages/ads-widgets/AdSizesDemo";
@@ -406,6 +407,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <FeedbackDashboard />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/admin/test-email">
+        <ProtectedRoute>
+          <AppLayout>
+            <TestEmail />
           </AppLayout>
         </ProtectedRoute>
       </Route>

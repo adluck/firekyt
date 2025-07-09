@@ -6057,6 +6057,44 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Test email endpoint (admin only)
+  app.post("/api/admin/test-email", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const { email } = req.body;
+      const adminEmail = email || req.user!.email;
+      
+      if (!adminEmail) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Email address is required" 
+        });
+      }
+
+      // Send test email using the existing email service
+      const testResult = await emailService.sendWelcomeEmail(adminEmail, req.user!.username);
+      
+      if (testResult) {
+        res.json({
+          success: true,
+          message: `Test email sent successfully to ${adminEmail}`,
+          service: 'Resend',
+          from: 'support@firekyt.com'
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Failed to send test email. Check server logs for details.'
+        });
+      }
+    } catch (error: any) {
+      console.error('Test email error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Test email failed: ' + error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
