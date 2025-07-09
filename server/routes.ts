@@ -4575,6 +4575,151 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // SEO Analysis Storage Routes
+  
+  // Save keyword analysis data
+  app.post('/api/seo-analysis', authenticateToken, async (req, res) => {
+    try {
+      const { keyword, targetRegion = "US", searchVolume, keywordDifficulty, competitionLevel, 
+              cpcEstimate, topCompetitors, suggestedTitles, suggestedDescriptions, 
+              suggestedHeaders, relatedKeywords, serpFeatures, trendsData, apiSource } = req.body;
+
+      if (!keyword) {
+        return res.status(400).json({ message: 'Keyword is required' });
+      }
+
+      // Check if analysis already exists for this keyword
+      const existingAnalysis = await storage.getSeoAnalysisByKeyword(req.user!.id, keyword);
+      
+      if (existingAnalysis) {
+        // Update existing analysis
+        const updated = await storage.updateSeoAnalysis(existingAnalysis.id, {
+          searchVolume,
+          keywordDifficulty,
+          competitionLevel,
+          cpcEstimate,
+          topCompetitors,
+          suggestedTitles,
+          suggestedDescriptions,
+          suggestedHeaders,
+          relatedKeywords,
+          serpFeatures,
+          trendsData,
+          apiSource,
+          analysisDate: new Date(),
+          updatedAt: new Date()
+        });
+
+        res.json({
+          success: true,
+          analysis: updated,
+          message: 'SEO analysis updated successfully'
+        });
+      } else {
+        // Create new analysis
+        const seoAnalysisData = {
+          userId: req.user!.id,
+          keyword,
+          targetRegion,
+          searchVolume,
+          keywordDifficulty,
+          competitionLevel,
+          cpcEstimate,
+          topCompetitors,
+          suggestedTitles,
+          suggestedDescriptions,
+          suggestedHeaders,
+          relatedKeywords,
+          serpFeatures,
+          trendsData,
+          apiSource,
+          analysisDate: new Date()
+        };
+
+        const analysis = await storage.createSeoAnalysis(seoAnalysisData);
+
+        res.json({
+          success: true,
+          analysis,
+          message: 'SEO analysis saved successfully'
+        });
+      }
+    } catch (error: any) {
+      console.error('Save SEO analysis error:', error);
+      res.status(500).json({ message: 'Failed to save SEO analysis' });
+    }
+  });
+
+  // Get user's saved SEO analyses
+  app.get('/api/seo-analysis', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { keyword } = req.query;
+
+      if (keyword) {
+        // Get specific keyword analysis
+        const analysis = await storage.getSeoAnalysisByKeyword(userId, keyword as string);
+        res.json({
+          success: true,
+          analysis
+        });
+      } else {
+        // Get all user's analyses
+        const analyses = await storage.getUserSeoAnalyses(userId);
+        res.json({
+          success: true,
+          analyses
+        });
+      }
+    } catch (error: any) {
+      console.error('Get SEO analyses error:', error);
+      res.status(500).json({ message: 'Failed to fetch SEO analyses' });
+    }
+  });
+
+  // Get specific SEO analysis by ID
+  app.get('/api/seo-analysis/:id', authenticateToken, async (req, res) => {
+    try {
+      const analysisId = parseInt(req.params.id);
+      const analysis = await storage.getSeoAnalysisById(analysisId);
+
+      if (!analysis || analysis.userId !== req.user!.id) {
+        return res.status(404).json({ message: 'SEO analysis not found' });
+      }
+
+      res.json({
+        success: true,
+        analysis
+      });
+    } catch (error: any) {
+      console.error('Get SEO analysis error:', error);
+      res.status(500).json({ message: 'Failed to fetch SEO analysis' });
+    }
+  });
+
+  // Delete SEO analysis
+  app.delete('/api/seo-analysis/:id', authenticateToken, async (req, res) => {
+    try {
+      const analysisId = parseInt(req.params.id);
+      
+      // Verify ownership
+      const analysis = await storage.getSeoAnalysisById(analysisId);
+      if (!analysis || analysis.userId !== req.user!.id) {
+        return res.status(404).json({ message: 'SEO analysis not found' });
+      }
+
+      await storage.deleteSeoAnalysis(analysisId);
+
+      res.json({
+        success: true,
+        message: 'SEO analysis deleted successfully'
+      });
+    } catch (error: any) {
+      console.error('Delete SEO analysis error:', error);
+      res.status(500).json({ message: 'Failed to delete SEO analysis' });
+    }
+  });
+
   // Admin middleware to check for admin role
   const requireAdmin = (req: any, res: any, next: any) => {
     if (!req.user || req.user.role !== 'admin') {

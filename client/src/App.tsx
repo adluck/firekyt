@@ -37,6 +37,7 @@ import SeoAnalysis from "@/pages/research/SeoAnalysis";
 import NicheInsights from "@/pages/research/NicheInsights";
 import AffiliateNetworks from "@/pages/research/AffiliateNetworks";
 import KeywordAnalytics from "@/pages/research/KeywordAnalytics";
+import SeoAnalysisStorage from "@/components/seo/SeoAnalysisStorage";
 
 import ContentEditor from "@/pages/content/ContentEditor";
 import AnalyticsDashboard from "@/pages/analytics/AnalyticsDashboard";
@@ -204,6 +205,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <KeywordAnalytics />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/research/seo-storage">
+        <ProtectedRoute>
+          <AppLayout>
+            <SeoAnalysisStorage />
           </AppLayout>
         </ProtectedRoute>
       </Route>

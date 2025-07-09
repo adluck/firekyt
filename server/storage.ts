@@ -82,8 +82,12 @@ export interface IStorage {
   
   // SEO analysis operations
   getSeoAnalysis(id: number): Promise<SeoAnalysis | undefined>;
+  getSeoAnalysisById(id: number): Promise<SeoAnalysis | undefined>;
   getUserSeoAnalyses(userId: number): Promise<SeoAnalysis[]>;
+  getSeoAnalysisByKeyword(userId: number, keyword: string): Promise<SeoAnalysis | undefined>;
   createSeoAnalysis(analysis: InsertSeoAnalysis): Promise<SeoAnalysis>;
+  updateSeoAnalysis(id: number, updates: Partial<SeoAnalysis>): Promise<SeoAnalysis>;
+  deleteSeoAnalysis(id: number): Promise<void>;
   findSeoAnalysisByKeyword(userId: number, keyword: string, region?: string): Promise<SeoAnalysis | undefined>;
 
   // Comparison table operations
@@ -1071,6 +1075,35 @@ export class DatabaseStorage implements IStorage {
   async createSeoAnalysis(analysisData: InsertSeoAnalysis): Promise<SeoAnalysis> {
     const [analysis] = await db.insert(seoAnalyses).values(analysisData).returning();
     return analysis;
+  }
+
+  async getSeoAnalysisById(id: number): Promise<SeoAnalysis | undefined> {
+    const [analysis] = await db.select().from(seoAnalyses).where(eq(seoAnalyses.id, id));
+    return analysis;
+  }
+
+  async getSeoAnalysisByKeyword(userId: number, keyword: string): Promise<SeoAnalysis | undefined> {
+    const [analysis] = await db
+      .select()
+      .from(seoAnalyses)
+      .where(and(eq(seoAnalyses.userId, userId), eq(seoAnalyses.keyword, keyword)))
+      .orderBy(desc(seoAnalyses.createdAt))
+      .limit(1);
+    
+    return analysis;
+  }
+
+  async updateSeoAnalysis(id: number, updates: Partial<SeoAnalysis>): Promise<SeoAnalysis> {
+    const [analysis] = await db
+      .update(seoAnalyses)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(seoAnalyses.id, id))
+      .returning();
+    return analysis;
+  }
+
+  async deleteSeoAnalysis(id: number): Promise<void> {
+    await db.delete(seoAnalyses).where(eq(seoAnalyses.id, id));
   }
 
   async findSeoAnalysisByKeyword(userId: number, keyword: string, region?: string): Promise<SeoAnalysis | undefined> {

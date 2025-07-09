@@ -790,6 +790,8 @@ export const insertAutoLinkRuleSchema = createInsertSchema(autoLinkRules).omit({
   updatedAt: true,
 });
 
+
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -798,6 +800,8 @@ export type InsertSite = z.infer<typeof insertSiteSchema>;
 export type Content = typeof content.$inferSelect;
 export type InsertContent = z.infer<typeof insertContentSchema>;
 export type Analytics = typeof analytics.$inferSelect;
+export type SeoAnalysis = typeof seoAnalyses.$inferSelect;
+export type InsertSeoAnalysis = z.infer<typeof insertSeoAnalysisSchema>;
 export type InsertAnalytics = z.infer<typeof insertAnalyticsSchema>;
 export type Usage = typeof usage.$inferSelect;
 export type InsertUsage = z.infer<typeof insertUsageSchema>;
@@ -807,8 +811,6 @@ export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type ProductResearchSession = typeof productResearchSessions.$inferSelect;
 export type InsertProductResearchSession = z.infer<typeof insertProductResearchSessionSchema>;
-export type SeoAnalysis = typeof seoAnalyses.$inferSelect;
-export type InsertSeoAnalysis = z.infer<typeof insertSeoAnalysisSchema>;
 export type ComparisonTable = typeof comparisonTables.$inferSelect;
 export type InsertComparisonTable = z.infer<typeof insertComparisonTableSchema>;
 export type ContentPerformance = typeof contentPerformance.$inferSelect;
