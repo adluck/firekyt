@@ -447,14 +447,6 @@ export default function PublishingDashboard() {
             <RefreshCw className={`h-4 w-4 mr-2 ${validateConnectionsMutation.isPending ? 'animate-spin' : ''}`} />
             {validateConnectionsMutation.isPending ? 'Validating...' : 'Validate All Tokens'}
           </Button>
-          <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline" data-tour="schedule-content">
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Content
-              </Button>
-            </DialogTrigger>
-          </Dialog>
           <Dialog open={showAddConnectionDialog} onOpenChange={setShowAddConnectionDialog}>
             <DialogTrigger asChild>
               <Button data-tour="platform-integrations">
@@ -592,96 +584,7 @@ export default function PublishingDashboard() {
             </DialogContent>
           </Dialog>
 
-          <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Content
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Schedule Publication</DialogTitle>
-                <DialogDescription>
-                  Schedule your content to be published at the optimal time
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...scheduleForm}>
-                <form onSubmit={scheduleForm.handleSubmit(onSchedulePublication)} className="space-y-4">
-                  <FormField
-                    control={scheduleForm.control}
-                    name="contentId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Content</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select content to publish" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {userContent.map((content: any) => (
-                              <SelectItem key={content.id} value={content.id.toString()}>
-                                {content.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={scheduleForm.control}
-                    name="platformConnectionId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Platform</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select platform" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {connections.map((connection: any) => (
-                              <SelectItem key={connection.id} value={connection.id.toString()}>
-                                <div className="flex items-center gap-2">
-                                  {getPlatformIcon(connection.platform)}
-                                  {connection.platform} - {connection.platformUsername}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={scheduleForm.control}
-                    name="scheduledAt"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Scheduled Date & Time</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="datetime-local" 
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" disabled={schedulePublicationMutation.isPending}>
-                    {schedulePublicationMutation.isPending ? "Scheduling..." : "Schedule Publication"}
-                  </Button>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+          
 
           {/* Publish Now Dialog */}
           <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
