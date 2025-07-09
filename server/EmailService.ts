@@ -53,7 +53,7 @@ export class EmailService {
     try {
       const result = await this.resend.emails.send({
         to: [email],
-        from: process.env.FROM_EMAIL || 'noreply@firekyt.com',
+        from: process.env.FROM_EMAIL || 'support@firekyt.com',
         subject: template.subject,
         text: template.text,
         html: template.html,
@@ -99,7 +99,7 @@ export class EmailService {
     try {
       const result = await this.resend.emails.send({
         to: [email],
-        from: process.env.FROM_EMAIL || 'noreply@firekyt.com',
+        from: process.env.FROM_EMAIL || 'support@firekyt.com',
         subject: template.subject,
         text: template.text,
         html: template.html,
