@@ -1741,23 +1741,22 @@ Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid 
                                 </p>
                               </>
                             ) : null}
-                          </div>
-                        </div>
-                        
-                        <div className="bg-muted p-4 rounded-lg">
-                          <h4 className="font-medium text-sm mb-2">WordPress Users - Important:</h4>
-                          <div className="text-sm text-muted-foreground space-y-3">
-                            <div>
-                              <p><strong>If you see a gray box instead of the widget:</strong></p>
-                              <ol className="list-decimal list-inside space-y-1 ml-2 mt-1">
-                                <li>Use the <strong>Iframe</strong> embed code (not JavaScript)</li>
-                                <li>Switch to <strong>"Text" or "HTML" editor</strong> in WordPress (not Visual)</li>
-                                <li>Paste the iframe code where you want the widget</li>
-                                <li>Add this line to your theme's functions.php file:</li>
-                              </ol>
-                            </div>
                             
-                            <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono whitespace-pre">
+                            {/* WordPress Troubleshooting Section - Inside scrollable area */}
+                            <div className="bg-muted p-4 rounded-lg mt-4">
+                              <h4 className="font-medium text-sm mb-2">WordPress Users - Important:</h4>
+                              <div className="text-sm text-muted-foreground space-y-3">
+                                <div>
+                                  <p><strong>If you see a gray box instead of the widget:</strong></p>
+                                  <ol className="list-decimal list-inside space-y-1 ml-2 mt-1">
+                                    <li>Use the <strong>Iframe</strong> embed code (not JavaScript)</li>
+                                    <li>Switch to <strong>"Text" or "HTML" editor</strong> in WordPress (not Visual)</li>
+                                    <li>Paste the iframe code where you want the widget</li>
+                                    <li>Add this line to your theme's functions.php file:</li>
+                                  </ol>
+                                </div>
+                                
+                                <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono whitespace-pre overflow-auto max-h-24">
 {`add_filter('wp_kses_allowed_html', function($tags) {
     $tags['iframe'] = array(
         'src' => true, 'width' => true, 'height' => true,
@@ -1765,16 +1764,18 @@ Yes, use the style parameter: [firekyt_widget id="123" style="border: 1px solid 
     );
     return $tags;
 });`}
+                                </div>
+                                
+                                <div className="text-xs">
+                                  <p className="font-medium">Alternative for Gutenberg Editor:</p>
+                                  <p>Use a "Custom HTML" block instead of "Paragraph" block</p>
+                                </div>
+                                
+                                <p className="text-xs text-foreground">
+                                  This code tells WordPress to allow iframe tags for widget embedding.
+                                </p>
+                              </div>
                             </div>
-                            
-                            <div className="text-xs">
-                              <p className="font-medium">Alternative for Gutenberg Editor:</p>
-                              <p>Use a "Custom HTML" block instead of "Paragraph" block</p>
-                            </div>
-                            
-                            <p className="text-xs text-foreground">
-                              This code tells WordPress to allow iframe tags for widget embedding.
-                            </p>
                           </div>
                         </div>
                       </div>
