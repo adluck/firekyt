@@ -151,6 +151,14 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
+      <Route path="/content/manager">
+        <ProtectedRoute>
+          <AppLayout>
+            <ContentManager />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
       <Route path="/content/basic">
         <ProtectedRoute>
           <AppLayout>
