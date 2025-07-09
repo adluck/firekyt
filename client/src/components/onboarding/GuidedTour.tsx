@@ -60,19 +60,57 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
       }
       
       if (element) {
-        // Debug logging
+        const rect = element.getBoundingClientRect();
         console.log('Found element for tour:', currentStepData.target, element);
-        console.log('Element rect:', element.getBoundingClientRect());
+        console.log('Element rect:', rect);
+        
+        // Ensure element is visible and has dimensions
+        if (rect.width === 0 || rect.height === 0) {
+          // Try to make element visible if it's hidden
+          const computedStyle = window.getComputedStyle(element);
+          if (computedStyle.display === 'none') {
+            element.style.display = 'block';
+          }
+          if (computedStyle.visibility === 'hidden') {
+            element.style.visibility = 'visible';
+          }
+          
+          // For navigation elements, ensure they're properly sized
+          if (element.classList.contains('nav-link') || element.hasAttribute('data-tour')) {
+            element.style.minHeight = '44px';
+            element.style.minWidth = '120px';
+            element.style.display = 'flex';
+            element.style.alignItems = 'center';
+          }
+        }
         
         // Add tour highlight class directly to element
         element.classList.add('tour-highlight-active');
         
         setHighlightedElement(element);
         updateTooltipPosition(element);
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Scroll to element with better positioning
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'center'
+        });
+        
+        // Add slight delay to ensure element is properly rendered
+        setTimeout(() => {
+          updateTooltipPosition(element);
+        }, 100);
+        
       } else if (currentStepData.waitForElement) {
-        // Keep trying to find the element
-        setTimeout(findAndHighlightElement, 100);
+        // Keep trying to find the element with limited retries
+        const retryCount = (findAndHighlightElement as any).retryCount || 0;
+        if (retryCount < 50) { // Max 5 seconds of retries
+          (findAndHighlightElement as any).retryCount = retryCount + 1;
+          setTimeout(findAndHighlightElement, 100);
+        } else {
+          console.warn('Could not find tour element after retries:', currentStepData.target);
+        }
       }
     };
 
@@ -180,6 +218,11 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, tourName }: Gu
 
   return createPortal(
     <>
+      {/* Background overlay to dim everything except highlighted element */}
+      <div 
+        className="fixed inset-0 bg-black/30 z-[9997] pointer-events-none"
+        style={{ backdropFilter: 'blur(2px)' }}
+      />
 
       {/* Tooltip */}
       <div
