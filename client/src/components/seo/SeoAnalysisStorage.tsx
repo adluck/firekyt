@@ -290,7 +290,21 @@ export default function SeoAnalysisStorage() {
                     <div className="space-y-1">
                       {selectedAnalysis.topCompetitors.map((competitor, index) => (
                         <div key={index} className="text-sm p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                          {competitor}
+                          {typeof competitor === 'string' ? competitor : (
+                            <div>
+                              <div className="font-medium">{competitor.title || competitor.domain || 'Unknown'}</div>
+                              {competitor.snippet && (
+                                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                  {competitor.snippet}
+                                </div>
+                              )}
+                              {competitor.link && (
+                                <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                                  {competitor.link}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
