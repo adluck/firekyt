@@ -36,6 +36,44 @@ export default function LandingPage() {
     fetchUserCount();
   }, []);
 
+  // SEO Meta Tags
+  useEffect(() => {
+    // Set SEO meta tags for landing page
+    const metaTags = [
+      { name: 'description', content: 'Best AI powered affiliate marketing platform with free tools for YouTube, Reddit, and more. Create high-converting content with our AI affiliate program and marketing course.' },
+      { name: 'keywords', content: 'Best ai powered affiliate marketing platform, Ai powered affiliate marketing platform free, Ai powered affiliate marketing platform reddit, Ai powered affiliate marketing platform for youtube, Free AI tools for affiliate marketing, AI affiliate program, AI affiliate marketing Course, Highest paying AI affiliate programs' },
+      { property: 'og:title', content: 'FireKyt - Best AI Powered Affiliate Marketing Platform' },
+      { property: 'og:description', content: 'Best AI powered affiliate marketing platform with free tools for YouTube, Reddit, and more. Create high-converting content with our AI affiliate program and marketing course.' },
+      { property: 'og:type', content: 'website' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'FireKyt - Best AI Powered Affiliate Marketing Platform' },
+      { name: 'twitter:description', content: 'Best AI powered affiliate marketing platform with free tools for YouTube, Reddit, and more. Create high-converting content with our AI affiliate program and marketing course.' }
+    ];
+
+    // Add or update meta tags
+    metaTags.forEach(({ name, property, content }) => {
+      const selector = name ? `meta[name="${name}"]` : `meta[property="${property}"]`;
+      let meta = document.querySelector(selector);
+      
+      if (!meta) {
+        meta = document.createElement('meta');
+        if (name) meta.setAttribute('name', name);
+        if (property) meta.setAttribute('property', property);
+        document.head.appendChild(meta);
+      }
+      
+      meta.setAttribute('content', content);
+    });
+
+    // Set page title
+    document.title = 'FireKyt - Best AI Powered Affiliate Marketing Platform';
+
+    // Cleanup function to restore original meta tags
+    return () => {
+      document.title = 'FireKyt'; // Reset to default title
+    };
+  }, []);
+
   return (
     <div className="bg-gradient-to-br from-slate-50 via-orange-50 to-pink-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Navigation */}
