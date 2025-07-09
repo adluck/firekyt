@@ -154,44 +154,7 @@ export function RichTextEditor({
     };
   }, [editor, onEditorReady]);
 
-  // Handle copy button clicks for shortcodes
-  useEffect(() => {
-    if (!editor) return;
 
-    const handleCopyClick = async (event: Event) => {
-      const target = event.target as HTMLElement;
-      if (target?.classList.contains('copy-shortcode-btn')) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        const shortcode = target.getAttribute('data-shortcode');
-        if (shortcode) {
-          try {
-            await navigator.clipboard.writeText(shortcode);
-            toast({
-              title: "Copied!",
-              description: "Widget shortcode copied to clipboard",
-            });
-          } catch (error) {
-            console.error('Copy failed:', error);
-            toast({
-              title: "Copy failed",
-              description: "Please copy the shortcode manually",
-              variant: "destructive",
-            });
-          }
-        }
-      }
-    };
-
-    // Use event delegation on the editor container
-    const editorElement = editor.view.dom;
-    editorElement.addEventListener('click', handleCopyClick);
-
-    return () => {
-      editorElement.removeEventListener('click', handleCopyClick);
-    };
-  }, [editor, toast]);
 
   if (!editor) {
     return null;
