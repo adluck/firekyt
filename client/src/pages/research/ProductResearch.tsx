@@ -909,16 +909,7 @@ export default function ProductResearch() {
                   <Badge variant="outline">
                     {researchResults?.products?.length || 0} products
                   </Badge>
-                  <Badge 
-                    variant="outline" 
-                    className={
-                      researchResults?.session_data?.data_source === 'live_data'
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-100"
-                        : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900 dark:text-amber-100"
-                    }
-                  >
-                    {researchResults?.session_data?.data_source === 'live_data' ? '🔴 Live Data' : '📝 Sample Data'}
-                  </Badge>
+                  
                 </div>
               </CardTitle>
             </CardHeader>
