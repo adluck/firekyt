@@ -558,6 +558,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **Enhanced Affiliate Link System** - Added comprehensive affiliate URL generation with source-specific tracking (Amazon Associates, generic UTM parameters) for proper commission attribution
 ✓ **Fixed Sample Data Display Issue** - Updated apiSource to 'serpapi_live' and session data to 'live_data' to remove all "Sample Data" badges from research interface
 ✓ **Production-Ready Affiliate Tracking** - Implemented tracking IDs, UTM parameters, and source-specific affiliate URL formatting for Amazon, Walmart, Target, and other retailers
+✓ **FIXED: Content Generation Usage Counter Accuracy** - Resolved double-accumulation issue where usage counter showed 127 instead of accurate monthly count by fixing count parameter from `(currentUsage?.count || 0) + 1` to just `1` in routes.ts, allowing storage method to properly handle accumulation
 
 ## User Preferences
 

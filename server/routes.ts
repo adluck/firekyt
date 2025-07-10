@@ -597,11 +597,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       
-      const currentUsage = await storage.getUsage(req.user!.id, 'content_generation', monthStart, monthEnd);
       await storage.createOrUpdateUsage({
         userId: req.user!.id,
         feature: 'content_generation',
-        count: (currentUsage?.count || 0) + 1,
+        count: 1,
         periodStart: monthStart,
         periodEnd: monthEnd,
       });
