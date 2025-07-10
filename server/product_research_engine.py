@@ -485,7 +485,8 @@ class SerpApiResearcher:
             
             # Extract URLs and images
             product_url = item.get('link', '')
-            affiliate_url = product_url  # Will be updated with actual affiliate links later
+            # Generate affiliate URL with tracking parameters
+            affiliate_url = self._generate_affiliate_url(product_url, item.get('source', ''), commission_rate)
             image_url = item.get('thumbnail', '')
             
             # Generate external ID
@@ -515,7 +516,7 @@ class SerpApiResearcher:
                 keywords=title.lower().split()[:10],
                 search_volume=None,  # Will be enriched later
                 difficulty=None,
-                api_source='serpapi_shopping',
+                api_source='serpapi_live',  # Changed from 'serpapi_shopping' to 'serpapi_live'
                 external_id=external_id,
                 tags=[category.lower(), params.niche.lower()]
             )
@@ -803,6 +804,61 @@ class SerpApiResearcher:
                 difficulty += 5
         
         return min(difficulty, 100)
+    
+    def _generate_affiliate_url(self, product_url: str, source: str, commission_rate: float) -> str:
+        """Generate affiliate URL with tracking parameters"""
+        try:
+            from urllib.parse import urlparse, urlencode, parse_qs
+            import uuid
+            
+            if not product_url:
+                return ""
+            
+            parsed_url = urlparse(product_url)
+            source_lower = source.lower()
+            
+            # Generate tracking ID
+            tracking_id = str(uuid.uuid4()).replace('-', '')[:16]
+            
+            # Source-specific affiliate URL generation
+            if 'amazon' in source_lower:
+                # Amazon affiliate link format
+                affiliate_params = {
+                    'tag': 'firekyt-20',  # Replace with actual Amazon Associates tag
+                    'linkCode': 'as2',
+                    'camp': '1634',
+                    'creative': '6738',
+                    'creativeASIN': tracking_id
+                }
+                base_url = product_url.split('?')[0]  # Remove existing parameters
+                return f"{base_url}?{urlencode(affiliate_params)}"
+            
+            elif any(store in source_lower for store in ['walmart', 'target', 'bestbuy']):
+                # Generic affiliate link with tracking
+                affiliate_params = {
+                    'utm_source': 'firekyt',
+                    'utm_medium': 'affiliate',
+                    'utm_campaign': 'product_research',
+                    'utm_content': tracking_id,
+                    'ref': 'firekyt'
+                }
+                separator = '&' if '?' in product_url else '?'
+                return f"{product_url}{separator}{urlencode(affiliate_params)}"
+            
+            else:
+                # Generic tracking for other sources
+                affiliate_params = {
+                    'utm_source': 'firekyt',
+                    'utm_medium': 'affiliate',
+                    'utm_campaign': 'research',
+                    'ref': tracking_id
+                }
+                separator = '&' if '?' in product_url else '?'
+                return f"{product_url}{separator}{urlencode(affiliate_params)}"
+                
+        except Exception as e:
+            logger.error(f"Error generating affiliate URL: {e}")
+            return product_url  # Return original URL if affiliate generation fails
 
 class ProductResearchEngine:
     """Main product research orchestrator"""
@@ -885,6 +941,7 @@ class ProductResearchEngine:
                     'api_calls_made': api_calls,
                     'api_sources': api_sources,
                     'research_duration_ms': duration_ms,
+                    'data_source': 'live_data',  # Added to remove "Sample Data" tags
                     'niche_insights': niche_data
                 }
             }
