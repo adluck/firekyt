@@ -558,6 +558,61 @@ class SerpApiResearcher:
         
         return 4.0  # Default rate
     
+    def _generate_affiliate_url(self, product_url: str, source: str, commission_rate: float) -> str:
+        """Generate affiliate URL with tracking parameters"""
+        try:
+            from urllib.parse import urlparse, urlencode, parse_qs
+            import uuid
+            
+            if not product_url:
+                return ""
+            
+            parsed_url = urlparse(product_url)
+            source_lower = source.lower()
+            
+            # Generate tracking ID
+            tracking_id = str(uuid.uuid4()).replace('-', '')[:16]
+            
+            # Source-specific affiliate URL generation
+            if 'amazon' in source_lower:
+                # Amazon affiliate link format
+                affiliate_params = {
+                    'tag': 'firekyt-20',  # Replace with actual Amazon Associates tag
+                    'linkCode': 'as2',
+                    'camp': '1634',
+                    'creative': '6738',
+                    'creativeASIN': tracking_id
+                }
+                base_url = product_url.split('?')[0]  # Remove existing parameters
+                return f"{base_url}?{urlencode(affiliate_params)}"
+            
+            elif any(store in source_lower for store in ['walmart', 'target', 'bestbuy']):
+                # Generic affiliate link with tracking
+                affiliate_params = {
+                    'utm_source': 'firekyt',
+                    'utm_medium': 'affiliate',
+                    'utm_campaign': 'product_research',
+                    'utm_content': tracking_id,
+                    'ref': 'firekyt'
+                }
+                separator = '&' if '?' in product_url else '?'
+                return f"{product_url}{separator}{urlencode(affiliate_params)}"
+            
+            else:
+                # Generic tracking for other sources
+                affiliate_params = {
+                    'utm_source': 'firekyt',
+                    'utm_medium': 'affiliate',
+                    'utm_campaign': 'research',
+                    'ref': tracking_id
+                }
+                separator = '&' if '?' in product_url else '?'
+                return f"{product_url}{separator}{urlencode(affiliate_params)}"
+                
+        except Exception as e:
+            logger.error(f"Error generating affiliate URL: {e}")
+            return product_url  # Return original URL if affiliate generation fails
+    
     def _get_amazon_commission_rate(self, category: str) -> float:
         """Get typical Amazon Associates commission rates by category"""
         commission_rates = {
