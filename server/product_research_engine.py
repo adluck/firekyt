@@ -375,10 +375,291 @@ class SerpApiResearcher:
     """SerpAPI integration for search trends and competition analysis"""
     
     def __init__(self):
-        self.api_key = os.getenv('SERPAPI_API_KEY')
+        self.api_key = os.getenv('SERP_API_KEY')
         if not self.api_key:
             logger.warning("SerpAPI key not configured")
     
+    async def search_products(self, params: ProductResearchParams) -> List[ProductData]:
+        """Search products using SerpAPI Shopping engine"""
+        if not self.api_key:
+            logger.warning("SerpAPI key not configured")
+            return []
+        
+        try:
+            # Build search query from niche and category
+            search_terms = [params.niche]
+            if params.product_category:
+                search_terms.append(params.product_category)
+            if params.target_keywords:
+                search_terms.extend(params.target_keywords[:3])
+            
+            query = ' '.join(search_terms)
+            logger.info(f"Searching SerpAPI Shopping for: {query}")
+            
+            # Search using SerpAPI Shopping engine
+            search = GoogleSearch({
+                "q": query,
+                "api_key": self.api_key,
+                "engine": "google_shopping",
+                "google_domain": "google.com",
+                "gl": "us",
+                "hl": "en",
+                "num": min(params.max_results, 50)
+            })
+            
+            results = search.get_dict()
+            shopping_results = results.get('shopping_results', [])
+            
+            products = []
+            for item in shopping_results:
+                try:
+                    product_data = self._parse_shopping_item(item, params)
+                    if product_data and self._meets_criteria(product_data, params):
+                        products.append(product_data)
+                except Exception as e:
+                    logger.error(f"Error parsing shopping item: {e}")
+                    continue
+            
+            logger.info(f"Found {len(products)} products from SerpAPI Shopping")
+            return products
+            
+        except Exception as e:
+            logger.error(f"SerpAPI Shopping search error: {e}")
+            return []
+    
+    def _parse_shopping_item(self, item: Dict, params: ProductResearchParams) -> Optional[ProductData]:
+        """Parse SerpAPI shopping item into ProductData"""
+        try:
+            title = item.get('title', '')
+            if not title:
+                return None
+            
+            # Extract basic info
+            description = item.get('snippet', '')
+            brand = item.get('source', '').split('.')[0] if item.get('source') else None
+            category = params.product_category or 'General'
+            
+            # Extract pricing
+            price_str = item.get('price', '0')
+            price = 0
+            try:
+                # Remove currency symbols and extract number
+                price_clean = ''.join(c for c in price_str if c.isdigit() or c == '.')
+                price = float(price_clean) if price_clean else 0
+            except:
+                price = 0
+            
+            original_price_str = item.get('compared_at_price', item.get('original_price'))
+            original_price = None
+            if original_price_str:
+                try:
+                    original_price_clean = ''.join(c for c in original_price_str if c.isdigit() or c == '.')
+                    original_price = float(original_price_clean) if original_price_clean else None
+                except:
+                    original_price = None
+            
+            # Extract reviews
+            rating = None
+            review_count = None
+            if item.get('rating'):
+                try:
+                    rating = float(item['rating'])
+                except:
+                    rating = None
+            
+            if item.get('reviews'):
+                try:
+                    review_count = int(item['reviews'])
+                except:
+                    review_count = None
+            
+            # Estimate commission rates based on source/category
+            commission_rate = self._estimate_commission_rate(item.get('source', ''), category)
+            commission_amount = price * (commission_rate / 100) if price else 0
+            
+            # Calculate trending and competition scores
+            trending_score = self._calculate_trending_score_shopping(item, params)
+            competition_score = self._calculate_competition_score_shopping(item, params)
+            
+            # Extract URLs and images
+            product_url = item.get('link', '')
+            affiliate_url = product_url  # Will be updated with actual affiliate links later
+            image_url = item.get('thumbnail', '')
+            
+            # Generate external ID
+            external_id = item.get('product_id') or f"serp_{hash(product_url)}"
+            
+            return ProductData(
+                title=title,
+                description=description,
+                brand=brand,
+                category=category,
+                niche=params.niche,
+                price=price,
+                original_price=original_price,
+                commission_rate=commission_rate,
+                commission_amount=commission_amount,
+                product_url=product_url,
+                affiliate_url=affiliate_url,
+                image_url=image_url,
+                asin=None,
+                sku=external_id,
+                rating=rating,
+                review_count=review_count,
+                sales_rank=None,
+                trending_score=trending_score,
+                competition_score=competition_score,
+                research_score=0,  # Will be calculated later
+                keywords=title.lower().split()[:10],
+                search_volume=None,  # Will be enriched later
+                difficulty=None,
+                api_source='serpapi_shopping',
+                external_id=external_id,
+                tags=[category.lower(), params.niche.lower()]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error parsing shopping item: {e}")
+            return None
+    
+    def _estimate_commission_rate(self, source: str, category: str) -> float:
+        """Estimate commission rates based on source and category"""
+        source_lower = source.lower()
+        category_lower = category.lower()
+        
+        # Source-based rates
+        if 'amazon' in source_lower:
+            return self._get_amazon_commission_rate(category)
+        elif any(store in source_lower for store in ['walmart', 'target', 'bestbuy']):
+            return 4.0
+        elif any(store in source_lower for store in ['ebay', 'etsy']):
+            return 2.0
+        elif any(store in source_lower for store in ['shopify', 'store']):
+            return 5.0
+        
+        # Category-based fallback rates
+        category_rates = {
+            'electronics': 3.0,
+            'beauty': 4.0,
+            'fashion': 6.0,
+            'home': 4.0,
+            'sports': 3.0,
+            'toys': 3.0,
+            'books': 4.5,
+            'health': 5.0
+        }
+        
+        for key, rate in category_rates.items():
+            if key in category_lower:
+                return rate
+        
+        return 4.0  # Default rate
+    
+    def _get_amazon_commission_rate(self, category: str) -> float:
+        """Get typical Amazon Associates commission rates by category"""
+        commission_rates = {
+            'luxury beauty': 10.0,
+            'digital music': 10.0,
+            'physical music': 8.0,
+            'handmade': 8.0,
+            'digital video games': 8.0,
+            'physical video games': 6.0,
+            'pc components': 5.0,
+            'headphones': 4.0,
+            'beauty': 4.0,
+            'musical instruments': 4.0,
+            'business products': 4.0,
+            'wireless products': 4.0,
+            'electronics': 3.0,
+            'cameras': 3.0,
+            'toys': 3.0,
+            'kitchen': 3.0,
+            'automotive': 3.0,
+            'sports': 3.0
+        }
+        
+        category_lower = category.lower()
+        for key, rate in commission_rates.items():
+            if key in category_lower:
+                return rate
+        
+        return 3.0  # Default rate
+    
+    def _calculate_trending_score_shopping(self, item: Dict, params: ProductResearchParams) -> float:
+        """Calculate trending score based on shopping data"""
+        score = 50.0
+        
+        # Boost for high ratings
+        if item.get('rating'):
+            try:
+                rating = float(item['rating'])
+                score += (rating - 3.0) * 10  # +20 for 5-star, +10 for 4-star
+            except:
+                pass
+        
+        # Boost for review count
+        if item.get('reviews'):
+            try:
+                review_count = int(item['reviews'])
+                if review_count > 1000:
+                    score += 20
+                elif review_count > 100:
+                    score += 10
+                elif review_count > 10:
+                    score += 5
+            except:
+                pass
+        
+        # Boost for price competitiveness
+        if item.get('compared_at_price') or item.get('original_price'):
+            score += 10  # Has discount/sale price
+        
+        return min(score, 100)
+    
+    def _calculate_competition_score_shopping(self, item: Dict, params: ProductResearchParams) -> float:
+        """Calculate competition score for shopping items"""
+        score = 50.0
+        
+        # More reviews often means more competition
+        if item.get('reviews'):
+            try:
+                review_count = int(item['reviews'])
+                if review_count > 5000:
+                    score += 30
+                elif review_count > 1000:
+                    score += 20
+                elif review_count > 100:
+                    score += 10
+            except:
+                pass
+        
+        # High rating might indicate saturated market
+        if item.get('rating'):
+            try:
+                rating = float(item['rating'])
+                if rating > 4.5:
+                    score += 10
+            except:
+                pass
+        
+        return min(score, 100)
+    
+    def _meets_criteria(self, product: ProductData, params: ProductResearchParams) -> bool:
+        """Check if product meets research criteria"""
+        if not product:
+            return False
+            
+        if product.commission_rate < params.min_commission_rate:
+            return False
+        
+        if product.trending_score < params.min_trending_score:
+            return False
+        
+        if not (params.price_range[0] <= product.price <= params.price_range[1]):
+            return False
+        
+        return True
+
     async def enrich_product_data(self, products: List[ProductData]) -> List[ProductData]:
         """Enrich products with search volume and competition data"""
         if not self.api_key:
@@ -535,20 +816,39 @@ class ProductResearchEngine:
             api_sources = []
             api_calls = 0
             
-            # Amazon Research
-            if self.amazon_researcher.amazon_api:
-                logger.info(f"Searching Amazon for: {params.niche}")
+            # Primary Source: SerpAPI Shopping Research
+            if self.serp_researcher.api_key:
+                logger.info(f"Searching SerpAPI Shopping for: {params.niche}")
+                serp_products = await self.serp_researcher.search_products(params)
+                all_products.extend(serp_products)
+                api_sources.append('serpapi_shopping')
+                api_calls += 1
+                logger.info(f"Found {len(serp_products)} products from SerpAPI Shopping")
+            else:
+                logger.error("SerpAPI key not configured - cannot perform product research")
+                return {
+                    'products': [],
+                    'session_data': {
+                        'error': 'No affiliate networks configured. Please add your affiliate network credentials first.',
+                        'research_duration_ms': int((time.time() - start_time) * 1000)
+                    }
+                }
+            
+            # Fallback: Amazon Research (if available and no SerpAPI results)
+            if not all_products and self.amazon_researcher.amazon_api:
+                logger.info(f"Fallback: Searching Amazon for: {params.niche}")
                 amazon_products = await self.amazon_researcher.search_products(params)
                 all_products.extend(amazon_products)
                 api_sources.append('amazon')
                 api_calls += 1
                 logger.info(f"Found {len(amazon_products)} Amazon products")
             
-            # Enrich with SerpAPI data
+            # Enrich with additional SerpAPI data (search volume, competition)
             if self.serp_researcher.api_key and all_products:
                 logger.info("Enriching products with search data")
                 all_products = await self.serp_researcher.enrich_product_data(all_products)
-                api_sources.append('serpapi')
+                if 'serpapi_enrichment' not in api_sources:
+                    api_sources.append('serpapi_enrichment')
                 api_calls += len(all_products)
             
             # Calculate niche data for scoring context
