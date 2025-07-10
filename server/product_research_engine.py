@@ -432,6 +432,10 @@ class SerpApiResearcher:
     def _parse_shopping_item(self, item: Dict, params: ProductResearchParams) -> Optional[ProductData]:
         """Parse SerpAPI shopping item into ProductData"""
         try:
+            # Debug: Print available fields in the item
+            logger.info(f"SerpAPI item fields: {list(item.keys())}")
+            logger.info(f"SerpAPI item sample: {dict(list(item.items())[:5])}")
+            
             title = item.get('title', '')
             if not title:
                 return None
@@ -483,11 +487,17 @@ class SerpApiResearcher:
             trending_score = self._calculate_trending_score_shopping(item, params)
             competition_score = self._calculate_competition_score_shopping(item, params)
             
-            # Extract URLs and images
-            product_url = item.get('link', '')
+            # Extract URLs and images - try multiple field names for URL
+            product_url = item.get('link', '') or item.get('url', '') or item.get('product_link', '') or item.get('extracted_url', '')
+            logger.info(f"URL fields - link: {item.get('link')}, url: {item.get('url')}, product_link: {item.get('product_link')}")
+            logger.info(f"Final product_url: {product_url}")
+            
             # Generate affiliate URL with tracking parameters
             affiliate_url = self._generate_affiliate_url(product_url, item.get('source', ''), commission_rate)
-            image_url = item.get('thumbnail', '')
+            logger.info(f"Generated affiliate_url: {affiliate_url}")
+            
+            # Try multiple field names for images
+            image_url = item.get('thumbnail', '') or item.get('image', '') or item.get('product_image', '')
             
             # Generate external ID
             external_id = item.get('product_id') or f"serp_{hash(product_url)}"
