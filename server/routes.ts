@@ -1566,7 +1566,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Product Research API endpoint for SerpAPI integration
+  // Product Research API endpoint using SerpAPI Shopping engine
   app.get('/api/research-products', authenticateToken, async (req, res) => {
     let researchSession: any = null;
     
@@ -1577,6 +1577,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const minTrendingParam = parseFloat(req.query.min_trending_score as string || '50');
       const maxResultsParam = parseInt(req.query.max_results as string || '50');
       const targetKeywordsParam = req.query.target_keywords as string;
+      const minPriceParam = parseFloat(req.query.min_price as string || '0');
+      const maxPriceParam = parseFloat(req.query.max_price as string || '10000');
       const saveToDatabase = req.query.save_to_database !== 'false';
 
       if (!nicheParam) {
@@ -1600,210 +1602,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const serpApiKey = process.env.SERP_API_KEY;
-      let realProducts: any[] = [];
+      // Use Python-based SerpAPI product research engine
+      const spawn = (await import('child_process')).spawn;
+      const path = (await import('path')).default;
+      
+      const pythonScript = path.join(process.cwd(), 'server', 'product_research_engine.py');
+      const targetKeywords = targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [];
+      
+      const pythonProcess = spawn('python3', [
+        pythonScript,
+        '--niche', nicheParam,
+        '--category', categoryParam,
+        '--min-commission', minCommissionParam.toString(),
+        '--min-trending', minTrendingParam.toString(),
+        '--max-results', maxResultsParam.toString(),
+        '--min-price', minPriceParam.toString(),
+        '--max-price', maxPriceParam.toString(),
+        '--keywords', targetKeywords.join(',')
+      ]);
 
-      // Try to fetch real product data from SerpAPI
-      if (serpApiKey) {
+      let pythonOutput = '';
+      let pythonError = '';
+
+      pythonProcess.stdout.on('data', (data) => {
+        pythonOutput += data.toString();
+      });
+
+      pythonProcess.stderr.on('data', (data) => {
+        pythonError += data.toString();
+      });
+
+      pythonProcess.on('close', async (code) => {
         try {
-          const fetch = (await import('node-fetch')).default;
-          const searchQuery = `${nicheParam} products`;
-          const serpResponse = await fetch(`https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&num=20`);
-          const serpData: any = await serpResponse.json();
-
-          if (serpData.shopping_results && serpData.shopping_results.length > 0) {
-            realProducts = serpData.shopping_results.slice(0, maxResultsParam).map((product: any, index: number) => {
-              const basePrice = parseFloat(product.price?.replace(/[^0-9.]/g, '') || '100');
-              const trendingScore = minTrendingParam + Math.random() * 40;
-              const researchScore = 70 + Math.random() * 25;
-
-              // Extract product URL from SerpAPI response
-              let productLink = `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-              
-              // Try multiple fields for product URL from SerpAPI response
-              if (product.link && typeof product.link === 'string') {
-                productLink = product.link;
-              } else if (product.product_link && typeof product.product_link === 'string') {
-                productLink = product.product_link;
-              } else if (product.url && typeof product.url === 'string') {
-                productLink = product.url;
+          if (code !== 0) {
+            console.error('Python research engine error:', pythonError);
+            // Return error response
+            return res.status(500).json({
+              error: 'Product research failed',
+              message: 'SerpAPI service temporarily unavailable. Please try again later.',
+              products: [],
+              sessionData: {
+                error: 'SerpAPI service unavailable',
+                research_duration_ms: 0
               }
-              
-              // Generate proper affiliate link using affiliate network manager
-              const affiliateLink = affiliateManager.generateAffiliateLink(
-                productLink,
-                undefined, // Auto-detect network
-                undefined, // Use default affiliate ID
-                `firekyt_${Date.now()}_${index}` // Custom sub ID for tracking
-              );
-              
-              // Use detected commission rate and calculate earnings
-              const actualCommissionRate = affiliateLink.commissionRate;
-              const commissionAmount = (basePrice * actualCommissionRate) / 100;
-
-              return {
-                id: index + 1,
-                title: product.title || `${nicheParam} Product ${index + 1}`,
-                description: product.snippet || `High-quality ${nicheParam} product with excellent features and customer satisfaction.`,
-                category: categoryParam,
-                niche: nicheParam,
-                price: basePrice.toFixed(2),
-                commissionRate: actualCommissionRate.toFixed(1),
-                commissionAmount: commissionAmount.toFixed(2),
-                trendingScore: trendingScore.toFixed(1),
-                researchScore: researchScore.toFixed(1),
-                apiSource: 'serpapi_live',
-                rating: product.rating || (4.0 + Math.random() * 1.0).toFixed(1),
-                reviewCount: product.reviews || Math.floor(100 + Math.random() * 1500),
-                keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, 'quality', 'best'],
-                createdAt: new Date().toISOString(),
-                affiliateUrl: affiliateLink.affiliateUrl,
-                productUrl: productLink,
-                availability: 'In Stock',
-                brand: product.source || affiliateLink.networkName || 'Various',
-                imageUrl: product.thumbnail || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`,
-                affiliateNetwork: affiliateLink.networkName,
-                trackingId: affiliateLink.trackingId
-              };
             });
           }
-        } catch (error) {
-          console.log('SerpAPI fetch failed, using generated data:', error);
-        }
-      }
 
-      // If no real products found, generate sample data
-      if (realProducts.length === 0) {
-        const generateProduct = (index: number, productType: string, basePrice: number) => {
-          const trendingScore = minTrendingParam + Math.random() * 40;
-          const researchScore = 70 + Math.random() * 25;
-          const price = basePrice + (Math.random() * basePrice * 0.5);
+          // Parse Python output
+          const result = JSON.parse(pythonOutput);
           
-          // Generate sample Amazon URL and create affiliate link
-          const productUrl = `https://amazon.com/dp/B0${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-          const affiliateLink = affiliateManager.generateAffiliateLink(
-            productUrl,
-            'amazon', // Force Amazon for sample data
-            undefined,
-            `sample_${Date.now()}_${index}`
-          );
-          
-          const commissionAmount = (price * affiliateLink.commissionRate) / 100;
-          
-          return {
-            id: index,
-            title: `${productType} ${nicheParam} ${2024 - Math.floor(Math.random() * 2)}`,
-            description: `High-quality ${nicheParam} product featuring advanced technology and excellent user satisfaction. Perfect for both beginners and professionals looking for reliable ${nicheParam} solutions.`,
-            category: categoryParam,
-            niche: nicheParam,
-            price: price.toFixed(2),
-            commissionRate: affiliateLink.commissionRate.toFixed(1),
-            commissionAmount: commissionAmount.toFixed(2),
-            trendingScore: trendingScore.toFixed(1),
-            researchScore: researchScore.toFixed(1),
-            apiSource: 'research_engine',
-            rating: (4.0 + Math.random() * 1.0).toFixed(1),
-            reviewCount: Math.floor(500 + Math.random() * 2000),
-            keywords: targetKeywordsParam ? targetKeywordsParam.split(',').map(k => k.trim()) : [nicheParam, productType.toLowerCase(), 'quality'],
-            createdAt: new Date().toISOString(),
-            affiliateUrl: affiliateLink.affiliateUrl,
-            productUrl: productUrl,
-            availability: Math.random() > 0.1 ? 'In Stock' : 'Limited Stock',
-            brand: productType === 'Premium' ? 'TechPro' : productType === 'Smart' ? 'InnovateTech' : 'ProSeries',
-            imageUrl: `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(productType)}`,
-            affiliateNetwork: affiliateLink.networkName,
-            trackingId: affiliateLink.trackingId
-          };
-        };
-
-        realProducts = [
-          generateProduct(1, 'Premium', 250),
-          generateProduct(2, 'Smart', 180),
-          generateProduct(3, 'Professional', 400),
-          generateProduct(4, 'Advanced', 320),
-          generateProduct(5, 'Ultimate', 500)
-        ];
-      }
-
-      // Filter products based on criteria
-      const filteredProducts = realProducts.filter(product => 
-        parseFloat(product.commissionRate) >= minCommissionParam &&
-        parseFloat(product.trendingScore) >= minTrendingParam
-      ).slice(0, maxResultsParam);
-
-      // Calculate session data
-      const averageScore = filteredProducts.length > 0 
-        ? (filteredProducts.reduce((sum, p) => sum + parseFloat(p.researchScore), 0) / filteredProducts.length).toFixed(1)
-        : '0';
-
-      const sessionData = {
-        total_products_found: realProducts.length,
-        products_returned: filteredProducts.length,
-        average_score: averageScore,
-        api_calls_made: serpApiKey ? 1 : 0,
-        api_sources: serpApiKey && realProducts.some(p => p.apiSource && p.apiSource.includes('serpapi')) ? ['serpapi'] : ['research_engine'],
-        research_duration_ms: 2500,
-        data_source: serpApiKey && realProducts.length > 0 && realProducts.some(p => p.apiSource && p.apiSource.includes('serpapi')) ? 'live_data' : 'sample_data',
-        niche_insights: {
-          marketDemand: 'High',
-          competitionLevel: 'Medium',
-          profitPotential: 'Excellent'
-        }
-      };
-
-      // Save products to database and update research session
-      if (researchSession && req.user && saveToDatabase) {
-        try {
-          // Save products to database with research session ID
-          const userId = req.user.id;
-          const productsToSave = filteredProducts.map(product => ({
-            userId: userId,
+          // Format products for frontend
+          const formattedProducts = result.products?.map((product: any, index: number) => ({
+            id: index + 1,
             title: product.title,
             description: product.description,
             category: product.category,
             niche: product.niche,
-            price: product.price,
-            commissionRate: product.commissionRate,
-            commissionAmount: product.commissionAmount,
-            productUrl: product.productUrl,
-            affiliateUrl: product.affiliateUrl,
-            imageUrl: product.imageUrl,
-            rating: product.rating,
-            reviewCount: product.reviewCount,
-            trendingScore: product.trendingScore,
-            researchScore: product.researchScore,
-            apiSource: product.apiSource,
-            keywords: product.keywords,
-            researchSessionId: researchSession.id, // Link to research session
-            brand: product.brand
-          }));
+            price: product.price?.toFixed(2) || '0.00',
+            commissionRate: product.commission_rate?.toFixed(1) || '0.0',
+            commissionAmount: product.commission_amount?.toFixed(2) || '0.00',
+            trendingScore: product.trending_score?.toFixed(1) || '0.0',
+            researchScore: product.research_score?.toFixed(1) || '0.0',
+            apiSource: product.api_source || 'serpapi_shopping',
+            rating: product.rating?.toFixed(1) || '0.0',
+            reviewCount: product.review_count || 0,
+            keywords: product.keywords || [],
+            createdAt: new Date().toISOString(),
+            affiliateUrl: product.affiliate_url || product.product_url,
+            productUrl: product.product_url,
+            availability: 'In Stock',
+            brand: product.brand || 'Various',
+            imageUrl: product.image_url || `https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=${encodeURIComponent(nicheParam)}`,
+            affiliateNetwork: 'SerpAPI',
+            trackingId: product.external_id
+          })) || [];
 
-          if (productsToSave.length > 0) {
-            await storage.createProducts(productsToSave);
+          // Update research session if created
+          if (researchSession) {
+            try {
+              await storage.updateProductResearchSession(researchSession.id, {
+                status: 'completed',
+                totalProductsFound: result.session_data?.total_products_found || 0,
+                productsReturned: formattedProducts.length,
+                averageScore: result.session_data?.average_score || 0,
+                researchDurationMs: result.session_data?.research_duration_ms || 0
+              });
+            } catch (error) {
+              console.log('Could not update research session:', error);
+            }
           }
 
-          // Update research session with results
-          await storage.updateProductResearchSession(researchSession.id, {
-            totalProductsFound: realProducts.length,
-            productsStored: filteredProducts.length,
-            averageScore: averageScore,
-            apiCallsMade: sessionData.api_calls_made,
-            apiSources: sessionData.api_sources,
-            researchDuration: sessionData.research_duration_ms,
-            status: 'completed'
+          res.json({
+            products: formattedProducts,
+            sessionData: {
+              total_products_found: result.session_data?.total_products_found || 0,
+              products_returned: formattedProducts.length,
+              average_score: result.session_data?.average_score || 0,
+              api_calls_made: result.session_data?.api_calls_made || 1,
+              api_sources: result.session_data?.api_sources || ['serpapi_shopping'],
+              research_duration_ms: result.session_data?.research_duration_ms || 0,
+              data_source: 'live_data',
+              niche_insights: result.session_data?.niche_insights || {
+                marketDemand: 'High',
+                competitionLevel: 'Medium',
+                profitPotential: 'Good'
+              }
+            }
           });
-        } catch (error) {
-          console.error('Error saving products or updating research session:', error);
-        }
-      }
 
-      res.json({
-        success: true,
-        products: filteredProducts,
-        session_data: sessionData,
-        total_found: realProducts.length,
-        timestamp: new Date().toISOString(),
-        research_session_id: researchSession?.id
+        } catch (parseError) {
+          console.error('Error parsing Python output:', parseError);
+          console.error('Python output:', pythonOutput);
+          console.error('Python error:', pythonError);
+          
+          res.status(500).json({
+            error: 'Product research failed',
+            message: 'Unable to process research results. Please try again.',
+            products: [],
+            sessionData: {
+              error: 'Failed to parse research results',
+              research_duration_ms: 0
+            }
+          });
+        }
       });
 
     } catch (error: any) {

@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from amazon_paapi import AmazonApi
-from serpapi import GoogleSearch
+import requests
 import logging
 
 # Set up logging
@@ -396,8 +396,8 @@ class SerpApiResearcher:
             query = ' '.join(search_terms)
             logger.info(f"Searching SerpAPI Shopping for: {query}")
             
-            # Search using SerpAPI Shopping engine
-            search = GoogleSearch({
+            # Search using SerpAPI Shopping engine with requests
+            search_params = {
                 "q": query,
                 "api_key": self.api_key,
                 "engine": "google_shopping",
@@ -405,9 +405,11 @@ class SerpApiResearcher:
                 "gl": "us",
                 "hl": "en",
                 "num": min(params.max_results, 50)
-            })
+            }
             
-            results = search.get_dict()
+            response = requests.get('https://serpapi.com/search', params=search_params)
+            response.raise_for_status()
+            results = response.json()
             shopping_results = results.get('shopping_results', [])
             
             products = []
@@ -698,16 +700,18 @@ class SerpApiResearcher:
     async def _get_search_volume(self, query: str) -> Optional[Dict]:
         """Get search volume data for a query"""
         try:
-            search = GoogleSearch({
+            search_params = {
                 "q": query,
                 "api_key": self.api_key,
                 "engine": "google",
                 "google_domain": "google.com",
                 "gl": "us",
                 "hl": "en"
-            })
+            }
             
-            results = search.get_dict()
+            response = requests.get('https://serpapi.com/search', params=search_params)
+            response.raise_for_status()
+            results = response.json()
             
             # Extract search volume indicators
             search_info = results.get('search_information', {})
@@ -735,7 +739,7 @@ class SerpApiResearcher:
         try:
             query = ' '.join(keywords[:3])
             
-            search = GoogleSearch({
+            search_params = {
                 "q": f"{query} review",
                 "api_key": self.api_key,
                 "engine": "google",
@@ -743,9 +747,11 @@ class SerpApiResearcher:
                 "gl": "us",
                 "hl": "en",
                 "num": 20
-            })
+            }
             
-            results = search.get_dict()
+            response = requests.get('https://serpapi.com/search', params=search_params)
+            response.raise_for_status()
+            results = response.json()
             organic_results = results.get('organic_results', [])
             
             # Analyze competition indicators
@@ -942,19 +948,92 @@ def research_products_sync(*args, **kwargs):
     return asyncio.run(research_products_async(*args, **kwargs))
 
 if __name__ == "__main__":
-    # Test the research engine
-    async def test_research():
-        result = await research_products_async(
-            niche="wireless headphones",
-            product_category="electronics",
-            min_commission_rate=3.0,
-            max_results=10
-        )
-        print(json.dumps(result['session_data'], indent=2, default=str))
-        
-        if result['products']:
-            print(f"\nTop product: {result['products'][0].title}")
-            print(f"Score: {result['products'][0].research_score}")
-            print(f"Commission: ${result['products'][0].commission_amount:.2f}")
+    import argparse
+    import sys
     
-    asyncio.run(test_research())
+    # Command line interface
+    parser = argparse.ArgumentParser(description='Product Research Engine using SerpAPI')
+    parser.add_argument('--niche', required=True, help='Product niche to research')
+    parser.add_argument('--category', default='electronics', help='Product category')
+    parser.add_argument('--min-commission', type=float, default=3.0, help='Minimum commission rate')
+    parser.add_argument('--min-trending', type=float, default=50.0, help='Minimum trending score')
+    parser.add_argument('--max-results', type=int, default=50, help='Maximum results to return')
+    parser.add_argument('--min-price', type=float, default=0, help='Minimum price')
+    parser.add_argument('--max-price', type=float, default=10000, help='Maximum price')
+    parser.add_argument('--keywords', default='', help='Target keywords (comma-separated)')
+    
+    args = parser.parse_args()
+    
+    # Parse keywords
+    target_keywords = [k.strip() for k in args.keywords.split(',') if k.strip()] if args.keywords else []
+    
+    async def main():
+        try:
+            result = await research_products_async(
+                niche=args.niche,
+                product_category=args.category,
+                min_commission_rate=args.min_commission,
+                min_trending_score=args.min_trending,
+                max_results=args.max_results,
+                target_keywords=target_keywords,
+                price_range=(args.min_price, args.max_price)
+            )
+            
+            # Convert ProductData objects to dictionaries for JSON serialization
+            serialized_result = {
+                'products': [],
+                'session_data': result.get('session_data', {})
+            }
+            
+            for product in result.get('products', []):
+                if hasattr(product, '__dict__'):
+                    # Convert ProductData object to dictionary
+                    product_dict = {
+                        'title': product.title,
+                        'description': product.description,
+                        'brand': product.brand,
+                        'category': product.category,
+                        'niche': product.niche,
+                        'price': product.price,
+                        'original_price': product.original_price,
+                        'commission_rate': product.commission_rate,
+                        'commission_amount': product.commission_amount,
+                        'product_url': product.product_url,
+                        'affiliate_url': product.affiliate_url,
+                        'image_url': product.image_url,
+                        'asin': product.asin,
+                        'sku': product.sku,
+                        'rating': product.rating,
+                        'review_count': product.review_count,
+                        'sales_rank': product.sales_rank,
+                        'trending_score': product.trending_score,
+                        'competition_score': product.competition_score,
+                        'research_score': product.research_score,
+                        'keywords': product.keywords,
+                        'search_volume': product.search_volume,
+                        'difficulty': product.difficulty,
+                        'api_source': product.api_source,
+                        'external_id': product.external_id,
+                        'tags': product.tags
+                    }
+                    serialized_result['products'].append(product_dict)
+                else:
+                    # Already a dictionary
+                    serialized_result['products'].append(product)
+            
+            # Output JSON result for Node.js to consume
+            print(json.dumps(serialized_result, indent=2, default=str))
+            
+        except Exception as e:
+            # Output error in JSON format
+            error_result = {
+                'products': [],
+                'session_data': {
+                    'error': str(e),
+                    'research_duration_ms': 0
+                }
+            }
+            print(json.dumps(error_result, indent=2))
+            sys.exit(1)
+    
+    asyncio.run(main())
