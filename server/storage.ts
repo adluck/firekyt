@@ -891,12 +891,16 @@ export class DatabaseStorage implements IStorage {
 
   // Usage tracking
   async getUsage(userId: number, feature: string, periodStart: Date, periodEnd: Date): Promise<Usage | undefined> {
+    // Get year and month from periodStart to find any existing record for the same month
+    const year = periodStart.getFullYear();
+    const month = periodStart.getMonth();
+    
     const [usageItem] = await db.select().from(usage)
       .where(and(
         eq(usage.userId, userId),
         eq(usage.feature, feature),
-        gte(usage.periodStart, periodStart),
-        lte(usage.periodEnd, periodEnd)
+        sql`EXTRACT(YEAR FROM period_start) = ${year}`,
+        sql`EXTRACT(MONTH FROM period_start) = ${month + 1}` // SQL months are 1-based
       ));
     return usageItem;
   }
