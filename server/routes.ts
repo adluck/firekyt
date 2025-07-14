@@ -460,6 +460,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Onboarding management
+  app.post("/api/onboarding/complete-step/:step", authenticateToken, async (req, res) => {
+    try {
+      const stepNumber = parseInt(req.params.step);
+      const userId = req.user!.id;
+      
+      if (stepNumber < 1 || stepNumber > 3) {
+        return res.status(400).json({ message: "Invalid step number. Must be between 1 and 3." });
+      }
+      
+      const updatedUser = await storage.completeOnboardingStep(userId, stepNumber);
+      const { password, ...userWithoutPassword } = updatedUser;
+      
+      res.json({ 
+        user: userWithoutPassword,
+        message: `Step ${stepNumber} completed successfully` 
+      });
+    } catch (error: any) {
+      console.error('Onboarding step completion error:', error);
+      res.status(500).json({ message: "Failed to complete onboarding step" });
+    }
+  });
+
+  app.get("/api/onboarding/status", authenticateToken, async (req, res) => {
+    try {
+      const user = req.user!;
+      const { password, ...userWithoutPassword } = user;
+      
+      res.json({
+        user: userWithoutPassword,
+        onboardingStatus: {
+          currentStep: user.onboardingStep,
+          hasConnectedSite: user.hasConnectedSite,
+          hasGeneratedContent: user.hasGeneratedContent,
+          hasPublishedContent: user.hasPublishedContent,
+          isComplete: user.onboardingStep >= 3
+        }
+      });
+    } catch (error: any) {
+      console.error('Onboarding status error:', error);
+      res.status(500).json({ message: "Failed to get onboarding status" });
+    }
+  });
+
+  app.post("/api/onboarding/skip", authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const updatedUser = await storage.updateOnboardingStep(userId, 3);
+      const { password, ...userWithoutPassword } = updatedUser;
+      
+      res.json({ 
+        user: userWithoutPassword,
+        message: "Onboarding skipped successfully" 
+      });
+    } catch (error: any) {
+      console.error('Onboarding skip error:', error);
+      res.status(500).json({ message: "Failed to skip onboarding" });
+    }
+  });
+
   // Sites management
   app.get("/api/sites", authenticateToken, async (req, res) => {
     try {
@@ -477,6 +537,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         userId: req.user!.id
       } as any);
+      
+      // Auto-update onboarding flag for site connection
+      await storage.updateOnboardingFlag(req.user!.id, 'has_connected_site', true);
+      
       res.json(site);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -541,6 +605,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('POST /api/content - siteId in request:', req.body.siteId);
       
       const content = await contentService.createContent(req.user!.id, req.body);
+      
+      // Auto-update onboarding flag for content generation
+      await storage.updateOnboardingFlag(req.user!.id, 'has_generated_content', true);
       
       console.log('POST /api/content - Created content siteId:', content.siteId);
       res.json(content);

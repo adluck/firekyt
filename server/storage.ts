@@ -320,6 +320,38 @@ export class MemStorage implements IStorage {
     return this.users.size;
   }
 
+  // Onboarding management
+  async updateOnboardingStep(userId: number, step: number): Promise<User> {
+    return this.updateUser(userId, { onboardingStep: step });
+  }
+
+  async updateOnboardingFlag(userId: number, flag: 'has_connected_site' | 'has_generated_content' | 'has_published_content', value: boolean): Promise<User> {
+    const updates: Partial<User> = {};
+    if (flag === 'has_connected_site') updates.hasConnectedSite = value;
+    if (flag === 'has_generated_content') updates.hasGeneratedContent = value;
+    if (flag === 'has_published_content') updates.hasPublishedContent = value;
+    return this.updateUser(userId, updates);
+  }
+
+  async completeOnboardingStep(userId: number, step: number): Promise<User> {
+    const updates: Partial<User> = { onboardingStep: step };
+    
+    // Update corresponding flags based on step
+    switch (step) {
+      case 1:
+        updates.hasConnectedSite = true;
+        break;
+      case 2:
+        updates.hasGeneratedContent = true;
+        break;
+      case 3:
+        updates.hasPublishedContent = true;
+        break;
+    }
+    
+    return this.updateUser(userId, updates);
+  }
+
   // Password reset token management
   async createPasswordResetToken(insertToken: InsertPasswordResetToken): Promise<PasswordResetToken> {
     const id = this.currentPasswordResetTokenId++;

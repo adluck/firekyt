@@ -64,6 +64,7 @@ import AdSizesDemo from "@/pages/ads-widgets/AdSizesDemo";
 import AdCopyGenerator from "@/pages/ad-copy-generator/AdCopyGenerator";
 import MyAds from "@/pages/ad-copy-generator/MyAds";
 import NotFound from "@/pages/not-found";
+import { OnboardingRouter } from "@/components/onboarding/OnboardingRouter";
 
 function Router() {
   return (
@@ -75,6 +76,13 @@ function Router() {
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/pricing" component={Pricing} />
+      
+      {/* Onboarding routes */}
+      <Route path="/onboarding/:step?">
+        <ProtectedRoute>
+          <OnboardingRouter />
+        </ProtectedRoute>
+      </Route>
       
       {/* Protected routes */}
       <Route path="/app">

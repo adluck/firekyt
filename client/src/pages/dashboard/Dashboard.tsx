@@ -21,10 +21,15 @@ import { Link } from "wouter";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useSubscription } from "@/components/subscription/SubscriptionProvider";
 import { OnboardingTrigger } from "@/components/onboarding/OnboardingTrigger";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+import { useState, useEffect } from "react";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { subscription, getUsage, getLimit } = useSubscription();
+  const { shouldShowWelcomeModal, isFirstTimeUser } = useOnboarding();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ["/api/analytics/dashboard"],
@@ -33,6 +38,13 @@ export default function Dashboard() {
   const { data: activityData } = useQuery({
     queryKey: ["/api/activity/recent"],
   });
+
+  // Show welcome modal for first-time users
+  useEffect(() => {
+    if (isFirstTimeUser && shouldShowWelcomeModal()) {
+      setShowWelcomeModal(true);
+    }
+  }, [isFirstTimeUser, shouldShowWelcomeModal]);
 
   if (isLoading) {
     return (
@@ -285,6 +297,12 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Welcome Modal for first-time users */}
+      <WelcomeModal 
+        isOpen={showWelcomeModal} 
+        onClose={() => setShowWelcomeModal(false)}
+      />
     </div>
   );
 }
