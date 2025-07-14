@@ -36,10 +36,17 @@ export function GenerateContentStep() {
 
   // Get the most recently added site for onboarding
   const getOnboardingSiteId = () => {
-    if (!sites || sites.length === 0) return null;
+    // Check if sites exists and is an array
+    if (!sites || !Array.isArray(sites) || sites.length === 0) {
+      console.log('🔍 No sites available or sites is not an array:', sites);
+      return null;
+    }
+    
     // Return the most recently created site (highest ID)
     const sortedSites = [...sites].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return sortedSites[0]?.id || null;
+    const siteId = sortedSites[0]?.id || null;
+    console.log('🔍 Selected site ID for onboarding:', siteId);
+    return siteId;
   };
 
   const generateContentMutation = useMutation({
