@@ -323,8 +323,22 @@ export async function generateWithGemini(prompt: string): Promise<any> {
       const parsed = JSON.parse(cleanText);
       console.log('Successfully parsed JSON - Title:', parsed.title, 'Content length:', parsed.content?.length);
       
+      // Check if content field contains nested JSON (common Gemini issue)
+      let finalContent = parsed.content;
+      if (typeof parsed.content === 'string' && parsed.content.trim().startsWith('{')) {
+        try {
+          console.log('Detected nested JSON in content field, parsing...');
+          const nestedParsed = JSON.parse(parsed.content);
+          console.log('Nested JSON parsed successfully, extracting content...');
+          finalContent = nestedParsed.content || parsed.content;
+        } catch (nestedError) {
+          console.log('Failed to parse nested JSON, using original content');
+          finalContent = parsed.content;
+        }
+      }
+      
       // Validate that we have proper content structure
-      if (!parsed.content || typeof parsed.content !== 'string') {
+      if (!finalContent || typeof finalContent !== 'string') {
         console.warn('Invalid content structure in parsed JSON');
         return {
           title: parsed.title || "Generated Content",
@@ -336,7 +350,10 @@ export async function generateWithGemini(prompt: string): Promise<any> {
         };
       }
       
-      return parsed;
+      return {
+        ...parsed,
+        content: finalContent
+      };
     } catch (parseError) {
       console.log('JSON parsing failed, creating fallback structure:', parseError);
       return {
