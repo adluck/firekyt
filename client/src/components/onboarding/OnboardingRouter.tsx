@@ -15,14 +15,21 @@ export function OnboardingRouter() {
   }
 
   return (
-    <Switch>
-      <Route path="/onboarding/connect" component={ConnectSiteStep} />
-      <Route path="/onboarding/generate" component={GenerateContentStep} />
-      <Route path="/onboarding/publish" component={PublishContentStep} />
-      <Route path="/onboarding">
-        {/* Fallback - redirect to appropriate step */}
-        <div>Redirecting...</div>
-      </Route>
-    </Switch>
+    <div className="min-h-screen bg-background">
+      <Switch>
+        <Route path="/onboarding/connect" component={ConnectSiteStep} />
+        <Route path="/onboarding/generate" component={GenerateContentStep} />
+        <Route path="/onboarding/publish" component={PublishContentStep} />
+        <Route path="/onboarding">
+          {/* Fallback - redirect to appropriate step */}
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Redirecting to setup...</p>
+            </div>
+          </div>
+        </Route>
+      </Switch>
+    </div>
   );
 }

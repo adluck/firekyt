@@ -41,7 +41,7 @@ export function ConnectSiteStep() {
       await apiRequest('POST', '/api/onboarding/complete-step/1');
       
       // Navigate to next step
-      navigate('/onboarding/generate-content');
+      navigate('/onboarding/generate');
     },
     onError: (error: any) => {
       toast({

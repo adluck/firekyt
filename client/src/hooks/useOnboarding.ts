@@ -31,16 +31,16 @@ export function useOnboarding() {
   const currentStep = onboardingStatus?.onboardingStatus?.currentStep || 0;
 
   const getNextOnboardingRoute = () => {
-    if (!onboardingStatus?.onboardingStatus) return '/onboarding/connect-site';
+    if (!onboardingStatus?.onboardingStatus) return '/onboarding/connect';
     
     const status = onboardingStatus.onboardingStatus;
     
     if (!status.hasConnectedSite) {
-      return '/onboarding/connect-site';
+      return '/onboarding/connect';
     } else if (!status.hasGeneratedContent) {
-      return '/onboarding/generate-content';
+      return '/onboarding/generate';
     } else if (!status.hasPublishedContent) {
-      return '/onboarding/publish-content';
+      return '/onboarding/publish';
     } else {
       return '/dashboard';
     }
@@ -65,6 +65,7 @@ export function useOnboarding() {
     shouldShowWelcomeModal,
     shouldShowResumeOnboarding,
     completeStep: completeStepMutation.mutate,
+    completeOnboardingStep: completeStepMutation.mutate,
     skipOnboarding: skipOnboardingMutation.mutate,
     isCompletingStep: completeStepMutation.isPending,
     isSkipping: skipOnboardingMutation.isPending,
