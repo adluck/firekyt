@@ -1600,7 +1600,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // In a real implementation, this would publish to the actual platform
       if (isOnboarding) {
         // Update content status to published
-        await storage.updateContent(parseInt(contentId), { status: 'published' });
+        await storage.updateContent(parseInt(contentId), userId, { status: 'published' });
         
         // Update onboarding flag for published content
         await storage.updateOnboardingFlag(userId, 'has_published_content', true);
