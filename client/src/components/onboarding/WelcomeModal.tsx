@@ -55,20 +55,10 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center space-x-2">
-              <Rocket className="h-5 w-5 text-primary" />
-              <span>Welcome to FireKyt!</span>
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="flex items-center space-x-2">
+            <Rocket className="h-5 w-5 text-primary" />
+            <span>Welcome to FireKyt!</span>
+          </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
