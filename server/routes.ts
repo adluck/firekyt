@@ -611,9 +611,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const generatedContent = await generateContentDirectly(aiRequest);
 
+      console.log('🔍 ROUTES generatedContent.content type:', typeof generatedContent.content);
+      console.log('🔍 ROUTES generatedContent.content preview:', generatedContent.content?.substring(0, 200));
+
+      // Ensure content is clean text, not JSON
+      let cleanContent = generatedContent.content;
+      if (typeof cleanContent === 'string' && cleanContent.trim().startsWith('{')) {
+        try {
+          console.log('🔍 ROUTES Detected JSON in content, parsing...');
+          const parsed = JSON.parse(cleanContent);
+          cleanContent = parsed.content || cleanContent;
+          console.log('🔍 ROUTES Extracted content from JSON');
+        } catch (e) {
+          console.log('🔍 ROUTES Failed to parse JSON, using original');
+        }
+      }
+
       res.json({
         title: generatedContent.title,
-        content: generatedContent.content,
+        content: cleanContent,
         seoTitle: generatedContent.seo_title,
         seoDescription: generatedContent.seo_description,
         targetKeywords: generatedContent.meta_tags || [validatedData.keyword],
