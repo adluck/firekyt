@@ -587,6 +587,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **COMPLETED: Site-Linked Content Generation in Onboarding** - Enhanced onboarding flow to automatically save generated content to the user's connected site instead of orphaned content, system fetches user's most recently added site and assigns it as siteId when saving AI-generated content during onboarding process
 ✓ **FIXED: API Response Parsing Issues** - Resolved critical errors where sites API returned objects instead of arrays causing "sites is not iterable" and "sites.map is not a function" errors by implementing proper JSON response parsing with .json() method in both onboarding and Sites page queries
 ✓ **FIXED: Onboarding Data Flow** - Fixed critical issue where onboarding steps weren't sharing data between them, causing empty dropdowns in final step; implemented auto-selection logic in PublishContentStep to automatically detect and prefill the most recently created site and content from previous steps
+✓ **FIXED: API Structure Mismatch** - Resolved dropdown display issue where PublishContentStep was looking for nested object properties (sites.sites, content.content) but APIs return arrays directly; updated all dropdown mappings to match actual API response structure
 
 ## User Preferences
 

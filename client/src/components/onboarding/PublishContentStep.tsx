@@ -54,45 +54,23 @@ export function PublishContentStep() {
     if (sites && content) {
       // Auto-select the most recently created site
       const getOnboardingSiteId = () => {
-        let sitesArray = sites;
-        if (sites && typeof sites === 'object' && !Array.isArray(sites)) {
-          if (sites.sites && Array.isArray(sites.sites)) {
-            sitesArray = sites.sites;
-          } else if (sites.data && Array.isArray(sites.data)) {
-            sitesArray = sites.data;
-          } else {
-            return null;
-          }
-        }
-        
-        if (!sitesArray || !Array.isArray(sitesArray) || sitesArray.length === 0) {
+        if (!sites || !Array.isArray(sites) || sites.length === 0) {
           return null;
         }
         
         // Return the most recently created site
-        const sortedSites = [...sitesArray].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const sortedSites = [...sites].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         return sortedSites[0]?.id?.toString() || null;
       };
 
       // Auto-select the most recently created content
       const getOnboardingContentId = () => {
-        let contentArray = content;
-        if (content && typeof content === 'object' && !Array.isArray(content)) {
-          if (content.content && Array.isArray(content.content)) {
-            contentArray = content.content;
-          } else if (content.data && Array.isArray(content.data)) {
-            contentArray = content.data;
-          } else {
-            return null;
-          }
-        }
-        
-        if (!contentArray || !Array.isArray(contentArray) || contentArray.length === 0) {
+        if (!content || !Array.isArray(content) || content.length === 0) {
           return null;
         }
         
         // Return the most recently created content
-        const sortedContent = [...contentArray].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const sortedContent = [...content].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         return sortedContent[0]?.id?.toString() || null;
       };
 
@@ -445,7 +423,7 @@ export function PublishContentStep() {
                           <SelectValue placeholder="Choose a site to publish to" />
                         </SelectTrigger>
                         <SelectContent>
-                          {sites?.sites?.map((site: any) => (
+                          {sites?.map((site: any) => (
                             <SelectItem key={site.id} value={site.id.toString()}>
                               {site.name} ({site.platform})
                             </SelectItem>
@@ -464,7 +442,7 @@ export function PublishContentStep() {
                           <SelectValue placeholder="Choose content to publish" />
                         </SelectTrigger>
                         <SelectContent>
-                          {content?.content?.map((item: any) => (
+                          {content?.map((item: any) => (
                             <SelectItem key={item.id} value={item.id.toString()}>
                               {item.title} ({item.contentType})
                             </SelectItem>
@@ -518,7 +496,7 @@ export function PublishContentStep() {
                     <SelectValue placeholder="Choose a site to publish to" />
                   </SelectTrigger>
                   <SelectContent>
-                    {sites?.sites?.map((site: any) => (
+                    {sites?.map((site: any) => (
                       <SelectItem key={site.id} value={site.id.toString()}>
                         {site.name} ({site.platform})
                       </SelectItem>
@@ -537,7 +515,7 @@ export function PublishContentStep() {
                     <SelectValue placeholder="Choose content to publish" />
                   </SelectTrigger>
                   <SelectContent>
-                    {content?.content?.map((item: any) => (
+                    {content?.map((item: any) => (
                       <SelectItem key={item.id} value={item.id.toString()}>
                         {item.title} ({item.contentType})
                       </SelectItem>
