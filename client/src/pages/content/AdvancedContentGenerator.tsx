@@ -199,9 +199,7 @@ export default function AdvancedContentGenerator() {
         contentData = {};
       }
 
-      console.log('🔍 AdvancedContentGenerator generatedContent:', generatedContent);
-      console.log('🔍 AdvancedContentGenerator generatedContent.generated_text:', generatedContent.generated_text);
-      console.log('🔍 AdvancedContentGenerator parsed contentData:', contentData);
+
       
       // Extract the actual content - try multiple possible locations
       let actualContent = contentToSave?.content;
@@ -232,8 +230,7 @@ export default function AdvancedContentGenerator() {
         status: "draft"
       };
 
-      console.log('AdvancedContentGenerator saveMutation payload:', payload);
-      console.log('AdvancedContentGenerator siteId being saved:', payload.siteId);
+
 
       // If we have a database content ID from AI generation, update the existing record
       if (databaseContentId) {

@@ -50,9 +50,6 @@ export default function ContentGenerator() {
       return response.json();
     },
     onSuccess: (data) => {
-      console.log('🔍 ContentGenerator received data:', data);
-      console.log('🔍 Data.content field:', data.content);
-      console.log('🔍 Data.content type:', typeof data.content);
       setGeneratedContent(data);
       setIsGenerating(false);
       toast({
@@ -118,8 +115,6 @@ export default function ContentGenerator() {
       });
       return;
     }
-    console.log('🔍 About to save generatedContent:', generatedContent);
-    console.log('🔍 Content field being saved:', generatedContent.content);
     setShowSiteDialog(true);
   };
 
