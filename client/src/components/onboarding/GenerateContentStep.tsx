@@ -31,19 +31,34 @@ export function GenerateContentStep() {
   // Get user's sites to find the most recent one for onboarding
   const { data: sites } = useQuery({
     queryKey: ['/api/sites'],
-    queryFn: () => apiRequest('GET', '/api/sites'),
   });
 
   // Get the most recently added site for onboarding
   const getOnboardingSiteId = () => {
-    // Check if sites exists and is an array
-    if (!sites || !Array.isArray(sites) || sites.length === 0) {
-      console.log('🔍 No sites available or sites is not an array:', sites);
+    console.log('🔍 Raw sites data:', sites);
+    
+    // Handle different possible data structures
+    let sitesArray = sites;
+    if (sites && typeof sites === 'object' && !Array.isArray(sites)) {
+      // If sites is an object, check if it has an array property
+      if (sites.sites && Array.isArray(sites.sites)) {
+        sitesArray = sites.sites;
+      } else if (sites.data && Array.isArray(sites.data)) {
+        sitesArray = sites.data;
+      } else {
+        console.log('🔍 Sites object does not contain array data');
+        return null;
+      }
+    }
+    
+    // Check if we have a valid array
+    if (!sitesArray || !Array.isArray(sitesArray) || sitesArray.length === 0) {
+      console.log('🔍 No sites available or not an array:', sitesArray);
       return null;
     }
     
     // Return the most recently created site (highest ID)
-    const sortedSites = [...sites].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const sortedSites = [...sitesArray].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const siteId = sortedSites[0]?.id || null;
     console.log('🔍 Selected site ID for onboarding:', siteId);
     return siteId;

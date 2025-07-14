@@ -585,6 +585,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **ENHANCED: WordPress CMS Connection in Onboarding** - Completely rebuilt PublishContentStep with comprehensive WordPress integration setup including step-by-step application password instructions, connection testing, tabbed interface (Connect WordPress → Publish Content), smart flow detection that checks for existing connections, and clear setup guidance for users to connect their WordPress sites during onboarding
 ✓ **COMPLETED: WordPress Setup Flow Integration** - Successfully implemented enhanced WordPress connection setup flow in onboarding that automatically detects user connection status: new users see comprehensive setup interface with Application Password instructions and connection testing, existing users see normal publishing interface, tested functionality confirms proper flow detection and connection validation
 ✓ **COMPLETED: Site-Linked Content Generation in Onboarding** - Enhanced onboarding flow to automatically save generated content to the user's connected site instead of orphaned content, system fetches user's most recently added site and assigns it as siteId when saving AI-generated content during onboarding process
+✓ **FIXED: API Response Parsing Issues** - Resolved critical errors where sites API returned objects instead of arrays causing "sites is not iterable" and "sites.map is not a function" errors by implementing proper JSON response parsing with .json() method in both onboarding and Sites page queries
 
 ## User Preferences
 
