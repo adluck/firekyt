@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { OnboardingProgress } from './OnboardingProgress';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 import { useOnboarding } from '@/hooks/useOnboarding';
@@ -27,6 +27,20 @@ export function GenerateContentStep() {
 
   const [generatedContent, setGeneratedContent] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+
+  // Get user's sites to find the most recent one for onboarding
+  const { data: sites } = useQuery({
+    queryKey: ['/api/sites'],
+    queryFn: () => apiRequest('GET', '/api/sites'),
+  });
+
+  // Get the most recently added site for onboarding
+  const getOnboardingSiteId = () => {
+    if (!sites || sites.length === 0) return null;
+    // Return the most recently created site (highest ID)
+    const sortedSites = [...sites].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return sortedSites[0]?.id || null;
+  };
 
   const generateContentMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -145,6 +159,9 @@ export function GenerateContentStep() {
         'listicle': 'blog_post'
       };
 
+      const siteId = getOnboardingSiteId();
+      console.log('🔍 Saving content to site ID:', siteId);
+
       saveContentMutation.mutate({
         title: formData.topic,
         content: generatedContent,
@@ -153,7 +170,7 @@ export function GenerateContentStep() {
         status: 'draft',
         seoTitle: formData.topic,
         seoDescription: `${formData.topic} - AI-generated content`,
-        siteId: null // No specific site for onboarding content
+        siteId: siteId // Save to the user's connected site
       });
     }
   };
