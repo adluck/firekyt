@@ -434,6 +434,12 @@ export function PublishContentStep() {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Select Site</label>
+                      
+                      {/* Debug info */}
+                      <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                        DEBUG: Sites data = {JSON.stringify(sites)} | Length = {sites?.length || 'undefined'}
+                      </div>
+                      
                       <Select
                         value={selectedSite}
                         onValueChange={setSelectedSite}
@@ -453,6 +459,12 @@ export function PublishContentStep() {
 
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Select Content</label>
+                      
+                      {/* Debug info */}
+                      <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
+                        DEBUG: Content data = {JSON.stringify(content)} | Length = {content?.length || 'undefined'}
+                      </div>
+                      
                       <Select
                         value={selectedContent}
                         onValueChange={setSelectedContent}
