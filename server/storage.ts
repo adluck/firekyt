@@ -771,6 +771,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateContent(id: number, userId: number, updates: Partial<Content>): Promise<Content> {
+    console.log('🔍 DATABASE updateContent called with parameters:', {
+      id,
+      userId,
+      updates,
+      updatesType: typeof updates,
+      updatesKeys: updates ? Object.keys(updates) : 'NULL_OR_UNDEFINED'
+    });
+    
+    // Ensure updates is not null or undefined
+    if (!updates || typeof updates !== 'object') {
+      console.error('🔍 DATABASE updateContent - Invalid updates parameter:', updates);
+      throw new Error('Updates parameter must be a valid object');
+    }
+    
     // Filter out undefined values to prevent "No values to set" error
     const cleanUpdates = Object.fromEntries(
       Object.entries(updates).filter(([_, value]) => value !== undefined)
