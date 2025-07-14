@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -48,6 +48,70 @@ export function PublishContentStep() {
   const { data: connections, isLoading: connectionsLoading } = useQuery({
     queryKey: ['/api/publishing/connections'],
   });
+
+  // Auto-select most recent site and content for onboarding
+  useEffect(() => {
+    if (sites && content) {
+      // Auto-select the most recently created site
+      const getOnboardingSiteId = () => {
+        let sitesArray = sites;
+        if (sites && typeof sites === 'object' && !Array.isArray(sites)) {
+          if (sites.sites && Array.isArray(sites.sites)) {
+            sitesArray = sites.sites;
+          } else if (sites.data && Array.isArray(sites.data)) {
+            sitesArray = sites.data;
+          } else {
+            return null;
+          }
+        }
+        
+        if (!sitesArray || !Array.isArray(sitesArray) || sitesArray.length === 0) {
+          return null;
+        }
+        
+        // Return the most recently created site
+        const sortedSites = [...sitesArray].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return sortedSites[0]?.id?.toString() || null;
+      };
+
+      // Auto-select the most recently created content
+      const getOnboardingContentId = () => {
+        let contentArray = content;
+        if (content && typeof content === 'object' && !Array.isArray(content)) {
+          if (content.content && Array.isArray(content.content)) {
+            contentArray = content.content;
+          } else if (content.data && Array.isArray(content.data)) {
+            contentArray = content.data;
+          } else {
+            return null;
+          }
+        }
+        
+        if (!contentArray || !Array.isArray(contentArray) || contentArray.length === 0) {
+          return null;
+        }
+        
+        // Return the most recently created content
+        const sortedContent = [...contentArray].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return sortedContent[0]?.id?.toString() || null;
+      };
+
+      // Auto-select if not already selected
+      if (!selectedSite) {
+        const onboardingSiteId = getOnboardingSiteId();
+        if (onboardingSiteId) {
+          setSelectedSite(onboardingSiteId);
+        }
+      }
+
+      if (!selectedContent) {
+        const onboardingContentId = getOnboardingContentId();
+        if (onboardingContentId) {
+          setSelectedContent(onboardingContentId);
+        }
+      }
+    }
+  }, [sites, content, selectedSite, selectedContent]);
 
   // Test WordPress connection
   const testConnectionMutation = useMutation({
