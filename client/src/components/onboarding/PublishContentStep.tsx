@@ -178,8 +178,13 @@ export function PublishContentStep() {
   // Check if user has WordPress connections
   const hasWordPressConnection = connections?.connections?.some((conn: any) => conn.platform === 'wordpress');
   
-  // Determine if we should show setup flow
-  const shouldShowSetup = !connectionsLoading && !hasWordPressConnection && !showSetup;
+  // Debug logging
+  console.log('🔍 PublishContentStep Debug:', {
+    connectionsLoading,
+    connections: connections?.connections,
+    hasWordPressConnection,
+    showSetup
+  });
 
   if (publishSuccess) {
     return (
@@ -250,7 +255,7 @@ export function PublishContentStep() {
         </div>
 
         {/* Setup or Publishing Flow */}
-        {shouldShowSetup ? (
+        {!connectionsLoading && !hasWordPressConnection && !showSetup ? (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -435,7 +440,7 @@ export function PublishContentStep() {
               </Tabs>
             </CardContent>
           </Card>
-        ) : (
+        ) : !connectionsLoading && hasWordPressConnection ? (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -503,6 +508,15 @@ export function PublishContentStep() {
                 {publishMutation.isPending ? "Publishing..." : "Publish Content"}
                 <Send className="ml-2 h-4 w-4" />
               </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading platform connections...</p>
+              </div>
             </CardContent>
           </Card>
         )}
