@@ -13,6 +13,11 @@ export interface IStorage {
   updateUserSubscription(id: number, status: string, tier: string, periodStart?: Date, periodEnd?: Date): Promise<User>;
   updateUserPassword(id: number, hashedPassword: string): Promise<User>;
   getTotalUserCount(): Promise<number>;
+  
+  // Onboarding management
+  updateOnboardingStep(userId: number, step: number): Promise<User>;
+  updateOnboardingFlag(userId: number, flag: 'has_connected_site' | 'has_generated_content' | 'has_published_content', value: boolean): Promise<User>;
+  completeOnboardingStep(userId: number, step: number): Promise<User>;
 
   // Password reset token management
   createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken>;
