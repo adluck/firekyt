@@ -666,6 +666,36 @@ export class DatabaseStorage implements IStorage {
     return Number(result.count);
   }
 
+  // Onboarding management
+  async updateOnboardingStep(userId: number, step: number): Promise<User> {
+    const [user] = await db.update(users)
+      .set({ onboardingStep: step })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateOnboardingFlag(userId: number, flag: 'has_connected_site' | 'has_generated_content' | 'has_published_content', value: boolean): Promise<User> {
+    const updates: Partial<User> = {};
+    if (flag === 'has_connected_site') updates.hasConnectedSite = value;
+    if (flag === 'has_generated_content') updates.hasGeneratedContent = value;
+    if (flag === 'has_published_content') updates.hasPublishedContent = value;
+    
+    const [user] = await db.update(users)
+      .set(updates)
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async completeOnboardingStep(userId: number, step: number): Promise<User> {
+    const [user] = await db.update(users)
+      .set({ onboardingStep: step })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
   // Password reset token management
   async createPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken> {
     const [token] = await db.insert(passwordResetTokens).values(tokenData).returning();
