@@ -52,7 +52,7 @@ export function GenerateContentStep() {
 
   const saveContentMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/content/save', data);
+      const response = await apiRequest('POST', '/api/content', data);
       return response.json();
     },
     onSuccess: async (data) => {
@@ -100,12 +100,24 @@ export function GenerateContentStep() {
 
   const handleSave = () => {
     if (generatedContent) {
+      // Map content types to API expected values
+      const contentTypeMap: { [key: string]: string } = {
+        'product-review': 'review_article',
+        'comparison': 'product_comparison',
+        'buying-guide': 'blog_post',
+        'blog-post': 'blog_post',
+        'listicle': 'blog_post'
+      };
+
       saveContentMutation.mutate({
         title: formData.topic,
         content: generatedContent,
-        contentType: formData.contentType,
-        keywords: formData.keywords,
-        status: 'draft'
+        contentType: contentTypeMap[formData.contentType] || 'blog_post',
+        targetKeywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()) : [],
+        status: 'draft',
+        seoTitle: formData.topic,
+        seoDescription: `${formData.topic} - AI-generated content`,
+        siteId: null // No specific site for onboarding content
       });
     }
   };
