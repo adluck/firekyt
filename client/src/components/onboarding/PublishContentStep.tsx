@@ -44,6 +44,25 @@ export function PublishContentStep() {
     queryKey: ['/api/content'],
   });
 
+  // Debug content loading
+  console.log('🔍 ONBOARDING DEBUG - Content data:', content);
+  console.log('🔍 ONBOARDING DEBUG - Content length:', content?.length);
+  console.log('🔍 ONBOARDING DEBUG - Content items:', content?.map((item: any) => ({
+    id: item.id,
+    title: item.title,
+    contentType: item.contentType,
+    status: item.status
+  })));
+
+  // Debug sites loading
+  console.log('🔍 ONBOARDING DEBUG - Sites data:', sites);
+  console.log('🔍 ONBOARDING DEBUG - Sites length:', sites?.length);
+  console.log('🔍 ONBOARDING DEBUG - Sites items:', sites?.map((site: any) => ({
+    id: site.id,
+    name: site.name,
+    platform: site.platform
+  })));
+
   // Fetch platform connections
   const { data: connections, isLoading: connectionsLoading } = useQuery({
     queryKey: ['/api/publishing/connections'],
