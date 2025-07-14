@@ -75,12 +75,24 @@ export function GenerateContentStep() {
   });
 
   const handleGenerate = () => {
+    // Map content types to API expected values
+    const contentTypeMap: { [key: string]: string } = {
+      'product-review': 'review_article',
+      'comparison': 'product_comparison',
+      'buying-guide': 'blog_post',
+      'blog-post': 'blog_post',
+      'listicle': 'blog_post'
+    };
+
     generateContentMutation.mutate({
-      topic: formData.topic,
-      contentType: formData.contentType,
-      keywords: formData.keywords,
-      description: formData.description,
-      isOnboarding: true
+      keyword: formData.topic,
+      content_type: contentTypeMap[formData.contentType] || 'blog_post',
+      tone_of_voice: 'professional and engaging',
+      target_audience: 'affiliate marketing audience',
+      additional_context: formData.description || '',
+      brand_voice: 'informative and trustworthy',
+      seo_focus: true,
+      word_count: 800
     });
   };
 

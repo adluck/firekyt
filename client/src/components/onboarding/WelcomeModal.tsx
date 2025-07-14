@@ -55,6 +55,7 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
+          <DialogTitle className="sr-only">Welcome to FireKyt Setup</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
