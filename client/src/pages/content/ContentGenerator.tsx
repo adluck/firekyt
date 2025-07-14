@@ -6,12 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ContentEditor } from "@/components/content/ContentEditor";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Wand2, AlertCircle, CheckCircle, Clock, FileText, Sparkles, Globe, Save } from "lucide-react";
+import { Wand2, AlertCircle, CheckCircle, Clock, FileText, Sparkles, Globe, Save, Eye } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useLocation } from "wouter";
 import { SiteSelectionDialog } from "@/components/content/SiteSelectionDialog";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Site, Content } from "@shared/schema";
 
 export default function ContentGenerator() {
@@ -226,14 +228,26 @@ export default function ContentGenerator() {
           <CardContent className="space-y-4">
             <div className="flex gap-2">
               <Button 
-                onClick={() => generateContentMutation.mutate({ type: 'blog_post' })}
+                onClick={() => generateContentMutation.mutate({ 
+                  content_type: 'blog_post',
+                  keyword: selectedSite?.targetKeywords?.[0] || 'best products',
+                  tone_of_voice: selectedSite?.brandVoice || 'professional',
+                  target_audience: 'general consumers',
+                  brand_voice: selectedSite?.brandVoice
+                })}
                 disabled={isGenerating}
                 className="flex-1"
               >
                 {isGenerating ? 'Generating...' : 'Generate Blog Post'}
               </Button>
               <Button 
-                onClick={() => generateContentMutation.mutate({ type: 'product_review' })}
+                onClick={() => generateContentMutation.mutate({ 
+                  content_type: 'review_article',
+                  keyword: selectedSite?.targetKeywords?.[0] || 'product reviews',
+                  tone_of_voice: selectedSite?.brandVoice || 'professional',
+                  target_audience: 'potential buyers',
+                  brand_voice: selectedSite?.brandVoice
+                })}
                 disabled={isGenerating}
                 variant="outline"
                 className="flex-1"
@@ -254,9 +268,22 @@ export default function ContentGenerator() {
                 
                 <div className="border rounded-lg p-4 bg-muted/50">
                   <h4 className="font-medium mb-2">{generatedContent.title || 'Generated Content'}</h4>
-                  <div className="text-sm text-muted-foreground max-h-40 overflow-y-auto">
-                    {generatedContent.content || generatedContent.generated_text || 'Content preview will appear here...'}
+                  <div className="text-sm max-h-60 overflow-y-auto prose prose-sm prose-neutral dark:prose-invert max-w-none">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      className="break-words"
+                    >
+                      {generatedContent.content || generatedContent.generated_text || 'Content preview will appear here...'}
+                    </ReactMarkdown>
                   </div>
+                  {generatedContent.seoTitle && (
+                    <div className="mt-3 pt-3 border-t text-xs text-muted-foreground">
+                      <p><strong>SEO Title:</strong> {generatedContent.seoTitle}</p>
+                      {generatedContent.seoDescription && (
+                        <p className="mt-1"><strong>SEO Description:</strong> {generatedContent.seoDescription}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

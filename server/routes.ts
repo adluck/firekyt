@@ -567,6 +567,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Content generation preview endpoint (no saving to database)
+  app.post("/api/content/generate-preview", authenticateToken, async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        keyword: z.string().min(1, "Keyword is required"),
+        content_type: z.enum(['blog_post', 'product_comparison', 'review_article', 'video_script', 'social_post', 'email_campaign']),
+        tone_of_voice: z.string().min(1, "Tone of voice is required"),
+        target_audience: z.string().min(1, "Target audience is required"),
+        additional_context: z.string().optional(),
+        brand_voice: z.string().optional(),
+        seo_focus: z.boolean().optional().default(true),
+        word_count: z.number().optional().default(800)
+      });
+
+      const validatedData = requestSchema.parse(req.body);
+
+      // Track usage for content generation
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      
+      await storage.createOrUpdateUsage({
+        userId: req.user!.id,
+        feature: 'content_generation',
+        count: 1,
+        periodStart: monthStart,
+        periodEnd: monthEnd,
+      });
+
+      // Generate content directly using AI without saving to database
+      const { generateContentDirectly } = await import("./ai-engine");
+      const aiRequest = {
+        keyword: validatedData.keyword,
+        content_type: validatedData.content_type,
+        tone_of_voice: validatedData.tone_of_voice,
+        target_audience: validatedData.target_audience,
+        additional_context: validatedData.additional_context,
+        brand_voice: validatedData.brand_voice,
+        seo_focus: validatedData.seo_focus,
+        word_count: validatedData.word_count
+      };
+
+      const generatedContent = await generateContentDirectly(aiRequest);
+
+      res.json({
+        title: generatedContent.title,
+        content: generatedContent.content,
+        seoTitle: generatedContent.seo_title,
+        seoDescription: generatedContent.seo_description,
+        targetKeywords: generatedContent.meta_tags || [validatedData.keyword],
+        contentType: validatedData.content_type,
+        estimatedReadingTime: generatedContent.estimated_reading_time
+      });
+    } catch (error: any) {
+      console.error('Content generation preview error:', error);
+      res.status(400).json({ message: error.message || "Content generation failed" });
+    }
+  });
+
   // Content generation endpoint
   app.post("/api/content/generate", authenticateToken, async (req, res) => {
     try {

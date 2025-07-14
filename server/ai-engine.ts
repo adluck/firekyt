@@ -449,6 +449,32 @@ export async function generateContent(
   }
 }
 
+// Generate content directly without queue system (for preview)
+export async function generateContentDirectly(request: ContentGenerationRequest): Promise<any> {
+  console.log('Generating content directly for preview...');
+  
+  try {
+    // Generate prompt
+    const prompt = generateContentPrompt(request);
+    
+    // Generate content with Gemini
+    const generatedContent = await generateWithGemini(prompt);
+    
+    console.log('Direct content generation successful');
+    return {
+      title: generatedContent.title,
+      content: generatedContent.content,
+      seo_title: generatedContent.seo_title,
+      seo_description: generatedContent.seo_description,
+      meta_tags: generatedContent.meta_tags || [request.keyword],
+      estimated_reading_time: generatedContent.estimated_reading_time
+    };
+  } catch (error: any) {
+    console.error('Direct content generation error:', error);
+    throw new Error(`Content generation failed: ${error.message}`);
+  }
+}
+
 export function addToQueue(request: ContentGenerationRequest): string {
   const contentId = `content_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
