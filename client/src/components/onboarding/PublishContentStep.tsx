@@ -251,8 +251,8 @@ export function PublishContentStep() {
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <PartyPopper className="h-10 w-10 text-green-600" />
               </div>
-              <h1 className="text-3xl font-bold mb-4">Congratulations!</h1>
-              <p className="text-lg text-muted-foreground">
+              <h1 className="text-3xl font-bold mb-4 text-foreground">Congratulations!</h1>
+              <p className="text-lg text-foreground">
                 You've successfully set up your affiliate marketing platform
               </p>
             </div>
@@ -262,22 +262,22 @@ export function PublishContentStep() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span>Connected your site</span>
+                    <span className="text-foreground font-medium">Connected your site</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span>Generated AI-powered content</span>
+                    <span className="text-foreground font-medium">Generated AI-powered content</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span>Published your first content</span>
+                    <span className="text-foreground font-medium">Published your first content</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <div className="mt-8 space-y-4">
-              <p className="text-muted-foreground">
+              <p className="text-foreground">
                 Your affiliate marketing journey starts now! Your content is live and ready to generate revenue.
               </p>
               
@@ -434,12 +434,6 @@ export function PublishContentStep() {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Select Site</label>
-                      
-                      {/* Debug info */}
-                      <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                        DEBUG: Sites data = {JSON.stringify(sites)} | Length = {sites?.length || 'undefined'}
-                      </div>
-                      
                       <Select
                         value={selectedSite}
                         onValueChange={setSelectedSite}
@@ -459,12 +453,6 @@ export function PublishContentStep() {
 
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Select Content</label>
-                      
-                      {/* Debug info */}
-                      <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
-                        DEBUG: Content data = {JSON.stringify(content)} | Length = {content?.length || 'undefined'}
-                      </div>
-                      
                       <Select
                         value={selectedContent}
                         onValueChange={setSelectedContent}

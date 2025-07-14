@@ -589,6 +589,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **FIXED: Onboarding Data Flow** - Fixed critical issue where onboarding steps weren't sharing data between them, causing empty dropdowns in final step; implemented auto-selection logic in PublishContentStep to automatically detect and prefill the most recently created site and content from previous steps
 ✓ **FIXED: API Structure Mismatch** - Resolved dropdown display issue where PublishContentStep was looking for nested object properties (sites.sites, content.content) but APIs return arrays directly; updated all dropdown mappings to match actual API response structure
 ✓ **FIXED: Missing Content Publishing Endpoint** - Created missing `/api/content/publish` endpoint that the onboarding flow was calling; implemented proper content publishing functionality with onboarding step completion, status updates, and publication history tracking
+✓ **FIXED: Congratulations Page Text Visibility** - Resolved text contrast issue on onboarding congratulations page by replacing `text-muted-foreground` with `text-foreground` classes for header, description, and checklist items; enhanced checklist items with `font-medium` for better visibility and emphasis; all text now displays with proper contrast in both light and dark modes
 
 ## User Preferences
 
