@@ -376,14 +376,23 @@ export default function ContentManager() {
       {isLoading && (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <Card key={i}>
+            <Card key={i} className="bg-slate-800 dark:bg-slate-900 border-slate-700 dark:border-slate-800">
               <CardContent className="p-6">
                 <div className="animate-pulse">
-                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-muted rounded w-1/2 mb-4"></div>
-                  <div className="h-3 bg-muted rounded w-full mb-2"></div>
-                  <div className="h-3 bg-muted rounded w-full mb-2"></div>
-                  <div className="h-3 bg-muted rounded w-2/3"></div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="h-5 bg-slate-700 rounded w-3/4"></div>
+                    <div className="h-6 bg-slate-700 rounded w-20"></div>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="h-3 bg-slate-700 rounded w-full"></div>
+                    <div className="h-3 bg-slate-700 rounded w-full"></div>
+                    <div className="h-3 bg-slate-700 rounded w-2/3"></div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-3 bg-slate-700 rounded w-20"></div>
+                    <div className="h-3 bg-slate-700 rounded w-24"></div>
+                    <div className="h-3 bg-slate-700 rounded w-16"></div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -410,73 +419,72 @@ export default function ContentManager() {
       {!isLoading && filteredContent.length > 0 && (
         <div className="space-y-4">
           {filteredContent.map((content: Content) => (
-            <Card key={content.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4 sm:p-6">
-                {/* Mobile-optimized layout */}
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    {/* Title and status row */}
-                    <div className="flex items-start gap-2 mb-3">
-                      {getContentTypeIcon(content.contentType)}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold leading-tight mb-1 pr-2">{content.title}</h3>
-                        <div className="flex items-center gap-1">
-                          {getStatusIcon(content.status)}
-                          <Badge variant={content.status === "published" ? "default" : "secondary"}>
-                            {content.status}
-                          </Badge>
-                        </div>
-                      </div>
+            <Card key={content.id} className="bg-slate-800 dark:bg-slate-900 border-slate-700 dark:border-slate-800 hover:shadow-lg transition-all duration-200 hover:border-slate-600 dark:hover:border-slate-700">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  {/* Main content */}
+                  <div className="flex-1 min-w-0 pr-4">
+                    {/* Title and status */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                        {content.title}
+                      </h3>
+                      <Badge 
+                        variant={content.status === "published" ? "default" : "secondary"}
+                        className={content.status === "published" 
+                          ? "bg-green-600 hover:bg-green-700 text-white border-green-600" 
+                          : "bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600"
+                        }
+                      >
+                        {content.status === "published" ? "Published" : "Draft"}
+                      </Badge>
                     </div>
 
                     {/* Content preview */}
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2 leading-relaxed">
-                      {content.content.substring(0, 150)}...
+                    <p className="text-slate-400 text-sm mb-4 leading-relaxed">
+                      {content.content.length > 150 
+                        ? content.content.substring(0, 150) + "..."
+                        : content.content
+                      }
                     </p>
 
-                    {/* Metadata - responsive grid */}
-                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground mb-3">
+                    {/* Metadata */}
+                    <div className="flex items-center gap-4 text-xs text-slate-500">
                       <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{formatDate(content.createdAt)}</span>
+                        <Calendar className="h-3 w-3" />
+                        <span>{new Date(content.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}</span>
                       </div>
+                      
                       <div className="flex items-center gap-1">
-                        <FileText className="h-3 w-3 flex-shrink-0" />
-                        <span>{getWordCount(content.content)} words</span>
+                        <FileText className="h-3 w-3" />
+                        <span>{content.contentType.replace('_', ' ')}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-3 w-3 flex-shrink-0" />
-                        <span>{getReadingTime(content.content)} min read</span>
-                      </div>
-                      {content.contentType && (
-                        <div className="sm:ml-auto">
-                          <Badge variant="outline" className="text-xs">
-                            {content.contentType.replace('_', ' ')}
-                          </Badge>
+
+                      {content.targetKeywords && content.targetKeywords.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span>{content.targetKeywords.slice(0, 2).join(', ')}</span>
+                          {content.targetKeywords.length > 2 && (
+                            <span className="text-slate-600">+{content.targetKeywords.length - 2}</span>
+                          )}
                         </div>
                       )}
                     </div>
-
-                    {/* SEO Title */}
-                    {content.seoTitle && (
-                      <div className="mt-3 pt-3 border-t border-border">
-                        <p className="text-xs text-muted-foreground">
-                          <strong>SEO Title:</strong> {content.seoTitle}
-                        </p>
-                      </div>
-                    )}
                   </div>
 
-                  {/* Action buttons - mobile optimized */}
-                  <div className="flex items-center gap-2 sm:ml-4 sm:flex-col sm:items-stretch">
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(content)}
-                      className="flex-1 sm:flex-none"
+                      className="text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-600 hover:border-slate-500"
                     >
-                      <Edit className="h-4 w-4 mr-2 sm:mr-0" />
-                      <span className="sm:hidden">Edit</span>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
                     </Button>
 
                     <AlertDialog>
@@ -484,10 +492,9 @@ export default function ContentManager() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-destructive hover:text-destructive flex-1 sm:flex-none"
+                          className="text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-600 hover:border-slate-500"
                         >
-                          <Trash2 className="h-4 w-4 mr-2 sm:mr-0" />
-                          <span className="sm:hidden">Delete</span>
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
