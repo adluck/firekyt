@@ -631,7 +631,7 @@ export default function PublishingDashboard() {
                     }}
                     disabled={!selectedContent || publishNowMutation.isPending}
                   >
-                    {publishNowMutation.isPending ? "Publishing..." : "Publish"}
+                    {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
                   </Button>
                 </div>
               </div>
@@ -933,7 +933,7 @@ export default function PublishingDashboard() {
                         >
                           <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
                           <span className="whitespace-nowrap">
-                            {publishNowMutation.isPending ? "Publishing..." : "Publish"}
+                            {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
                           </span>
                         </Button>
                       </div>
