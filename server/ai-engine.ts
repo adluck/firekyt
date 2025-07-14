@@ -300,7 +300,8 @@ export async function generateWithGemini(prompt: string): Promise<any> {
     
     // Try to parse as JSON, fallback to plain text
     try {
-      console.log('Raw Gemini response:', text);
+      console.log('Raw Gemini response length:', text.length, 'characters');
+      console.log('Raw Gemini response preview:', text.substring(0, 300) + '...');
       
       // Remove markdown code block wrapper if present
       let cleanText = text.trim();
@@ -318,9 +319,23 @@ export async function generateWithGemini(prompt: string): Promise<any> {
         }
       }
       
-      console.log('Cleaned text for parsing:', cleanText);
+      console.log('Cleaned text for parsing length:', cleanText.length);
       const parsed = JSON.parse(cleanText);
-      console.log('Successfully parsed JSON:', parsed);
+      console.log('Successfully parsed JSON - Title:', parsed.title, 'Content length:', parsed.content?.length);
+      
+      // Validate that we have proper content structure
+      if (!parsed.content || typeof parsed.content !== 'string') {
+        console.warn('Invalid content structure in parsed JSON');
+        return {
+          title: parsed.title || "Generated Content",
+          content: text, // Use raw text as fallback
+          seo_title: parsed.seo_title || "",
+          seo_description: parsed.seo_description || "",
+          meta_tags: parsed.meta_tags || [],
+          estimated_reading_time: parsed.estimated_reading_time || Math.ceil(text.split(' ').length / 200)
+        };
+      }
+      
       return parsed;
     } catch (parseError) {
       console.log('JSON parsing failed, creating fallback structure:', parseError);
@@ -460,7 +475,27 @@ export async function generateContentDirectly(request: ContentGenerationRequest)
     // Generate content with Gemini
     const generatedContent = await generateWithGemini(prompt);
     
-    console.log('Direct content generation successful');
+    console.log('Direct content generation successful:', {
+      hasTitle: !!generatedContent.title,
+      hasContent: !!generatedContent.content,
+      contentType: typeof generatedContent.content,
+      contentLength: generatedContent.content?.length || 0
+    });
+    
+    // Ensure we have proper content
+    if (!generatedContent.content || typeof generatedContent.content !== 'string') {
+      console.warn('Invalid content structure, using fallback');
+      const fallbackContent = typeof generatedContent === 'string' ? generatedContent : JSON.stringify(generatedContent, null, 2);
+      return {
+        title: generatedContent.title || `${request.content_type.replace('_', ' ')} for ${request.keyword}`,
+        content: fallbackContent,
+        seo_title: generatedContent.seo_title || generatedContent.title,
+        seo_description: generatedContent.seo_description || `Learn about ${request.keyword}`,
+        meta_tags: generatedContent.meta_tags || [request.keyword],
+        estimated_reading_time: generatedContent.estimated_reading_time || 5
+      };
+    }
+    
     return {
       title: generatedContent.title,
       content: generatedContent.content,
