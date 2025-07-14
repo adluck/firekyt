@@ -631,7 +631,7 @@ export default function PublishingDashboard() {
                     }}
                     disabled={!selectedContent || publishNowMutation.isPending}
                   >
-                    {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
+                    {publishNowMutation.isPending ? "Publishing..." : "Publish"}
                   </Button>
                 </div>
               </div>
@@ -924,15 +924,17 @@ export default function PublishingDashboard() {
                         <Button 
                           size="sm" 
                           variant="default"
-                          className="w-full sm:w-auto justify-center sm:justify-start text-xs sm:text-sm"
+                          className="w-full sm:w-auto md:w-auto lg:w-auto xl:w-auto 2xl:w-auto justify-center sm:justify-start text-xs sm:text-sm flex-shrink-0"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowPublishDialog(true);
                           }}
                           disabled={publishNowMutation.isPending}
                         >
-                          <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
+                          <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                          <span className="whitespace-nowrap">
+                            {publishNowMutation.isPending ? "Publishing..." : "Publish"}
+                          </span>
                         </Button>
                       </div>
                     </div>
