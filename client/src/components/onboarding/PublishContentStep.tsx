@@ -2,22 +2,37 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { OnboardingProgress } from './OnboardingProgress';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { apiRequest } from '@/lib/queryClient';
-import { Send, Globe, FileText, CheckCircle, ArrowLeft, PartyPopper } from 'lucide-react';
+import { Send, Globe, FileText, CheckCircle, ArrowLeft, PartyPopper, Settings, ExternalLink, Copy, AlertCircle, Monitor } from 'lucide-react';
 
 export function PublishContentStep() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { completeOnboardingStep } = useOnboarding();
+  const queryClient = useQueryClient();
   
   const [selectedSite, setSelectedSite] = useState('');
   const [selectedContent, setSelectedContent] = useState('');
   const [publishSuccess, setPublishSuccess] = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
+  const [currentTab, setCurrentTab] = useState('connect');
+  
+  // WordPress connection form
+  const [wpForm, setWpForm] = useState({
+    blogUrl: '',
+    username: '',
+    accessToken: '',
+    platform: 'wordpress'
+  });
 
   // Fetch user sites
   const { data: sites } = useQuery({
@@ -27,6 +42,65 @@ export function PublishContentStep() {
   // Fetch user content
   const { data: content } = useQuery({
     queryKey: ['/api/content'],
+  });
+
+  // Fetch platform connections
+  const { data: connections, isLoading: connectionsLoading } = useQuery({
+    queryKey: ['/api/publishing/connections'],
+  });
+
+  // Test WordPress connection
+  const testConnectionMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/publishing/test-connection', data);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        toast({
+          title: "Connection Successful!",
+          description: "WordPress connection verified. You can now publish content.",
+        });
+        setCurrentTab('publish');
+      } else {
+        toast({
+          title: "Connection Failed",
+          description: data.message || "Failed to connect to WordPress.",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Connection Error",
+        description: "There was an error testing the connection.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Add platform connection
+  const addConnectionMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/publishing/connections', data);
+      return response.json();
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ['/api/publishing/connections'] });
+      toast({
+        title: "Platform Connected!",
+        description: "WordPress has been successfully connected to your account.",
+      });
+      setCurrentTab('publish');
+      setShowSetup(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Connection Failed",
+        description: "Failed to save WordPress connection.",
+        variant: "destructive",
+      });
+    }
   });
 
   const publishMutation = useMutation({
@@ -53,6 +127,24 @@ export function PublishContentStep() {
     }
   });
 
+  const handleTestConnection = () => {
+    testConnectionMutation.mutate({
+      platform: wpForm.platform,
+      accessToken: wpForm.accessToken,
+      blogUrl: wpForm.blogUrl,
+      platformUsername: wpForm.username
+    });
+  };
+
+  const handleConnectWordPress = () => {
+    addConnectionMutation.mutate({
+      platform: wpForm.platform,
+      accessToken: wpForm.accessToken,
+      blogUrl: wpForm.blogUrl,
+      platformUsername: wpForm.username
+    });
+  };
+
   const handlePublish = () => {
     if (selectedSite && selectedContent) {
       publishMutation.mutate({
@@ -74,6 +166,20 @@ export function PublishContentStep() {
   const handleSkip = () => {
     navigate('/dashboard');
   };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: "Text copied to clipboard.",
+    });
+  };
+
+  // Check if user has WordPress connections
+  const hasWordPressConnection = connections?.connections?.some((conn: any) => conn.platform === 'wordpress');
+  
+  // Determine if we should show setup flow
+  const shouldShowSetup = !connectionsLoading && !hasWordPressConnection && !showSetup;
 
   if (publishSuccess) {
     return (
@@ -143,76 +249,263 @@ export function PublishContentStep() {
           </p>
         </div>
 
-        {/* Publishing Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Globe className="h-5 w-5" />
-              <span>Publishing Details</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Site</label>
-              <Select
-                value={selectedSite}
-                onValueChange={setSelectedSite}
+        {/* Setup or Publishing Flow */}
+        {shouldShowSetup ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Monitor className="h-5 w-5 text-blue-600" />
+                <span>Connect WordPress</span>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Connect your WordPress site to start publishing AI-generated content
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  To publish content, you'll need to connect your WordPress site first. This takes just 2 minutes.
+                </AlertDescription>
+              </Alert>
+              
+              <Button 
+                onClick={() => setShowSetup(true)}
+                className="w-full"
+                size="lg"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a site to publish to" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sites?.sites?.map((site: any) => (
-                    <SelectItem key={site.id} value={site.id.toString()}>
-                      {site.name} ({site.platform})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                <Settings className="mr-2 h-4 w-4" />
+                Set Up WordPress Connection
+              </Button>
+            </CardContent>
+          </Card>
+        ) : showSetup ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Monitor className="h-5 w-5 text-blue-600" />
+                <span>WordPress Setup</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={currentTab} onValueChange={setCurrentTab}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="connect">Connect WordPress</TabsTrigger>
+                  <TabsTrigger value="publish" disabled={!hasWordPressConnection}>Publish Content</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="connect" className="space-y-6 mt-6">
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                      <h4 className="font-medium text-sm mb-2">WordPress Application Password Setup</h4>
+                      <ol className="text-xs space-y-1 text-muted-foreground list-decimal list-inside">
+                        <li>Go to your WordPress admin → Users → Profile</li>
+                        <li>Scroll to "Application Passwords" section</li>
+                        <li>Enter name: "FireKyt" and click "Add New Application Password"</li>
+                        <li>Copy the generated password (keep it safe!)</li>
+                      </ol>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-2" 
+                        onClick={() => window.open('https://wordpress.org/support/article/application-passwords/', '_blank')}
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        WordPress Guide
+                      </Button>
+                    </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Content</label>
-              <Select
-                value={selectedContent}
-                onValueChange={setSelectedContent}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose content to publish" />
-                </SelectTrigger>
-                <SelectContent>
-                  {content?.content?.map((item: any) => (
-                    <SelectItem key={item.id} value={item.id.toString()}>
-                      {item.title} ({item.contentType})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="blogUrl">WordPress Site URL</Label>
+                        <Input
+                          id="blogUrl"
+                          placeholder="https://yoursite.com"
+                          value={wpForm.blogUrl}
+                          onChange={(e) => setWpForm(prev => ({ ...prev, blogUrl: e.target.value }))}
+                        />
+                      </div>
 
-            {selectedSite && selectedContent && (
-              <div className="bg-muted p-4 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Ready to Publish</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Your content will be published to your selected site with affiliate links automatically inserted.
-                </p>
+                      <div>
+                        <Label htmlFor="username">WordPress Username</Label>
+                        <Input
+                          id="username"
+                          placeholder="Your WordPress username"
+                          value={wpForm.username}
+                          onChange={(e) => setWpForm(prev => ({ ...prev, username: e.target.value }))}
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="accessToken">Application Password</Label>
+                        <Input
+                          id="accessToken"
+                          type="password"
+                          placeholder="Your WordPress application password"
+                          value={wpForm.accessToken}
+                          onChange={(e) => setWpForm(prev => ({ ...prev, accessToken: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex space-x-2">
+                      <Button 
+                        onClick={handleTestConnection}
+                        disabled={!wpForm.blogUrl || !wpForm.username || !wpForm.accessToken || testConnectionMutation.isPending}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        {testConnectionMutation.isPending ? "Testing..." : "Test Connection"}
+                      </Button>
+                      
+                      <Button 
+                        onClick={handleConnectWordPress}
+                        disabled={!wpForm.blogUrl || !wpForm.username || !wpForm.accessToken || addConnectionMutation.isPending}
+                        className="flex-1"
+                      >
+                        {addConnectionMutation.isPending ? "Connecting..." : "Connect WordPress"}
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="publish" className="space-y-6 mt-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Select Site</label>
+                      <Select
+                        value={selectedSite}
+                        onValueChange={setSelectedSite}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a site to publish to" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {sites?.sites?.map((site: any) => (
+                            <SelectItem key={site.id} value={site.id.toString()}>
+                              {site.name} ({site.platform})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Select Content</label>
+                      <Select
+                        value={selectedContent}
+                        onValueChange={setSelectedContent}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose content to publish" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {content?.content?.map((item: any) => (
+                            <SelectItem key={item.id} value={item.id.toString()}>
+                              {item.title} ({item.contentType})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {selectedSite && selectedContent && (
+                      <div className="bg-muted p-4 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">Ready to Publish</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Your content will be published to WordPress with affiliate links automatically inserted.
+                        </p>
+                      </div>
+                    )}
+
+                    <Button 
+                      onClick={handlePublish}
+                      disabled={!selectedSite || !selectedContent || publishMutation.isPending}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {publishMutation.isPending ? "Publishing..." : "Publish Content"}
+                      <Send className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Globe className="h-5 w-5" />
+                <span>Publishing Details</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Site</label>
+                <Select
+                  value={selectedSite}
+                  onValueChange={setSelectedSite}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a site to publish to" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sites?.sites?.map((site: any) => (
+                      <SelectItem key={site.id} value={site.id.toString()}>
+                        {site.name} ({site.platform})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
 
-            <Button 
-              onClick={handlePublish}
-              disabled={!selectedSite || !selectedContent || publishMutation.isPending}
-              className="w-full"
-              size="lg"
-            >
-              {publishMutation.isPending ? "Publishing..." : "Publish Content"}
-              <Send className="ml-2 h-4 w-4" />
-            </Button>
-          </CardContent>
-        </Card>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Content</label>
+                <Select
+                  value={selectedContent}
+                  onValueChange={setSelectedContent}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose content to publish" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {content?.content?.map((item: any) => (
+                      <SelectItem key={item.id} value={item.id.toString()}>
+                        {item.title} ({item.contentType})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedSite && selectedContent && (
+                <div className="bg-muted p-4 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Ready to Publish</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Your content will be published to your selected site with affiliate links automatically inserted.
+                  </p>
+                </div>
+              )}
+
+              <Button 
+                onClick={handlePublish}
+                disabled={!selectedSite || !selectedContent || publishMutation.isPending}
+                className="w-full"
+                size="lg"
+              >
+                {publishMutation.isPending ? "Publishing..." : "Publish Content"}
+                <Send className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Navigation */}
         <div className="flex justify-between items-center mt-8">
