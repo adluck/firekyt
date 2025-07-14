@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, forwardRef } from 'react';
 import { markdownToHtml, isMarkdown } from '@/lib/markdownUtils';
 import {
   Bold,
@@ -189,7 +189,7 @@ export function RichTextEditor({
     }
   };
 
-  const ToolbarButton = ({ onClick, isActive, children, disabled, title }: any) => {
+  const ToolbarButton = forwardRef<HTMLButtonElement, any>(({ onClick, isActive, children, disabled, title }, ref) => {
     const handleClick = () => {
       if (editor && onClick) {
         try {
@@ -202,6 +202,7 @@ export function RichTextEditor({
 
     return (
       <button
+        ref={ref}
         onClick={handleClick}
         disabled={disabled || !editor}
         title={title}
@@ -234,7 +235,7 @@ export function RichTextEditor({
         </span>
       </button>
     );
-  };
+  });
 
   return (
     <div className={cn('overflow-hidden', className)}>
