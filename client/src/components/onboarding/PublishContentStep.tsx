@@ -262,15 +262,15 @@ export function PublishContentStep() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-foreground font-medium">Connected your site</span>
+                    <span className="text-green-800 font-medium">Connected your site</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-foreground font-medium">Generated AI-powered content</span>
+                    <span className="text-green-800 font-medium">Generated AI-powered content</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-foreground font-medium">Published your first content</span>
+                    <span className="text-green-800 font-medium">Published your first content</span>
                   </div>
                 </div>
               </CardContent>
