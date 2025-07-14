@@ -33,9 +33,35 @@ export function GenerateContentStep() {
       return response.json();
     },
     onSuccess: (data) => {
+      console.log('🔍 Generate Content Response:', data);
+      
       // Extract the actual content text from the response
-      const contentText = data.content?.content || data.content || data.generated_text || '';
+      let contentText = '';
+      
+      // Try different possible response structures
+      if (data.content?.content) {
+        contentText = data.content.content;
+      } else if (data.content && typeof data.content === 'string') {
+        contentText = data.content;
+      } else if (data.generated_text) {
+        contentText = data.generated_text;
+      } else if (data.generatedText) {
+        contentText = data.generatedText;
+      }
+      
+      // If content is still a JSON string, try to parse it
+      if (contentText && typeof contentText === 'string' && contentText.startsWith('{')) {
+        try {
+          const parsed = JSON.parse(contentText);
+          contentText = parsed.content || parsed.generated_text || parsed.text || contentText;
+        } catch (e) {
+          console.log('Content not JSON, using as-is');
+        }
+      }
+      
+      console.log('🔍 Extracted Content Text:', contentText);
       setGeneratedContent(contentText);
+      
       toast({
         title: "Content Generated!",
         description: "Your AI-powered content is ready. Review and save it to continue.",
