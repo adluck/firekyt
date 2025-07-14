@@ -255,7 +255,7 @@ export function PublishContentStep() {
         </div>
 
         {/* Setup or Publishing Flow */}
-        {!connectionsLoading && !hasWordPressConnection && !showSetup ? (
+        {!connectionsLoading && (!hasWordPressConnection || true) && !showSetup ? (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
