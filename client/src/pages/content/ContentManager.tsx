@@ -381,7 +381,7 @@ export default function ContentManager() {
                 <div className="animate-pulse">
                   <div className="flex items-center justify-between mb-3">
                     <div className="h-5 bg-slate-700 rounded w-3/4"></div>
-                    <div className="h-6 bg-slate-700 rounded w-20"></div>
+                    <div className="h-6 bg-slate-700 rounded-full w-20"></div>
                   </div>
                   <div className="space-y-2 mb-4">
                     <div className="h-3 bg-slate-700 rounded w-full"></div>
@@ -430,10 +430,10 @@ export default function ContentManager() {
                         {content.title}
                       </h3>
                       <Badge 
-                        variant={content.status === "published" ? "default" : "secondary"}
+                        variant="secondary"
                         className={content.status === "published" 
-                          ? "bg-green-600 hover:bg-green-700 text-white border-green-600" 
-                          : "bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-600"
+                          ? "bg-green-100 text-green-800 border-green-200 hover:bg-green-200 font-medium px-3 py-1 rounded-full" 
+                          : "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200 font-medium px-3 py-1 rounded-full"
                         }
                       >
                         {content.status === "published" ? "Published" : "Draft"}
