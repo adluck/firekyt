@@ -47,9 +47,16 @@ export default function ContentGenerator() {
       const response = await apiRequest("POST", "/api/content/generate-preview", {
         ...params
       });
-      return response.json();
+      const jsonData = await response.json();
+      console.log('Raw API response:', jsonData);
+      return jsonData;
     },
     onSuccess: (data) => {
+      console.log('Received data in onSuccess:', data);
+      console.log('Data type:', typeof data);
+      console.log('Data.content:', data.content);
+      console.log('Data.content type:', typeof data.content);
+      
       setGeneratedContent(data);
       setIsGenerating(false);
       toast({
@@ -59,6 +66,7 @@ export default function ContentGenerator() {
     },
     onError: (error: any) => {
       setIsGenerating(false);
+      console.error('Generation error:', error);
       toast({
         title: "Generation failed",
         description: error.message,
@@ -273,7 +281,27 @@ export default function ContentGenerator() {
                       remarkPlugins={[remarkGfm]}
                       className="break-words"
                     >
-                      {generatedContent.content || generatedContent.generated_text || 'Content preview will appear here...'}
+                      {(() => {
+                        console.log('Rendering content - generatedContent:', generatedContent);
+                        console.log('Content field:', generatedContent.content);
+                        console.log('Content type:', typeof generatedContent.content);
+                        
+                        const content = generatedContent.content || generatedContent.generated_text || 'Content preview will appear here...';
+                        
+                        // If content is still JSON string, try to parse it
+                        if (typeof content === 'string' && content.trim().startsWith('{')) {
+                          try {
+                            const parsed = JSON.parse(content);
+                            console.log('Parsed nested JSON:', parsed);
+                            return parsed.content || content;
+                          } catch (e) {
+                            console.log('Failed to parse nested JSON:', e);
+                            return content;
+                          }
+                        }
+                        
+                        return content;
+                      })()}
                     </ReactMarkdown>
                   </div>
                   {generatedContent.seoTitle && (
