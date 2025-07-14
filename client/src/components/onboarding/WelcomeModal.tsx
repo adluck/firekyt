@@ -60,9 +60,6 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
         <div className="space-y-6">
           <div className="text-center">
             <div className="font-semibold mb-2 text-[24px]">Let's get you started with FireKyt</div>
-            <p className="text-muted-foreground">
-              Complete our quick 3-step setup to start generating revenue from your content
-            </p>
           </div>
 
           {/* Onboarding Steps */}
