@@ -515,6 +515,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **Enhanced Card Styling** - Implemented white title text, colored status badges (green/yellow), gray descriptions, and proper metadata display with date, content type, and keywords
 ✓ **Updated Loading States** - Redesigned skeleton loaders to match the new dark card theme with proper contrast and layout consistency
 ✓ **Modern Status Badge Design** - Updated status badges to pill-shaped design with light backgrounds and dark text matching user's design reference (light green for Published, light yellow for Draft)
+✓ **User Onboarding Database Schema** - Added onboarding tracking fields to users table: onboarding_step (integer), has_connected_site, has_generated_content, has_published_content (all boolean with false defaults)
 ✓ **Fixed Quick Start Guide Auto-Display** - Removed automatic onboarding tour triggering on page load, now only shows when user clicks button to prevent conflicts with cookie consent
 ✓ **COMPLETED: Email Service Migration to Resend** - Successfully migrated email service from SendGrid to Resend for better deliverability and professional branding
 ✓ **Updated Welcome Email Templates** - Redesigned welcome email with FireKyt branding, Lexend Deca font, and orange gradient styling

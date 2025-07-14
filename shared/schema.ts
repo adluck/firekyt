@@ -48,6 +48,11 @@ export const users = pgTable("users", {
   trialEndsAt: timestamp("trial_ends_at"),
   currentPeriodStart: timestamp("current_period_start"),
   currentPeriodEnd: timestamp("current_period_end"),
+  // Onboarding progress tracking
+  onboardingStep: integer("onboarding_step").notNull().default(0),
+  hasConnectedSite: boolean("has_connected_site").notNull().default(false),
+  hasGeneratedContent: boolean("has_generated_content").notNull().default(false),
+  hasPublishedContent: boolean("has_published_content").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
