@@ -178,13 +178,8 @@ export function PublishContentStep() {
   // Check if user has WordPress connections
   const hasWordPressConnection = connections?.connections?.some((conn: any) => conn.platform === 'wordpress');
   
-  // Debug logging
-  console.log('🔍 PublishContentStep Debug:', {
-    connectionsLoading,
-    connections: connections?.connections,
-    hasWordPressConnection,
-    showSetup
-  });
+  // Determine if we should show setup flow
+  const shouldShowSetup = !connectionsLoading && !hasWordPressConnection;
 
   if (publishSuccess) {
     return (
@@ -255,7 +250,7 @@ export function PublishContentStep() {
         </div>
 
         {/* Setup or Publishing Flow */}
-        {!connectionsLoading && (!hasWordPressConnection || true) && !showSetup ? (
+        {!connectionsLoading && !hasWordPressConnection && !showSetup ? (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
