@@ -851,7 +851,7 @@ export default function PublishingDashboard() {
         </TabsList>
 
         <TabsContent value="connections">
-          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
             {connectionsLoading ? (
               <p>Loading connections...</p>
             ) : connections.length === 0 ? (
