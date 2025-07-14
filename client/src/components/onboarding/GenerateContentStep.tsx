@@ -232,10 +232,26 @@ export function GenerateContentStep() {
             <CardContent>
               {generatedContent ? (
                 <div className="space-y-4">
-                  <div className="bg-muted p-4 rounded-lg max-h-80 overflow-y-auto">
-                    <div className="prose prose-sm max-w-none">
-                      <div dangerouslySetInnerHTML={{ __html: (typeof generatedContent === 'string' ? generatedContent : String(generatedContent)).replace(/\n/g, '<br />') }} />
+                  {/* Content Preview */}
+                  <div className="bg-muted/50 border rounded-lg p-4 max-h-80 overflow-y-auto">
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <div 
+                        className="whitespace-pre-wrap text-sm leading-relaxed"
+                        style={{ 
+                          fontFamily: 'inherit',
+                          lineHeight: '1.6',
+                          color: 'inherit'
+                        }}
+                      >
+                        {typeof generatedContent === 'string' ? generatedContent : String(generatedContent)}
+                      </div>
                     </div>
+                  </div>
+                  
+                  {/* Content Info */}
+                  <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded">
+                    <span>✨ AI-Generated Content Ready</span>
+                    <span>{typeof generatedContent === 'string' ? `${generatedContent.split(' ').length} words` : 'Content generated'}</span>
                   </div>
                   
                   <Button 
