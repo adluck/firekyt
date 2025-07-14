@@ -26,14 +26,21 @@ export function GenerateContentStep() {
   });
 
   const [generatedContent, setGeneratedContent] = useState<string | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
 
   const generateContentMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest('POST', '/api/content/generate', data);
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       console.log('🔍 Generate Content Response:', data);
+      
+      // If content generation is in progress, poll for completion
+      if (data.content?.content === "Content generation in progress" && data.content?.id) {
+        pollForContent(data.content.id);
+        return;
+      }
       
       // Extract the actual content text from the response
       let contentText = '';
@@ -60,12 +67,15 @@ export function GenerateContentStep() {
       }
       
       console.log('🔍 Extracted Content Text:', contentText);
-      setGeneratedContent(contentText);
       
-      toast({
-        title: "Content Generated!",
-        description: "Your AI-powered content is ready. Review and save it to continue.",
-      });
+      // Only set content if it's not a placeholder
+      if (contentText && contentText !== "Content generation in progress") {
+        setGeneratedContent(contentText);
+        toast({
+          title: "Content Generated!",
+          description: "Your AI-powered content is ready. Review and save it to continue.",
+        });
+      }
     },
     onError: (error) => {
       toast({
@@ -156,6 +166,75 @@ export function GenerateContentStep() {
     navigate('/onboarding/publish');
   };
 
+  // Poll for content completion
+  const pollForContent = async (contentId: number) => {
+    setIsPolling(true);
+    console.log('🔍 Starting to poll for content:', contentId);
+    
+    const maxAttempts = 30; // 30 seconds max
+    let attempts = 0;
+    
+    const poll = async () => {
+      if (attempts >= maxAttempts) {
+        setIsPolling(false);
+        toast({
+          title: "Generation Timeout",
+          description: "Content generation is taking longer than expected. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      try {
+        const response = await apiRequest('GET', `/api/content/${contentId}`);
+        const contentData = await response.json();
+        
+        console.log('🔍 Polling attempt', attempts + 1, ':', contentData);
+        
+        if (contentData.content && contentData.content !== "Content generation in progress") {
+          // Content is ready
+          let finalContent = contentData.content;
+          
+          // Parse JSON if needed
+          if (typeof finalContent === 'string' && finalContent.startsWith('{')) {
+            try {
+              const parsed = JSON.parse(finalContent);
+              finalContent = parsed.content || parsed.generated_text || parsed.text || finalContent;
+            } catch (e) {
+              console.log('Content not JSON, using as-is');
+            }
+          }
+          
+          console.log('🔍 Final Content Ready:', finalContent);
+          setGeneratedContent(finalContent);
+          setIsPolling(false);
+          
+          toast({
+            title: "Content Generated!",
+            description: "Your AI-powered content is ready. Review and save it to continue.",
+          });
+          return;
+        }
+        
+        // Still generating, wait and try again
+        attempts++;
+        setTimeout(poll, 1000); // Wait 1 second before next attempt
+        
+      } catch (error) {
+        console.error('Polling error:', error);
+        setIsPolling(false);
+        toast({
+          title: "Generation Error",
+          description: "There was an error checking content status. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    // Start polling after a short delay
+    setTimeout(poll, 2000);
+  };
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto">
@@ -237,11 +316,11 @@ export function GenerateContentStep() {
 
               <Button 
                 onClick={handleGenerate}
-                disabled={!formData.topic || !formData.contentType || generateContentMutation.isPending}
+                disabled={!formData.topic || !formData.contentType || generateContentMutation.isPending || isPolling}
                 className="w-full"
                 size="lg"
               >
-                {generateContentMutation.isPending ? "Generating..." : "Generate Content"}
+                {generateContentMutation.isPending || isPolling ? "Generating..." : "Generate Content"}
                 <Sparkles className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
@@ -289,6 +368,12 @@ export function GenerateContentStep() {
                     {saveContentMutation.isPending ? "Saving..." : "Save & Continue"}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
+                </div>
+              ) : isPolling ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="font-medium">AI is generating your content...</p>
+                  <p className="text-sm mt-2">This may take up to 30 seconds</p>
                 </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
