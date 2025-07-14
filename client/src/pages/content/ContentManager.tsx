@@ -426,7 +426,7 @@ export default function ContentManager() {
                   <div className="flex-1 min-w-0 pr-4">
                     {/* Title and status */}
                     <div className="flex items-center gap-3 mb-3">
-                      <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                      <h3 className="text-lg font-semibold text-white leading-tight">
                         {content.title}
                       </h3>
                       <Badge 
