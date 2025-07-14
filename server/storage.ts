@@ -744,7 +744,22 @@ export class DatabaseStorage implements IStorage {
     return site;
   }
 
+  async deleteSiteRelatedData(siteId: number): Promise<void> {
+    // Delete all related data to avoid foreign key constraint violations
+    await db.delete(analytics).where(eq(analytics.siteId, siteId));
+    await db.delete(linkTracking).where(eq(linkTracking.siteId, siteId));
+    await db.delete(siteMetrics).where(eq(siteMetrics.siteId, siteId));
+    await db.delete(intelligentLinks).where(eq(intelligentLinks.siteId, siteId));
+    // Note: content should be handled by site admin before deletion
+    // If needed, uncomment the line below to force delete content
+    // await db.delete(content).where(eq(content.siteId, siteId));
+  }
+
   async deleteSite(id: number): Promise<void> {
+    // First delete all related data to avoid foreign key constraint violations
+    await this.deleteSiteRelatedData(id);
+    
+    // Then delete the site itself
     await db.delete(sites).where(eq(sites.id, id));
   }
 
