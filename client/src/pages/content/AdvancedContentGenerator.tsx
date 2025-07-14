@@ -199,10 +199,31 @@ export default function AdvancedContentGenerator() {
         contentData = {};
       }
 
+      console.log('🔍 AdvancedContentGenerator generatedContent:', generatedContent);
+      console.log('🔍 AdvancedContentGenerator generatedContent.generated_text:', generatedContent.generated_text);
+      console.log('🔍 AdvancedContentGenerator parsed contentData:', contentData);
+      
+      // Extract the actual content - try multiple possible locations
+      let actualContent = contentToSave?.content;
+      if (!actualContent) {
+        // Try parsing the generated_text as it might contain nested JSON
+        if (generatedContent.generated_text) {
+          try {
+            const parsed = JSON.parse(generatedContent.generated_text);
+            actualContent = parsed.content || parsed.generated_text || generatedContent.generated_text;
+          } catch {
+            // If parsing fails, use the raw generated_text
+            actualContent = generatedContent.generated_text;
+          }
+        } else {
+          actualContent = contentData.content || 'No content generated';
+        }
+      }
+
       // Use content from editor if provided, otherwise use generated content
       const payload = {
         title: contentToSave?.title || contentData.title || generatedContent.title || `Generated Content - ${formData.keyword}`,
-        content: contentToSave?.content || contentData.content || 'Content generation completed',
+        content: actualContent,
         contentType: formData.content_type,
         siteId: contentToSave?.siteId || null, // Use siteId from editor
         seoTitle: contentToSave?.seoTitle || generatedContent.seo_title,
