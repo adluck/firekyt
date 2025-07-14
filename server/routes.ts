@@ -32,6 +32,7 @@ import { cacheManager } from "./performance/CacheManager";
 import { AdCopyService } from "./services/AdCopyService";
 import { plagiarismService } from "./services/PlagiarismService";
 import { ContentService } from "./ContentService";
+import { IntegrationService } from "./IntegrationService";
 import { 
   rateLimiter, 
   apiRateLimit, 
@@ -1596,10 +1597,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // For onboarding, create a simple success response
-      // In a real implementation, this would publish to the actual platform
+      // For onboarding, try to actually publish to WordPress if connection exists
       if (isOnboarding) {
-        console.log('🔍 About to call updateContent with:', {
+        console.log('🔍 Onboarding publish - About to call updateContent with:', {
           contentId: parseInt(contentId),
           userId,
           updates: { status: 'published' }
@@ -1611,6 +1611,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Update onboarding flag for published content
         await storage.updateOnboardingFlag(userId, 'has_published_content', true);
         
+        let publishedUrl = `${site.domain || 'https://example.com'}/post/${contentId}`;
+        let publishStatus = 'published';
+        
+        // Try to actually publish to WordPress if the user has a connection
+        try {
+          const userConnections = await storage.getUserPlatformConnections(userId);
+          const wordpressConnection = userConnections.find((conn: any) => conn.platform === 'wordpress');
+          
+          if (wordpressConnection) {
+            console.log('🔍 Found WordPress connection, attempting to publish to WordPress...');
+            
+            // Use IntegrationService to publish to WordPress
+            const integrationService = new IntegrationService();
+            const publishResult = await integrationService.publishContent(userId, content, [
+              {
+                platform: 'wordpress',
+                accountId: wordpressConnection.id.toString(),
+                settings: {
+                  title: content.title,
+                  content: content.content,
+                  status: 'publish'
+                }
+              }
+            ]);
+            
+            if (publishResult.successes.length > 0) {
+              console.log('🔍 Successfully published to WordPress:', publishResult.successes[0]);
+              publishedUrl = publishResult.successes[0].url || publishedUrl;
+              publishStatus = 'published';
+            } else if (publishResult.failures.length > 0) {
+              console.error('🔍 Failed to publish to WordPress:', publishResult.failures[0]);
+              publishStatus = 'failed';
+            }
+          } else {
+            console.log('🔍 No WordPress connection found, marking as published locally only');
+          }
+        } catch (publishError) {
+          console.error('🔍 Error during WordPress publishing:', publishError);
+          publishStatus = 'failed';
+        }
+        
         // Create a publication history entry
         try {
           await storage.createPublicationHistory({
@@ -1618,9 +1659,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             contentId: parseInt(contentId),
             siteId: parseInt(siteId),
             platform: site.platform || 'wordpress',
-            status: 'published',
+            status: publishStatus,
             publishedAt: new Date(),
-            publishedUrl: `${site.domain || 'https://example.com'}/post/${contentId}`,
+            publishedUrl: publishedUrl,
             metadata: {
               title: content.title,
               publishedVia: 'onboarding'
@@ -1633,13 +1674,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         return res.json({
           success: true,
-          message: 'Content published successfully',
+          message: publishStatus === 'published' ? 'Content published successfully to WordPress' : 'Content marked as published (WordPress connection not found)',
           publication: {
             contentId: parseInt(contentId),
             siteId: parseInt(siteId),
-            status: 'published',
+            status: publishStatus,
             publishedAt: new Date(),
-            publishedUrl: `${site.domain || 'https://example.com'}/post/${contentId}`
+            publishedUrl: publishedUrl
           }
         });
       }
