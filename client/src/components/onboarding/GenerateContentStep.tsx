@@ -33,7 +33,9 @@ export function GenerateContentStep() {
       return response.json();
     },
     onSuccess: (data) => {
-      setGeneratedContent(data.content);
+      // Extract the actual content text from the response
+      const contentText = data.content?.content || data.content || data.generated_text || '';
+      setGeneratedContent(contentText);
       toast({
         title: "Content Generated!",
         description: "Your AI-powered content is ready. Review and save it to continue.",
@@ -220,7 +222,7 @@ export function GenerateContentStep() {
                 <div className="space-y-4">
                   <div className="bg-muted p-4 rounded-lg max-h-80 overflow-y-auto">
                     <div className="prose prose-sm max-w-none">
-                      <div dangerouslySetInnerHTML={{ __html: generatedContent.replace(/\n/g, '<br />') }} />
+                      <div dangerouslySetInnerHTML={{ __html: (typeof generatedContent === 'string' ? generatedContent : String(generatedContent)).replace(/\n/g, '<br />') }} />
                     </div>
                   </div>
                   
