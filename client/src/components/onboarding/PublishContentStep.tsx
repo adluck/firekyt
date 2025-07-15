@@ -358,13 +358,26 @@ export function PublishContentStep() {
                 <TabsContent value="connect" className="space-y-6 mt-6">
                   <div className="space-y-4">
                     <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
-                      <h4 className="font-medium text-sm mb-2">WordPress Application Password Setup</h4>
-                      <ol className="text-xs space-y-1 text-muted-foreground list-decimal list-inside">
-                        <li>Go to your WordPress admin → Users → Profile</li>
-                        <li>Scroll to "Application Passwords" section</li>
-                        <li>Enter name: "FireKyt" and click "Add New Application Password"</li>
-                        <li>Copy the generated password (keep it safe!)</li>
-                      </ol>
+                      <h4 className="font-medium text-sm mb-2">WordPress Setup (2 Steps)</h4>
+                      
+                      <div className="mb-3">
+                        <h5 className="font-medium text-xs mb-1 text-blue-800 dark:text-blue-200">Step 1: Check User Role</h5>
+                        <ol className="text-xs space-y-1 text-muted-foreground list-decimal list-inside ml-2">
+                          <li>Go to WordPress admin → Users → All Users</li>
+                          <li>Find your user account and check the "Role" column</li>
+                          <li>If not "Editor" or "Administrator", click Edit and change Role to "Editor"</li>
+                        </ol>
+                      </div>
+                      
+                      <div>
+                        <h5 className="font-medium text-xs mb-1 text-blue-800 dark:text-blue-200">Step 2: Create Application Password</h5>
+                        <ol className="text-xs space-y-1 text-muted-foreground list-decimal list-inside ml-2">
+                          <li>Go to your WordPress admin → Users → Profile</li>
+                          <li>Scroll to "Application Passwords" section</li>
+                          <li>Enter name: "FireKyt" and click "Add New Application Password"</li>
+                          <li>Copy the generated password (keep it safe!)</li>
+                        </ol>
+                      </div>
                       <Button 
                         variant="outline" 
                         size="sm" 
