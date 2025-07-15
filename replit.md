@@ -593,6 +593,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **FIXED: Onboarding WordPress Publishing** - Resolved critical issue where onboarding content generation wasn't actually publishing to WordPress; modified `/api/content/publish` endpoint to use IntegrationService for real WordPress publishing when user has WordPress connection; content now properly publishes to connected WordPress sites instead of just marking as published locally
 ✓ **FIXED: Onboarding JSON Content Display** - Enhanced JSON parsing logic in GenerateContentStep to handle complex nested JSON responses from Gemini AI; added support for markdown code blocks, multiple levels of JSON nesting, and various content field structures; users now see properly formatted content instead of raw JSON strings
 ✓ **UPDATED: Password Reset Page Branding** - Changed branding from "AffiliateAI" to "FireKyt" in both ForgotPassword.tsx and ResetPassword.tsx components; password reset flow now displays consistent FireKyt branding throughout the user experience
+✓ **ENHANCED: Theme-Based Logo System for Password Reset** - Implemented dynamic logo switching in both ForgotPassword.tsx and ResetPassword.tsx components using useTheme hook; dark mode displays light FireKyt logo, light mode displays dark FireKyt logo for optimal contrast and professional appearance
 
 ## User Preferences
 

@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Zap, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
+import { AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/layout/ThemeProvider";
 
 export default function ResetPassword() {
   const [location, navigate] = useLocation();
@@ -19,6 +20,7 @@ export default function ResetPassword() {
   const [token, setToken] = useState("");
   
   const { toast } = useToast();
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Extract token from URL query parameters
@@ -160,11 +162,12 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
-              <Zap className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold">FireKyt</span>
+          <div className="flex items-center justify-center mb-4">
+            <img 
+              src={theme === 'dark' ? '/firekyt-light-logo.png' : '/firekyt-dark-logo.png'} 
+              alt="FireKyt" 
+              className="h-8 w-auto"
+            />
           </div>
           <CardTitle>Reset Your Password</CardTitle>
           <p className="text-muted-foreground">
