@@ -92,13 +92,54 @@ export function GenerateContentStep() {
         contentText = data.generatedText;
       }
       
-      // If content is still a JSON string, try to parse it
-      if (contentText && typeof contentText === 'string' && contentText.startsWith('{')) {
-        try {
-          const parsed = JSON.parse(contentText);
-          contentText = parsed.content || parsed.generated_text || parsed.text || contentText;
-        } catch (e) {
-          console.log('Content not JSON, using as-is');
+      // Enhanced JSON parsing to handle multiple levels of nesting
+      if (contentText && typeof contentText === 'string') {
+        // Remove markdown code blocks if present
+        if (contentText.includes('```json')) {
+          const jsonMatch = contentText.match(/```json\s*(\{[\s\S]*?\})\s*```/);
+          if (jsonMatch) {
+            contentText = jsonMatch[1];
+          }
+        }
+        
+        // Try to parse as JSON if it looks like JSON
+        if (contentText.trim().startsWith('{') && contentText.trim().endsWith('}')) {
+          try {
+            let parsed = JSON.parse(contentText);
+            
+            // Handle multiple levels of nested JSON
+            let attempts = 0;
+            while (attempts < 3 && typeof parsed === 'object' && parsed !== null) {
+              if (parsed.content && typeof parsed.content === 'string') {
+                // If content field contains another JSON string, parse it
+                if (parsed.content.trim().startsWith('{')) {
+                  try {
+                    parsed = JSON.parse(parsed.content);
+                    attempts++;
+                  } catch (e) {
+                    contentText = parsed.content;
+                    break;
+                  }
+                } else {
+                  contentText = parsed.content;
+                  break;
+                }
+              } else if (parsed.generated_text) {
+                contentText = parsed.generated_text;
+                break;
+              } else if (parsed.text) {
+                contentText = parsed.text;
+                break;
+              } else {
+                // If no recognized content field, use the original
+                contentText = contentText;
+                break;
+              }
+              attempts++;
+            }
+          } catch (e) {
+            console.log('Content not valid JSON, using as-is');
+          }
         }
       }
       

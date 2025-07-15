@@ -591,6 +591,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **FIXED: Missing Content Publishing Endpoint** - Created missing `/api/content/publish` endpoint that the onboarding flow was calling; implemented proper content publishing functionality with onboarding step completion, status updates, and publication history tracking
 ✓ **FIXED: Congratulations Page Text Visibility** - Resolved text contrast issue on onboarding congratulations page by replacing `text-muted-foreground` with `text-foreground` classes for header, description, and checklist items; enhanced checklist items with `font-medium` for better visibility and emphasis; all text now displays with proper contrast in both light and dark modes
 ✓ **FIXED: Onboarding WordPress Publishing** - Resolved critical issue where onboarding content generation wasn't actually publishing to WordPress; modified `/api/content/publish` endpoint to use IntegrationService for real WordPress publishing when user has WordPress connection; content now properly publishes to connected WordPress sites instead of just marking as published locally
+✓ **FIXED: Onboarding JSON Content Display** - Enhanced JSON parsing logic in GenerateContentStep to handle complex nested JSON responses from Gemini AI; added support for markdown code blocks, multiple levels of JSON nesting, and various content field structures; users now see properly formatted content instead of raw JSON strings
 
 ## User Preferences
 
