@@ -50,29 +50,68 @@ export class ConnectionValidationService {
    */
   async validateWordPressConnection(connection: any): Promise<ValidationResult> {
     try {
+      // Check multiple possible locations for connection data
       const blogUrl = connection.connectionData?.blogUrl || connection.blogUrl;
+      const username = connection.connectionData?.username || connection.platformUsername || connection.username;
+      const accessToken = connection.connectionData?.accessToken || connection.accessToken;
+      
+      console.log(`🔍 Connection data structure:`, {
+        id: connection.id,
+        platform: connection.platform,
+        blogUrl: blogUrl,
+        username: username,
+        hasAccessToken: !!accessToken,
+        accessTokenLength: accessToken?.length || 0,
+        connectionDataKeys: connection.connectionData ? Object.keys(connection.connectionData) : 'no connectionData',
+        directKeys: Object.keys(connection)
+      });
+      
       if (!blogUrl) {
         return {
           isValid: false,
           platform: 'wordpress',
           error: 'Missing blog URL in connection data',
           errorCode: 'MISSING_BLOG_URL',
+          userMessage: 'WordPress blog URL is missing. Please recreate your connection.',
+          actionRequired: 'Recreate WordPress connection with valid blog URL',
+          lastChecked: new Date()
+        };
+      }
+      
+      if (!username) {
+        return {
+          isValid: false,
+          platform: 'wordpress',
+          error: 'Missing username in connection data',
+          errorCode: 'MISSING_USERNAME',
+          userMessage: 'WordPress username is missing. Please recreate your connection.',
+          actionRequired: 'Recreate WordPress connection with valid username',
+          lastChecked: new Date()
+        };
+      }
+      
+      if (!accessToken) {
+        return {
+          isValid: false,
+          platform: 'wordpress',
+          error: 'Missing access token in connection data',
+          errorCode: 'MISSING_ACCESS_TOKEN',
+          userMessage: 'WordPress application password is missing. Please recreate your connection.',
+          actionRequired: 'Recreate WordPress connection with valid application password',
           lastChecked: new Date()
         };
       }
       
       const apiUrl = `${blogUrl}/wp-json/wp/v2/users/me`;
-      console.log(`🔍 Validating WordPress connection ${connection.id} (${connection.platformUsername}) - ${blogUrl}`);
-      console.log(`🔑 Using access token (length: ${connection.accessToken?.length || 0})`);
+      console.log(`🔍 Validating WordPress connection ${connection.id} (${username}) - ${blogUrl}`);
+      console.log(`🔑 Using access token (length: ${accessToken?.length || 0})`);
       console.log(`🌐 Testing URL: ${apiUrl}`);
       
       // WordPress uses Basic auth with username:app_password format
-      const username = connection.platformUsername;
-      const password = connection.accessToken;
-      const authString = `${username}:${password}`;
+      const authString = `${username}:${accessToken}`;
       const authHeader = `Basic ${Buffer.from(authString).toString('base64')}`;
       
-      console.log(`🔐 Auth format: username="${username}", password_length=${password?.length}, auth_header_length=${authHeader.length}`);
+      console.log(`🔐 Auth format: username="${username}", password_length=${accessToken?.length}, auth_header_length=${authHeader.length}`);
       
       const response = await fetch(apiUrl, {
         headers: {
