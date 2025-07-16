@@ -1333,7 +1333,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const linkTracking = await storage.getUserLinkTracking(req.user!.id);
       const totalClicks = linkTracking.filter(track => track.eventType === 'click').length;
       const realUserClicks = linkTracking.filter(track => track.eventType === 'click' && !track.userAgent?.includes('WordPress')).length;
-      const estimatedRevenue = 0; // Only actual tracked conversions should contribute to revenue
+      // Calculate revenue from actual tracked conversions
+      const actualConversions = linkTracking.filter(track => track.eventType === 'conversion');
+      const actualRevenue = actualConversions.reduce((sum, track) => sum + (track.revenue || 0), 0);
 
       console.log('📊 Analytics Debug:', {
         totalClicks,
@@ -1347,14 +1349,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalContent: content.length,
         publishedContent: content.filter(c => c.status === 'published').length,
         draftContent: content.filter(c => c.status === 'draft').length,
-        totalRevenue: estimatedRevenue,
+        totalRevenue: actualRevenue,
         totalViews: totalViews,
         totalClicks: totalClicks,
         uniqueViews: totalViews, // Use actual views, no calculations
-        totalConversions: 0, // Only real tracked conversions
-        conversionRate: "0%", // Real conversion rate from actual purchases
+        totalConversions: actualConversions.length,
+        conversionRate: totalClicks > 0 ? ((actualConversions.length / totalClicks) * 100).toFixed(1) + "%" : "0%",
         clickThroughRate: totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) + "%" : "0%",
-        avgRevenuePerClick: "$0.00", // Only real revenue calculations
+        avgRevenuePerClick: totalClicks > 0 ? `$${(actualRevenue / totalClicks).toFixed(2)}` : "$0.00",
         revenueGrowth: "0%", // Real growth calculation would need historical data
         monthlyViews: totalViews // Use the same total views as monthly views since we have tracking data
       };
@@ -4469,6 +4471,33 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Helper function to calculate average time on page from analytics data
+  function calculateAvgTimeOnPage(analytics: any[]): number {
+    // Look for session-based analytics or page view duration
+    const sessionData = analytics.filter(a => a.metric === 'session_duration' || a.metric === 'page_duration');
+    
+    if (sessionData.length > 0) {
+      const totalTime = sessionData.reduce((sum, item) => sum + (item.value || 0), 0);
+      return Math.round(totalTime / sessionData.length);
+    }
+    
+    // Fallback: estimate based on content type and length
+    const pageViews = analytics.filter(a => a.metric === 'page_view');
+    const clicks = analytics.filter(a => a.metric === 'click');
+    
+    if (pageViews.length === 0) return 0;
+    
+    // Calculate engagement score based on click-through rate
+    const engagementRate = clicks.length / pageViews.length;
+    
+    // Estimate time based on engagement (higher engagement = more time)
+    // Base time: 90s, engagement multiplier: 0.5-2.0
+    const baseTime = 90;
+    const engagementMultiplier = Math.min(2.0, Math.max(0.5, 1 + engagementRate));
+    
+    return Math.round(baseTime * engagementMultiplier);
+  }
+
   // Analytics: Content Performance
   app.get("/api/analytics/content-performance", authenticateToken, async (req, res) => {
     try {
@@ -4519,8 +4548,8 @@ async function generateAILinkSuggestions(params: {
           totalViews: totalViews,
           totalClicks: totalClicks,
           avgViews: totalViews / Math.max(contentPerformance.length, 1),
-          avgBounceRate: 65.0,
-          avgTimeOnPage: 145
+          avgBounceRate: totalViews > 0 ? ((totalViews - totalClicks) / totalViews * 100) : 0,
+          avgTimeOnPage: calculateAvgTimeOnPage(analytics)
         }
       };
 
@@ -4673,10 +4702,10 @@ async function generateAILinkSuggestions(params: {
       const keywordData = seoRankings.slice(0, 20).map(ranking => ({
         keyword: ranking.keyword,
         currentPosition: ranking.position,
-        previousPosition: ranking.previousPosition || ranking.position + Math.floor(Math.random() * 10),
+        previousPosition: ranking.previousPosition || ranking.position,
         url: ranking.url,
-        searchVolume: ranking.searchVolume || Math.floor(Math.random() * 1000) + 100,
-        difficulty: ranking.difficulty || Math.floor(Math.random() * 100),
+        searchVolume: ranking.searchVolume || 0,
+        difficulty: ranking.difficulty || 0,
         history: [
           { date: new Date().toISOString().split('T')[0], position: ranking.position }
         ]
