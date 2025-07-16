@@ -340,9 +340,23 @@ export async function generateWithGemini(prompt: string): Promise<any> {
       // Validate that we have proper content structure
       if (!finalContent || typeof finalContent !== 'string') {
         console.warn('Invalid content structure in parsed JSON');
+        // Extract readable content from the text, avoiding JSON display
+        const cleanContent = text.replace(/^\s*```json\s*|\s*```\s*$/g, '').trim();
+        let readableContent = cleanContent;
+        
+        // Try to extract content from JSON if it looks like structured data
+        if (cleanContent.startsWith('{') && cleanContent.endsWith('}')) {
+          try {
+            const tempParsed = JSON.parse(cleanContent);
+            readableContent = tempParsed.content || tempParsed.title || cleanContent;
+          } catch {
+            readableContent = cleanContent;
+          }
+        }
+        
         return {
           title: parsed.title || "Generated Content",
-          content: text, // Use raw text as fallback
+          content: readableContent,
           seo_title: parsed.seo_title || "",
           seo_description: parsed.seo_description || "",
           meta_tags: parsed.meta_tags || [],
@@ -432,7 +446,7 @@ export async function generateContent(
     const response: ContentGenerationResponse = {
       content_id: contentId,
       status: 'completed',
-      generated_text: generatedContent.content || JSON.stringify(generatedContent),
+      generated_text: generatedContent.content || generatedContent.title || "Content generation failed",
       title: generatedContent.title,
       seo_title: generatedContent.seo_title,
       seo_description: generatedContent.seo_description,
@@ -450,7 +464,7 @@ export async function generateContent(
     if (updateContentCallback && databaseContentId) {
       try {
         // Store only the content text, not the entire JSON object
-        const contentText = generatedContent.content || JSON.stringify(generatedContent, null, 2);
+        const contentText = generatedContent.content || generatedContent.title || "Content generation failed";
         console.log('Storing content text in database:', { 
           hasContent: !!generatedContent.content, 
           contentType: typeof generatedContent.content,
@@ -510,7 +524,7 @@ export async function generateContentDirectly(request: ContentGenerationRequest)
     // Ensure we have proper content
     if (!generatedContent.content || typeof generatedContent.content !== 'string') {
       console.warn('Invalid content structure, using fallback');
-      const fallbackContent = typeof generatedContent === 'string' ? generatedContent : JSON.stringify(generatedContent, null, 2);
+      const fallbackContent = typeof generatedContent === 'string' ? generatedContent : generatedContent.title || "Content generation failed";
       return {
         title: generatedContent.title || `${request.content_type.replace('_', ' ')} for ${request.keyword}`,
         content: fallbackContent,
