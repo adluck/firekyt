@@ -121,6 +121,7 @@ export default function PublishingDashboard() {
   const [selectedConnection, setSelectedConnection] = useState<any>(null);
   const [isEditingConnection, setIsEditingConnection] = useState(false);
   const [minDateTime, setMinDateTime] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Effect to populate form when entering edit mode
   useEffect(() => {
@@ -143,9 +144,6 @@ export default function PublishingDashboard() {
       setFormKey(prev => prev + 1);
     }
   }, [isEditingConnection, selectedConnection, isSaving]);
-
-  // Prevent form repopulation during save process
-  const [isSaving, setIsSaving] = useState(false);
 
   // Update minimum datetime every minute
   useEffect(() => {
