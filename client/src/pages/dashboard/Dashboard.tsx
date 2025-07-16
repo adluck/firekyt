@@ -41,10 +41,10 @@ export default function Dashboard() {
 
   // Show welcome modal for first-time users
   useEffect(() => {
-    if (isFirstTimeUser && shouldShowWelcomeModal()) {
+    if (shouldShowWelcomeModal()) {
       setShowWelcomeModal(true);
     }
-  }, [isFirstTimeUser, shouldShowWelcomeModal]);
+  }, [shouldShowWelcomeModal]);
 
   if (isLoading) {
     return (

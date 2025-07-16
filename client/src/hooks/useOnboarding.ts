@@ -47,12 +47,15 @@ export function useOnboarding() {
   };
 
   const shouldShowWelcomeModal = () => {
-    return isFirstTimeUser && !isOnboardingComplete;
+    if (!onboardingStatus) return false;
+    // Only show modal if user has onboarding step 0 and onboarding is not complete
+    return user?.onboardingStep === 0 && !isOnboardingComplete;
   };
 
   const shouldShowResumeOnboarding = () => {
     if (!onboardingStatus?.onboardingStatus) return false;
-    return !onboardingStatus.onboardingStatus.isComplete;
+    // Only show resume button if user has started onboarding (step > 0) but not completed it
+    return user?.onboardingStep > 0 && !onboardingStatus.onboardingStatus.isComplete;
   };
 
   return {
