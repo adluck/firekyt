@@ -84,6 +84,35 @@ export class IntegrationService {
   }
 
   /**
+   * Test WordPress API connection
+   */
+  private async testWordPressConnection(blogUrl: string, username: string, appPassword: string): Promise<{success: boolean, error?: string}> {
+    const fetch = (await import('node-fetch')).default;
+    
+    try {
+      const apiUrl = blogUrl.replace(/\/$/, '') + '/wp-json/wp/v2/users/me';
+      const wpAuth = `${username}:${appPassword}`;
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`,
+          'User-Agent': 'FireKyt/1.0'
+        }
+      });
+      
+      if (response.ok) {
+        return { success: true };
+      } else {
+        const errorText = await response.text();
+        return { success: false, error: `API test failed: ${response.status} ${errorText}` };
+      }
+    } catch (error: any) {
+      return { success: false, error: `Connection test failed: ${error.message}` };
+    }
+  }
+
+  /**
    * Publish content to WordPress
    */
   private async publishToWordPress(content: any, connection: any, settings: any): Promise<{postId: string, url: string, publishedAt: Date}> {
@@ -110,34 +139,103 @@ export class IntegrationService {
     const { ContentFormatter } = await import('./utils/contentFormatter');
     const formattedContent = ContentFormatter.formatForPublishing(contentWithIframes, intelligentLinks);
     
+    // Sanitize content to prevent WordPress server errors
+    const sanitizedContent = formattedContent
+      .replace(/\r\n/g, '\n') // Normalize line endings
+      .replace(/\u00A0/g, ' ') // Replace non-breaking spaces
+      .replace(/[\u2000-\u206F\u2E00-\u2E7F\u0080-\u009F]/g, '') // Remove problematic Unicode chars
+      .trim();
+    
     const wpPostData = {
       title: settings.title || content.title,
-      content: formattedContent,
-      excerpt: settings.excerpt || ContentFormatter.generateExcerpt(formattedContent, 160),
+      content: sanitizedContent,
+      excerpt: settings.excerpt || ContentFormatter.generateExcerpt(sanitizedContent, 160),
       status: 'publish',
       format: 'standard'
     };
     
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`
-      },
-      body: JSON.stringify(wpPostData)
+    console.log('🚀 Publishing to WordPress:', {
+      blogUrl,
+      apiUrl,
+      hasToken: !!connection.accessToken,
+      tokenLength: connection.accessToken?.length || 0
     });
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`WordPress API error: ${response.status} ${errorText}`);
+    console.log('🔧 WordPress auth format:', {
+      hasColon: wpAuth.includes(':'),
+      username: connection.platformUsername,
+      authLength: wpAuth.length
+    });
+    
+    console.log('📝 WordPress post data:', {
+      title: wpPostData.title,
+      contentLength: wpPostData.content?.length || 0,
+      excerptLength: wpPostData.excerpt?.length || 0,
+      status: wpPostData.status,
+      hasHtmlTags: /<[^>]*>/g.test(wpPostData.content || '')
+    });
+    
+    // Test connection before attempting to publish
+    const connectionTest = await this.testWordPressConnection(blogUrl, connection.platformUsername, connection.accessToken);
+    if (!connectionTest.success) {
+      throw new Error(`WordPress connection test failed: ${connectionTest.error}`);
     }
     
-    const result = await response.json();
-    return {
-      postId: result.id.toString(),
-      url: result.link,
-      publishedAt: new Date()
-    };
+    console.log('📡 Making WordPress API request to:', apiUrl);
+    
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`,
+          'User-Agent': 'FireKyt/1.0'
+        },
+        body: JSON.stringify(wpPostData),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      console.log('📡 WordPress API response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('❌ WordPress API error:', response.status, errorText);
+        
+        // Enhanced error handling for common WordPress issues
+        if (response.status === 500) {
+          throw new Error(`WordPress server error (500): This is usually caused by a server-side issue. Please check: 1) WordPress site is accessible, 2) Application password is valid, 3) User has publishing permissions, 4) Content doesn't contain problematic HTML/shortcodes. Server response: ${errorText.substring(0, 200)}...`);
+        } else if (response.status === 401) {
+          throw new Error(`WordPress authentication failed (401): Please verify your application password is correct and your user has publishing permissions.`);
+        } else if (response.status === 403) {
+          throw new Error(`WordPress permission denied (403): Your user account doesn't have permission to publish posts. Please ensure you're using an Administrator or Editor account.`);
+        } else {
+          throw new Error(`WordPress API error: ${response.status} ${errorText}`);
+        }
+      }
+      
+      const result = await response.json();
+      return {
+        postId: result.id.toString(),
+        url: result.link,
+        publishedAt: new Date()
+      };
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      
+      // Handle timeout errors
+      if (error.name === 'AbortError') {
+        throw new Error('WordPress publishing timeout: The request took too long to complete. Please try again or check your WordPress site status.');
+      }
+      
+      // Re-throw other errors
+      throw error;
+    }
   }
 
   async connectSocialPlatform(userId: number, platform: string, credentials: any): Promise<SocialPlatformConnection> {
