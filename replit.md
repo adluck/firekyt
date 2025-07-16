@@ -596,6 +596,8 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **ENHANCED: Theme-Based Logo System for Password Reset** - Implemented dynamic logo switching in both ForgotPassword.tsx and ResetPassword.tsx components using useTheme hook; dark mode displays light FireKyt logo, light mode displays dark FireKyt logo for optimal contrast and professional appearance
 ✓ **ENHANCED: WordPress Onboarding Instructions** - Added crucial WordPress user role verification step to onboarding flow; users now receive clear instructions to check their WordPress role is "Editor" or "Administrator" before creating application password; prevents 401 permission errors during publishing
 ✓ **BETA SEAT MANAGEMENT: Deleted Testing Account** - Removed testing account info@grantopic.com (username: Grantopic) to free up beta seats for genuine testers; total user count reduced from 19 to 18, creating more availability for new beta users
+✓ **FIXED: Onboarding Welcome Modal Logic** - Updated shouldShowWelcomeModal and shouldShowResumeOnboarding functions to properly handle user onboarding step tracking; welcome modal now only appears for brand new users (step 0) and doesn't reappear for users who have completed or skipped onboarding
+✓ **FIXED: Onboarding Duplicate Content Creation** - Resolved critical issue where onboarding content generation created duplicate entries; updated GenerateContentStep to use existing content ID for updates instead of creating new content when saving; eliminates duplicate content entries in content manager
 
 ## User Preferences
 

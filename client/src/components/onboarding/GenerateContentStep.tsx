@@ -27,6 +27,7 @@ export function GenerateContentStep() {
 
   const [generatedContent, setGeneratedContent] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [generatedContentId, setGeneratedContentId] = useState<number | null>(null);
 
   // Get user's sites to find the most recent one for onboarding
   const { data: sites } = useQuery({
@@ -71,6 +72,11 @@ export function GenerateContentStep() {
     },
     onSuccess: async (data) => {
       console.log('🔍 Generate Content Response:', data);
+      
+      // Store the generated content ID for updating instead of creating new content
+      if (data.content && data.content.id) {
+        setGeneratedContentId(data.content.id);
+      }
       
       // If content generation is in progress, poll for completion
       if (data.content?.content === "Content generation in progress" && data.content?.id) {
@@ -165,8 +171,15 @@ export function GenerateContentStep() {
 
   const saveContentMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', '/api/content', data);
-      return response.json();
+      // If we have an existing content ID, update it instead of creating new content
+      if (generatedContentId) {
+        const response = await apiRequest('PUT', `/api/content/${generatedContentId}`, data);
+        return response.json();
+      } else {
+        // Fallback to creating new content if no ID exists
+        const response = await apiRequest('POST', '/api/content', data);
+        return response.json();
+      }
     },
     onSuccess: async (data) => {
       // Mark step as complete
@@ -224,6 +237,7 @@ export function GenerateContentStep() {
 
       const siteId = getOnboardingSiteId();
       console.log('🔍 Saving content to site ID:', siteId);
+      console.log('🔍 Using existing content ID:', generatedContentId);
 
       saveContentMutation.mutate({
         title: formData.topic,
@@ -274,6 +288,9 @@ export function GenerateContentStep() {
         if (contentData.content && contentData.content !== "Content generation in progress") {
           // Content is ready
           let finalContent = contentData.content;
+          
+          // Store the content ID for later use
+          setGeneratedContentId(contentData.id);
           
           // Parse JSON if needed
           if (typeof finalContent === 'string' && finalContent.startsWith('{')) {
