@@ -130,13 +130,33 @@ export class ConnectionValidationService {
       
       console.log(`🔐 Auth format: username="${username}", original_password_length=${accessToken?.length}, clean_password_length=${cleanPassword.length}, auth_string="${authString}"`);
       
-      const response = await fetch(apiUrl, {
+      // Also try with lowercase username as WordPress might be case-sensitive
+      const lowercaseUsername = username.toLowerCase();
+      const altAuthString = `${lowercaseUsername}:${cleanPassword}`;
+      console.log(`🔐 Alternative auth string: "${altAuthString}"`);
+      
+      // Try with original case first
+      let response = await fetch(apiUrl, {
         headers: {
           'Authorization': authHeader,
           'Content-Type': 'application/json'
         },
         signal: AbortSignal.timeout(15000) // 15 second timeout
       });
+      
+      // If authentication fails, try with lowercase username
+      if (response.status === 401 && username !== lowercaseUsername) {
+        console.log(`🔄 Retrying with lowercase username: ${lowercaseUsername}`);
+        const altAuthHeader = `Basic ${Buffer.from(altAuthString).toString('base64')}`;
+        
+        response = await fetch(apiUrl, {
+          headers: {
+            'Authorization': altAuthHeader,
+            'Content-Type': 'application/json'
+          },
+          signal: AbortSignal.timeout(15000)
+        });
+      }
       
       console.log(`📡 WordPress API response status: ${response.status} ${response.statusText}`);
       
