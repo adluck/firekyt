@@ -8,6 +8,7 @@ import { SitesTour } from './tours/SitesTour';
 import { ResearchTour } from './tours/ResearchTour';
 import { LinkManagementTour } from './tours/LinkManagementTour';
 import { PublishingTour } from './tours/PublishingTour';
+import { DashboardTour } from './DashboardTour';
 
 interface PageTourContextType {
   startPageTour: (pageName: string) => void;
@@ -195,6 +196,14 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       
       {activePageTour === 'publishing' && (
         <PublishingTour
+          isActive={isPageTourActive}
+          onComplete={completeTour}
+          onSkip={skipTour}
+        />
+      )}
+      
+      {activePageTour === 'dashboard' && (
+        <DashboardTour
           isActive={isPageTourActive}
           onComplete={completeTour}
           onSkip={skipTour}
