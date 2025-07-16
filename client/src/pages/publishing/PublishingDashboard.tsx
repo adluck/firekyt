@@ -832,8 +832,8 @@ export default function PublishingDashboard() {
                           Settings
                         </Button>
                         
-                        {/* Test Connection Button for WordPress */}
-                        {connection.platform === 'wordpress' && !connection.isActive && (
+                        {/* Test Connection Button for WordPress - show for all WordPress connections */}
+                        {connection.platform === 'wordpress' && (
                           <Button 
                             size="sm" 
                             variant="outline"
