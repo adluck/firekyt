@@ -16,6 +16,8 @@ export function useOnboarding() {
     mutationFn: (stepNumber: number) => apiRequest('POST', `/api/onboarding/complete-step/${stepNumber}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/onboarding/status'] });
+      // Also refresh the user object to update onboarding step
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
     },
   });
 
@@ -23,6 +25,8 @@ export function useOnboarding() {
     mutationFn: () => apiRequest('POST', '/api/onboarding/skip'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/onboarding/status'] });
+      // Also refresh the user object to update onboarding step
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
     },
   });
 
