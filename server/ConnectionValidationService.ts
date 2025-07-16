@@ -117,10 +117,14 @@ export class ConnectionValidationService {
       
       // Ensure proper URL formatting (remove trailing slash before adding path)
       const cleanBlogUrl = blogUrl.replace(/\/+$/, '');
+      
+      // First test the base REST API endpoint to see if it's accessible
+      const baseApiUrl = `${cleanBlogUrl}/wp-json/wp/v2`;
       const apiUrl = `${cleanBlogUrl}/wp-json/wp/v2/users/me`;
       console.log(`🔍 Validating WordPress connection ${connection.id} (${username}) - ${blogUrl}`);
       console.log(`🔑 Using access token (length: ${accessToken?.length || 0})`);
-      console.log(`🌐 Testing URL: ${apiUrl}`);
+      console.log(`🌐 Testing base API URL: ${baseApiUrl}`);
+      console.log(`🌐 Testing user endpoint: ${apiUrl}`);
       
       // WordPress uses Basic auth with username:app_password format
       // Note: Remove spaces from application password (WordPress shows them with spaces but they should be removed)
@@ -134,6 +138,27 @@ export class ConnectionValidationService {
       const lowercaseUsername = username.toLowerCase();
       const altAuthString = `${lowercaseUsername}:${cleanPassword}`;
       console.log(`🔐 Alternative auth string: "${altAuthString}"`);
+      
+      // First test if the WordPress REST API is enabled and accessible
+      console.log(`🧪 Testing base WordPress REST API accessibility...`);
+      const baseResponse = await fetch(baseApiUrl, {
+        method: 'GET',
+        signal: AbortSignal.timeout(10000)
+      });
+      
+      console.log(`📡 Base API response status: ${baseResponse.status} ${baseResponse.statusText}`);
+      
+      if (baseResponse.status === 404) {
+        return {
+          isValid: false,
+          platform: 'wordpress',
+          error: 'WordPress REST API not accessible',
+          errorCode: 'REST_API_DISABLED',
+          userMessage: 'WordPress REST API is disabled or not available at this URL. Please check your WordPress settings.',
+          actionRequired: 'Enable WordPress REST API or verify the blog URL is correct',
+          lastChecked: new Date()
+        };
+      }
       
       // Try with original case first
       let response = await fetch(apiUrl, {
