@@ -71,6 +71,24 @@ const connectionSchema = z.object({
   path: ["blogUrl"],
 });
 
+const editConnectionSchema = z.object({
+  platform: z.string().min(1, "Platform is required"),
+  accessToken: z.string().min(1, "Access token is required"),
+  platformUsername: z.string().optional(),
+  platformUserId: z.string().optional(),
+  blogUrl: z.string().optional(),
+  apiEndpoint: z.string().optional(),
+}).refine((data) => {
+  // Require blog URL for WordPress, Ghost, and Custom platforms
+  if (['wordpress', 'ghost', 'custom'].includes(data.platform)) {
+    return data.blogUrl && data.blogUrl.length > 0;
+  }
+  return true;
+}, {
+  message: "Blog URL is required for this platform",
+  path: ["blogUrl"],
+});
+
 const scheduleSchema = z.object({
   contentId: z.string(),
   platformConnectionId: z.string(),
@@ -316,8 +334,8 @@ export default function PublishingDashboard() {
     },
   });
 
-  const editConnectionForm = useForm<z.infer<typeof connectionSchema>>({
-    resolver: zodResolver(connectionSchema),
+  const editConnectionForm = useForm<z.infer<typeof editConnectionSchema>>({
+    resolver: zodResolver(editConnectionSchema),
     defaultValues: {
       platform: "",
       accessToken: "",
@@ -701,7 +719,7 @@ export default function PublishingDashboard() {
                         // Pre-populate edit form with existing values before switching to edit mode
                         const formData = {
                           platform: selectedConnection?.platform || "",
-                          accessToken: "", // Leave empty for security, user can enter new one
+                          accessToken: selectedConnection?.accessToken || "",
                           platformUsername: selectedConnection?.platformUsername || selectedConnection?.username || "",
                           platformUserId: selectedConnection?.platformUserId || "",
                           blogUrl: selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl || "",
@@ -785,11 +803,11 @@ export default function PublishingDashboard() {
                           <FormControl>
                             <Input 
                               type="password" 
-                              placeholder="Enter new access token" 
+                              placeholder="Enter access token" 
                               {...field} 
                             />
                           </FormControl>
-                          <FormDescription>Leave blank to keep current token</FormDescription>
+                          <FormDescription>Your current access token is shown above</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}

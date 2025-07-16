@@ -600,6 +600,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **FIXED: Onboarding Duplicate Content Creation** - Resolved critical issue where onboarding content generation created duplicate entries; updated GenerateContentStep to use existing content ID for updates instead of creating new content when saving; eliminates duplicate content entries in content manager
 ✓ **FIXED: Dashboard Tour Functionality** - Resolved critical issue where dashboard tour was not working after onboarding completion; updated Documentation.tsx to use PageTourProvider hook instead of non-existent OnboardingProvider; added DashboardTour component to PageTourProvider rendering system; Quick Start Guide button now properly triggers dashboard tour with full navigation through all platform sections
 ✓ **ENHANCED: WordPress Publishing Error Handling** - Improved WordPress publishing system with comprehensive error handling for 500 server errors, connection testing, content sanitization, timeout protection, and detailed debugging logs; added pre-publish connection validation and enhanced error messages for better troubleshooting
+✓ **FIXED: Edit Connection Form Validation** - Resolved connection editing issue by creating separate editConnectionSchema with optional access token field, fixed form field population timing, and updated React Hook Form integration for proper form updates
 
 ## User Preferences
 
