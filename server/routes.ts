@@ -33,6 +33,7 @@ import { AdCopyService } from "./services/AdCopyService";
 import { plagiarismService } from "./services/PlagiarismService";
 import { ContentService } from "./ContentService";
 import { IntegrationService } from "./IntegrationService";
+import { connectionValidationService } from "./ConnectionValidationService";
 import { 
   rateLimiter, 
   apiRateLimit, 
@@ -6427,6 +6428,92 @@ async function generateAILinkSuggestions(params: {
       res.status(500).json({ 
         success: false,
         message: 'Test email failed: ' + error.message 
+      });
+    }
+  });
+
+  // ===== WORDPRESS CONNECTION VALIDATION SYSTEM =====
+  
+  // Validate all WordPress connections (Admin only)
+  app.post('/api/admin/validate-wordpress-connections', authenticateToken, requireAdmin, adminRateLimit, async (req, res) => {
+    try {
+      console.log('🔍 Admin triggered WordPress connection validation...');
+      
+      // Run validation on all WordPress connections
+      await connectionValidationService.validateAllWordPressConnections();
+      
+      // Get summary of results
+      const summary = await connectionValidationService.getWordPressValidationSummary();
+      
+      res.json({
+        success: true,
+        message: 'WordPress connection validation completed',
+        summary
+      });
+    } catch (error: any) {
+      console.error('WordPress validation error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to validate WordPress connections',
+        error: error.message 
+      });
+    }
+  });
+  
+  // Get WordPress connection validation summary
+  app.get('/api/admin/wordpress-validation-summary', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const summary = await connectionValidationService.getWordPressValidationSummary();
+      
+      res.json({
+        success: true,
+        summary
+      });
+    } catch (error: any) {
+      console.error('WordPress summary error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get WordPress validation summary',
+        error: error.message 
+      });
+    }
+  });
+  
+  // Test individual WordPress connection
+  app.post('/api/publishing/test-wordpress-connection/:id', authenticateToken, async (req, res) => {
+    try {
+      const connectionId = parseInt(req.params.id);
+      
+      // Get the connection
+      const connection = await storage.getPlatformConnection(connectionId);
+      if (!connection || connection.userId !== req.user!.id) {
+        return res.status(404).json({ 
+          success: false,
+          message: 'WordPress connection not found' 
+        });
+      }
+      
+      if (connection.platform !== 'wordpress') {
+        return res.status(400).json({ 
+          success: false,
+          message: 'Connection is not a WordPress connection' 
+        });
+      }
+      
+      // Test the connection
+      const result = await connectionValidationService.validateWordPressConnection(connection);
+      
+      res.json({
+        success: true,
+        result,
+        message: result.isValid ? 'WordPress connection is working' : 'WordPress connection failed'
+      });
+    } catch (error: any) {
+      console.error('WordPress connection test error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to test WordPress connection',
+        error: error.message 
       });
     }
   });

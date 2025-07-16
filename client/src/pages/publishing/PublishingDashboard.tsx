@@ -362,6 +362,37 @@ export default function PublishingDashboard() {
     },
   });
 
+  // Test individual WordPress connection mutation
+  const testConnectionMutation = useMutation({
+    mutationFn: async (connectionId: number) => {
+      const response = await apiRequest('POST', `/api/publishing/test-wordpress-connection/${connectionId}`, {});
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
+      if (data.result?.isValid) {
+        toast({ 
+          title: "Connection Test Successful", 
+          description: "WordPress connection is working properly",
+          variant: "default"
+        });
+      } else {
+        toast({ 
+          title: "Connection Test Failed", 
+          description: data.result?.userMessage || "WordPress connection failed authentication",
+          variant: "destructive" 
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Test failed", 
+        description: error?.message || "Failed to test WordPress connection",
+        variant: "destructive" 
+      });
+    },
+  });
+
   const onSchedulePublication = (values: z.infer<typeof scheduleSchema>) => {
     // Ensure the scheduled time is in ISO format
     const scheduledDate = new Date(values.scheduledAt);
@@ -745,6 +776,48 @@ export default function PublishingDashboard() {
                       <p className="text-sm text-muted-foreground">
                         Connected: {new Date(connection.createdAt).toLocaleDateString()}
                       </p>
+                      
+                      {/* WordPress Connection Error Display */}
+                      {connection.platform === 'wordpress' && !connection.isActive && connection.connectionData?.validationError && (
+                        <div className="mt-3 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md">
+                          <div className="flex items-start gap-2">
+                            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                                Authentication Failed
+                              </p>
+                              <p className="text-xs text-red-700 dark:text-red-300">
+                                {connection.connectionData.validationError.userMessage}
+                              </p>
+                              <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                                {connection.connectionData.validationError.actionRequired}
+                              </p>
+                              {connection.connectionData.validationError.lastError && (
+                                <p className="text-xs text-red-500 dark:text-red-500">
+                                  Last checked: {new Date(connection.connectionData.validationError.lastError).toLocaleString()}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* General Connection Error Display */}
+                      {connection.platform !== 'wordpress' && !connection.isActive && connection.lastError && (
+                        <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-md">
+                          <div className="flex items-start gap-2">
+                            <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                                Connection Issue
+                              </p>
+                              <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                                {connection.lastError}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       <div className="flex flex-col sm:flex-row gap-2 pt-2">
                         <Button 
                           size="sm" 
@@ -758,6 +831,21 @@ export default function PublishingDashboard() {
                           <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           Settings
                         </Button>
+                        
+                        {/* Test Connection Button for WordPress */}
+                        {connection.platform === 'wordpress' && !connection.isActive && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="w-full sm:w-auto justify-center sm:justify-start text-xs sm:text-sm"
+                            onClick={() => testConnectionMutation.mutate(connection.id)}
+                            disabled={testConnectionMutation.isPending}
+                          >
+                            <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 mr-1 ${testConnectionMutation.isPending ? 'animate-spin' : ''}`} />
+                            {testConnectionMutation.isPending ? "Testing..." : "Test Connection"}
+                          </Button>
+                        )}
+                        
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -766,6 +854,7 @@ export default function PublishingDashboard() {
                             setSelectedContent(userContent[0]);
                             setShowScheduleDialog(true);
                           }}
+                          disabled={!connection.isActive}
                         >
                           <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           Schedule
@@ -775,10 +864,18 @@ export default function PublishingDashboard() {
                           variant="default"
                           className="w-full sm:w-auto md:w-auto lg:w-auto xl:w-auto 2xl:w-auto justify-center sm:justify-start text-xs sm:text-sm flex-shrink-0"
                           onClick={() => {
+                            if (!connection.isActive) {
+                              toast({
+                                title: "Connection Inactive",
+                                description: "This connection is not active. Please test and fix the connection first.",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
                             setSelectedConnection(connection);
                             setShowPublishDialog(true);
                           }}
-                          disabled={publishNowMutation.isPending}
+                          disabled={publishNowMutation.isPending || !connection.isActive}
                         >
                           <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
                           <span className="whitespace-nowrap">
