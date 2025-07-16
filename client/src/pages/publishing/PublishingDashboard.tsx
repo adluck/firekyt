@@ -138,7 +138,9 @@ export default function PublishingDashboard() {
       // Use setTimeout to ensure form is ready
       setTimeout(() => {
         editConnectionForm.reset(formData);
-      }, 50);
+        // Force trigger form state update
+        editConnectionForm.trigger();
+      }, 100);
     }
   }, [isEditingConnection, selectedConnection]);
 
@@ -356,7 +358,7 @@ export default function PublishingDashboard() {
 
   const editConnectionForm = useForm<z.infer<typeof editConnectionSchema>>({
     resolver: zodResolver(editConnectionSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       platform: "",
       accessToken: "",
@@ -810,7 +812,11 @@ export default function PublishingDashboard() {
                             <Input 
                               type="password" 
                               placeholder="Enter access token" 
-                              {...field} 
+                              {...field}
+                              onChange={(e) => {
+                                console.log("Access token changing, length:", e.target.value.length);
+                                field.onChange(e.target.value);
+                              }}
                             />
                           </FormControl>
                           <FormDescription>Your current access token is shown above</FormDescription>
@@ -826,7 +832,14 @@ export default function PublishingDashboard() {
                         <FormItem>
                           <FormLabel>Blog URL</FormLabel>
                           <FormControl>
-                            <Input placeholder="https://yourblog.com" {...field} />
+                            <Input 
+                              placeholder="https://yourblog.com" 
+                              {...field}
+                              onChange={(e) => {
+                                console.log("Blog URL changing to:", e.target.value);
+                                field.onChange(e.target.value);
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
