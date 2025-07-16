@@ -818,11 +818,11 @@ export default function PublishingDashboard() {
                           </div>
                         </div>
                       )}
-                      <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                      <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 pt-2">
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="w-full sm:w-auto justify-center sm:justify-start text-xs sm:text-sm"
+                          className="justify-center sm:justify-start text-xs sm:text-sm"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowConnectionDialog(true);
@@ -837,19 +837,20 @@ export default function PublishingDashboard() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            className="w-full sm:w-auto justify-center sm:justify-start text-xs sm:text-sm"
+                            className="justify-center sm:justify-start text-xs sm:text-sm"
                             onClick={() => testConnectionMutation.mutate(connection.id)}
                             disabled={testConnectionMutation.isPending}
                           >
                             <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 mr-1 ${testConnectionMutation.isPending ? 'animate-spin' : ''}`} />
-                            {testConnectionMutation.isPending ? "Testing..." : "Test Connection"}
+                            <span className="hidden sm:inline">{testConnectionMutation.isPending ? "Testing..." : "Test Connection"}</span>
+                            <span className="sm:hidden">Test</span>
                           </Button>
                         )}
                         
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="w-full sm:w-auto justify-center sm:justify-start text-xs sm:text-sm"
+                          className="justify-center sm:justify-start text-xs sm:text-sm"
                           onClick={() => {
                             setSelectedContent(userContent[0]);
                             setShowScheduleDialog(true);
@@ -862,7 +863,7 @@ export default function PublishingDashboard() {
                         <Button 
                           size="sm" 
                           variant="default"
-                          className="w-full sm:w-auto md:w-auto lg:w-auto xl:w-auto 2xl:w-auto justify-center sm:justify-start text-xs sm:text-sm flex-shrink-0"
+                          className="justify-center sm:justify-start text-xs sm:text-sm flex-shrink-0"
                           onClick={() => {
                             if (!connection.isActive) {
                               toast({
