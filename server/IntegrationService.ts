@@ -91,7 +91,9 @@ export class IntegrationService {
     
     try {
       const apiUrl = blogUrl.replace(/\/$/, '') + '/wp-json/wp/v2/users/me';
-      const wpAuth = `${username}:${appPassword}`;
+      // Remove spaces from application password (WordPress shows them with spaces)
+      const cleanPassword = appPassword.replace(/\s+/g, '');
+      const wpAuth = `${username}:${cleanPassword}`;
       
       const response = await fetch(apiUrl, {
         method: 'GET',

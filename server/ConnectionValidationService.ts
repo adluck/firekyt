@@ -123,11 +123,12 @@ export class ConnectionValidationService {
       console.log(`🌐 Testing URL: ${apiUrl}`);
       
       // WordPress uses Basic auth with username:app_password format
-      // Note: accessToken should be the raw application password (not username:password)
-      const authString = `${username}:${accessToken}`;
+      // Note: Remove spaces from application password (WordPress shows them with spaces but they should be removed)
+      const cleanPassword = accessToken.replace(/\s+/g, '');
+      const authString = `${username}:${cleanPassword}`;
       const authHeader = `Basic ${Buffer.from(authString).toString('base64')}`;
       
-      console.log(`🔐 Auth format: username="${username}", password_length=${accessToken?.length}, auth_string_length=${authString.length}, auth_header_length=${authHeader.length}`);
+      console.log(`🔐 Auth format: username="${username}", original_password_length=${accessToken?.length}, clean_password_length=${cleanPassword.length}, auth_string="${authString}"`);
       
       const response = await fetch(apiUrl, {
         headers: {
