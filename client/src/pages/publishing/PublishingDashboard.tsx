@@ -124,7 +124,7 @@ export default function PublishingDashboard() {
 
   // Effect to populate form when entering edit mode
   useEffect(() => {
-    if (isEditingConnection && selectedConnection) {
+    if (isEditingConnection && selectedConnection && !isSaving) {
       const formData = {
         platform: selectedConnection?.platform || "",
         accessToken: selectedConnection?.accessToken || "",
@@ -142,7 +142,10 @@ export default function PublishingDashboard() {
       editConnectionForm.reset(formData);
       setFormKey(prev => prev + 1);
     }
-  }, [isEditingConnection, selectedConnection]);
+  }, [isEditingConnection, selectedConnection, isSaving]);
+
+  // Prevent form repopulation during save process
+  const [isSaving, setIsSaving] = useState(false);
 
   // Update minimum datetime every minute
   useEffect(() => {
@@ -292,6 +295,7 @@ export default function PublishingDashboard() {
   // Update connection mutation
   const updateConnectionMutation = useMutation({
     mutationFn: async (data: { id: number; updates: any }) => {
+      setIsSaving(true);
       console.log("Sending update with data:", data);
       // Use direct state data for reliability
       const updateData = {
@@ -304,12 +308,21 @@ export default function PublishingDashboard() {
     },
     onSuccess: (result) => {
       console.log("Update successful, result:", result);
-      queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
+      // Close edit mode immediately to prevent re-population with old data
       setIsEditingConnection(false);
+      setSelectedConnection(null);
       setShowConnectionDialog(false);
+      setIsSaving(false);
+      
+      // Delay the query invalidation to prevent race condition
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
+      }, 500);
+      
       toast({ title: "Connection updated successfully" });
     },
     onError: (error: any) => {
+      setIsSaving(false);
       console.error("Update failed:", error);
       toast({ 
         title: "Failed to update connection", 
