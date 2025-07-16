@@ -698,16 +698,20 @@ export default function PublishingDashboard() {
                       variant="outline" 
                       size="sm"
                       onClick={() => {
-                        setIsEditingConnection(true);
-                        // Pre-populate edit form with existing values
-                        editConnectionForm.reset({
+                        // Pre-populate edit form with existing values before switching to edit mode
+                        const formData = {
                           platform: selectedConnection?.platform || "",
-                          accessToken: selectedConnection?.accessToken || "",
+                          accessToken: "", // Leave empty for security, user can enter new one
                           platformUsername: selectedConnection?.platformUsername || selectedConnection?.username || "",
                           platformUserId: selectedConnection?.platformUserId || "",
                           blogUrl: selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl || "",
                           apiEndpoint: selectedConnection?.connectionData?.apiEndpoint || selectedConnection?.apiEndpoint || "",
-                        });
+                        };
+                        editConnectionForm.reset(formData);
+                        // Small delay to ensure form is reset before switching to edit mode
+                        setTimeout(() => {
+                          setIsEditingConnection(true);
+                        }, 100);
                       }}
                     >
                       <Settings className="h-4 w-4 mr-1" />
@@ -739,7 +743,7 @@ export default function PublishingDashboard() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Platform</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
+                          <Select onValueChange={field.onChange} value={field.value} disabled>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Platform (cannot be changed)" />
