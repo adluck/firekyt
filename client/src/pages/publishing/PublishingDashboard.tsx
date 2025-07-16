@@ -124,7 +124,7 @@ export default function PublishingDashboard() {
 
   // Effect to populate form when entering edit mode
   useEffect(() => {
-    if (isEditingConnection && selectedConnection) {
+    if (isEditingConnection && selectedConnection && editConnectionForm) {
       const formData = {
         platform: selectedConnection?.platform || "",
         accessToken: selectedConnection?.accessToken || "",
@@ -134,9 +134,13 @@ export default function PublishingDashboard() {
         apiEndpoint: selectedConnection?.connectionData?.apiEndpoint || selectedConnection?.apiEndpoint || "",
       };
       console.log("Populating edit form with:", formData);
-      editConnectionForm.reset(formData);
+      
+      // Use setTimeout to ensure form is ready
+      setTimeout(() => {
+        editConnectionForm.reset(formData);
+      }, 50);
     }
-  }, [isEditingConnection, selectedConnection, editConnectionForm]);
+  }, [isEditingConnection, selectedConnection]);
 
   // Update minimum datetime every minute
   useEffect(() => {
