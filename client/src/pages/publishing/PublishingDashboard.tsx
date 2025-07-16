@@ -818,52 +818,68 @@ export default function PublishingDashboard() {
                           </div>
                         </div>
                       )}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 pt-2">
+                      <div className="grid grid-cols-2 gap-2 pt-2">
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="justify-center sm:justify-start text-xs sm:text-sm"
+                          className="justify-center text-xs"
                           onClick={() => {
                             setSelectedConnection(connection);
                             setShowConnectionDialog(true);
                           }}
                         >
-                          <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                          <Settings className="h-3 w-3 mr-1" />
                           Settings
                         </Button>
                         
                         {/* Test Connection Button for WordPress - show for all WordPress connections */}
+                        {connection.platform === 'wordpress' ? (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="justify-center text-xs"
+                            onClick={() => testConnectionMutation.mutate(connection.id)}
+                            disabled={testConnectionMutation.isPending}
+                          >
+                            <RefreshCw className={`h-3 w-3 mr-1 ${testConnectionMutation.isPending ? 'animate-spin' : ''}`} />
+                            {testConnectionMutation.isPending ? "Testing..." : "Test"}
+                          </Button>
+                        ) : (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="justify-center text-xs"
+                            onClick={() => {
+                              setSelectedContent(userContent[0]);
+                              setShowScheduleDialog(true);
+                            }}
+                            disabled={!connection.isActive}
+                          >
+                            <Calendar className="h-3 w-3 mr-1" />
+                            Schedule
+                          </Button>
+                        )}
+                        
                         {connection.platform === 'wordpress' && (
                           <Button 
                             size="sm" 
                             variant="outline"
-                            className="justify-center sm:justify-start text-xs sm:text-sm"
-                            onClick={() => testConnectionMutation.mutate(connection.id)}
-                            disabled={testConnectionMutation.isPending}
+                            className="justify-center text-xs"
+                            onClick={() => {
+                              setSelectedContent(userContent[0]);
+                              setShowScheduleDialog(true);
+                            }}
+                            disabled={!connection.isActive}
                           >
-                            <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 mr-1 ${testConnectionMutation.isPending ? 'animate-spin' : ''}`} />
-                            <span className="hidden sm:inline">{testConnectionMutation.isPending ? "Testing..." : "Test Connection"}</span>
-                            <span className="sm:hidden">Test</span>
+                            <Calendar className="h-3 w-3 mr-1" />
+                            Schedule
                           </Button>
                         )}
                         
                         <Button 
                           size="sm" 
-                          variant="outline"
-                          className="justify-center sm:justify-start text-xs sm:text-sm"
-                          onClick={() => {
-                            setSelectedContent(userContent[0]);
-                            setShowScheduleDialog(true);
-                          }}
-                          disabled={!connection.isActive}
-                        >
-                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          Schedule
-                        </Button>
-                        <Button 
-                          size="sm" 
                           variant="default"
-                          className="justify-center sm:justify-start text-xs sm:text-sm flex-shrink-0"
+                          className="justify-center text-xs"
                           onClick={() => {
                             if (!connection.isActive) {
                               toast({
@@ -878,10 +894,8 @@ export default function PublishingDashboard() {
                           }}
                           disabled={publishNowMutation.isPending || !connection.isActive}
                         >
-                          <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
-                          <span className="whitespace-nowrap">
-                            {publishNowMutation.isPending ? "Publishing..." : "Publish Now"}
-                          </span>
+                          <Play className="h-3 w-3 mr-1" />
+                          {publishNowMutation.isPending ? "Publishing..." : "Publish"}
                         </Button>
                       </div>
                     </div>
