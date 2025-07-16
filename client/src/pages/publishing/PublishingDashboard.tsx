@@ -828,14 +828,14 @@ export default function PublishingDashboard() {
                             <Input 
                               type="password" 
                               placeholder="Enter access token" 
-                              {...field}
+                              value={field.value || ""}
                               onChange={(e) => {
                                 console.log("Access token changing, length:", e.target.value.length);
                                 field.onChange(e.target.value);
                               }}
                             />
                           </FormControl>
-                          <FormDescription>Your current access token is shown above</FormDescription>
+                          <FormDescription>Token length: {field.value?.length || 0} characters</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -850,13 +850,16 @@ export default function PublishingDashboard() {
                           <FormControl>
                             <Input 
                               placeholder="https://yourblog.com" 
-                              {...field}
+                              value={field.value || ""}
                               onChange={(e) => {
                                 console.log("Blog URL changing to:", e.target.value);
+                                console.log("Field value before:", field.value);
                                 field.onChange(e.target.value);
+                                console.log("Field value after:", e.target.value);
                               }}
                             />
                           </FormControl>
+                          <FormDescription>Current value: {field.value || "(empty)"}</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
