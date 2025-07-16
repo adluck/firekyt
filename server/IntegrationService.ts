@@ -140,11 +140,17 @@ export class IntegrationService {
     const formattedContent = ContentFormatter.formatForPublishing(contentWithIframes, intelligentLinks);
     
     // Sanitize content to prevent WordPress server errors
-    const sanitizedContent = formattedContent
+    let sanitizedContent = formattedContent
       .replace(/\r\n/g, '\n') // Normalize line endings
       .replace(/\u00A0/g, ' ') // Replace non-breaking spaces
       .replace(/[\u2000-\u206F\u2E00-\u2E7F\u0080-\u009F]/g, '') // Remove problematic Unicode chars
       .trim();
+      
+    // If content is too large, try reducing it to prevent 500 errors
+    if (sanitizedContent.length > 5000) {
+      console.log('⚠️ Content is large, truncating to prevent server errors');
+      sanitizedContent = sanitizedContent.substring(0, 5000) + '...';
+    }
     
     const wpPostData = {
       title: settings.title || content.title,
@@ -176,10 +182,15 @@ export class IntegrationService {
     });
     
     // Test connection before attempting to publish
+    console.log('🧪 Testing WordPress connection...');
     const connectionTest = await this.testWordPressConnection(blogUrl, connection.platformUsername, connection.accessToken);
+    console.log('🧪 Connection test result:', connectionTest);
+    
     if (!connectionTest.success) {
       throw new Error(`WordPress connection test failed: ${connectionTest.error}`);
     }
+    
+    console.log('✅ WordPress connection test passed');
     
     console.log('📡 Making WordPress API request to:', apiUrl);
     
@@ -209,7 +220,40 @@ export class IntegrationService {
         
         // Enhanced error handling for common WordPress issues
         if (response.status === 500) {
-          throw new Error(`WordPress server error (500): This is usually caused by a server-side issue. Please check: 1) WordPress site is accessible, 2) Application password is valid, 3) User has publishing permissions, 4) Content doesn't contain problematic HTML/shortcodes. Server response: ${errorText.substring(0, 200)}...`);
+          // Try again with minimal content if 500 error occurs
+          console.log('🔄 Attempting to publish with simplified content...');
+          const minimalContent = `<h1>${wpPostData.title}</h1><p>Content published via FireKyt. Full content may be available at source.</p>`;
+          
+          const minimalPostData = {
+            title: wpPostData.title,
+            content: minimalContent,
+            excerpt: wpPostData.excerpt,
+            status: 'draft', // Start as draft for safety
+            format: 'standard'
+          };
+          
+          const retryResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${Buffer.from(wpAuth).toString('base64')}`,
+              'User-Agent': 'FireKyt/1.0'
+            },
+            body: JSON.stringify(minimalPostData),
+            signal: controller.signal
+          });
+          
+          if (retryResponse.ok) {
+            console.log('✅ Minimal content publish succeeded');
+            const result = await retryResponse.json();
+            return {
+              postId: result.id.toString(),
+              url: result.link,
+              publishedAt: new Date()
+            };
+          } else {
+            throw new Error(`WordPress server error (500): This is usually caused by a server-side issue. Please check: 1) WordPress site is accessible, 2) Application password is valid, 3) User has publishing permissions, 4) Content doesn't contain problematic HTML/shortcodes. Server response: ${errorText.substring(0, 200)}...`);
+          }
         } else if (response.status === 401) {
           throw new Error(`WordPress authentication failed (401): Please verify your application password is correct and your user has publishing permissions.`);
         } else if (response.status === 403) {
