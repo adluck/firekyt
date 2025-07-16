@@ -115,16 +115,19 @@ export class ConnectionValidationService {
         };
       }
       
-      const apiUrl = `${blogUrl}/wp-json/wp/v2/users/me`;
+      // Ensure proper URL formatting (remove trailing slash before adding path)
+      const cleanBlogUrl = blogUrl.replace(/\/+$/, '');
+      const apiUrl = `${cleanBlogUrl}/wp-json/wp/v2/users/me`;
       console.log(`🔍 Validating WordPress connection ${connection.id} (${username}) - ${blogUrl}`);
       console.log(`🔑 Using access token (length: ${accessToken?.length || 0})`);
       console.log(`🌐 Testing URL: ${apiUrl}`);
       
       // WordPress uses Basic auth with username:app_password format
+      // Note: accessToken should be the raw application password (not username:password)
       const authString = `${username}:${accessToken}`;
       const authHeader = `Basic ${Buffer.from(authString).toString('base64')}`;
       
-      console.log(`🔐 Auth format: username="${username}", password_length=${accessToken?.length}, auth_header_length=${authHeader.length}`);
+      console.log(`🔐 Auth format: username="${username}", password_length=${accessToken?.length}, auth_string_length=${authString.length}, auth_header_length=${authHeader.length}`);
       
       const response = await fetch(apiUrl, {
         headers: {
