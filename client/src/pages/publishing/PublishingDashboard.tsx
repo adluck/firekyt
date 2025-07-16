@@ -725,11 +725,13 @@ export default function PublishingDashboard() {
                           blogUrl: selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl || "",
                           apiEndpoint: selectedConnection?.connectionData?.apiEndpoint || selectedConnection?.apiEndpoint || "",
                         };
+                        console.log("Resetting form with data:", formData);
                         editConnectionForm.reset(formData);
-                        // Small delay to ensure form is reset before switching to edit mode
-                        setTimeout(() => {
-                          setIsEditingConnection(true);
-                        }, 100);
+                        // Set values explicitly to ensure they are populated
+                        Object.entries(formData).forEach(([key, value]) => {
+                          editConnectionForm.setValue(key as any, value);
+                        });
+                        setIsEditingConnection(true);
                       }}
                     >
                       <Settings className="h-4 w-4 mr-1" />
