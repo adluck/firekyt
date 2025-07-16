@@ -449,9 +449,17 @@ export async function generateContent(
     // Update database content if callback provided (preserving siteId)
     if (updateContentCallback && databaseContentId) {
       try {
+        // Store only the content text, not the entire JSON object
+        const contentText = generatedContent.content || JSON.stringify(generatedContent, null, 2);
+        console.log('Storing content text in database:', { 
+          hasContent: !!generatedContent.content, 
+          contentType: typeof generatedContent.content,
+          contentLength: contentText.length 
+        });
+        
         await updateContentCallback(databaseContentId, {
           title: generatedContent.title || `Generated Content - ${request.keyword}`,
-          content: generatedContent.content,
+          content: contentText, // Store only the content text
           seoTitle: generatedContent.seo_title,
           seoDescription: generatedContent.seo_description,
           // Keep status as draft - let user decide when to publish

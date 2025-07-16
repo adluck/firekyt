@@ -87,24 +87,37 @@ export function GenerateContentStep() {
       // Extract the actual content text from the response
       let contentText = '';
       
-      // Try different possible response structures
+      console.log('🔍 Raw data structure:', data);
+      
+      // Try different possible response structures in order of preference
       if (data.content?.content) {
+        // Structure: { content: { content: "actual content" } }
         contentText = data.content.content;
+        console.log('🔍 Using data.content.content');
       } else if (data.content && typeof data.content === 'string') {
+        // Structure: { content: "actual content" }
         contentText = data.content;
+        console.log('🔍 Using data.content (string)');
       } else if (data.generated_text) {
+        // Structure: { generated_text: "actual content" }
         contentText = data.generated_text;
+        console.log('🔍 Using data.generated_text');
       } else if (data.generatedText) {
+        // Structure: { generatedText: "actual content" }
         contentText = data.generatedText;
+        console.log('🔍 Using data.generatedText');
       }
       
-      // Enhanced JSON parsing to handle multiple levels of nesting
+      // Enhanced JSON parsing to handle Gemini AI's complex nested responses
       if (contentText && typeof contentText === 'string') {
+        console.log('🔍 Content text preview:', contentText.substring(0, 200) + '...');
+        
         // Remove markdown code blocks if present
         if (contentText.includes('```json')) {
           const jsonMatch = contentText.match(/```json\s*(\{[\s\S]*?\})\s*```/);
           if (jsonMatch) {
             contentText = jsonMatch[1];
+            console.log('🔍 Extracted from markdown code block');
           }
         }
         
@@ -112,8 +125,9 @@ export function GenerateContentStep() {
         if (contentText.trim().startsWith('{') && contentText.trim().endsWith('}')) {
           try {
             let parsed = JSON.parse(contentText);
+            console.log('🔍 Parsed JSON structure:', Object.keys(parsed));
             
-            // Handle multiple levels of nested JSON
+            // Handle multiple levels of nested JSON (Gemini sometimes does this)
             let attempts = 0;
             while (attempts < 3 && typeof parsed === 'object' && parsed !== null) {
               if (parsed.content && typeof parsed.content === 'string') {
@@ -122,29 +136,35 @@ export function GenerateContentStep() {
                   try {
                     parsed = JSON.parse(parsed.content);
                     attempts++;
+                    console.log('🔍 Parsed nested JSON, attempt', attempts);
                   } catch (e) {
                     contentText = parsed.content;
+                    console.log('🔍 Failed to parse nested JSON, using content field');
                     break;
                   }
                 } else {
                   contentText = parsed.content;
+                  console.log('🔍 Using content field from parsed JSON');
                   break;
                 }
               } else if (parsed.generated_text) {
                 contentText = parsed.generated_text;
+                console.log('🔍 Using generated_text from parsed JSON');
                 break;
               } else if (parsed.text) {
                 contentText = parsed.text;
+                console.log('🔍 Using text from parsed JSON');
                 break;
               } else {
                 // If no recognized content field, use the original
                 contentText = contentText;
+                console.log('🔍 No recognized content field, using original');
                 break;
               }
               attempts++;
             }
           } catch (e) {
-            console.log('Content not valid JSON, using as-is');
+            console.log('🔍 Content not valid JSON, using as-is:', e);
           }
         }
       }
