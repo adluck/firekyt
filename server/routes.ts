@@ -6500,8 +6500,25 @@ async function generateAILinkSuggestions(params: {
         });
       }
       
+      console.log('🔍 Testing WordPress connection:', {
+        connectionId,
+        blogUrl: connection.blogUrl,
+        username: connection.username,
+        hasAccessToken: !!connection.accessToken,
+        accessTokenLength: connection.accessToken?.length || 0
+      });
+
       // Test the connection
       const result = await connectionValidationService.validateWordPressConnection(connection);
+      
+      console.log('🔍 WordPress connection test result:', {
+        isValid: result.isValid,
+        userMessage: result.userMessage,
+        actionRequired: result.actionRequired,
+        lastError: result.lastError,
+        httpStatus: result.httpStatus,
+        rawError: result.rawError
+      });
       
       res.json({
         success: true,

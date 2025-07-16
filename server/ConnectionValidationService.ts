@@ -63,6 +63,8 @@ export class ConnectionValidationService {
       
       const apiUrl = `${blogUrl}/wp-json/wp/v2/users/me`;
       console.log(`🔍 Validating WordPress connection ${connection.id} (${connection.platformUsername}) - ${blogUrl}`);
+      console.log(`🔑 Using access token (length: ${connection.accessToken?.length || 0})`);
+      console.log(`🌐 Testing URL: ${apiUrl}`);
       
       const response = await fetch(apiUrl, {
         headers: {
@@ -72,7 +74,10 @@ export class ConnectionValidationService {
         signal: AbortSignal.timeout(15000) // 15 second timeout
       });
       
+      console.log(`📡 WordPress API response status: ${response.status} ${response.statusText}`);
+      
       const responseData = await response.json();
+      console.log(`📋 WordPress API response data:`, responseData);
       
       if (response.ok) {
         console.log(`✅ WordPress connection ${connection.id} is valid`);
