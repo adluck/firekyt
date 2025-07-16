@@ -135,12 +135,21 @@ export default function PublishingDashboard() {
       };
       console.log("Populating edit form with:", formData);
       
+      // Force form re-render with new key
+      setFormKey(prev => prev + 1);
+      
       // Use setTimeout to ensure form is ready
       setTimeout(() => {
         editConnectionForm.reset(formData);
         // Force trigger form state update
         editConnectionForm.trigger();
-      }, 100);
+        
+        // Debug: Check form values after reset
+        setTimeout(() => {
+          const currentValues = editConnectionForm.getValues();
+          console.log("Form values after reset:", currentValues);
+        }, 50);
+      }, 150);
     }
   }, [isEditingConnection, selectedConnection]);
 
@@ -292,15 +301,19 @@ export default function PublishingDashboard() {
   // Update connection mutation
   const updateConnectionMutation = useMutation({
     mutationFn: async (data: { id: number; updates: any }) => {
+      console.log("Sending update with data:", data);
       const response = await apiRequest('PUT', `/api/publishing/connections/${data.id}`, data.updates);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      console.log("Update successful, result:", result);
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
       setIsEditingConnection(false);
+      setShowConnectionDialog(false);
       toast({ title: "Connection updated successfully" });
     },
     onError: (error: any) => {
+      console.error("Update failed:", error);
       toast({ 
         title: "Failed to update connection", 
         description: error?.message || "Failed to update connection",
@@ -368,6 +381,9 @@ export default function PublishingDashboard() {
       apiEndpoint: "",
     },
   });
+
+  // Add state to force re-render
+  const [formKey, setFormKey] = useState(0);
 
   const onAddConnection = (values: z.infer<typeof connectionSchema>) => {
     addConnectionMutation.mutate(values);
@@ -761,7 +777,7 @@ export default function PublishingDashboard() {
                   </div>
                 </div>
               ) : (
-                <Form {...editConnectionForm}>
+                <Form {...editConnectionForm} key={formKey}>
                   <form onSubmit={editConnectionForm.handleSubmit(onUpdateConnection)} className="space-y-4">
                     <FormField
                       control={editConnectionForm.control}
