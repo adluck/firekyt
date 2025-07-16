@@ -124,7 +124,7 @@ export default function PublishingDashboard() {
 
   // Effect to populate form when entering edit mode
   useEffect(() => {
-    if (isEditingConnection && selectedConnection && editConnectionForm) {
+    if (isEditingConnection && selectedConnection) {
       const formData = {
         platform: selectedConnection?.platform || "",
         accessToken: selectedConnection?.accessToken || "",
@@ -135,21 +135,12 @@ export default function PublishingDashboard() {
       };
       console.log("Populating edit form with:", formData);
       
-      // Force form re-render with new key
-      setFormKey(prev => prev + 1);
+      // Set direct state for reliable UI updates
+      setEditFormData(formData);
       
-      // Use setTimeout to ensure form is ready
-      setTimeout(() => {
-        editConnectionForm.reset(formData);
-        // Force trigger form state update
-        editConnectionForm.trigger();
-        
-        // Debug: Check form values after reset
-        setTimeout(() => {
-          const currentValues = editConnectionForm.getValues();
-          console.log("Form values after reset:", currentValues);
-        }, 50);
-      }, 150);
+      // Also set React Hook Form for validation
+      editConnectionForm.reset(formData);
+      setFormKey(prev => prev + 1);
     }
   }, [isEditingConnection, selectedConnection]);
 
@@ -302,7 +293,13 @@ export default function PublishingDashboard() {
   const updateConnectionMutation = useMutation({
     mutationFn: async (data: { id: number; updates: any }) => {
       console.log("Sending update with data:", data);
-      const response = await apiRequest('PUT', `/api/publishing/connections/${data.id}`, data.updates);
+      // Use direct state data for reliability
+      const updateData = {
+        ...data.updates,
+        ...editFormData, // Override with direct state values
+      };
+      console.log("Using final update data:", updateData);
+      const response = await apiRequest('PUT', `/api/publishing/connections/${data.id}`, updateData);
       return response.json();
     },
     onSuccess: (result) => {
@@ -384,6 +381,16 @@ export default function PublishingDashboard() {
 
   // Add state to force re-render
   const [formKey, setFormKey] = useState(0);
+  
+  // Direct state management for edit form (bypass React Hook Form issues)
+  const [editFormData, setEditFormData] = useState({
+    platform: "",
+    accessToken: "",
+    platformUsername: "",
+    platformUserId: "",
+    blogUrl: "",
+    apiEndpoint: "",
+  });
 
   const onAddConnection = (values: z.infer<typeof connectionSchema>) => {
     addConnectionMutation.mutate(values);
@@ -828,14 +835,15 @@ export default function PublishingDashboard() {
                             <Input 
                               type="password" 
                               placeholder="Enter access token" 
-                              value={field.value || ""}
+                              value={editFormData.accessToken}
                               onChange={(e) => {
                                 console.log("Access token changing, length:", e.target.value.length);
+                                setEditFormData(prev => ({ ...prev, accessToken: e.target.value }));
                                 field.onChange(e.target.value);
                               }}
                             />
                           </FormControl>
-                          <FormDescription>Token length: {field.value?.length || 0} characters</FormDescription>
+                          <FormDescription>Token length: {editFormData.accessToken?.length || 0} characters</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -850,16 +858,15 @@ export default function PublishingDashboard() {
                           <FormControl>
                             <Input 
                               placeholder="https://yourblog.com" 
-                              value={field.value || ""}
+                              value={editFormData.blogUrl}
                               onChange={(e) => {
                                 console.log("Blog URL changing to:", e.target.value);
-                                console.log("Field value before:", field.value);
+                                setEditFormData(prev => ({ ...prev, blogUrl: e.target.value }));
                                 field.onChange(e.target.value);
-                                console.log("Field value after:", e.target.value);
                               }}
                             />
                           </FormControl>
-                          <FormDescription>Current value: {field.value || "(empty)"}</FormDescription>
+                          <FormDescription>Current value: {editFormData.blogUrl || "(empty)"}</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
