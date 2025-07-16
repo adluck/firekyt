@@ -122,10 +122,11 @@ export default function PublishingDashboard() {
   const [isEditingConnection, setIsEditingConnection] = useState(false);
   const [minDateTime, setMinDateTime] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
 
   // Effect to populate form when entering edit mode
   useEffect(() => {
-    if (isEditingConnection && selectedConnection && !isSaving) {
+    if (isEditingConnection && selectedConnection && !isSaving && !justSaved) {
       const formData = {
         platform: selectedConnection?.platform || "",
         accessToken: selectedConnection?.accessToken || "",
@@ -143,7 +144,7 @@ export default function PublishingDashboard() {
       editConnectionForm.reset(formData);
       setFormKey(prev => prev + 1);
     }
-  }, [isEditingConnection, selectedConnection, isSaving]);
+  }, [isEditingConnection, selectedConnection, isSaving, justSaved]);
 
   // Update minimum datetime every minute
   useEffect(() => {
@@ -306,16 +307,25 @@ export default function PublishingDashboard() {
     },
     onSuccess: (result) => {
       console.log("Update successful, result:", result);
-      // Close edit mode immediately to prevent re-population with old data
+      
+      // Mark as just saved to prevent form repopulation
+      setJustSaved(true);
+      
+      // Close edit mode immediately
       setIsEditingConnection(false);
       setSelectedConnection(null);
       setShowConnectionDialog(false);
       setIsSaving(false);
       
+      // Reset justSaved flag after a delay
+      setTimeout(() => {
+        setJustSaved(false);
+      }, 2000);
+      
       // Delay the query invalidation to prevent race condition
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
-      }, 500);
+      }, 1000);
       
       toast({ title: "Connection updated successfully" });
     },
