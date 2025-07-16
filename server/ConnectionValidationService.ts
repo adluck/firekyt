@@ -66,9 +66,17 @@ export class ConnectionValidationService {
       console.log(`🔑 Using access token (length: ${connection.accessToken?.length || 0})`);
       console.log(`🌐 Testing URL: ${apiUrl}`);
       
+      // WordPress uses Basic auth with username:app_password format
+      const username = connection.platformUsername;
+      const password = connection.accessToken;
+      const authString = `${username}:${password}`;
+      const authHeader = `Basic ${Buffer.from(authString).toString('base64')}`;
+      
+      console.log(`🔐 Auth format: username="${username}", password_length=${password?.length}, auth_header_length=${authHeader.length}`);
+      
       const response = await fetch(apiUrl, {
         headers: {
-          'Authorization': `Bearer ${connection.accessToken}`,
+          'Authorization': authHeader,
           'Content-Type': 'application/json'
         },
         signal: AbortSignal.timeout(15000) // 15 second timeout
