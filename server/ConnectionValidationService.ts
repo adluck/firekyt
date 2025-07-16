@@ -50,10 +50,21 @@ export class ConnectionValidationService {
    */
   async validateWordPressConnection(connection: any): Promise<ValidationResult> {
     try {
+      // Parse connectionData if it's a JSON string
+      let parsedConnectionData = connection.connectionData;
+      if (typeof connection.connectionData === 'string') {
+        try {
+          parsedConnectionData = JSON.parse(connection.connectionData);
+        } catch (e) {
+          console.log('🚨 Failed to parse connectionData JSON:', connection.connectionData);
+          parsedConnectionData = {};
+        }
+      }
+      
       // Check multiple possible locations for connection data
-      const blogUrl = connection.connectionData?.blogUrl || connection.blogUrl;
-      const username = connection.connectionData?.username || connection.platformUsername || connection.username;
-      const accessToken = connection.connectionData?.accessToken || connection.accessToken;
+      const blogUrl = parsedConnectionData?.blogUrl || connection.blogUrl;
+      const username = parsedConnectionData?.username || connection.platformUsername || connection.username;
+      const accessToken = parsedConnectionData?.accessToken || connection.accessToken;
       
       console.log(`🔍 Connection data structure:`, {
         id: connection.id,
@@ -62,7 +73,9 @@ export class ConnectionValidationService {
         username: username,
         hasAccessToken: !!accessToken,
         accessTokenLength: accessToken?.length || 0,
-        connectionDataKeys: connection.connectionData ? Object.keys(connection.connectionData) : 'no connectionData',
+        connectionDataRaw: connection.connectionData,
+        connectionDataParsed: parsedConnectionData,
+        connectionDataKeys: parsedConnectionData ? Object.keys(parsedConnectionData) : 'no connectionData',
         directKeys: Object.keys(connection)
       });
       
