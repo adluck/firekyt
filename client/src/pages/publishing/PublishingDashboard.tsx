@@ -71,23 +71,6 @@ const connectionSchema = z.object({
   path: ["blogUrl"],
 });
 
-const editConnectionSchema = z.object({
-  platform: z.string().min(1, "Platform is required"),
-  accessToken: z.string().min(1, "Access token is required"),
-  platformUsername: z.string().optional(),
-  platformUserId: z.string().optional(),
-  blogUrl: z.string().optional(),
-  apiEndpoint: z.string().optional(),
-}).refine((data) => {
-  // Require blog URL for WordPress, Ghost, and Custom platforms
-  if (['wordpress', 'ghost', 'custom'].includes(data.platform)) {
-    return data.blogUrl && data.blogUrl.length > 0;
-  }
-  return true;
-}, {
-  message: "Blog URL is required for this platform",
-  path: ["blogUrl"],
-});
 
 const scheduleSchema = z.object({
   contentId: z.string(),
@@ -119,32 +102,9 @@ export default function PublishingDashboard() {
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [selectedConnection, setSelectedConnection] = useState<any>(null);
-  const [isEditingConnection, setIsEditingConnection] = useState(false);
   const [minDateTime, setMinDateTime] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [justSaved, setJustSaved] = useState(false);
 
-  // Effect to populate form when entering edit mode
-  useEffect(() => {
-    if (isEditingConnection && selectedConnection && !isSaving && !justSaved) {
-      const formData = {
-        platform: selectedConnection?.platform || "",
-        accessToken: selectedConnection?.accessToken || "",
-        platformUsername: selectedConnection?.platformUsername || selectedConnection?.username || "",
-        platformUserId: selectedConnection?.platformUserId || "",
-        blogUrl: selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl || "",
-        apiEndpoint: selectedConnection?.connectionData?.apiEndpoint || selectedConnection?.apiEndpoint || "",
-      };
-      console.log("Populating edit form with:", formData);
-      
-      // Set direct state for reliable UI updates
-      setEditFormData(formData);
-      
-      // Also set React Hook Form for validation
-      editConnectionForm.reset(formData);
-      setFormKey(prev => prev + 1);
-    }
-  }, [isEditingConnection, selectedConnection, isSaving, justSaved]);
+
 
   // Update minimum datetime every minute
   useEffect(() => {
@@ -291,54 +251,7 @@ export default function PublishingDashboard() {
     },
   });
 
-  // Update connection mutation
-  const updateConnectionMutation = useMutation({
-    mutationFn: async (data: { id: number; updates: any }) => {
-      setIsSaving(true);
-      console.log("Sending update with data:", data);
-      // Use direct state data for reliability
-      const updateData = {
-        ...data.updates,
-        ...editFormData, // Override with direct state values
-      };
-      console.log("Using final update data:", updateData);
-      const response = await apiRequest('PUT', `/api/publishing/connections/${data.id}`, updateData);
-      return response.json();
-    },
-    onSuccess: (result) => {
-      console.log("Update successful, result:", result);
-      
-      // Mark as just saved to prevent form repopulation
-      setJustSaved(true);
-      
-      // Close edit mode immediately
-      setIsEditingConnection(false);
-      setSelectedConnection(null);
-      setShowConnectionDialog(false);
-      setIsSaving(false);
-      
-      // Reset justSaved flag after a delay
-      setTimeout(() => {
-        setJustSaved(false);
-      }, 2000);
-      
-      // Delay the query invalidation to prevent race condition
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
-      }, 1000);
-      
-      toast({ title: "Connection updated successfully" });
-    },
-    onError: (error: any) => {
-      setIsSaving(false);
-      console.error("Update failed:", error);
-      toast({ 
-        title: "Failed to update connection", 
-        description: error?.message || "Failed to update connection",
-        variant: "destructive" 
-      });
-    },
-  });
+
 
   // Delete connection mutation
   const deleteConnectionMutation = useMutation({
@@ -387,44 +300,14 @@ export default function PublishingDashboard() {
     },
   });
 
-  const editConnectionForm = useForm<z.infer<typeof editConnectionSchema>>({
-    resolver: zodResolver(editConnectionSchema),
-    mode: "onBlur",
-    defaultValues: {
-      platform: "",
-      accessToken: "",
-      platformUsername: "",
-      platformUserId: "",
-      blogUrl: "",
-      apiEndpoint: "",
-    },
-  });
 
-  // Add state to force re-render
-  const [formKey, setFormKey] = useState(0);
-  
-  // Direct state management for edit form (bypass React Hook Form issues)
-  const [editFormData, setEditFormData] = useState({
-    platform: "",
-    accessToken: "",
-    platformUsername: "",
-    platformUserId: "",
-    blogUrl: "",
-    apiEndpoint: "",
-  });
+
 
   const onAddConnection = (values: z.infer<typeof connectionSchema>) => {
     addConnectionMutation.mutate(values);
   };
 
-  const onUpdateConnection = (values: z.infer<typeof connectionSchema>) => {
-    if (selectedConnection) {
-      updateConnectionMutation.mutate({
-        id: selectedConnection.id,
-        updates: values
-      });
-    }
-  };
+
 
   const handleDeleteConnection = () => {
     if (selectedConnection) {
@@ -724,207 +607,66 @@ export default function PublishingDashboard() {
           </Dialog>
 
           {/* Connection Settings Dialog */}
-          <Dialog open={showConnectionDialog} onOpenChange={(open) => {
-            setShowConnectionDialog(open);
-            if (!open) {
-              setIsEditingConnection(false);
-              editConnectionForm.reset();
-            }
-          }}>
+          <Dialog open={showConnectionDialog} onOpenChange={setShowConnectionDialog}>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>
-                  {isEditingConnection ? "Edit Connection" : "Connection Settings"}
-                </DialogTitle>
+                <DialogTitle>Connection Settings</DialogTitle>
                 <DialogDescription>
-                  {isEditingConnection ? 
-                    `Update your ${selectedConnection?.platform} connection details` :
-                    `Manage your ${selectedConnection?.platform} connection`
-                  }
+                  Manage your {selectedConnection?.platform} connection
                 </DialogDescription>
               </DialogHeader>
               
-              {!isEditingConnection ? (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Platform</label>
-                    <p className="text-sm text-muted-foreground capitalize">
-                      {selectedConnection?.platform}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Username</label>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedConnection?.platformUsername || selectedConnection?.username || "Not provided"}
-                    </p>
-                  </div>
-                  {(selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl) && (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Blog URL</label>
-                      <p className="text-sm text-muted-foreground break-all">
-                        {selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl}
-                      </p>
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Status</label>
-                    <Badge variant={selectedConnection?.isActive ? "default" : "secondary"}>
-                      {selectedConnection?.isActive ? "Connected" : "Inactive"}
-                    </Badge>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Connected</label>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedConnection?.createdAt ? new Date(selectedConnection.createdAt).toLocaleString() : "Unknown"}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 pt-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setIsEditingConnection(true)}
-                    >
-                      <Settings className="h-4 w-4 mr-1" />
-                      Edit
-                    </Button>
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={handleDeleteConnection}
-                      disabled={deleteConnectionMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      {deleteConnectionMutation.isPending ? "Removing..." : "Remove"}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowConnectionDialog(false)}
-                    >
-                      Close
-                    </Button>
-                  </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Platform</label>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {selectedConnection?.platform}
+                  </p>
                 </div>
-              ) : (
-                <Form {...editConnectionForm} key={formKey}>
-                  <form onSubmit={editConnectionForm.handleSubmit(onUpdateConnection)} className="space-y-4">
-                    <FormField
-                      control={editConnectionForm.control}
-                      name="platform"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Platform</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value} disabled>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Platform (cannot be changed)" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="wordpress">WordPress</SelectItem>
-                              <SelectItem value="medium">Medium</SelectItem>
-                              <SelectItem value="linkedin">LinkedIn</SelectItem>
-                              <SelectItem value="ghost">Ghost</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>Platform type cannot be changed</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={editConnectionForm.control}
-                      name="platformUsername"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Username</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your username" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={editConnectionForm.control}
-                      name="accessToken"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Access Token</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="password" 
-                              placeholder="Enter access token" 
-                              value={editFormData.accessToken}
-                              onChange={(e) => {
-                                console.log("Access token changing, length:", e.target.value.length);
-                                setEditFormData(prev => ({ ...prev, accessToken: e.target.value }));
-                                field.onChange(e.target.value);
-                              }}
-                            />
-                          </FormControl>
-                          <FormDescription>Token length: {editFormData.accessToken?.length || 0} characters</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={editConnectionForm.control}
-                      name="blogUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Blog URL</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="https://yourblog.com" 
-                              value={editFormData.blogUrl}
-                              onChange={(e) => {
-                                console.log("Blog URL changing to:", e.target.value);
-                                setEditFormData(prev => ({ ...prev, blogUrl: e.target.value }));
-                                field.onChange(e.target.value);
-                              }}
-                            />
-                          </FormControl>
-                          <FormDescription>Current value: {editFormData.blogUrl || "(empty)"}</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={editConnectionForm.control}
-                      name="apiEndpoint"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>API Endpoint (Optional)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="https://yourblog.com/wp-json/wp/v2" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="flex gap-2 pt-4">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={() => setIsEditingConnection(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        disabled={updateConnectionMutation.isPending}
-                      >
-                        {updateConnectionMutation.isPending ? "Updating..." : "Update Connection"}
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              )}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Username</label>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedConnection?.platformUsername || selectedConnection?.username || "Not provided"}
+                  </p>
+                </div>
+                {(selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl) && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Blog URL</label>
+                    <p className="text-sm text-muted-foreground break-all">
+                      {selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl}
+                    </p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Status</label>
+                  <Badge variant={selectedConnection?.isActive ? "default" : "secondary"}>
+                    {selectedConnection?.isActive ? "Connected" : "Inactive"}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Connected</label>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedConnection?.createdAt ? new Date(selectedConnection.createdAt).toLocaleString() : "Unknown"}
+                  </p>
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={handleDeleteConnection}
+                    disabled={deleteConnectionMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    {deleteConnectionMutation.isPending ? "Removing..." : "Remove"}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowConnectionDialog(false)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
