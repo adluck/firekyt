@@ -122,6 +122,22 @@ export default function PublishingDashboard() {
   const [isEditingConnection, setIsEditingConnection] = useState(false);
   const [minDateTime, setMinDateTime] = useState("");
 
+  // Effect to populate form when entering edit mode
+  useEffect(() => {
+    if (isEditingConnection && selectedConnection) {
+      const formData = {
+        platform: selectedConnection?.platform || "",
+        accessToken: selectedConnection?.accessToken || "",
+        platformUsername: selectedConnection?.platformUsername || selectedConnection?.username || "",
+        platformUserId: selectedConnection?.platformUserId || "",
+        blogUrl: selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl || "",
+        apiEndpoint: selectedConnection?.connectionData?.apiEndpoint || selectedConnection?.apiEndpoint || "",
+      };
+      console.log("Populating edit form with:", formData);
+      editConnectionForm.reset(formData);
+    }
+  }, [isEditingConnection, selectedConnection, editConnectionForm]);
+
   // Update minimum datetime every minute
   useEffect(() => {
     const updateMinDateTime = () => {
@@ -336,6 +352,7 @@ export default function PublishingDashboard() {
 
   const editConnectionForm = useForm<z.infer<typeof editConnectionSchema>>({
     resolver: zodResolver(editConnectionSchema),
+    mode: "onChange",
     defaultValues: {
       platform: "",
       accessToken: "",
@@ -715,24 +732,7 @@ export default function PublishingDashboard() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => {
-                        // Pre-populate edit form with existing values before switching to edit mode
-                        const formData = {
-                          platform: selectedConnection?.platform || "",
-                          accessToken: selectedConnection?.accessToken || "",
-                          platformUsername: selectedConnection?.platformUsername || selectedConnection?.username || "",
-                          platformUserId: selectedConnection?.platformUserId || "",
-                          blogUrl: selectedConnection?.connectionData?.blogUrl || selectedConnection?.blogUrl || "",
-                          apiEndpoint: selectedConnection?.connectionData?.apiEndpoint || selectedConnection?.apiEndpoint || "",
-                        };
-                        console.log("Resetting form with data:", formData);
-                        editConnectionForm.reset(formData);
-                        // Set values explicitly to ensure they are populated
-                        Object.entries(formData).forEach(([key, value]) => {
-                          editConnectionForm.setValue(key as any, value);
-                        });
-                        setIsEditingConnection(true);
-                      }}
+                      onClick={() => setIsEditingConnection(true)}
                     >
                       <Settings className="h-4 w-4 mr-1" />
                       Edit
