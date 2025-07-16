@@ -179,10 +179,22 @@ export default function PublishingDashboard() {
       toast({ title: "Content scheduled successfully" });
     },
     onError: (error: any) => {
+      let title = "Failed to schedule content";
+      let description = error?.message || "Failed to schedule content";
+      
+      // Handle WordPress permissions error specifically
+      if (error?.message?.includes('WordPress user permissions insufficient') || 
+          error?.message?.includes('not allowed to create posts') ||
+          (error?.details && error?.details?.includes('rest_cannot_create'))) {
+        title = "WordPress Permissions Error";
+        description = "Your WordPress user account needs 'Editor' or 'Administrator' role to schedule content. Please check your WordPress user role and update your connection with proper credentials.";
+      }
+      
       toast({ 
-        title: "Failed to schedule content", 
-        description: error?.message || "Failed to schedule content",
-        variant: "destructive" 
+        title,
+        description,
+        variant: "destructive",
+        duration: 10000 // Extended duration for permissions errors
       });
     },
   });
@@ -209,8 +221,15 @@ export default function PublishingDashboard() {
       let title = "Failed to publish content";
       let description = error?.message || "Failed to publish content";
       
+      // Handle WordPress permissions error specifically
+      if (error?.message?.includes('WordPress user permissions insufficient') || 
+          error?.message?.includes('not allowed to create posts') ||
+          (error?.details && error?.details?.includes('rest_cannot_create'))) {
+        title = "WordPress Permissions Error";
+        description = "Your WordPress user account needs 'Editor' or 'Administrator' role to publish content. Please check your WordPress user role and update your connection with proper credentials.";
+      }
       // Handle specific network connectivity errors
-      if (error?.technical?.includes('DNS resolution failed') || error?.message?.includes('Network connectivity issue')) {
+      else if (error?.technical?.includes('DNS resolution failed') || error?.message?.includes('Network connectivity issue')) {
         title = "Network Issue - Publishing Failed";
         description = error?.suggestion || "Unable to reach the external blog site. Please check the site URL and try again.";
         
@@ -225,7 +244,7 @@ export default function PublishingDashboard() {
         title,
         description,
         variant: "destructive",
-        duration: 8000 // Longer duration for network errors
+        duration: 10000 // Extended duration for permissions errors
       });
     },
   });
