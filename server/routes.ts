@@ -2763,7 +2763,7 @@ Format your response as a JSON object with the following structure:
   // Test platform connection endpoint
   app.post("/api/publishing/test-connection", authenticateToken, async (req, res) => {
     try {
-      const { platform, accessToken, blogUrl } = req.body;
+      const { platform, accessToken, blogUrl, platformUsername } = req.body;
       
       if (!platform || !accessToken) {
         return res.status(400).json({ 
@@ -2802,7 +2802,7 @@ Format your response as a JSON object with the following structure:
       const validationResult = await tokenValidationService.validateToken(
         platform, 
         accessToken, 
-        { blogUrl }
+        { blogUrl, platformUsername }
       );
 
       if (validationResult.isValid) {

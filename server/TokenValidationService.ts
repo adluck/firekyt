@@ -14,39 +14,63 @@ interface TokenValidationResult {
 export class TokenValidationService {
   
   /**
-   * Validate WordPress token by testing API access
+   * Validate WordPress token by testing API access with Basic auth
    */
-  async validateWordPressToken(accessToken: string, blogUrl: string): Promise<TokenValidationResult> {
+  async validateWordPressToken(accessToken: string, blogUrl: string, username?: string): Promise<TokenValidationResult> {
     try {
-      const apiUrl = `${blogUrl}/wp-json/wp/v2/users/me`;
+      const cleanBlogUrl = blogUrl.replace(/\/$/, '');
+      const apiUrl = `${cleanBlogUrl}/wp-json/wp/v2/users/me`;
+      
+      // WordPress uses Basic auth with username:app_password format
+      // Remove spaces from application password (WordPress shows them with spaces but they should be removed)
+      const cleanPassword = accessToken.replace(/\s+/g, '');
+      
+      let authHeader: string;
+      if (username) {
+        // Use provided username
+        const authString = `${username}:${cleanPassword}`;
+        authHeader = `Basic ${Buffer.from(authString).toString('base64')}`;
+      } else {
+        // Assume accessToken already contains username:password format
+        authHeader = `Basic ${Buffer.from(accessToken).toString('base64')}`;
+      }
+      
+      console.log(`🔐 WordPress auth test - URL: ${apiUrl}, username: ${username}, password length: ${cleanPassword.length}`);
+      
       const response = await fetch(apiUrl, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+          'User-Agent': 'FireKyt/1.0'
         }
       });
 
       if (response.ok) {
         const userData = await response.json();
+        console.log(`✅ WordPress connection successful for user: ${userData.name}`);
         return {
           isValid: true,
           platform: 'wordpress',
           details: {
             username: userData.name,
             capabilities: userData.capabilities,
+            roles: userData.roles,
             status: 'authenticated'
           },
           lastChecked: new Date()
         };
       } else {
+        const errorText = await response.text();
+        console.log(`❌ WordPress auth failed: ${response.status} ${response.statusText} - ${errorText}`);
         return {
           isValid: false,
           platform: 'wordpress',
-          error: `Authentication failed: ${response.status} ${response.statusText}`,
+          error: `Authentication failed: ${response.status} ${response.statusText}. Please check your WordPress credentials.`,
           lastChecked: new Date()
         };
       }
     } catch (error: any) {
+      console.log(`🔥 WordPress validation error: ${error.message}`);
       return {
         isValid: false,
         platform: 'wordpress',
@@ -384,7 +408,11 @@ Note: Pinterest requires app review for production API access. Test tokens expir
   async validateToken(platform: string, accessToken: string, connectionData: any): Promise<TokenValidationResult> {
     switch (platform.toLowerCase()) {
       case 'wordpress':
-        return this.validateWordPressToken(accessToken, connectionData.blogUrl);
+        return this.validateWordPressToken(
+          accessToken, 
+          connectionData.blogUrl, 
+          connectionData.platformUsername
+        );
       
       case 'ghost':
         return this.validateGhostToken(connectionData.adminKey || accessToken, connectionData.blogUrl);
