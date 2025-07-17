@@ -12,6 +12,19 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+// Serve generated graphics BEFORE security middleware to avoid 403 errors
+const graphicsPath = path.join(process.cwd(), 'client', 'public', 'generated-graphics');
+console.log('🖼️ Static graphics serving path:', graphicsPath);
+app.use('/generated-graphics', express.static(graphicsPath, {
+  setHeaders: (res, path) => {
+    // Set cache-busting headers for graphics
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+}));
+
 // Add iframe route BEFORE security middleware to bypass restrictions
 app.get('/widgets/:id/iframe', async (req, res) => {
   try {
@@ -432,11 +445,6 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 // Serve uploaded custom graphics
 app.use('/uploads', express.static('uploads'));
-
-// Serve generated graphics (AI-generated and SVG fallbacks)
-const graphicsPath = path.join(process.cwd(), 'client', 'public', 'generated-graphics');
-console.log('🖼️ Static graphics serving path:', graphicsPath);
-app.use('/generated-graphics', express.static(graphicsPath));
 
 app.use((req, res, next) => {
   const start = Date.now();
