@@ -321,6 +321,7 @@ export default function MyAds() {
         
         // Store the first graphic for this card and flip it
         const firstGraphic = result.graphics[0];
+        console.log('🖼️ Setting graphic URL for card:', cardKey, 'URL:', firstGraphic.url);
         setCardGraphics(prev => ({
           ...prev,
           [cardKey]: firstGraphic.url
@@ -830,6 +831,13 @@ export default function MyAds() {
                                                 src={graphicUrl} 
                                                 alt="Generated graphic" 
                                                 className="max-w-full max-h-full object-contain rounded-lg shadow-md"
+                                                onError={(e) => {
+                                                  console.error('Failed to load image:', graphicUrl);
+                                                  console.error('Error event:', e);
+                                                }}
+                                                onLoad={() => {
+                                                  console.log('Successfully loaded image:', graphicUrl);
+                                                }}
                                               />
                                             </div>
                                           ) : (
