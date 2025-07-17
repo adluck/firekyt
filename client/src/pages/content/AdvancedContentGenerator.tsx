@@ -21,6 +21,7 @@ import remarkGfm from 'remark-gfm';
 import { UnifiedContentEditor } from "@/components/editor/UnifiedContentEditor";
 import { SiteSelectionDialog } from "@/components/content/SiteSelectionDialog";
 import type { Site } from "@shared/schema";
+import { trackEvent } from "@/lib/analytics";
 
 interface ContentGenerationRequest {
   keyword: string;
@@ -162,6 +163,9 @@ export default function AdvancedContentGenerator() {
   // Generate content mutation
   const generateMutation = useMutation({
     mutationFn: async (data: ContentGenerationRequest) => {
+      // Track content generation start
+      trackEvent('content_generation_started', 'content', data.content_type, 1);
+      
       const response = await apiRequest("POST", "/api/content/generate", data);
       return response.json();
     },
@@ -170,12 +174,19 @@ export default function AdvancedContentGenerator() {
       setDatabaseContentId(data.content.id); // Store the database content ID
       setIsPolling(true);
       setGenerationProgress(10);
+      
+      // Track successful content generation start
+      trackEvent('content_generation_queued', 'content', formData.content_type, 1);
+      
       toast({
         title: "Content generation started",
         description: data.message || "Your request has been queued for processing",
       });
     },
     onError: (error: any) => {
+      // Track content generation failure
+      trackEvent('content_generation_failed', 'content', formData.content_type, 1);
+      
       toast({
         title: "Generation failed",
         description: error.message,
@@ -247,6 +258,10 @@ export default function AdvancedContentGenerator() {
       setShowEditor(false);
       setShowSiteDialog(false);
       queryClient.invalidateQueries({ queryKey: ["/api/content"] });
+      
+      // Track content save
+      trackEvent('content_saved', 'content', formData.content_type, 1);
+      
       toast({
         title: "Content saved successfully",
         description: "Your content has been saved to your library",
@@ -277,6 +292,10 @@ export default function AdvancedContentGenerator() {
         } else if (result.status === 'completed') {
           setGenerationProgress(100);
           setIsPolling(false);
+          
+          // Track successful content generation completion
+          trackEvent('content_generation_completed', 'content', formData.content_type, result.generation_time_ms);
+          
           toast({
             title: "Content generated successfully!",
             description: `Generated in ${result.generation_time_ms}ms using ${result.ai_model_used}`,
@@ -284,6 +303,10 @@ export default function AdvancedContentGenerator() {
         } else if (result.status === 'failed') {
           setIsPolling(false);
           setGenerationProgress(0);
+          
+          // Track content generation failure
+          trackEvent('content_generation_error', 'content', formData.content_type, 1);
+          
           toast({
             title: "Generation failed",
             description: result.error || "Unknown error occurred",
@@ -321,6 +344,10 @@ export default function AdvancedContentGenerator() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    
+    // Track copy action
+    trackEvent('content_copied', 'content', 'clipboard_copy', 1);
+    
     toast({
       title: "Copied to clipboard",
       description: "Content has been copied to your clipboard",

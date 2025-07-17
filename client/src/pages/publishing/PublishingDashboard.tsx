@@ -15,6 +15,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { NetworkStatus, useNetworkStatus } from "@/components/ui/network-status";
+import { trackEvent } from "@/lib/analytics";
 import { 
   Calendar, 
   Clock, 
@@ -156,6 +157,9 @@ export default function PublishingDashboard() {
   // Add platform connection mutation
   const addConnectionMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Track platform connection attempt
+      trackEvent('platform_connection_started', 'publishing', data.platform, 1);
+      
       const response = await apiRequest('POST', '/api/publishing/connections', data);
       return response.json();
     },
@@ -163,6 +167,10 @@ export default function PublishingDashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/connections"] });
       connectionForm.reset();
       setShowAddConnectionDialog(false);
+      
+      // Track successful platform connection
+      trackEvent('platform_connected', 'publishing', data.connection?.platform || 'unknown', 1);
+      
       toast({ 
         title: "Platform connected successfully",
         description: data.message || `Connected to ${data.connection?.platform || 'platform'}`
@@ -180,6 +188,9 @@ export default function PublishingDashboard() {
   // Schedule publication mutation
   const schedulePublicationMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Track content scheduling attempt
+      trackEvent('content_scheduling_started', 'publishing', data.platform, 1);
+      
       const response = await apiRequest('POST', '/api/publishing/schedule', data);
       return response.json();
     },
@@ -187,6 +198,10 @@ export default function PublishingDashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/scheduled"] });
       setShowScheduleDialog(false);
       scheduleForm.reset();
+      
+      // Track successful content scheduling
+      trackEvent('content_scheduled', 'publishing', 'scheduled_publication', 1);
+      
       toast({ title: "Content scheduled successfully" });
     },
     onError: (error: any) => {
@@ -213,6 +228,9 @@ export default function PublishingDashboard() {
   // Publish now mutation
   const publishNowMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Track immediate publishing attempt
+      trackEvent('content_publish_now_started', 'publishing', data.platform, 1);
+      
       const response = await apiRequest('POST', '/api/publishing/publish-now', data);
       if (!response.ok) {
         const errorData = await response.json();
@@ -222,6 +240,9 @@ export default function PublishingDashboard() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/publishing/history"] });
+      
+      // Track successful immediate publishing
+      trackEvent('content_published_now', 'publishing', 'immediate_publish', 1);
       queryClient.invalidateQueries({ queryKey: ["/api/content"] });
       toast({ 
         title: "Content published successfully",

@@ -14,6 +14,9 @@ import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { PageTourProvider } from "@/components/onboarding/PageTourProvider";
+import { useEffect } from "react";
+import { initGA } from "./lib/analytics";
+import { useAnalytics } from "./hooks/use-analytics";
 
 // Landing page
 import LandingPage from "@/pages/LandingPage";
@@ -67,6 +70,9 @@ import NotFound from "@/pages/not-found";
 import { OnboardingRouter } from "@/components/onboarding/OnboardingRouter";
 
 function Router() {
+  // Track page views when routes change
+  useAnalytics();
+  
   return (
     <Switch>
       {/* Public routes */}
@@ -459,6 +465,16 @@ function Router() {
 }
 
 function App() {
+  // Initialize Google Analytics when app loads
+  useEffect(() => {
+    // Verify required environment variable is present
+    if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      console.warn('Missing required Google Analytics key: VITE_GA_MEASUREMENT_ID');
+    } else {
+      initGA();
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

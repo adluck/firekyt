@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Zap, AlertCircle } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -24,12 +25,19 @@ export default function Login() {
 
     try {
       await login(email, password);
+      
+      // Track successful login
+      trackEvent('login', 'authentication', 'successful_login');
+      
       toast({
         title: "Welcome back!",
         description: "You have been successfully logged in.",
       });
       setLocation("/dashboard");
     } catch (err: any) {
+      // Track failed login attempt
+      trackEvent('login_failed', 'authentication', 'failed_login');
+      
       setError(err.message || "Invalid email or password");
     }
   };
