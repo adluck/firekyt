@@ -217,10 +217,29 @@ export function GenerateContentStep() {
       // Navigate to next step
       navigate('/onboarding/publish');
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error('💥 Save Content Error Details:', error);
+      
+      let errorMessage = "There was an error saving your content. Please try again.";
+      
+      // Try to extract more specific error message
+      if (error?.response?.json) {
+        error.response.json().then((data: any) => {
+          console.error('💥 Error response data:', data);
+          if (data?.message) {
+            errorMessage = data.message;
+          }
+        }).catch(() => {
+          console.error('💥 Could not parse error response');
+        });
+      } else if (error?.message) {
+        errorMessage = error.message;
+        console.error('💥 Error message:', error.message);
+      }
+      
       toast({
         title: "Save Failed",
-        description: "There was an error saving your content. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

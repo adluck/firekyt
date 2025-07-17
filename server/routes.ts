@@ -605,16 +605,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('POST /api/content - Request body:', JSON.stringify(req.body));
       console.log('POST /api/content - siteId in request:', req.body.siteId);
+      console.log('POST /api/content - User ID:', req.user!.id);
+      console.log('POST /api/content - Full request data:', {
+        title: req.body.title,
+        content: req.body.content ? req.body.content.substring(0, 100) + '...' : null,
+        contentType: req.body.contentType,
+        siteId: req.body.siteId,
+        targetKeywords: req.body.targetKeywords,
+        status: req.body.status
+      });
+      
+      // Validate critical fields before calling service
+      if (!req.body.title || req.body.title.trim().length === 0) {
+        console.error('POST /api/content - Missing title');
+        return res.status(400).json({ message: 'Title is required' });
+      }
+      
+      if (!req.body.content || req.body.content.trim().length === 0) {
+        console.error('POST /api/content - Missing content');
+        return res.status(400).json({ message: 'Content is required' });
+      }
       
       const content = await contentService.createContent(req.user!.id, req.body);
       
       // Auto-update onboarding flag for content generation
       await storage.updateOnboardingFlag(req.user!.id, 'has_generated_content', true);
       
-      console.log('POST /api/content - Created content siteId:', content.siteId);
+      console.log('POST /api/content - Created content successfully:', content.id);
       res.json(content);
     } catch (error: any) {
-      console.error('POST /api/content - Error:', error);
+      console.error('POST /api/content - Detailed error:', {
+        message: error.message,
+        stack: error.stack,
+        requestBody: req.body
+      });
       res.status(400).json({ message: error.message });
     }
   });
