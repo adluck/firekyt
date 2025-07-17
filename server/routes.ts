@@ -6183,10 +6183,21 @@ async function generateAILinkSuggestions(params: {
       console.log('🎨 Generated graphics from concept:', {
         concept: concept.substring(0, 50) + '...',
         platform,
-        graphicsCount: graphics.length
+        graphicsCount: graphics.length,
+        graphicType: graphic?.type || 'unknown'
       });
 
-      res.json({ success: true, graphics });
+      // Add helpful message if SVG fallback was used
+      const message = graphic?.type === 'svg-graphic' 
+        ? 'Graphics generated successfully using SVG fallback (AI image generation temporarily unavailable)'
+        : 'Graphics generated successfully';
+
+      res.json({ 
+        success: true, 
+        graphics,
+        message,
+        fallback: graphic?.type === 'svg-graphic'
+      });
     } catch (error: any) {
       console.error('Generate graphics from concept error:', error);
       res.status(500).json({ 
