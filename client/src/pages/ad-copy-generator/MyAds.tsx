@@ -857,19 +857,34 @@ export default function MyAds() {
                                           
                                           {graphicUrl ? (
                                             <div className="flex-1 flex items-center justify-center">
-                                              <img 
-                                                src={graphicUrl} 
-                                                alt="Generated graphic" 
-                                                className="max-w-full max-h-full object-contain rounded-lg shadow-md"
-                                                onError={(e) => {
-                                                  console.error('🖼️ Failed to load image:', graphicUrl);
-                                                  console.error('🖼️ Error event:', e);
-                                                  console.error('🖼️ Image element:', e.target);
-                                                }}
-                                                onLoad={() => {
-                                                  console.log('🖼️ Successfully loaded image:', graphicUrl);
-                                                }}
-                                              />
+                                              <div className="w-full h-full flex items-center justify-center">
+                                                <img 
+                                                  src={graphicUrl + '?v=' + Date.now()} 
+                                                  alt="Generated graphic" 
+                                                  className="max-w-full max-h-full object-contain rounded-lg shadow-md"
+                                                  onError={(e) => {
+                                                    console.error('🖼️ Failed to load image:', graphicUrl);
+                                                    console.error('🖼️ Error event:', e);
+                                                    console.error('🖼️ Image element:', e.target);
+                                                    console.error('🖼️ Network status:', navigator.onLine);
+                                                    // Try accessing the image directly
+                                                    fetch(graphicUrl).then(res => {
+                                                      console.error('🖼️ Direct fetch status:', res.status, res.statusText);
+                                                    }).catch(err => {
+                                                      console.error('🖼️ Direct fetch error:', err);
+                                                    });
+                                                  }}
+                                                  onLoad={() => {
+                                                    console.log('🖼️ Successfully loaded image:', graphicUrl);
+                                                  }}
+                                                />
+                                                <div className="absolute top-2 left-2 bg-black/75 text-white text-xs px-2 py-1 rounded z-10">
+                                                  URL: {graphicUrl}
+                                                </div>
+                                                <div className="absolute bottom-2 left-2 bg-red-600/75 text-white text-xs px-2 py-1 rounded z-10">
+                                                  Status: {document.querySelector(`img[src="${graphicUrl}"]`)?.complete ? 'Loaded' : 'Loading...'}
+                                                </div>
+                                              </div>
                                             </div>
                                           ) : (
                                             <div className="flex-1 flex items-center justify-center text-muted-foreground">
