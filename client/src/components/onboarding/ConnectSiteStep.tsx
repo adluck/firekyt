@@ -40,6 +40,10 @@ export function ConnectSiteStep() {
       // Complete onboarding step 1
       await apiRequest('POST', '/api/onboarding/complete-step/1');
       
+      // Refresh dashboard data to show new site
+      queryClient.invalidateQueries({ queryKey: ['/api/analytics/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/sites'] });
+      
       // Navigate to next step
       navigate('/onboarding/generate');
     },

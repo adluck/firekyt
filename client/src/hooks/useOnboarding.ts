@@ -18,6 +18,12 @@ export function useOnboarding() {
       queryClient.invalidateQueries({ queryKey: ['/api/onboarding/status'] });
       // Also refresh the user object to update onboarding step
       queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      // Refresh dashboard data to show updated analytics
+      queryClient.invalidateQueries({ queryKey: ['/api/analytics/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/analytics/sites'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/sites'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/publishing/connections'] });
     },
   });
 
@@ -27,6 +33,12 @@ export function useOnboarding() {
       queryClient.invalidateQueries({ queryKey: ['/api/onboarding/status'] });
       // Also refresh the user object to update onboarding step
       queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      // Refresh dashboard data to show updated analytics
+      queryClient.invalidateQueries({ queryKey: ['/api/analytics/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/analytics/sites'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/sites'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/publishing/connections'] });
     },
   });
 

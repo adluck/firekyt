@@ -205,6 +205,10 @@ export function GenerateContentStep() {
       // Mark step as complete
       await completeOnboardingStep(2);
       
+      // Additional query invalidation to ensure dashboard updates
+      queryClient.invalidateQueries({ queryKey: ['/api/analytics/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      
       toast({
         title: "Content Saved!",
         description: "Your content has been saved. Let's publish it next.",

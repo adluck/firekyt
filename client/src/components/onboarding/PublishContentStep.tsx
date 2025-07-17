@@ -173,6 +173,11 @@ export function PublishContentStep() {
       // Mark step as complete
       await completeOnboardingStep(3);
       
+      // Additional query invalidation to ensure dashboard updates
+      queryClient.invalidateQueries({ queryKey: ['/api/analytics/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/content'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/publishing/history'] });
+      
       setPublishSuccess(true);
       toast({
         title: "Content Published!",
