@@ -6192,6 +6192,14 @@ async function generateAILinkSuggestions(params: {
         ? 'Graphics generated successfully using SVG fallback (AI image generation temporarily unavailable)'
         : 'Graphics generated successfully';
 
+      console.log('🖼️ Generated graphics response:', {
+        success: true,
+        graphicsCount: graphics.length,
+        firstGraphicUrl: graphics[0]?.url,
+        message,
+        fallback: graphic?.type === 'svg-graphic'
+      });
+
       res.json({ 
         success: true, 
         graphics,
@@ -6203,6 +6211,42 @@ async function generateAILinkSuggestions(params: {
       res.status(500).json({ 
         success: false, 
         message: error.message || 'Failed to generate graphics from concept' 
+      });
+    }
+  });
+
+  // Debug endpoint to test graphics access
+  app.get('/api/debug/graphics', authenticateToken, async (req, res) => {
+    try {
+      const graphicsDir = path.join(process.cwd(), 'client', 'public', 'generated-graphics');
+      console.log('🖼️ Graphics directory path:', graphicsDir);
+      
+      if (!fs.existsSync(graphicsDir)) {
+        return res.json({ 
+          success: false, 
+          message: 'Graphics directory does not exist',
+          path: graphicsDir 
+        });
+      }
+      
+      const files = fs.readdirSync(graphicsDir);
+      const pngFiles = files.filter(f => f.endsWith('.png'));
+      const svgFiles = files.filter(f => f.endsWith('.svg'));
+      
+      console.log('🖼️ Found graphics:', { pngFiles: pngFiles.length, svgFiles: svgFiles.length });
+      
+      res.json({
+        success: true,
+        graphicsPath: graphicsDir,
+        pngFiles: pngFiles.slice(-5), // Last 5 PNG files
+        svgFiles: svgFiles.slice(-5), // Last 5 SVG files
+        totalFiles: files.length
+      });
+    } catch (error: any) {
+      console.error('Graphics debug error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: error.message 
       });
     }
   });

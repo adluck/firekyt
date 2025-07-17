@@ -422,7 +422,9 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use('/uploads', express.static('uploads'));
 
 // Serve generated graphics (AI-generated and SVG fallbacks)
-app.use('/generated-graphics', express.static(path.join(__dirname, '../client/public/generated-graphics')));
+const graphicsPath = path.join(process.cwd(), 'client', 'public', 'generated-graphics');
+console.log('🖼️ Static graphics serving path:', graphicsPath);
+app.use('/generated-graphics', express.static(graphicsPath));
 
 app.use((req, res, next) => {
   const start = Date.now();

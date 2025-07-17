@@ -123,7 +123,7 @@ export class TextOverlayService {
         return this.generateFallbackSVG(productName, platform);
       }
 
-      return {
+      const result = {
         success: true,
         filename: filename,
         url: `/generated-graphics/${filename}`,
@@ -131,6 +131,11 @@ export class TextOverlayService {
         dimensions: format,
         type: 'real-graphic'
       };
+      
+      console.log('🖼️ Generated real graphic result:', result);
+      console.log('🖼️ File exists:', fs.existsSync(filePath));
+      
+      return result;
 
     } catch (error) {
       console.error('❌ Error generating real graphic:', error);
