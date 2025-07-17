@@ -727,9 +727,21 @@ export default function MyAds() {
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                             {suggestions.map((suggestion: any, index: number) => {
-                              const cardKey = `${suggestion.type}-${suggestion.description?.substring(0, 20)}`;
-                              const isFlipped = flippedCards[cardKey];
-                              const graphicUrl = cardGraphics[cardKey];
+                              // Ensure all required properties exist with fallbacks
+                              const safesuggestion = {
+                                type: suggestion?.type || 'unknown',
+                                description: suggestion?.description || '',
+                                platform: suggestion?.platform || 'instagram_post',
+                                visualElements: suggestion?.visualElements || [],
+                                composition: suggestion?.composition || '',
+                                colors: suggestion?.colors || [],
+                                mood: suggestion?.mood || '',
+                                ...suggestion
+                              };
+                              
+                              const cardKey = `${safesuggestion.type}-${safesuggestion.description.substring(0, 20)}`;
+                              const isFlipped = flippedCards[cardKey] || false;
+                              const graphicUrl = cardGraphics[cardKey] || null;
                               
                               console.log('🖼️ Rendering card:', cardKey);
                               console.log('🖼️ Is flipped:', isFlipped);
@@ -744,18 +756,18 @@ export default function MyAds() {
                                       <Card className="h-full hover:shadow-lg transition-shadow flex flex-col">
                                         <CardHeader className="pb-3 flex-shrink-0">
                                           <div className="flex items-center justify-between">
-                                            <CardTitle className="text-sm font-medium">{suggestion.type}</CardTitle>
-                                            <Badge variant="outline" className="text-xs">{suggestion.mood}</Badge>
+                                            <CardTitle className="text-sm font-medium">{safesuggestion.type}</CardTitle>
+                                            <Badge variant="outline" className="text-xs">{safesuggestion.mood}</Badge>
                                           </div>
                                         </CardHeader>
                                         <CardContent className="p-4 flex-1 flex flex-col overflow-hidden">
-                                          <p className="text-sm text-muted-foreground mb-3">{suggestion.description}</p>
+                                          <p className="text-sm text-muted-foreground mb-3">{safesuggestion.description}</p>
                                           
                                           <div className="space-y-2 flex-1 overflow-y-auto">
                                             <div>
                                               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visual Elements</p>
                                               <div className="flex flex-wrap gap-1 mt-1">
-                                                {suggestion.visualElements.map((element: string, idx: number) => (
+                                                {safesuggestion.visualElements.map((element: string, idx: number) => (
                                                   <Badge key={idx} variant="secondary" className="text-xs">
                                                     {element}
                                                   </Badge>
@@ -765,13 +777,13 @@ export default function MyAds() {
                                             
                                             <div>
                                               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Composition</p>
-                                              <p className="text-xs text-muted-foreground mt-1">{suggestion.composition}</p>
+                                              <p className="text-xs text-muted-foreground mt-1">{safesuggestion.composition}</p>
                                             </div>
                                             
                                             <div>
                                               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Color Palette</p>
                                               <div className="flex gap-1 mt-1">
-                                                {suggestion.colors.map((color: string, idx: number) => (
+                                                {safesuggestion.colors.map((color: string, idx: number) => (
                                                   <div
                                                     key={idx}
                                                     className="w-4 h-4 rounded-full border border-gray-300"
@@ -788,7 +800,7 @@ export default function MyAds() {
                                               variant="ghost"
                                               size="sm"
                                               className="flex-1"
-                                              onClick={() => handleCopyToClipboard(suggestion.description, 'image concept')}
+                                              onClick={() => handleCopyToClipboard(safesuggestion.description, 'image concept')}
                                             >
                                               <Copy className="w-3 h-3 mr-1" />
                                               Copy
@@ -798,13 +810,13 @@ export default function MyAds() {
                                               size="sm"
                                               className="flex-1"
                                               onClick={() => handleGenerateGraphicsFromConcept({
-                                                description: suggestion.description,
-                                                platform: suggestion.platform || 'instagram_post',
-                                                visual_style: suggestion.type,
-                                                key_elements: suggestion.visualElements?.join(', '),
-                                                color_scheme: suggestion.colors?.join(', '),
-                                                marketing_angle: suggestion.mood,
-                                                title: suggestion.type
+                                                description: safesuggestion.description,
+                                                platform: safesuggestion.platform,
+                                                visual_style: safesuggestion.type,
+                                                key_elements: safesuggestion.visualElements.join(', '),
+                                                color_scheme: safesuggestion.colors.join(', '),
+                                                marketing_angle: safesuggestion.mood,
+                                                title: safesuggestion.type
                                               }, `${platform}-${index}`)}
                                               disabled={generatingButtons[`${platform}-${index}`]}
                                             >

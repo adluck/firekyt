@@ -232,9 +232,9 @@ export class SecurityManager {
           directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-            imgSrc: ["'self'", "data:", "https:", "blob:"],
-            connectSrc: ["'self'", "ws:", "wss:", "https://fonts.gstatic.com", "https://api.stripe.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.googletagmanager.com"],
+            imgSrc: ["'self'", "data:", "https:", "blob:", "*"],
+            connectSrc: ["'self'", "ws:", "wss:", "https://fonts.gstatic.com", "https://api.stripe.com", "https://generativelanguage.googleapis.com", "*"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],
