@@ -294,7 +294,11 @@ export default function MyAds() {
   };
 
   const handleGenerateGraphicsFromConcept = async (concept: any, buttonKey?: string) => {
-    const cardKey = `${concept.title}-${concept.description?.substring(0, 20)}`;
+    const cardKey = `${concept.title || concept.type}-${concept.description?.substring(0, 20)}`;
+    
+    console.log('🖼️ Generate graphics called with concept:', concept);
+    console.log('🖼️ Generated cardKey:', cardKey);
+    console.log('🖼️ Button key:', buttonKey);
     
     // Set individual button loading state
     if (buttonKey) {
@@ -304,6 +308,7 @@ export default function MyAds() {
     }
     
     try {
+      console.log('🖼️ Making API request to generate graphics...');
       const response = await apiRequest('POST', '/api/generate-graphics-from-concept', {
         concept: concept.description,
         platform: concept.platform || 'instagram_post',
@@ -314,6 +319,7 @@ export default function MyAds() {
       });
       
       const result = await response.json();
+      console.log('🖼️ API response:', result);
       
       // Add the generated graphics to our real graphics collection
       if (result.graphics && result.graphics.length > 0) {
@@ -322,10 +328,15 @@ export default function MyAds() {
         // Store the first graphic for this card and flip it
         const firstGraphic = result.graphics[0];
         console.log('🖼️ Setting graphic URL for card:', cardKey, 'URL:', firstGraphic.url);
-        setCardGraphics(prev => ({
-          ...prev,
-          [cardKey]: firstGraphic.url
-        }));
+        console.log('🖼️ Current cardGraphics state:', cardGraphics);
+        setCardGraphics(prev => {
+          const newState = {
+            ...prev,
+            [cardKey]: firstGraphic.url
+          };
+          console.log('🖼️ New cardGraphics state:', newState);
+          return newState;
+        });
         
         // Flip the card to show the generated image
         setFlippedCards(prev => ({
@@ -720,6 +731,11 @@ export default function MyAds() {
                               const isFlipped = flippedCards[cardKey];
                               const graphicUrl = cardGraphics[cardKey];
                               
+                              console.log('🖼️ Rendering card:', cardKey);
+                              console.log('🖼️ Is flipped:', isFlipped);
+                              console.log('🖼️ Graphic URL:', graphicUrl);
+                              console.log('🖼️ All cardGraphics keys:', Object.keys(cardGraphics));
+                              
                               return (
                                 <div key={index} className={`flip-card h-[600px] ${isFlipped ? 'flipped' : ''}`}>
                                   <div className="flip-card-inner">
@@ -832,11 +848,12 @@ export default function MyAds() {
                                                 alt="Generated graphic" 
                                                 className="max-w-full max-h-full object-contain rounded-lg shadow-md"
                                                 onError={(e) => {
-                                                  console.error('Failed to load image:', graphicUrl);
-                                                  console.error('Error event:', e);
+                                                  console.error('🖼️ Failed to load image:', graphicUrl);
+                                                  console.error('🖼️ Error event:', e);
+                                                  console.error('🖼️ Image element:', e.target);
                                                 }}
                                                 onLoad={() => {
-                                                  console.log('Successfully loaded image:', graphicUrl);
+                                                  console.log('🖼️ Successfully loaded image:', graphicUrl);
                                                 }}
                                               />
                                             </div>
