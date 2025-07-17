@@ -6150,9 +6150,13 @@ async function generateAILinkSuggestions(params: {
   // Generate actual graphics from concept descriptions
   app.post('/api/generate-graphics-from-concept', authenticateToken, async (req: Request, res: Response) => {
     try {
+      console.log('🎨 Graphics generation API called with body:', req.body);
+      console.log('🎨 User authenticated:', req.user?.username || 'Unknown');
+      
       const { concept, platform, visualStyle, keyElements, colorScheme, marketingAngle } = req.body;
       
       if (!concept) {
+        console.error('❌ No concept provided in request');
         return res.status(400).json({
           success: false,
           message: 'Concept description is required'
@@ -6207,7 +6211,8 @@ async function generateAILinkSuggestions(params: {
         fallback: graphic?.type === 'svg-graphic'
       });
     } catch (error: any) {
-      console.error('Generate graphics from concept error:', error);
+      console.error('❌ Generate graphics from concept error:', error);
+      console.error('❌ Error stack:', error.stack);
       res.status(500).json({ 
         success: false, 
         message: error.message || 'Failed to generate graphics from concept' 
