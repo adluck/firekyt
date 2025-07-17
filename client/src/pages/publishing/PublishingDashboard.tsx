@@ -78,12 +78,18 @@ const scheduleSchema = z.object({
   scheduledAt: z.string().min(1, "Scheduled time is required").refine((dateStr) => {
     const selectedDate = new Date(dateStr);
     const now = new Date();
-    const minFutureTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const minFutureTime = 3 * 60 * 1000; // 3 minutes in milliseconds (reduced for better UX)
     const timeDiff = selectedDate.getTime() - now.getTime();
-    // Debug removed - validation working correctly
+    console.log('Validation check:', {
+      selectedDate: selectedDate.toISOString(),
+      now: now.toISOString(),
+      timeDiff: timeDiff,
+      minRequired: minFutureTime,
+      isValid: timeDiff >= minFutureTime
+    });
     return timeDiff >= minFutureTime;
   }, {
-    message: "Scheduled time must be at least 5 minutes in the future"
+    message: "Scheduled time must be at least 3 minutes in the future"
   }),
   publishSettings: z.object({
     title: z.string().optional(),
@@ -109,12 +115,14 @@ export default function PublishingDashboard() {
   // Update minimum datetime every minute
   useEffect(() => {
     const updateMinDateTime = () => {
-      const minTime = new Date(Date.now() + 5 * 60000); // 5 minutes from now
-      setMinDateTime(minTime.toISOString().slice(0, 16));
+      const minTime = new Date(Date.now() + 3 * 60000); // 3 minutes from now
+      // Use local timezone for datetime-local input
+      const localTime = new Date(minTime.getTime() - minTime.getTimezoneOffset() * 60000);
+      setMinDateTime(localTime.toISOString().slice(0, 16));
     };
     
     updateMinDateTime(); // Set initial value
-    const interval = setInterval(updateMinDateTime, 60000); // Update every minute
+    const interval = setInterval(updateMinDateTime, 10000); // Update every 10 seconds for better accuracy
     
     return () => clearInterval(interval);
   }, []);
@@ -1143,7 +1151,7 @@ export default function PublishingDashboard() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Content will be published at least 5 minutes in the future
+                      Content will be published at least 3 minutes in the future
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
