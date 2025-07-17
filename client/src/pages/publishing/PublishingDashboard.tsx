@@ -1061,6 +1061,288 @@ export default function PublishingDashboard() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Schedule Content Dialog */}
+      <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Schedule Content Publication</DialogTitle>
+            <DialogDescription>
+              Schedule your content to be published at a specific time
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...scheduleForm}>
+            <form onSubmit={scheduleForm.handleSubmit(onSchedulePublication)} className="space-y-4">
+              <FormField
+                control={scheduleForm.control}
+                name="contentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Content to Publish</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select content to publish" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {userContent.map((content: any) => (
+                          <SelectItem key={content.id} value={content.id.toString()}>
+                            {content.title || "Untitled"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={scheduleForm.control}
+                name="platformConnectionId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Platform</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select platform to publish to" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {connections.filter((c: any) => c.isActive).map((connection: any) => (
+                          <SelectItem key={connection.id} value={connection.id.toString()}>
+                            <div className="flex items-center gap-2">
+                              {getPlatformIcon(connection.platform)}
+                              {connection.platform} - {connection.blogUrl || connection.platformUsername}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={scheduleForm.control}
+                name="scheduledAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Scheduled Time</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="datetime-local"
+                        min={minDateTime}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Content will be published at least 5 minutes in the future
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="space-y-3">
+                <FormField
+                  control={scheduleForm.control}
+                  name="publishSettings.title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Custom Title (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Override the default title" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={scheduleForm.control}
+                  name="publishSettings.excerpt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Excerpt (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Brief description or excerpt" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowScheduleDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={schedulePublicationMutation.isPending}
+                >
+                  {schedulePublicationMutation.isPending ? "Scheduling..." : "Schedule Publication"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Platform Connection Dialog */}
+      <Dialog open={showAddConnectionDialog} onOpenChange={setShowAddConnectionDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Platform Connection</DialogTitle>
+            <DialogDescription>
+              Connect a new platform to publish your content
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...connectionForm}>
+            <form onSubmit={connectionForm.handleSubmit(onAddConnection)} className="space-y-4">
+              <FormField
+                control={connectionForm.control}
+                name="platform"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Platform</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a platform" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="wordpress">WordPress</SelectItem>
+                        <SelectItem value="ghost">Ghost</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="custom">Custom API</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={connectionForm.control}
+                name="blogUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Blog URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://yourblog.com" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      The base URL of your blog or website
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={connectionForm.control}
+                name="accessToken"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Access Token/Application Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Your API key or app password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={connectionForm.control}
+                name="platformUsername"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your platform username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowAddConnectionDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={addConnectionMutation.isPending}
+                >
+                  {addConnectionMutation.isPending ? "Connecting..." : "Add Connection"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Connection Settings Dialog */}
+      <Dialog open={showConnectionDialog} onOpenChange={setShowConnectionDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Connection Details</DialogTitle>
+            <DialogDescription>
+              View and manage your platform connection
+            </DialogDescription>
+          </DialogHeader>
+          {selectedConnection && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                {getPlatformIcon(selectedConnection.platform)}
+                <div>
+                  <h3 className="font-semibold">{selectedConnection.platform}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedConnection.blogUrl || selectedConnection.platformUsername}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-sm"><strong>Status:</strong> {selectedConnection.isActive ? 'Active' : 'Inactive'}</p>
+                <p className="text-sm"><strong>Connected:</strong> {new Date(selectedConnection.createdAt).toLocaleString()}</p>
+                {selectedConnection.lastSyncAt && (
+                  <p className="text-sm"><strong>Last Sync:</strong> {new Date(selectedConnection.lastSyncAt).toLocaleString()}</p>
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowConnectionDialog(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => deleteConnectionMutation.mutate(selectedConnection.id)}
+                  disabled={deleteConnectionMutation.isPending}
+                >
+                  {deleteConnectionMutation.isPending ? "Removing..." : "Remove Connection"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
