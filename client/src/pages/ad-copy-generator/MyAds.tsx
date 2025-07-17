@@ -294,7 +294,8 @@ export default function MyAds() {
   };
 
   const handleGenerateGraphicsFromConcept = async (concept: any, buttonKey?: string) => {
-    const cardKey = `${concept.title || concept.type}-${concept.description?.substring(0, 20)}`;
+    // Use consistent key generation logic matching the card display
+    const cardKey = `${concept.visual_style || concept.type}-${concept.description?.substring(0, 20)}`;
     
     console.log('🖼️ Generate graphics called with concept:', concept);
     console.log('🖼️ Generated cardKey:', cardKey);
@@ -335,6 +336,7 @@ export default function MyAds() {
             [cardKey]: firstGraphic.url
           };
           console.log('🖼️ New cardGraphics state:', newState);
+          console.log('🖼️ All cardGraphics keys after update:', Object.keys(newState));
           return newState;
         });
         
@@ -816,7 +818,7 @@ export default function MyAds() {
                                                 key_elements: safesuggestion.visualElements.join(', '),
                                                 color_scheme: safesuggestion.colors.join(', '),
                                                 marketing_angle: safesuggestion.mood,
-                                                title: safesuggestion.type
+                                                type: safesuggestion.type
                                               }, `${platform}-${index}`)}
                                               disabled={generatingButtons[`${platform}-${index}`]}
                                             >
