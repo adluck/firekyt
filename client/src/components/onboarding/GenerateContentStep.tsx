@@ -10,7 +10,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 import { useOnboarding } from '@/hooks/useOnboarding';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { Zap, Sparkles, FileText, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export function GenerateContentStep() {
