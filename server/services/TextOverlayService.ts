@@ -35,7 +35,10 @@ export class TextOverlayService {
   };
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+    // Use GOOGLE_API_KEY (which is confirmed working) or fallback to GEMINI_API_KEY
+    const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "";
+    this.ai = new GoogleGenAI({ apiKey });
+    console.log('🤖 TextOverlayService initialized with API key:', apiKey ? 'Present' : 'Missing');
   }
 
   async generateRealGraphic(productName: string, platform: string): Promise<any> {
@@ -44,12 +47,13 @@ export class TextOverlayService {
       
       const format = this.socialFormats[platform];
       if (!format) {
+        console.error(`❌ Unsupported platform: ${platform}`);
         throw new Error(`Unsupported platform: ${platform}`);
       }
 
       // Check if GEMINI_API_KEY is available
-      if (!process.env.GEMINI_API_KEY) {
-        console.error('❌ GEMINI_API_KEY not found, falling back to SVG generation');
+      if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+        console.error('❌ No Gemini API key found, falling back to SVG generation');
         return this.generateFallbackSVG(productName, platform);
       }
 

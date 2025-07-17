@@ -1,8 +1,14 @@
 import express, { type Request, Response, NextFunction } from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { configureApplicationSecurity, securityAuditMiddleware, ipSecurityMiddleware, botDetectionMiddleware } from "./securityConfig";
 import { schedulerService } from "./SchedulerService";
+
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -414,6 +420,9 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 // Serve uploaded custom graphics
 app.use('/uploads', express.static('uploads'));
+
+// Serve generated graphics (AI-generated and SVG fallbacks)
+app.use('/generated-graphics', express.static(path.join(__dirname, '../client/public/generated-graphics')));
 
 app.use((req, res, next) => {
   const start = Date.now();
