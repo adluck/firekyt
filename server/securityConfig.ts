@@ -258,6 +258,13 @@ export function botDetectionMiddleware(req: express.Request, res: express.Respon
 
 // Content security policy nonce generation
 export function cspNonceMiddleware(req: express.Request, res: express.Response, next: express.NextFunction): void {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  // Skip nonce middleware in development
+  if (isDevelopment) {
+    return next();
+  }
+  
   const nonce = securityManager.generateSecureToken(16);
   (req as any).nonce = nonce;
   

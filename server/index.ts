@@ -23,7 +23,7 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     res.header('ETag', `"${Date.now()}-${Math.random()}"`);
     res.header('Vary', 'Accept-Encoding');
     res.header('X-Frame-Options', 'ALLOWALL');
-    res.header('Content-Security-Policy', 'frame-ancestors *');
+    res.header('Content-Security-Policy', 'frame-ancestors *; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; img-src \'self\' data: https: blob: *; connect-src \'self\' *;');
     
     const { storage } = await import('./storage');
     const widgetId = parseInt(req.params.id);
@@ -299,13 +299,13 @@ app.get('/widgets/:id/iframe', async (req, res) => {
 </head>
 <body>
   <div class="widget" id="widget">
-    ${currentAd.imageUrl ? `<div class="image-container"><img src="${currentAd.imageUrl}" alt="${currentAd.title || 'Product'}" class="image" onerror="this.parentElement.style.display='none'"></div>` : ''}
+    ${currentAd.imageUrl ? `<div class="image-container"><img src="${currentAd.imageUrl}" alt="${currentAd.title || 'Product'}" class="image"></div>` : ''}
     <div class="content">
       <div class="text-section">
         <h3 class="title">${(currentAd.title || 'Premium Gaming Headset').replace(/"/g, '&quot;')}</h3>
         <p class="description">${(currentAd.description || 'High-quality wireless gaming headset with superior sound quality').replace(/"/g, '&quot;')}</p>
       </div>
-      <button class="button" onclick="handleClick()" onkeypress="if(event.key==='Enter')handleClick()">${(currentAd.ctaText || 'Shop Now').replace(/"/g, '&quot;')}</button>
+      <button class="button" id="shopButton">${(currentAd.ctaText || 'Shop Now').replace(/"/g, '&quot;')}</button>
     </div>
   </div>
   <script>
@@ -375,8 +375,20 @@ app.get('/widgets/:id/iframe', async (req, res) => {
     // Initialize widget
     document.addEventListener('DOMContentLoaded', function() {
       const widget = document.getElementById('widget');
+      const shopButton = document.getElementById('shopButton');
+      
       if (widget) {
         widget.style.opacity = '1';
+        
+        // Add click handler to button
+        if (shopButton) {
+          shopButton.addEventListener('click', handleClick);
+          shopButton.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+              handleClick();
+            }
+          });
+        }
         
         // Start rotation if multiple ads
         if (adsData && adsData.length > 1) {
