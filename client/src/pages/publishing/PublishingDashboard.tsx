@@ -129,7 +129,10 @@ export default function PublishingDashboard() {
   const { data: scheduledData, isLoading: scheduledLoading } = useQuery({
     queryKey: ["/api/publishing/scheduled"],
   });
-  const scheduledPublications = scheduledData?.scheduled || [];
+  // Sort scheduled publications by scheduled date (newest first)
+  const scheduledPublications = (scheduledData?.scheduled || []).sort((a: any, b: any) => 
+    new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+  );
 
   // Fetch publication history
   const { data: historyData, isLoading: historyLoading } = useQuery({
