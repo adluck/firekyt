@@ -388,26 +388,26 @@ export default function AdCopyGenerator() {
         </Card>
       </div>
 
-      <Card className="bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-950 dark:to-pink-950 border-orange-200 dark:border-orange-800">
+      <Card className="bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 border-orange-300 dark:border-orange-600 text-white">
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-orange-600" />
-              <h4 className="font-medium">Generation Summary</h4>
+              <Sparkles className="w-5 h-5 text-white" />
+              <h4 className="font-medium text-white">Generation Summary</h4>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Platforms</p>
-                <p className="font-medium">{platformSelection.platforms.length} selected</p>
+                <p className="text-orange-100">Platforms</p>
+                <p className="font-medium text-white">{platformSelection.platforms.length} selected</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Total Formats</p>
-                <p className="font-medium">{Object.values(platformSelection.formats).flat().length} formats</p>
+                <p className="text-orange-100">Total Formats</p>
+                <p className="font-medium text-white">{Object.values(platformSelection.formats).flat().length} formats</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Total Variations</p>
-                <p className="font-medium">{Object.values(platformSelection.formats).flat().length * abTestSettings.variationCount} ad copies</p>
+                <p className="text-orange-100">Total Variations</p>
+                <p className="font-medium text-white">{Object.values(platformSelection.formats).flat().length * abTestSettings.variationCount} ad copies</p>
               </div>
             </div>
           </div>
