@@ -611,6 +611,7 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 ✓ **FIXED: WordPress Authentication and URL Discovery** - Resolved critical WordPress connection issues by discovering correct blog URL (https://construstor.com instead of Bluehost subdirectory) and identifying proper WordPress username (ADLUCK72) through REST API user enumeration; authentication now working correctly with proper credentials
 ✓ **FIXED: WordPress Connection Testing in Onboarding** - Updated TokenValidationService to use proper Basic authentication instead of Bearer token, enhanced test connection endpoint to pass platformUsername parameter for correct WordPress validation
 ✓ **FIXED: Dashboard Real-Time Updates After Onboarding** - Implemented comprehensive query invalidation system across all onboarding components (useOnboarding hook, ConnectSiteStep, GenerateContentStep, PublishContentStep) to ensure dashboard automatically refreshes and displays updated analytics immediately after users complete onboarding steps without requiring page reload
+✓ **BETA SEAT MANAGEMENT: Deleted Testing Account** - Removed testing account info@grantopic.com (username: adluck, ID: 27) to free up beta seats for genuine testers; total user count reduced from 19 to 18, creating more availability for new beta users
 
 ## User Preferences
 
