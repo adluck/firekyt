@@ -41,7 +41,10 @@ export class EmailService {
         .replace(/{{first_name}}/g, 'Test')
         .replace(/{{last_name}}/g, 'User')
         .replace(/{{company_name}}/g, 'FireKyt')
+        .replace(/{{company_url}}/g, process.env.FRONTEND_URL || 'https://firekyt.com')
         .replace(/{{unsubscribe_url}}/g, '#')
+        .replace(/{{verification_url}}/g, '#')
+        .replace(/{{reset_url}}/g, '#')
         .replace(/{{date}}/g, new Date().toLocaleDateString());
 
       return await this.sendEmail(testEmail, `[TEST] ${subject}`, processedTemplate, fromEmail, fromName);
@@ -91,7 +94,10 @@ export class EmailService {
             .replace(/{{last_name}}/g, user.lastName || '')
             .replace(/{{email}}/g, user.email)
             .replace(/{{company_name}}/g, 'FireKyt')
+            .replace(/{{company_url}}/g, process.env.FRONTEND_URL || 'https://firekyt.com')
             .replace(/{{unsubscribe_url}}/g, `${process.env.FRONTEND_URL || 'https://firekyt.com'}/unsubscribe?email=${encodeURIComponent(user.email)}`)
+            .replace(/{{verification_url}}/g, `${process.env.FRONTEND_URL || 'https://firekyt.com'}/verify?token=${user.id}`)
+            .replace(/{{reset_url}}/g, `${process.env.FRONTEND_URL || 'https://firekyt.com'}/reset-password?token=${user.id}`)
             .replace(/{{date}}/g, new Date().toLocaleDateString());
 
           const result = await this.sendEmail(
