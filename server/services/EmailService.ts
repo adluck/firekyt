@@ -196,7 +196,9 @@ export class EmailService {
           <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
           <div style="font-family: 'Lexend Deca', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
             <div style="background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 40px 20px; text-align: center;">
-              <img src="https://firekyt.com/firekyt-logo.png" alt="FireKyt" style="height: 40px; margin-bottom: 20px;" />
+              <div style="height: 40px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 24px; font-weight: 700; color: white;">🔥 FireKyt</span>
+              </div>
               <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">Welcome to FireKyt!</h1>
               <p style="color: white; margin: 20px 0 0 0; font-size: 16px; opacity: 0.9;">Your AI-powered affiliate marketing platform</p>
             </div>
@@ -242,7 +244,9 @@ export class EmailService {
           <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
           <div style="font-family: 'Lexend Deca', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
             <div style="background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 40px 20px; text-align: center;">
-              <img src="https://firekyt.com/firekyt-logo.png" alt="FireKyt" style="height: 40px; margin-bottom: 20px;" />
+              <div style="height: 40px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 24px; font-weight: 700; color: white;">🔥 FireKyt</span>
+              </div>
               <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">🚀 New Feature Update</h1>
               <p style="color: white; margin: 20px 0 0 0; font-size: 16px; opacity: 0.9;">Exciting improvements to your FireKyt experience</p>
             </div>
@@ -285,7 +289,9 @@ export class EmailService {
           <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
           <div style="font-family: 'Lexend Deca', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
             <div style="background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 40px 20px; text-align: center;">
-              <img src="https://firekyt.com/firekyt-logo.png" alt="FireKyt" style="height: 40px; margin-bottom: 20px;" />
+              <div style="height: 40px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 24px; font-weight: 700; color: white;">🔥 FireKyt</span>
+              </div>
               <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">📬 FireKyt Weekly</h1>
               <p style="color: white; margin: 20px 0 0 0; font-size: 16px; opacity: 0.9;">Your weekly dose of affiliate marketing insights</p>
             </div>
@@ -336,7 +342,9 @@ export class EmailService {
           <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
           <div style="font-family: 'Lexend Deca', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
             <div style="background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 40px 20px; text-align: center;">
-              <img src="https://firekyt.com/firekyt-logo.png" alt="FireKyt" style="height: 40px; margin-bottom: 20px;" />
+              <div style="height: 40px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 24px; font-weight: 700; color: white;">🔥 FireKyt</span>
+              </div>
               <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">🔐 Password Reset</h1>
               <p style="color: white; margin: 20px 0 0 0; font-size: 16px; opacity: 0.9;">Secure your FireKyt account</p>
             </div>
@@ -376,7 +384,9 @@ export class EmailService {
           <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
           <div style="font-family: 'Lexend Deca', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
             <div style="background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 40px 20px; text-align: center;">
-              <img src="https://firekyt.com/firekyt-logo.png" alt="FireKyt" style="height: 40px; margin-bottom: 20px;" />
+              <div style="height: 40px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 24px; font-weight: 700; color: white;">🔥 FireKyt</span>
+              </div>
               <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">✨ Verify Your Account</h1>
               <p style="color: white; margin: 20px 0 0 0; font-size: 16px; opacity: 0.9;">Just one more step to get started</p>
             </div>
