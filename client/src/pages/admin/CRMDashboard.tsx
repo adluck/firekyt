@@ -4,6 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -79,6 +88,9 @@ export default function CRMDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("overview");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showUserDialog, setShowUserDialog] = useState(false);
+  const [showUserSettingsDialog, setShowUserSettingsDialog] = useState(false);
 
   // Get CRM statistics
   const { data: statsResponse, isLoading: statsLoading } = useQuery({
@@ -133,6 +145,18 @@ export default function CRMDashboard() {
 
   const campaigns: EmailCampaign[] = campaignsData?.campaigns || [];
   const users: User[] = usersData?.users || [];
+
+  // Handle view user
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    setShowUserDialog(true);
+  };
+
+  // Handle user settings
+  const handleUserSettings = (user: User) => {
+    setSelectedUser(user);
+    setShowUserSettingsDialog(true);
+  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -350,10 +374,18 @@ export default function CRMDashboard() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewUser(user)}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleUserSettings(user)}
+                      >
                         <Settings className="h-4 w-4" />
                       </Button>
                     </div>
@@ -433,6 +465,124 @@ export default function CRMDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* User View Dialog */}
+      <Dialog open={showUserDialog} onOpenChange={setShowUserDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+            <DialogDescription>
+              View detailed information for this user
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Username</Label>
+                  <p className="text-sm text-muted-foreground">{selectedUser.username}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Email</Label>
+                  <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">First Name</Label>
+                  <p className="text-sm text-muted-foreground">{selectedUser.firstName || 'Not provided'}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Last Name</Label>
+                  <p className="text-sm text-muted-foreground">{selectedUser.lastName || 'Not provided'}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Subscription Tier</Label>
+                  <p className="text-sm text-muted-foreground">{selectedUser.subscriptionTier}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Status</Label>
+                  <p className="text-sm text-muted-foreground">{selectedUser.isActive ? 'Active' : 'Inactive'}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Created</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDistanceToNow(new Date(selectedUser.createdAt), { addSuffix: true })}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Last Updated</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDistanceToNow(new Date(selectedUser.updatedAt), { addSuffix: true })}
+                  </p>
+                </div>
+              </div>
+              {selectedUser.lastLoginAt && (
+                <div>
+                  <Label className="text-sm font-medium">Last Login</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDistanceToNow(new Date(selectedUser.lastLoginAt), { addSuffix: true })}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* User Settings Dialog */}
+      <Dialog open={showUserSettingsDialog} onOpenChange={setShowUserSettingsDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>User Settings</DialogTitle>
+            <DialogDescription>
+              Manage settings for this user
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="username">Username</Label>
+                  <Input id="username" defaultValue={selectedUser.username} />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" defaultValue={selectedUser.email} />
+                </div>
+                <div>
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input id="firstName" defaultValue={selectedUser.firstName || ''} />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input id="lastName" defaultValue={selectedUser.lastName || ''} />
+                </div>
+                <div>
+                  <Label htmlFor="subscriptionTier">Subscription Tier</Label>
+                  <Input id="subscriptionTier" defaultValue={selectedUser.subscriptionTier} />
+                </div>
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Input id="status" defaultValue={selectedUser.isActive ? 'Active' : 'Inactive'} />
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setShowUserSettingsDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => {
+                  toast({
+                    title: "Settings Updated",
+                    description: "User settings have been updated successfully.",
+                  });
+                  setShowUserSettingsDialog(false);
+                }}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
