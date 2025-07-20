@@ -652,35 +652,44 @@ export default function CRMDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {campaigns.map((campaign) => (
-                  <div key={campaign.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="space-y-1">
+                {/* Debug info */}
+                <div className="text-xs text-gray-500 p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                  DEBUG: Found {campaigns.length} campaigns
+                </div>
+                
+                {campaigns.map((campaign, index) => {
+                  console.log(`Rendering campaign ${index}:`, campaign);
+                  return (
+                    <div key={campaign.id} className="flex items-center justify-between p-4 border rounded-lg bg-white dark:bg-gray-900">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-black dark:text-white">{campaign.name}</p>
+                          {getStatusBadge(campaign.status)}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{campaign.subject}</p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span>Target: {campaign.targetAudience}</span>
+                          {campaign.totalRecipients && (
+                            <span>Recipients: {campaign.totalRecipients}</span>
+                          )}
+                          <span>Created {formatDistanceToNow(new Date(campaign.createdAt), { addSuffix: true })}</span>
+                        </div>
+                      </div>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium">{campaign.name}</p>
-                        {getStatusBadge(campaign.status)}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{campaign.subject}</p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>Target: {campaign.targetAudience}</span>
-                        {campaign.totalRecipients && (
-                          <span>Recipients: {campaign.totalRecipients}</span>
-                        )}
-                        <span>Created {formatDistanceToNow(new Date(campaign.createdAt), { addSuffix: true })}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {campaign.status === 'draft' && (
-                        <Button size="sm">
-                          <Send className="h-4 w-4 mr-2" />
-                          Send
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4" />
                         </Button>
-                      )}
+                        {campaign.status === 'draft' && (
+                          <Button size="sm">
+                            <Send className="h-4 w-4 mr-2" />
+                            Send
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+                
                 {campaigns.length === 0 && (
                   <p className="text-center text-muted-foreground py-8">No campaigns found</p>
                 )}
