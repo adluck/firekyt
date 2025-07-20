@@ -7058,6 +7058,25 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Get all email templates (Admin only)
+  app.get('/api/admin/crm/templates', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const templates = await storage.getEmailTemplates();
+      
+      res.json({
+        success: true,
+        templates
+      });
+    } catch (error: any) {
+      console.error('Get templates error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to fetch email templates',
+        error: error.message 
+      });
+    }
+  });
+
   // Initialize default email templates (Admin only)
   app.post('/api/admin/crm/initialize-templates', authenticateToken, requireAdminCRM, async (req, res) => {
     try {

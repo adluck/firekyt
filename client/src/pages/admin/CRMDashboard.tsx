@@ -121,6 +121,15 @@ export default function CRMDashboard() {
     }
   });
 
+  // Get email templates
+  const { data: templatesData, isLoading: templatesLoading } = useQuery({
+    queryKey: ['/api/admin/crm/templates'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/admin/crm/templates');
+      return response.json();
+    }
+  });
+
   // Initialize default templates mutation
   const initializeTemplatesMutation = useMutation({
     mutationFn: async () => {
@@ -145,6 +154,7 @@ export default function CRMDashboard() {
 
   const campaigns: EmailCampaign[] = campaignsData?.campaigns || [];
   const users: User[] = usersData?.users || [];
+  const templates = templatesData?.templates || [];
 
   // Handle view user
   const handleViewUser = (user: User) => {
@@ -451,16 +461,58 @@ export default function CRMDashboard() {
               <CardDescription>Pre-built templates for email campaigns</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">No email templates found</p>
-                <Button
-                  onClick={() => initializeTemplatesMutation.mutate()}
-                  disabled={initializeTemplatesMutation.isPending}
-                >
-                  {initializeTemplatesMutation.isPending ? "Creating..." : "Initialize Default Templates"}
-                </Button>
-              </div>
+              {templatesLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-center space-x-4">
+                      <div className="h-12 w-12 bg-muted animate-pulse rounded" />
+                      <div className="space-y-2 flex-1">
+                        <div className="h-4 bg-muted animate-pulse rounded w-1/4" />
+                        <div className="h-3 bg-muted animate-pulse rounded w-1/2" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : templates.length > 0 ? (
+                <div className="space-y-4">
+                  {templates.map((template: any) => (
+                    <div key={template.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{template.name}</p>
+                          <Badge variant={template.isActive ? "default" : "secondary"}>
+                            {template.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{template.subject}</p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span>Category: {template.category}</span>
+                          <span>Created {formatDistanceToNow(new Date(template.createdAt), { addSuffix: true })}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-4">No email templates found</p>
+                  <Button
+                    onClick={() => initializeTemplatesMutation.mutate()}
+                    disabled={initializeTemplatesMutation.isPending}
+                  >
+                    {initializeTemplatesMutation.isPending ? "Creating..." : "Initialize Default Templates"}
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
