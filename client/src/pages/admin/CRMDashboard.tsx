@@ -47,7 +47,8 @@ import {
   XCircle,
   PlusCircle,
   Settings,
-  Plus
+  Plus,
+  Trash2
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -268,6 +269,63 @@ export default function CRMDashboard() {
   const handleViewCampaign = (campaign: EmailCampaign) => {
     setSelectedCampaign(campaign);
     setShowCampaignDialog(true);
+  };
+
+  // Delete campaign mutation
+  const deleteCampaignMutation = useMutation({
+    mutationFn: async (campaignId: number) => {
+      const response = await apiRequest('DELETE', `/api/admin/crm/campaigns/${campaignId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/crm/campaigns'] });
+      toast({
+        title: "Campaign Deleted",
+        description: "Email campaign has been deleted successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Failed to delete campaign",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Delete template mutation
+  const deleteTemplateMutation = useMutation({
+    mutationFn: async (templateId: number) => {
+      const response = await apiRequest('DELETE', `/api/admin/crm/templates/${templateId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/crm/templates'] });
+      toast({
+        title: "Template Deleted", 
+        description: "Email template has been deleted successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "Failed to delete template",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handle delete confirmations
+  const handleDeleteCampaign = (campaign: EmailCampaign) => {
+    if (window.confirm(`Are you sure you want to delete the campaign "${campaign.name}"? This action cannot be undone.`)) {
+      deleteCampaignMutation.mutate(campaign.id);
+    }
+  };
+
+  const handleDeleteTemplate = (template: any) => {
+    if (window.confirm(`Are you sure you want to delete the template "${template.name}"? This action cannot be undone.`)) {
+      deleteTemplateMutation.mutate(template.id);
+    }
   };
 
   // Handle campaign creation
@@ -689,6 +747,14 @@ export default function CRMDashboard() {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteCampaign(campaign)}
+                          disabled={deleteCampaignMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                         {campaign.status === 'draft' && (
                           <Button size="sm">
                             <Send className="h-4 w-4 mr-2" />
@@ -758,6 +824,14 @@ export default function CRMDashboard() {
                           onClick={() => handleTemplateSettings(template)}
                         >
                           <Settings className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteTemplate(template)}
+                          disabled={deleteTemplateMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>

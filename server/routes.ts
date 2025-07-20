@@ -6936,6 +6936,26 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Delete email template
+  app.delete('/api/admin/crm/templates/:id', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const templateId = parseInt(req.params.id);
+      await storage.deleteEmailTemplate(templateId);
+      
+      res.json({
+        success: true,
+        message: 'Email template deleted successfully'
+      });
+    } catch (error: any) {
+      console.error('Delete email template error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to delete email template',
+        error: error.message 
+      });
+    }
+  });
+
   // Send test email
   app.post('/api/admin/crm/send-test-email', authenticateToken, requireAdminCRM, async (req, res) => {
     try {
