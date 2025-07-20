@@ -195,7 +195,9 @@ export default function CRMDashboard() {
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/admin/crm/user-lists');
       return response.json();
-    }
+    },
+    staleTime: 0, // Force fresh data every time
+    gcTime: 0  // Don't cache the data (TanStack Query v5 uses gcTime instead of cacheTime)
   });
 
   // Initialize default templates mutation
