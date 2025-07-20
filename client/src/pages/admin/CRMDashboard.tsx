@@ -91,6 +91,9 @@ export default function CRMDashboard() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showUserDialog, setShowUserDialog] = useState(false);
   const [showUserSettingsDialog, setShowUserSettingsDialog] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [showTemplateSettingsDialog, setShowTemplateSettingsDialog] = useState(false);
 
   // Get CRM statistics
   const { data: statsResponse, isLoading: statsLoading } = useQuery({
@@ -166,6 +169,18 @@ export default function CRMDashboard() {
   const handleUserSettings = (user: User) => {
     setSelectedUser(user);
     setShowUserSettingsDialog(true);
+  };
+
+  // Handle view template
+  const handleViewTemplate = (template: any) => {
+    setSelectedTemplate(template);
+    setShowTemplateDialog(true);
+  };
+
+  // Handle template settings
+  const handleTemplateSettings = (template: any) => {
+    setSelectedTemplate(template);
+    setShowTemplateSettingsDialog(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -491,10 +506,18 @@ export default function CRMDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleViewTemplate(template)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleTemplateSettings(template)}
+                        >
                           <Settings className="h-4 w-4" />
                         </Button>
                       </div>
@@ -628,6 +651,120 @@ export default function CRMDashboard() {
                   });
                   setShowUserSettingsDialog(false);
                 }}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Template View Dialog */}
+      <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Email Template Preview</DialogTitle>
+            <DialogDescription>
+              Preview of the email template content
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTemplate && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Template Name</Label>
+                  <p className="text-sm text-muted-foreground">{selectedTemplate.name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Category</Label>
+                  <p className="text-sm text-muted-foreground">{selectedTemplate.category}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Subject</Label>
+                  <p className="text-sm text-muted-foreground">{selectedTemplate.subject}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Status</Label>
+                  <Badge variant={selectedTemplate.isActive ? "default" : "secondary"}>
+                    {selectedTemplate.isActive ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium">HTML Content Preview</Label>
+                <div className="mt-2 border rounded-lg p-4 bg-muted max-h-96 overflow-y-auto">
+                  <div 
+                    className="prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: selectedTemplate.htmlContent }}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>Created {formatDistanceToNow(new Date(selectedTemplate.createdAt), { addSuffix: true })}</span>
+                <span>•</span>
+                <span>Updated {formatDistanceToNow(new Date(selectedTemplate.updatedAt), { addSuffix: true })}</span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Template Settings Dialog */}
+      <Dialog open={showTemplateSettingsDialog} onOpenChange={setShowTemplateSettingsDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Template Settings</DialogTitle>
+            <DialogDescription>
+              Edit template configuration and settings
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTemplate && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="templateName">Template Name</Label>
+                  <Input 
+                    id="templateName" 
+                    defaultValue={selectedTemplate.name}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="templateCategory">Category</Label>
+                  <Input 
+                    id="templateCategory" 
+                    defaultValue={selectedTemplate.category}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="templateSubject">Subject Line</Label>
+                <Input 
+                  id="templateSubject" 
+                  defaultValue={selectedTemplate.subject}
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <input 
+                  type="checkbox" 
+                  id="templateActive"
+                  defaultChecked={selectedTemplate.isActive}
+                  className="rounded border border-input"
+                />
+                <Label htmlFor="templateActive">Template is active</Label>
+              </div>
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowTemplateSettingsDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button>
                   Save Changes
                 </Button>
               </div>
