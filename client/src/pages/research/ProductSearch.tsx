@@ -94,36 +94,48 @@ export default function ProductSearch() {
   // SERP API Search
   const { data: searchResults, isLoading: serpLoading, error: serpError } = useQuery<ProductSearchResult>({
     queryKey: ['/api/search-affiliate-products', currentQuery],
-    queryFn: () => apiRequest('POST', '/api/search-affiliate-products', { 
-      query: currentQuery,
-      category: 'general'
-    }),
+    queryFn: async () => {
+      const response = await apiRequest('POST', '/api/search-affiliate-products', { 
+        query: currentQuery,
+        category: 'general'
+      });
+      return response.json();
+    },
     enabled: false, // Disabled SERP API for Rye-only optimization
   });
 
   // Rye API Search
   const { data: ryeSearchResults, isLoading: ryeLoading, error: ryeError } = useQuery<RyeSearchResult>({
     queryKey: ['/api/rye/search-products', currentQuery],
-    queryFn: () => apiRequest('POST', '/api/rye/search-products', { 
-      query: currentQuery,
-      limit: 20
-    }),
+    queryFn: async () => {
+      const response = await apiRequest('POST', '/api/rye/search-products', { 
+        query: currentQuery,
+        limit: 20
+      });
+      return response.json();
+    },
     enabled: !!currentQuery, // Always enabled for Rye-only optimization
   });
 
   // Rye Product Research (Advanced)
   const { data: ryeResearchResults, isLoading: ryeResearchLoading, error: ryeResearchError } = useQuery<RyeSearchResult>({
     queryKey: ['/api/rye/research-product', currentQuery],
-    queryFn: () => apiRequest('POST', '/api/rye/research-product', { 
-      keyword: currentQuery
-    }),
+    queryFn: async () => {
+      const response = await apiRequest('POST', '/api/rye/research-product', { 
+        keyword: currentQuery
+      });
+      return response.json();
+    },
     enabled: !!currentQuery && activeTab === 'research',
   });
 
   // Test Rye Connection
   const { data: ryeConnection } = useQuery({
     queryKey: ['/api/rye/test-connection'],
-    queryFn: () => apiRequest('GET', '/api/rye/test-connection'),
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/rye/test-connection');
+      return response.json();
+    },
   });
 
   const handleSearch = () => {

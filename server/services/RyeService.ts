@@ -57,7 +57,7 @@ export class RyeService {
         input: { url }
       };
 
-      const data = await this.client.request(mutation, variables, this.getHeaders());
+      const data = await this.client.request(mutation, variables, this.getHeaders()) as any;
       return { productId: data.requestAmazonProductByURL.productId };
     } catch (error: any) {
       console.error('Rye requestProductByURL error:', error);
@@ -114,7 +114,7 @@ export class RyeService {
         }
       };
 
-      const data = await this.client.request(query, variables, this.getHeaders());
+      const data = await this.client.request(query, variables, this.getHeaders()) as any;
       return { product: data.product };
     } catch (error: any) {
       console.error('Rye getProductById error:', error);
@@ -169,7 +169,7 @@ export class RyeService {
         }
       };
 
-      const data = await this.client.request(searchQuery, variables, this.getHeaders());
+      const data = await this.client.request(searchQuery, variables, this.getHeaders()) as any;
       const products = data.products.edges.map((edge: any) => edge.node);
       
       return { products };
@@ -234,14 +234,18 @@ export class RyeService {
           min: Math.min(...prices),
           max: Math.max(...prices)
         },
-        topVendors: [...new Set(products.map(p => p.vendor))].slice(0, 10)
+        topVendors: Array.from(new Set(products.map(p => p.vendor))).slice(0, 10)
       } : undefined;
 
       // Add competitor analysis for each product
       const enhancedProducts = products.map(product => ({
         ...product,
         competitorAnalysis: {
-          priceRange: marketInsights?.priceRange || { min: 0, max: 0, average: 0 },
+          priceRange: marketInsights?.priceRange ? { 
+            min: marketInsights.priceRange.min, 
+            max: marketInsights.priceRange.max, 
+            average: marketInsights.averagePrice 
+          } : { min: 0, max: 0, average: 0 },
           topFeatures: [], // Could be enhanced with AI analysis
           reviewScores: [] // Could be populated from Amazon reviews
         }
