@@ -61,6 +61,7 @@ import Settings from "@/pages/settings/Settings";
 import Documentation from "@/pages/docs/Documentation";
 import FeedbackDashboard from "@/pages/admin/FeedbackDashboard";
 import TestEmail from "@/pages/admin/TestEmail";
+import CRMDashboard from "@/pages/admin/CRMDashboard";
 import CreateWidget from "@/pages/ads-widgets/CreateWidget";
 import ManageWidgets from "@/pages/ads-widgets/ManageWidgets";
 import AdSizesDemo from "@/pages/ads-widgets/AdSizesDemo";
@@ -454,6 +455,14 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <TestEmail />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/admin/crm">
+        <ProtectedRoute>
+          <AppLayout>
+            <CRMDashboard />
           </AppLayout>
         </ProtectedRoute>
       </Route>

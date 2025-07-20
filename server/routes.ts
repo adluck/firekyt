@@ -6648,6 +6648,496 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // ===== CRM API ENDPOINTS =====
+  
+  // Admin middleware for CRM endpoints
+  const requireAdminCRM = (req: any, res: any, next: any) => {
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ 
+        success: false,
+        message: 'Admin access required for CRM functionality' 
+      });
+    }
+    next();
+  };
+
+  // Get all users for CRM dashboard
+  app.get('/api/admin/crm/users', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      
+      res.json({
+        success: true,
+        users: users.map(user => ({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          subscriptionTier: user.subscriptionTier,
+          subscriptionStatus: user.subscriptionStatus,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          lastLoginAt: user.lastLoginAt,
+          trialEndsAt: user.trialEndsAt,
+          currentPeriodStart: user.currentPeriodStart,
+          currentPeriodEnd: user.currentPeriodEnd
+        }))
+      });
+    } catch (error: any) {
+      console.error('Get CRM users error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get users',
+        error: error.message 
+      });
+    }
+  });
+
+  // Create email campaign
+  app.post('/api/admin/crm/campaigns', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const { EmailService } = await import('./services/EmailService');
+      
+      const campaignData = {
+        ...req.body,
+        createdById: req.user!.id,
+        status: 'draft'
+      };
+
+      const campaign = await storage.createEmailCampaign(campaignData);
+      
+      res.json({
+        success: true,
+        campaign,
+        message: 'Email campaign created successfully'
+      });
+    } catch (error: any) {
+      console.error('Create email campaign error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to create email campaign',
+        error: error.message 
+      });
+    }
+  });
+
+  // Get all email campaigns
+  app.get('/api/admin/crm/campaigns', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const campaigns = await storage.getAllEmailCampaigns();
+      
+      res.json({
+        success: true,
+        campaigns
+      });
+    } catch (error: any) {
+      console.error('Get email campaigns error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get email campaigns',
+        error: error.message 
+      });
+    }
+  });
+
+  // Get specific email campaign
+  app.get('/api/admin/crm/campaigns/:id', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const campaign = await storage.getEmailCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({
+          success: false,
+          message: 'Campaign not found'
+        });
+      }
+
+      const { EmailService } = await import('./services/EmailService');
+      const analytics = await EmailService.getCampaignAnalytics(campaignId);
+      
+      res.json({
+        success: true,
+        campaign,
+        analytics
+      });
+    } catch (error: any) {
+      console.error('Get email campaign error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get email campaign',
+        error: error.message 
+      });
+    }
+  });
+
+  // Send email campaign
+  app.post('/api/admin/crm/campaigns/:id/send', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const { EmailService } = await import('./services/EmailService');
+      
+      // Send campaign asynchronously
+      EmailService.sendCampaign(campaignId).then(results => {
+        console.log('Campaign sent:', results);
+      }).catch(error => {
+        console.error('Campaign send error:', error);
+      });
+      
+      // Return immediately with accepted status
+      res.json({
+        success: true,
+        message: 'Email campaign is being sent in the background',
+        status: 'sending'
+      });
+    } catch (error: any) {
+      console.error('Send email campaign error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to send email campaign',
+        error: error.message 
+      });
+    }
+  });
+
+  // Update email campaign
+  app.put('/api/admin/crm/campaigns/:id', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const updatedCampaign = await storage.updateEmailCampaign(campaignId, req.body);
+      
+      res.json({
+        success: true,
+        campaign: updatedCampaign,
+        message: 'Email campaign updated successfully'
+      });
+    } catch (error: any) {
+      console.error('Update email campaign error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to update email campaign',
+        error: error.message 
+      });
+    }
+  });
+
+  // Delete email campaign
+  app.delete('/api/admin/crm/campaigns/:id', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      await storage.deleteEmailCampaign(campaignId);
+      
+      res.json({
+        success: true,
+        message: 'Email campaign deleted successfully'
+      });
+    } catch (error: any) {
+      console.error('Delete email campaign error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to delete email campaign',
+        error: error.message 
+      });
+    }
+  });
+
+  // Get campaign recipients
+  app.get('/api/admin/crm/campaigns/:id/recipients', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const recipients = await storage.getEmailCampaignRecipients(campaignId);
+      
+      res.json({
+        success: true,
+        recipients
+      });
+    } catch (error: any) {
+      console.error('Get campaign recipients error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get campaign recipients',
+        error: error.message 
+      });
+    }
+  });
+
+  // Preview target audience for campaign
+  app.post('/api/admin/crm/campaigns/preview-audience', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const { targetAudience, customFilters } = req.body;
+      const users = await storage.getUsersByFilter(targetAudience, customFilters);
+      
+      res.json({
+        success: true,
+        audience: {
+          totalCount: users.length,
+          users: users.slice(0, 10), // Preview first 10 users
+          segments: {
+            free: users.filter(u => u.subscriptionTier === 'free').length,
+            pro: users.filter(u => u.subscriptionTier === 'pro').length,
+            enterprise: users.filter(u => u.subscriptionTier === 'enterprise').length,
+            active: users.filter(u => u.isActive).length,
+            inactive: users.filter(u => !u.isActive).length
+          }
+        }
+      });
+    } catch (error: any) {
+      console.error('Preview campaign audience error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to preview campaign audience',
+        error: error.message 
+      });
+    }
+  });
+
+  // Email Templates Management
+  app.get('/api/admin/crm/templates', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const templates = await storage.getEmailTemplates();
+      
+      res.json({
+        success: true,
+        templates
+      });
+    } catch (error: any) {
+      console.error('Get email templates error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get email templates',
+        error: error.message 
+      });
+    }
+  });
+
+  app.post('/api/admin/crm/templates', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const templateData = {
+        ...req.body,
+        createdById: req.user!.id
+      };
+      
+      const template = await storage.createEmailTemplate(templateData);
+      
+      res.json({
+        success: true,
+        template,
+        message: 'Email template created successfully'
+      });
+    } catch (error: any) {
+      console.error('Create email template error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to create email template',
+        error: error.message 
+      });
+    }
+  });
+
+  // Send test email
+  app.post('/api/admin/crm/send-test-email', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const { template, subject, testEmail, fromName, fromEmail } = req.body;
+      const { EmailService } = await import('./services/EmailService');
+      
+      const result = await EmailService.sendTestEmail(template, subject, testEmail, fromName, fromEmail);
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: `Test email sent successfully to ${testEmail}`,
+          messageId: result.messageId
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: result.error || 'Failed to send test email'
+        });
+      }
+    } catch (error: any) {
+      console.error('Send test email error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to send test email',
+        error: error.message 
+      });
+    }
+  });
+
+  // User Notes Management
+  app.get('/api/admin/crm/users/:id/notes', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const notes = await storage.getUserNotes(userId);
+      
+      res.json({
+        success: true,
+        notes
+      });
+    } catch (error: any) {
+      console.error('Get user notes error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get user notes',
+        error: error.message 
+      });
+    }
+  });
+
+  app.post('/api/admin/crm/users/:id/notes', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const noteData = {
+        ...req.body,
+        userId,
+        createdById: req.user!.id
+      };
+      
+      const note = await storage.createUserNote(noteData);
+      
+      res.json({
+        success: true,
+        note,
+        message: 'User note created successfully'
+      });
+    } catch (error: any) {
+      console.error('Create user note error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to create user note',
+        error: error.message 
+      });
+    }
+  });
+
+  // User Tags Management
+  app.get('/api/admin/crm/users/:id/tags', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const tags = await storage.getUserTags(userId);
+      
+      res.json({
+        success: true,
+        tags
+      });
+    } catch (error: any) {
+      console.error('Get user tags error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get user tags',
+        error: error.message 
+      });
+    }
+  });
+
+  app.post('/api/admin/crm/users/:id/tags', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const tagData = {
+        ...req.body,
+        userId,
+        createdById: req.user!.id
+      };
+      
+      const tag = await storage.createUserTag(tagData);
+      
+      res.json({
+        success: true,
+        tag,
+        message: 'User tag created successfully'
+      });
+    } catch (error: any) {
+      console.error('Create user tag error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to create user tag',
+        error: error.message 
+      });
+    }
+  });
+
+  // Initialize default email templates (Admin only)
+  app.post('/api/admin/crm/initialize-templates', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const { EmailService } = await import('./services/EmailService');
+      const templates = await EmailService.createDefaultTemplates(req.user!.id);
+      
+      res.json({
+        success: true,
+        templates,
+        message: `${templates.length} default email templates created successfully`
+      });
+    } catch (error: any) {
+      console.error('Initialize templates error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to initialize default templates',
+        error: error.message 
+      });
+    }
+  });
+
+  // Get CRM dashboard statistics
+  app.get('/api/admin/crm/stats', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      const campaigns = await storage.getAllEmailCampaigns();
+      const templates = await storage.getEmailTemplates();
+      
+      const stats = {
+        totalUsers: users.length,
+        activeUsers: users.filter(u => u.isActive).length,
+        inactiveUsers: users.filter(u => !u.isActive).length,
+        freeUsers: users.filter(u => u.subscriptionTier === 'free').length,
+        proUsers: users.filter(u => u.subscriptionTier === 'pro').length,
+        enterpriseUsers: users.filter(u => u.subscriptionTier === 'enterprise').length,
+        newUsersThisWeek: users.filter(u => {
+          const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+          return new Date(u.createdAt) >= oneWeekAgo;
+        }).length,
+        totalCampaigns: campaigns.length,
+        activeCampaigns: campaigns.filter(c => c.status === 'sending').length,
+        completedCampaigns: campaigns.filter(c => c.status === 'sent').length,
+        draftCampaigns: campaigns.filter(c => c.status === 'draft').length,
+        totalTemplates: templates.length,
+        subscriptionBreakdown: {
+          free: users.filter(u => u.subscriptionTier === 'free').length,
+          pro: users.filter(u => u.subscriptionTier === 'pro').length,
+          enterprise: users.filter(u => u.subscriptionTier === 'enterprise').length
+        },
+        userGrowthMetrics: {
+          thisMonth: users.filter(u => {
+            const thisMonth = new Date();
+            thisMonth.setDate(1);
+            return new Date(u.createdAt) >= thisMonth;
+          }).length,
+          lastMonth: users.filter(u => {
+            const lastMonth = new Date();
+            lastMonth.setMonth(lastMonth.getMonth() - 1);
+            lastMonth.setDate(1);
+            const thisMonth = new Date();
+            thisMonth.setDate(1);
+            return new Date(u.createdAt) >= lastMonth && new Date(u.createdAt) < thisMonth;
+          }).length
+        }
+      };
+      
+      res.json({
+        success: true,
+        stats
+      });
+    } catch (error: any) {
+      console.error('Get CRM stats error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get CRM statistics',
+        error: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -131,6 +131,7 @@ const navigation = [
 
 // Admin-only navigation items
 const adminNavigation = [
+  { name: 'CRM Dashboard', href: '/admin/crm', icon: Database },
   { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
   { name: 'Test Email', href: '/admin/test-email', icon: Mail },
 ];

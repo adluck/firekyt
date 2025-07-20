@@ -985,6 +985,137 @@ export const SUBSCRIPTION_LIMITS = {
   },
 } as const;
 
+// CRM Email Campaigns
+export const emailCampaigns = pgTable("email_campaigns", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  subject: text("subject").notNull(),
+  emailTemplate: text("email_template").notNull(),
+  fromName: text("from_name").notNull().default("FireKyt Team"),
+  fromEmail: text("from_email").notNull().default("noreply@firekyt.com"),
+  status: text("status").notNull().default("draft"), // draft, scheduled, sending, sent, paused
+  targetAudience: text("target_audience").notNull(), // all, new_users, active_users, premium_users, free_users, beta_users, inactive_users, custom
+  customFilters: jsonb("custom_filters"), // For custom audience targeting
+  scheduledAt: timestamp("scheduled_at"),
+  sentAt: timestamp("sent_at"),
+  totalRecipients: integer("total_recipients").default(0),
+  successfulSends: integer("successful_sends").default(0),
+  failedSends: integer("failed_sends").default(0),
+  openRate: decimal("open_rate", { precision: 5, scale: 2 }).default("0.00"),
+  clickRate: decimal("click_rate", { precision: 5, scale: 2 }).default("0.00"),
+  createdById: integer("created_by_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Email Campaign Recipients (for tracking)
+export const emailCampaignRecipients = pgTable("email_campaign_recipients", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => emailCampaigns.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  status: text("status").notNull().default("pending"), // pending, sent, failed, bounced, delivered, opened, clicked
+  sentAt: timestamp("sent_at"),
+  openedAt: timestamp("opened_at"),
+  clickedAt: timestamp("clicked_at"),
+  errorMessage: text("error_message"),
+  deliveryId: text("delivery_id"), // Resend message ID
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Email Templates (reusable templates)
+export const emailTemplates = pgTable("email_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  subject: text("subject").notNull(),
+  htmlContent: text("html_content").notNull(),
+  textContent: text("text_content"),
+  category: text("category").notNull().default("general"), // welcome, marketing, transactional, newsletter, announcement
+  isActive: boolean("is_active").notNull().default(true),
+  createdById: integer("created_by_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// CRM User Notes (admin notes about users)
+export const userNotes = pgTable("user_notes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  note: text("note").notNull(),
+  noteType: text("note_type").notNull().default("general"), // general, support, billing, feedback, follow_up
+  priority: text("priority").notNull().default("normal"), // low, normal, high, urgent
+  isPrivate: boolean("is_private").notNull().default(false),
+  createdById: integer("created_by_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// CRM User Tags (for segmentation)
+export const userTags = pgTable("user_tags", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  tag: text("tag").notNull(),
+  color: text("color").notNull().default("#6366f1"), // Color for UI display
+  addedById: integer("added_by_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Email Campaign Analytics (detailed tracking)
+export const emailCampaignAnalytics = pgTable("email_campaign_analytics", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id").notNull().references(() => emailCampaigns.id, { onDelete: "cascade" }),
+  recipientId: integer("recipient_id").notNull().references(() => emailCampaignRecipients.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull(), // sent, delivered, opened, clicked, bounced, complained, unsubscribed
+  eventData: jsonb("event_data"), // Additional event-specific data
+  userAgent: text("user_agent"),
+  ipAddress: text("ip_address"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertEmailCampaign = z.infer<typeof insertEmailCampaignSchema>;
+export type EmailCampaign = typeof emailCampaigns.$inferSelect;
+
+export const insertEmailCampaignRecipientSchema = createInsertSchema(emailCampaignRecipients).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertEmailCampaignRecipient = z.infer<typeof insertEmailCampaignRecipientSchema>;
+export type EmailCampaignRecipient = typeof emailCampaignRecipients.$inferSelect;
+
+export const insertEmailTemplateSchema = createInsertSchema(emailTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+
+export const insertUserNoteSchema = createInsertSchema(userNotes).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;
+export type UserNote = typeof userNotes.$inferSelect;
+
+export const insertUserTagSchema = createInsertSchema(userTags).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertUserTag = z.infer<typeof insertUserTagSchema>;
+export type UserTag = typeof userTags.$inferSelect;
+
+export const insertEmailCampaignAnalyticsSchema = createInsertSchema(emailCampaignAnalytics).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertEmailCampaignAnalytics = z.infer<typeof insertEmailCampaignAnalyticsSchema>;
+export type EmailCampaignAnalytics = typeof emailCampaignAnalytics.$inferSelect;
+
 // Dynamic Affiliate Ads Widget System
 export const adWidgets = pgTable("ad_widgets", {
   id: serial("id").primaryKey(),

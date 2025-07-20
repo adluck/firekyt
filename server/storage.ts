@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, adWidgets, adWidgetAnalytics, plagiarismResults, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment, type AdWidget, type InsertAdWidget, type AdWidgetAnalytics, type InsertAdWidgetAnalytics, type PlagiarismResult, type InsertPlagiarismResult } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, adWidgets, adWidgetAnalytics, plagiarismResults, emailCampaigns, emailCampaignRecipients, emailTemplates, userNotes, userTags, emailCampaignAnalytics, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment, type AdWidget, type InsertAdWidget, type AdWidgetAnalytics, type InsertAdWidgetAnalytics, type PlagiarismResult, type InsertPlagiarismResult, type EmailCampaign, type InsertEmailCampaign, type EmailCampaignRecipient, type InsertEmailCampaignRecipient, type EmailTemplate, type InsertEmailTemplate, type UserNote, type InsertUserNote, type UserTag, type InsertUserTag, type EmailCampaignAnalytics, type InsertEmailCampaignAnalytics } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
 
@@ -213,6 +213,44 @@ export interface IStorage {
   getPlagiarismResult(contentId: number): Promise<PlagiarismResult | null>;
   getUserPlagiarismResults(userId: number): Promise<PlagiarismResult[]>;
   updatePlagiarismResult(id: string, updates: Partial<PlagiarismResult>): Promise<PlagiarismResult>;
+
+  // CRM - Email Campaign operations
+  getAllUsers(): Promise<User[]>;
+  getUsersByFilter(targetAudience: string, customFilters?: any): Promise<User[]>;
+  createEmailCampaign(campaign: any): Promise<any>;
+  getEmailCampaign(id: number): Promise<any>;
+  getAllEmailCampaigns(): Promise<any[]>;
+  updateEmailCampaign(id: number, updates: Partial<any>): Promise<any>;
+  deleteEmailCampaign(id: number): Promise<void>;
+  
+  // Email Campaign Recipients
+  createEmailCampaignRecipients(recipients: any[]): Promise<any[]>;
+  getEmailCampaignRecipients(campaignId: number): Promise<any[]>;
+  updateEmailCampaignRecipient(id: number, updates: Partial<any>): Promise<any>;
+  
+  // Email Templates
+  createEmailTemplate(template: any): Promise<any>;
+  getEmailTemplates(): Promise<any[]>;
+  getEmailTemplate(id: number): Promise<any>;
+  updateEmailTemplate(id: number, updates: Partial<any>): Promise<any>;
+  deleteEmailTemplate(id: number): Promise<void>;
+  
+  // User Notes
+  createUserNote(note: any): Promise<any>;
+  getUserNotes(userId: number): Promise<any[]>;
+  getAllUserNotes(): Promise<any[]>;
+  updateUserNote(id: number, updates: Partial<any>): Promise<any>;
+  deleteUserNote(id: number): Promise<void>;
+  
+  // User Tags
+  createUserTag(tag: any): Promise<any>;
+  getUserTags(userId: number): Promise<any[]>;
+  getAllUserTags(): Promise<any[]>;
+  removeUserTag(id: number): Promise<void>;
+  
+  // Email Analytics
+  createEmailCampaignAnalytics(analytics: any): Promise<any>;
+  getEmailCampaignAnalytics(campaignId: number): Promise<any[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -2246,6 +2284,172 @@ export class DatabaseStorage implements IStorage {
       .where(eq(plagiarismResults.id, id))
       .returning();
     return updated;
+  }
+
+  // CRM - Email Campaign operations
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async getUsersByFilter(targetAudience: string, customFilters?: any): Promise<User[]> {
+    let query = db.select().from(users);
+    
+    // Apply audience filters
+    switch (targetAudience) {
+      case 'new_users':
+        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        query = query.where(gte(users.createdAt, oneWeekAgo));
+        break;
+      case 'active_users':
+        query = query.where(eq(users.isActive, true));
+        break;
+      case 'premium_users':
+        query = query.where(sql`${users.subscriptionTier} != 'free'`);
+        break;
+      case 'free_users':
+        query = query.where(eq(users.subscriptionTier, 'free'));
+        break;
+      case 'beta_users':
+        query = query.where(sql`${users.createdAt} < '2025-07-01'`);
+        break;
+      case 'inactive_users':
+        query = query.where(eq(users.isActive, false));
+        break;
+      case 'all':
+      default:
+        // No additional filters for 'all'
+        break;
+    }
+    
+    return await query.orderBy(desc(users.createdAt));
+  }
+
+  async createEmailCampaign(campaign: InsertEmailCampaign): Promise<EmailCampaign> {
+    const [created] = await db.insert(emailCampaigns).values(campaign).returning();
+    return created;
+  }
+
+  async getEmailCampaign(id: number): Promise<EmailCampaign> {
+    const [campaign] = await db.select().from(emailCampaigns).where(eq(emailCampaigns.id, id));
+    return campaign;
+  }
+
+  async getAllEmailCampaigns(): Promise<EmailCampaign[]> {
+    return await db.select().from(emailCampaigns).orderBy(desc(emailCampaigns.createdAt));
+  }
+
+  async updateEmailCampaign(id: number, updates: Partial<EmailCampaign>): Promise<EmailCampaign> {
+    const [updated] = await db
+      .update(emailCampaigns)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(emailCampaigns.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteEmailCampaign(id: number): Promise<void> {
+    await db.delete(emailCampaigns).where(eq(emailCampaigns.id, id));
+  }
+
+  // Email Campaign Recipients
+  async createEmailCampaignRecipients(recipients: InsertEmailCampaignRecipient[]): Promise<EmailCampaignRecipient[]> {
+    return await db.insert(emailCampaignRecipients).values(recipients).returning();
+  }
+
+  async getEmailCampaignRecipients(campaignId: number): Promise<EmailCampaignRecipient[]> {
+    return await db.select().from(emailCampaignRecipients).where(eq(emailCampaignRecipients.campaignId, campaignId));
+  }
+
+  async updateEmailCampaignRecipient(id: number, updates: Partial<EmailCampaignRecipient>): Promise<EmailCampaignRecipient> {
+    const [updated] = await db
+      .update(emailCampaignRecipients)
+      .set(updates)
+      .where(eq(emailCampaignRecipients.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Email Templates
+  async createEmailTemplate(template: InsertEmailTemplate): Promise<EmailTemplate> {
+    const [created] = await db.insert(emailTemplates).values(template).returning();
+    return created;
+  }
+
+  async getEmailTemplates(): Promise<EmailTemplate[]> {
+    return await db.select().from(emailTemplates).where(eq(emailTemplates.isActive, true)).orderBy(desc(emailTemplates.createdAt));
+  }
+
+  async getEmailTemplate(id: number): Promise<EmailTemplate> {
+    const [template] = await db.select().from(emailTemplates).where(eq(emailTemplates.id, id));
+    return template;
+  }
+
+  async updateEmailTemplate(id: number, updates: Partial<EmailTemplate>): Promise<EmailTemplate> {
+    const [updated] = await db
+      .update(emailTemplates)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(emailTemplates.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteEmailTemplate(id: number): Promise<void> {
+    await db.update(emailTemplates).set({ isActive: false }).where(eq(emailTemplates.id, id));
+  }
+
+  // User Notes
+  async createUserNote(note: InsertUserNote): Promise<UserNote> {
+    const [created] = await db.insert(userNotes).values(note).returning();
+    return created;
+  }
+
+  async getUserNotes(userId: number): Promise<UserNote[]> {
+    return await db.select().from(userNotes).where(eq(userNotes.userId, userId)).orderBy(desc(userNotes.createdAt));
+  }
+
+  async getAllUserNotes(): Promise<UserNote[]> {
+    return await db.select().from(userNotes).orderBy(desc(userNotes.createdAt));
+  }
+
+  async updateUserNote(id: number, updates: Partial<UserNote>): Promise<UserNote> {
+    const [updated] = await db
+      .update(userNotes)
+      .set(updates)
+      .where(eq(userNotes.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteUserNote(id: number): Promise<void> {
+    await db.delete(userNotes).where(eq(userNotes.id, id));
+  }
+
+  // User Tags
+  async createUserTag(tag: InsertUserTag): Promise<UserTag> {
+    const [created] = await db.insert(userTags).values(tag).returning();
+    return created;
+  }
+
+  async getUserTags(userId: number): Promise<UserTag[]> {
+    return await db.select().from(userTags).where(eq(userTags.userId, userId)).orderBy(desc(userTags.createdAt));
+  }
+
+  async getAllUserTags(): Promise<UserTag[]> {
+    return await db.select().from(userTags).orderBy(desc(userTags.createdAt));
+  }
+
+  async removeUserTag(id: number): Promise<void> {
+    await db.delete(userTags).where(eq(userTags.id, id));
+  }
+
+  // Email Analytics
+  async createEmailCampaignAnalytics(analytics: InsertEmailCampaignAnalytics): Promise<EmailCampaignAnalytics> {
+    const [created] = await db.insert(emailCampaignAnalytics).values(analytics).returning();
+    return created;
+  }
+
+  async getEmailCampaignAnalytics(campaignId: number): Promise<EmailCampaignAnalytics[]> {
+    return await db.select().from(emailCampaignAnalytics).where(eq(emailCampaignAnalytics.campaignId, campaignId));
   }
 }
 
