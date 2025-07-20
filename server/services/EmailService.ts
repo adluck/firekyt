@@ -78,8 +78,14 @@ export class EmailService {
       // Send emails to all users
       for (const user of users) {
         try {
-          // Process template variables
-          const personalizedContent = campaign.htmlContent
+          // Get template content
+          const template = await storage.getEmailTemplateByName(campaign.emailTemplate);
+          if (!template) {
+            throw new Error(`Template ${campaign.emailTemplate} not found`);
+          }
+          
+          // Process template variables  
+          const personalizedContent = template.htmlContent
             .replace(/{{user_name}}/g, user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username)
             .replace(/{{first_name}}/g, user.firstName || user.username)
             .replace(/{{last_name}}/g, user.lastName || '')
@@ -100,39 +106,39 @@ export class EmailService {
             results.successfulSends++;
             
             // Create recipient record
-            await storage.createEmailCampaignRecipient({
+            await storage.createEmailCampaignRecipients([{
               campaignId,
               userId: user.id,
               email: user.email,
               status: 'sent',
               sentAt: new Date(),
-              messageId: result.messageId
-            });
+              deliveryId: result.messageId
+            }]);
           } else {
             results.failedSends++;
             results.errors.push(`${user.email}: ${result.error}`);
             
-            // Create failed recipient record
-            await storage.createEmailCampaignRecipient({
+            // Create failed recipient record  
+            await storage.createEmailCampaignRecipients([{
               campaignId,
               userId: user.id,
               email: user.email,
               status: 'failed',
-              error: result.error
-            });
+              errorMessage: result.error
+            }]);
           }
         } catch (error: any) {
           results.failedSends++;
           results.errors.push(`${user.email}: ${error.message}`);
           
           // Create failed recipient record
-          await storage.createEmailCampaignRecipient({
+          await storage.createEmailCampaignRecipients([{
             campaignId,
             userId: user.id,
             email: user.email,
             status: 'failed',
-            error: error.message
-          });
+            errorMessage: error.message
+          }]);
         }
       }
 
@@ -151,8 +157,7 @@ export class EmailService {
       // Update campaign status to failed
       await storage.updateEmailCampaign(campaignId, { 
         status: 'failed',
-        failedSends: 1,
-        lastError: error.message
+        failedSends: 1
       });
       
       throw error;

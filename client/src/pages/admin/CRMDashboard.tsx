@@ -326,10 +326,40 @@ export default function CRMDashboard() {
     }
   });
 
+  // Send campaign mutation
+  const sendCampaignMutation = useMutation({
+    mutationFn: async (campaignId: number) => {
+      const response = await apiRequest('POST', `/api/admin/crm/campaigns/${campaignId}/send`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/crm/campaigns'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/crm/stats'] });
+      toast({
+        title: "Campaign Sent",
+        description: data.message || "Email campaign has been sent successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Send Failed",
+        description: error.message || "Failed to send email campaign",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Handle delete confirmations
   const handleDeleteCampaign = (campaign: EmailCampaign) => {
     if (window.confirm(`Are you sure you want to delete the campaign "${campaign.name}"? This action cannot be undone.`)) {
       deleteCampaignMutation.mutate(campaign.id);
+    }
+  };
+
+  // Handle send campaign
+  const handleSendCampaign = (campaign: EmailCampaign) => {
+    if (window.confirm(`Are you sure you want to send the campaign "${campaign.name}"? This action cannot be undone.`)) {
+      sendCampaignMutation.mutate(campaign.id);
     }
   };
 
@@ -784,9 +814,13 @@ export default function CRMDashboard() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                         {campaign.status === 'draft' && (
-                          <Button size="sm">
+                          <Button 
+                            size="sm"
+                            onClick={() => handleSendCampaign(campaign)}
+                            disabled={sendCampaignMutation.isPending}
+                          >
                             <Send className="h-4 w-4 mr-2" />
-                            Send
+                            {sendCampaignMutation.isPending ? "Sending..." : "Send"}
                           </Button>
                         )}
                       </div>
