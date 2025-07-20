@@ -7185,6 +7185,213 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // User Lists Management
+  app.get('/api/admin/crm/user-lists', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const userLists = await storage.getUserLists();
+      
+      res.json({
+        success: true,
+        userLists
+      });
+    } catch (error: any) {
+      console.error('Get user lists error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get user lists',
+        error: error.message 
+      });
+    }
+  });
+
+  app.post('/api/admin/crm/user-lists', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const listData = {
+        ...req.body,
+        createdById: req.user!.id
+      };
+      
+      const userList = await storage.createUserList(listData);
+      
+      res.json({
+        success: true,
+        userList,
+        message: 'User list created successfully'
+      });
+    } catch (error: any) {
+      console.error('Create user list error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to create user list',
+        error: error.message 
+      });
+    }
+  });
+
+  app.get('/api/admin/crm/user-lists/:id', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const listId = parseInt(req.params.id);
+      const userList = await storage.getUserList(listId);
+      
+      if (!userList) {
+        return res.status(404).json({
+          success: false,
+          message: 'User list not found'
+        });
+      }
+      
+      res.json({
+        success: true,
+        userList
+      });
+    } catch (error: any) {
+      console.error('Get user list error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get user list',
+        error: error.message 
+      });
+    }
+  });
+
+  app.put('/api/admin/crm/user-lists/:id', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const listId = parseInt(req.params.id);
+      const userList = await storage.updateUserList(listId, req.body);
+      
+      res.json({
+        success: true,
+        userList,
+        message: 'User list updated successfully'
+      });
+    } catch (error: any) {
+      console.error('Update user list error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to update user list',
+        error: error.message 
+      });
+    }
+  });
+
+  app.delete('/api/admin/crm/user-lists/:id', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const listId = parseInt(req.params.id);
+      await storage.deleteUserList(listId);
+      
+      res.json({
+        success: true,
+        message: 'User list deleted successfully'
+      });
+    } catch (error: any) {
+      console.error('Delete user list error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to delete user list',
+        error: error.message 
+      });
+    }
+  });
+
+  // User List Members Management
+  app.get('/api/admin/crm/user-lists/:id/members', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const listId = parseInt(req.params.id);
+      const members = await storage.getUserListMembers(listId);
+      
+      res.json({
+        success: true,
+        members
+      });
+    } catch (error: any) {
+      console.error('Get user list members error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get user list members',
+        error: error.message 
+      });
+    }
+  });
+
+  app.post('/api/admin/crm/user-lists/:id/members', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const listId = parseInt(req.params.id);
+      const { userIds } = req.body;
+      
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'userIds must be a non-empty array'
+        });
+      }
+      
+      const members = [];
+      for (const userId of userIds) {
+        try {
+          const member = await storage.addUserToList(listId, userId, req.user!.id);
+          members.push(member);
+        } catch (error) {
+          // Skip duplicates or invalid users
+          console.warn(`Could not add user ${userId} to list ${listId}:`, error);
+        }
+      }
+      
+      res.json({
+        success: true,
+        members,
+        message: `${members.length} users added to list successfully`
+      });
+    } catch (error: any) {
+      console.error('Add users to list error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to add users to list',
+        error: error.message 
+      });
+    }
+  });
+
+  app.delete('/api/admin/crm/user-lists/:id/members/:userId', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const listId = parseInt(req.params.id);
+      const userId = parseInt(req.params.userId);
+      
+      await storage.removeUserFromList(listId, userId);
+      
+      res.json({
+        success: true,
+        message: 'User removed from list successfully'
+      });
+    } catch (error: any) {
+      console.error('Remove user from list error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to remove user from list',
+        error: error.message 
+      });
+    }
+  });
+
+  // Get user memberships (which lists a user is in)
+  app.get('/api/admin/crm/users/:id/memberships', authenticateToken, requireAdminCRM, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const memberships = await storage.getUserMemberships(userId);
+      
+      res.json({
+        success: true,
+        memberships
+      });
+    } catch (error: any) {
+      console.error('Get user memberships error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get user memberships',
+        error: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

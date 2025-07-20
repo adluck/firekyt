@@ -51,6 +51,7 @@ import {
   Trash2
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import UserListManager from "./UserListManager";
 
 // Campaign form schema
 const campaignFormSchema = z.object({
@@ -394,8 +395,9 @@ export default function CRMDashboard() {
       </div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="user-lists">User Lists</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
@@ -518,6 +520,10 @@ export default function CRMDashboard() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="user-lists" className="space-y-4">
+          <UserListManager />
         </TabsContent>
 
         <TabsContent value="users" className="space-y-4">

@@ -1,4 +1,4 @@
-import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, adWidgets, adWidgetAnalytics, plagiarismResults, emailCampaigns, emailCampaignRecipients, emailTemplates, userNotes, userTags, emailCampaignAnalytics, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment, type AdWidget, type InsertAdWidget, type AdWidgetAnalytics, type InsertAdWidgetAnalytics, type PlagiarismResult, type InsertPlagiarismResult, type EmailCampaign, type InsertEmailCampaign, type EmailCampaignRecipient, type InsertEmailCampaignRecipient, type EmailTemplate, type InsertEmailTemplate, type UserNote, type InsertUserNote, type UserTag, type InsertUserTag, type EmailCampaignAnalytics, type InsertEmailCampaignAnalytics } from "@shared/schema";
+import { users, sites, content, analytics, usage, affiliatePrograms, products, productResearchSessions, seoAnalyses, comparisonTables, contentPerformance, affiliateClicks, seoRankings, revenueTracking, platformConnections, scheduledPublications, publicationHistory, engagementMetrics, linkCategories, intelligentLinks, linkInsertions, linkTracking, siteConfigurations, siteMetrics, linkSuggestions, autoLinkRules, passwordResetTokens, affiliateNetworks, userActivity, feedback, feedbackComments, adWidgets, adWidgetAnalytics, plagiarismResults, emailCampaigns, emailCampaignRecipients, emailTemplates, userLists, userListMembers, userNotes, userTags, emailCampaignAnalytics, type User, type InsertUser, type Site, type InsertSite, type Content, type InsertContent, type Analytics, type InsertAnalytics, type Usage, type InsertUsage, type AffiliateProgram, type InsertAffiliateProgram, type Product, type InsertProduct, type ProductResearchSession, type InsertProductResearchSession, type SeoAnalysis, type InsertSeoAnalysis, type ComparisonTable, type InsertComparisonTable, type ContentPerformance, type InsertContentPerformance, type AffiliateClick, type InsertAffiliateClick, type SeoRanking, type InsertSeoRanking, type RevenueTracking, type InsertRevenueTracking, type LinkCategory, type InsertLinkCategory, type IntelligentLink, type InsertIntelligentLink, type LinkInsertion, type InsertLinkInsertion, type LinkTracking, type InsertLinkTracking, type SiteConfiguration, type InsertSiteConfiguration, type SiteMetrics, type InsertSiteMetrics, type LinkSuggestion, type InsertLinkSuggestion, type AutoLinkRule, type InsertAutoLinkRule, type PasswordResetToken, type InsertPasswordResetToken, type AffiliateNetwork, type InsertAffiliateNetwork, type UserActivity, type InsertUserActivity, type Feedback, type InsertFeedback, type FeedbackComment, type InsertFeedbackComment, type AdWidget, type InsertAdWidget, type AdWidgetAnalytics, type InsertAdWidgetAnalytics, type PlagiarismResult, type InsertPlagiarismResult, type EmailCampaign, type InsertEmailCampaign, type EmailCampaignRecipient, type InsertEmailCampaignRecipient, type EmailTemplate, type InsertEmailTemplate, type UserList, type InsertUserList, type UserListMember, type InsertUserListMember, type UserNote, type InsertUserNote, type UserTag, type InsertUserTag, type EmailCampaignAnalytics, type InsertEmailCampaignAnalytics } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
 
@@ -247,6 +247,17 @@ export interface IStorage {
   getUserTags(userId: number): Promise<any[]>;
   getAllUserTags(): Promise<any[]>;
   removeUserTag(id: number): Promise<void>;
+  
+  // User Lists
+  createUserList(list: any): Promise<any>;
+  getUserLists(): Promise<any[]>;
+  getUserList(id: number): Promise<any>;
+  updateUserList(id: number, updates: Partial<any>): Promise<any>;
+  deleteUserList(id: number): Promise<void>;
+  addUserToList(listId: number, userId: number, addedById: number): Promise<any>;
+  removeUserFromList(listId: number, userId: number): Promise<void>;
+  getUserListMembers(listId: number): Promise<any[]>;
+  getUserMemberships(userId: number): Promise<any[]>;
   
   // Email Analytics
   createEmailCampaignAnalytics(analytics: any): Promise<any>;
@@ -2450,6 +2461,103 @@ export class DatabaseStorage implements IStorage {
 
   async getEmailCampaignAnalytics(campaignId: number): Promise<EmailCampaignAnalytics[]> {
     return await db.select().from(emailCampaignAnalytics).where(eq(emailCampaignAnalytics.campaignId, campaignId));
+  }
+
+  // User Lists
+  async createUserList(list: InsertUserList): Promise<UserList> {
+    const [created] = await db.insert(userLists).values(list).returning();
+    return created;
+  }
+
+  async getUserLists(): Promise<UserList[]> {
+    return await db.select().from(userLists)
+      .where(eq(userLists.isActive, true))
+      .orderBy(desc(userLists.createdAt));
+  }
+
+  async getUserList(id: number): Promise<UserList> {
+    const [list] = await db.select().from(userLists).where(eq(userLists.id, id));
+    return list;
+  }
+
+  async updateUserList(id: number, updates: Partial<UserList>): Promise<UserList> {
+    const [updated] = await db
+      .update(userLists)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userLists.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteUserList(id: number): Promise<void> {
+    await db.update(userLists).set({ isActive: false }).where(eq(userLists.id, id));
+  }
+
+  async addUserToList(listId: number, userId: number, addedById: number): Promise<UserListMember> {
+    const [member] = await db.insert(userListMembers).values({
+      listId,
+      userId,
+      addedById
+    }).returning();
+    return member;
+  }
+
+  async removeUserFromList(listId: number, userId: number): Promise<void> {
+    await db.delete(userListMembers)
+      .where(and(
+        eq(userListMembers.listId, listId),
+        eq(userListMembers.userId, userId)
+      ));
+  }
+
+  async getUserListMembers(listId: number): Promise<any[]> {
+    return await db
+      .select({
+        id: userListMembers.id,
+        listId: userListMembers.listId,
+        userId: userListMembers.userId,
+        addedById: userListMembers.addedById,
+        createdAt: userListMembers.createdAt,
+        user: {
+          id: users.id,
+          username: users.username,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          subscriptionTier: users.subscriptionTier,
+          subscriptionStatus: users.subscriptionStatus,
+          isActive: users.isActive,
+          createdAt: users.createdAt
+        }
+      })
+      .from(userListMembers)
+      .innerJoin(users, eq(userListMembers.userId, users.id))
+      .where(eq(userListMembers.listId, listId))
+      .orderBy(desc(userListMembers.createdAt));
+  }
+
+  async getUserMemberships(userId: number): Promise<any[]> {
+    return await db
+      .select({
+        id: userListMembers.id,
+        listId: userListMembers.listId,
+        userId: userListMembers.userId,
+        createdAt: userListMembers.createdAt,
+        list: {
+          id: userLists.id,
+          name: userLists.name,
+          description: userLists.description,
+          color: userLists.color,
+          createdAt: userLists.createdAt
+        }
+      })
+      .from(userListMembers)
+      .innerJoin(userLists, eq(userListMembers.listId, userLists.id))
+      .where(and(
+        eq(userListMembers.userId, userId),
+        eq(userLists.isActive, true)
+      ))
+      .orderBy(desc(userListMembers.createdAt));
   }
 }
 

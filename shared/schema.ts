@@ -1038,6 +1038,27 @@ export const emailTemplates = pgTable("email_templates", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// User Lists (custom user lists for targeted campaigns)
+export const userLists = pgTable("user_lists", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  color: text("color").notNull().default("#6366f1"), // Color for UI display
+  isActive: boolean("is_active").notNull().default(true),
+  createdById: integer("created_by_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// User List Members (users in specific lists)
+export const userListMembers = pgTable("user_list_members", {
+  id: serial("id").primaryKey(),
+  listId: integer("list_id").notNull().references(() => userLists.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  addedById: integer("added_by_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // CRM User Notes (admin notes about users)
 export const userNotes = pgTable("user_notes", {
   id: serial("id").primaryKey(),
@@ -1101,6 +1122,21 @@ export const insertUserNoteSchema = createInsertSchema(userNotes).omit({
 });
 export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;
 export type UserNote = typeof userNotes.$inferSelect;
+
+export const insertUserListSchema = createInsertSchema(userLists).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertUserList = z.infer<typeof insertUserListSchema>;
+export type UserList = typeof userLists.$inferSelect;
+
+export const insertUserListMemberSchema = createInsertSchema(userListMembers).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertUserListMember = z.infer<typeof insertUserListMemberSchema>;
+export type UserListMember = typeof userListMembers.$inferSelect;
 
 export const insertUserTagSchema = createInsertSchema(userTags).omit({
   id: true,
