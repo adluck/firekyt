@@ -2475,8 +2475,24 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async getUserLists(): Promise<UserList[]> {
-    return await db.select().from(userLists)
+  async getUserLists(): Promise<any[]> {
+    return await db
+      .select({
+        id: userLists.id,
+        name: userLists.name,
+        description: userLists.description,
+        color: userLists.color,
+        isActive: userLists.isActive,
+        createdById: userLists.createdById,
+        createdAt: userLists.createdAt,
+        updatedAt: userLists.updatedAt,
+        memberCount: sql<number>`(
+          SELECT COUNT(*)::int 
+          FROM ${userListMembers} 
+          WHERE ${userListMembers.listId} = ${userLists.id}
+        )`
+      })
+      .from(userLists)
       .where(eq(userLists.isActive, true))
       .orderBy(desc(userLists.createdAt));
   }
