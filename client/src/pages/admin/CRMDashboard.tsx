@@ -89,14 +89,22 @@ interface EmailCampaign {
   id: number;
   name: string;
   subject: string;
+  emailTemplate: string;
+  fromName: string;
+  fromEmail: string;
   status: 'draft' | 'sending' | 'sent' | 'failed';
   targetAudience: string;
-  totalRecipients?: number;
-  successfulSends?: number;
-  failedSends?: number;
-  createdAt: string;
-  sentAt?: string;
+  customFilters?: string | null;
+  scheduledAt?: string | null;
+  sentAt?: string | null;
+  totalRecipients: number;
+  successfulSends: number;
+  failedSends: number;
+  openRate: string;
+  clickRate: string;
   createdById: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface User {
@@ -125,6 +133,8 @@ export default function CRMDashboard() {
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [showTemplateSettingsDialog, setShowTemplateSettingsDialog] = useState(false);
   const [showNewCampaignDialog, setShowNewCampaignDialog] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<EmailCampaign | null>(null);
+  const [showCampaignDialog, setShowCampaignDialog] = useState(false);
 
   // Campaign form
   const campaignForm = useForm<z.infer<typeof campaignFormSchema>>({
@@ -228,10 +238,7 @@ export default function CRMDashboard() {
   const users: User[] = usersData?.users || [];
   const templates = templatesData?.templates || [];
 
-  // Debug logging
-  console.log('Debug - campaignsData:', campaignsData);
-  console.log('Debug - campaigns array:', campaigns);
-  console.log('Debug - campaigns loading:', campaignsLoading);
+
 
   // Handle view user
   const handleViewUser = (user: User) => {
@@ -255,6 +262,12 @@ export default function CRMDashboard() {
   const handleTemplateSettings = (template: any) => {
     setSelectedTemplate(template);
     setShowTemplateSettingsDialog(true);
+  };
+
+  // Handle campaign view
+  const handleViewCampaign = (campaign: EmailCampaign) => {
+    setSelectedCampaign(campaign);
+    setShowCampaignDialog(true);
   };
 
   // Handle campaign creation
@@ -652,15 +665,8 @@ export default function CRMDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {/* Debug info */}
-                <div className="text-xs text-gray-500 p-2 bg-gray-100 dark:bg-gray-800 rounded">
-                  DEBUG: Found {campaigns.length} campaigns
-                </div>
-                
-                {campaigns.map((campaign, index) => {
-                  console.log(`Rendering campaign ${index}:`, campaign);
-                  return (
-                    <div key={campaign.id} className="flex items-center justify-between p-4 border rounded-lg bg-white dark:bg-gray-900">
+                {campaigns.map((campaign) => (
+                  <div key={campaign.id} className="flex items-center justify-between p-4 border rounded-lg bg-white dark:bg-gray-900">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-black dark:text-white">{campaign.name}</p>
@@ -676,7 +682,11 @@ export default function CRMDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleViewCampaign(campaign)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                         {campaign.status === 'draft' && (
@@ -687,8 +697,8 @@ export default function CRMDashboard() {
                         )}
                       </div>
                     </div>
-                  );
-                })}
+                  )
+                )}
                 
                 {campaigns.length === 0 && (
                   <p className="text-center text-muted-foreground py-8">No campaigns found</p>
@@ -997,6 +1007,103 @@ export default function CRMDashboard() {
                   Save Changes
                 </Button>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Campaign View Dialog */}
+      <Dialog open={showCampaignDialog} onOpenChange={setShowCampaignDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Campaign Details</DialogTitle>
+            <DialogDescription>
+              View detailed information about this email campaign
+            </DialogDescription>
+          </DialogHeader>
+          {selectedCampaign && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Campaign Name</Label>
+                  <p className="text-sm text-muted-foreground">{selectedCampaign.name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Status</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    {getStatusBadge(selectedCampaign.status)}
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Subject</Label>
+                  <p className="text-sm text-muted-foreground">{selectedCampaign.subject}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Target Audience</Label>
+                  <p className="text-sm text-muted-foreground">{selectedCampaign.targetAudience}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">From Name</Label>
+                  <p className="text-sm text-muted-foreground">{selectedCampaign.fromName}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">From Email</Label>
+                  <p className="text-sm text-muted-foreground">{selectedCampaign.fromEmail}</p>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Email Template</Label>
+                <p className="text-sm text-muted-foreground">{selectedCampaign.emailTemplate}</p>
+              </div>
+
+              {/* Campaign Statistics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted rounded-lg">
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{selectedCampaign.totalRecipients}</div>
+                  <div className="text-xs text-muted-foreground">Total Recipients</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{selectedCampaign.successfulSends}</div>
+                  <div className="text-xs text-muted-foreground">Successful Sends</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{selectedCampaign.openRate}</div>
+                  <div className="text-xs text-muted-foreground">Open Rate</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{selectedCampaign.clickRate}</div>
+                  <div className="text-xs text-muted-foreground">Click Rate</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span>Created {formatDistanceToNow(new Date(selectedCampaign.createdAt), { addSuffix: true })}</span>
+                {selectedCampaign.sentAt && (
+                  <>
+                    <span>•</span>
+                    <span>Sent {formatDistanceToNow(new Date(selectedCampaign.sentAt), { addSuffix: true })}</span>
+                  </>
+                )}
+                {selectedCampaign.scheduledAt && (
+                  <>
+                    <span>•</span>
+                    <span>Scheduled for {formatDistanceToNow(new Date(selectedCampaign.scheduledAt), { addSuffix: true })}</span>
+                  </>
+                )}
+              </div>
+
+              {selectedCampaign.status === 'draft' && (
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button variant="outline" onClick={() => setShowCampaignDialog(false)}>
+                    Close
+                  </Button>
+                  <Button>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Campaign
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
