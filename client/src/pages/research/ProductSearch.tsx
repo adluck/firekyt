@@ -88,7 +88,7 @@ interface RyeSearchResult {
 export default function ProductSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentQuery, setCurrentQuery] = useState("");
-  const [searchEngine, setSearchEngine] = useState<'serp' | 'rye' | 'both'>('both');
+  const [searchEngine, setSearchEngine] = useState<'serp' | 'rye' | 'both'>('rye');
   const [activeTab, setActiveTab] = useState('search');
 
   // SERP API Search
@@ -204,7 +204,7 @@ export default function ProductSearch() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Enhanced Product Research</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Search for products using both SERP API and Rye.com for comprehensive market insights
+          Fast product research powered by Rye.com's multi-marketplace data with real-time inventory and pricing
         </p>
         
         {/* Rye Connection Status */}
@@ -232,11 +232,11 @@ export default function ProductSearch() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5" />
-                Multi-Platform Product Search
+                <ShoppingCart className="h-5 w-5" />
+                Rye.com Product Search
               </CardTitle>
               <CardDescription>
-                Search across multiple data sources for comprehensive product discovery
+                Fast multi-marketplace search with real-time inventory, pricing, and vendor data
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -249,32 +249,23 @@ export default function ProductSearch() {
                   className="flex-1"
                 />
                 <Button onClick={handleSearch} disabled={!searchQuery.trim() || isLoading}>
-                  {isLoading ? 'Searching...' : 'Search'}
+                  {isLoading ? 'Searching...' : 'Search Products'}
                 </Button>
               </div>
-              <div className="flex gap-2">
-                <Select value={searchEngine} onValueChange={(value: 'serp' | 'rye' | 'both') => setSearchEngine(value)}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="both">Both Sources</SelectItem>
-                    <SelectItem value="serp">SERP Only</SelectItem>
-                    <SelectItem value="rye">Rye Only</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Badge variant="outline" className="text-xs">Optimized for Speed</Badge>
+                <span>•</span>
+                <span>Powered by Rye.com multi-marketplace data</span>
               </div>
             </CardContent>
           </Card>
 
           {/* Results Display */}
-          {(serpError || ryeError) && (
+          {ryeError && (
             <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="text-red-600 dark:text-red-400">
-                {serpError && `SERP API Error: ${serpError instanceof Error ? serpError.message : 'Search failed'}`}
-                {serpError && ryeError && ' | '}
-                {ryeError && `Rye API Error: ${ryeError instanceof Error ? ryeError.message : 'Search failed'}`}
+                Product search failed: {ryeError instanceof Error ? ryeError.message : 'Please try again or check your connection'}
               </AlertDescription>
             </Alert>
           )}
@@ -301,8 +292,41 @@ export default function ProductSearch() {
             </div>
           )}
 
-          {/* SERP API Results */}
-          {searchResults && (
+          {/* Rye API Results - Primary */}
+          {ryeSearchResults && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5" />
+                    Product Results for "{currentQuery}"
+                  </CardTitle>
+                  <CardDescription>
+                    Found {ryeSearchResults.totalResults} products from multiple e-commerce platforms
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              {ryeSearchResults.products && ryeSearchResults.products.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Package className="h-5 w-5" />
+                      Available Products ({ryeSearchResults.products.length})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {ryeSearchResults.products.map((product) => renderRyeProduct(product))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {/* SERP API Results - Secondary/Optional */}
+          {searchResults && searchEngine !== 'rye' && (
             <div className="space-y-6">
               <Card>
                 <CardHeader>
@@ -428,38 +452,7 @@ export default function ProductSearch() {
             </div>
           )}
 
-          {/* Rye API Results */}
-          {ryeSearchResults && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ShoppingCart className="h-5 w-5" />
-                    Rye.com E-commerce Results
-                  </CardTitle>
-                  <CardDescription>
-                    Found {ryeSearchResults.totalResults} products from multiple marketplaces
-                  </CardDescription>
-                </CardHeader>
-              </Card>
 
-              {ryeSearchResults.products && ryeSearchResults.products.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Package className="h-5 w-5" />
-                      E-commerce Products ({ryeSearchResults.products.length})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {ryeSearchResults.products.map((product) => renderRyeProduct(product))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
         </TabsContent>
 
         {/* Market Research Tab */}
