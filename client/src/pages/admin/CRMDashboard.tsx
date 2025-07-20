@@ -228,6 +228,11 @@ export default function CRMDashboard() {
   const users: User[] = usersData?.users || [];
   const templates = templatesData?.templates || [];
 
+  // Debug logging
+  console.log('Debug - campaignsData:', campaignsData);
+  console.log('Debug - campaigns array:', campaigns);
+  console.log('Debug - campaigns loading:', campaignsLoading);
+
   // Handle view user
   const handleViewUser = (user: User) => {
     setSelectedUser(user);
