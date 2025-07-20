@@ -81,13 +81,15 @@ export default function CRMDashboard() {
   const [selectedTab, setSelectedTab] = useState("overview");
 
   // Get CRM statistics
-  const { data: stats, isLoading: statsLoading } = useQuery<CRMStats>({
+  const { data: statsResponse, isLoading: statsLoading } = useQuery({
     queryKey: ['/api/admin/crm/stats'],
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/admin/crm/stats');
       return response.json();
     }
   });
+
+  const stats = statsResponse?.stats;
 
   // Get email campaigns
   const { data: campaignsData, isLoading: campaignsLoading } = useQuery({
