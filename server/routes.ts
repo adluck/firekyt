@@ -7082,9 +7082,17 @@ async function generateAILinkSuggestions(params: {
   // Get CRM dashboard statistics
   app.get('/api/admin/crm/stats', authenticateToken, requireAdminCRM, async (req, res) => {
     try {
+      console.log('🔍 CRM Stats: Getting users...');
       const users = await storage.getAllUsers();
+      console.log('✅ CRM Stats: Got users:', users.length);
+      
+      console.log('🔍 CRM Stats: Getting campaigns...');
       const campaigns = await storage.getAllEmailCampaigns();
+      console.log('✅ CRM Stats: Got campaigns:', campaigns.length);
+      
+      console.log('🔍 CRM Stats: Getting templates...');
       const templates = await storage.getEmailTemplates();
+      console.log('✅ CRM Stats: Got templates:', templates.length);
       
       const stats = {
         totalUsers: users.length,

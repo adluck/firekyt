@@ -2376,7 +2376,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getEmailTemplates(): Promise<EmailTemplate[]> {
-    return await db.select().from(emailTemplates).where(eq(emailTemplates.isActive, true)).orderBy(desc(emailTemplates.createdAt));
+    return await db.select().from(emailTemplates).orderBy(desc(emailTemplates.createdAt));
   }
 
   async getEmailTemplate(id: number): Promise<EmailTemplate> {
