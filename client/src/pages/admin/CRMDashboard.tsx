@@ -313,10 +313,7 @@ export default function CRMDashboard() {
             <FileText className="h-4 w-4 mr-2" />
             {initializeTemplatesMutation.isPending ? "Creating..." : "Initialize Templates"}
           </Button>
-          <Button>
-            <PlusCircle className="h-4 w-4 mr-2" />
-            New Campaign
-          </Button>
+
         </div>
       </div>
 
