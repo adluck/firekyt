@@ -98,7 +98,7 @@ export default function ProductSearch() {
       query: currentQuery,
       category: 'general'
     }),
-    enabled: !!currentQuery && (searchEngine === 'serp' || searchEngine === 'both'),
+    enabled: false, // Disabled SERP API for Rye-only optimization
   });
 
   // Rye API Search
@@ -108,7 +108,7 @@ export default function ProductSearch() {
       query: currentQuery,
       limit: 20
     }),
-    enabled: !!currentQuery && (searchEngine === 'rye' || searchEngine === 'both'),
+    enabled: !!currentQuery, // Always enabled for Rye-only optimization
   });
 
   // Rye Product Research (Advanced)
@@ -132,7 +132,7 @@ export default function ProductSearch() {
     }
   };
 
-  const isLoading = serpLoading || ryeLoading || ryeResearchLoading;
+  const isLoading = ryeLoading || ryeResearchLoading;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
