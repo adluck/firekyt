@@ -189,6 +189,15 @@ export default function CRMDashboard() {
     }
   });
 
+  // Get user lists
+  const { data: userListsData, isLoading: userListsLoading } = useQuery({
+    queryKey: ['/api/admin/crm/user-lists'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/admin/crm/user-lists');
+      return response.json();
+    }
+  });
+
   // Initialize default templates mutation
   const initializeTemplatesMutation = useMutation({
     mutationFn: async () => {
@@ -239,6 +248,7 @@ export default function CRMDashboard() {
   const campaigns: EmailCampaign[] = campaignsData?.campaigns || [];
   const users: User[] = usersData?.users || [];
   const templates = templatesData?.templates || [];
+  const userLists = userListsData?.userLists || [];
 
 
 
@@ -703,6 +713,18 @@ export default function CRMDashboard() {
                                 <SelectItem value="free_users">Free Users</SelectItem>
                                 <SelectItem value="beta_users">Beta Users</SelectItem>
                                 <SelectItem value="inactive_users">Inactive Users</SelectItem>
+                                {userLists.length > 0 && (
+                                  <>
+                                    <div className="px-2 py-1 text-sm font-medium text-muted-foreground border-t">
+                                      Custom Lists
+                                    </div>
+                                    {userLists.map((list: any) => (
+                                      <SelectItem key={list.id} value={`custom_list_${list.id}`}>
+                                        {list.name} ({list.memberCount || 0} members)
+                                      </SelectItem>
+                                    ))}
+                                  </>
+                                )}
                               </SelectContent>
                             </Select>
                             <FormMessage />
