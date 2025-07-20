@@ -675,41 +675,54 @@ export default function ProductResearch() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Search className="w-5 h-5 mr-2" />
-                Rye API Product Search
+                Rye API Product Access
               </CardTitle>
               <CardDescription>
-                Search for affiliate products using Rye's comprehensive product database
+                Access individual products using specific URLs or Product IDs
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-2 mb-4">
-                <Input
-                  placeholder="Search for products (e.g., wireless headphones, fitness trackers)"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      setCurrentQuery(searchQuery);
-                    }
-                  }}
-                />
-                <Button 
-                  onClick={() => setCurrentQuery(searchQuery)}
-                  disabled={!searchQuery || searchLoading}
-                >
-                  {searchLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Search className="w-4 h-4" />
-                  )}
-                </Button>
+              <Alert className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Important:</strong> Rye API does not support keyword search. Instead, use specific product URLs from Amazon or Shopify stores to fetch individual product details.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="productUrl">Product URL (Amazon/Shopify)</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="productUrl"
+                      placeholder="https://www.amazon.com/product-name/dp/B123456789"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          setCurrentQuery(searchQuery);
+                        }
+                      }}
+                    />
+                    <Button 
+                      onClick={() => setCurrentQuery(searchQuery)}
+                      disabled={!searchQuery || searchLoading}
+                    >
+                      {searchLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Search className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               {searchError && (
                 <Alert variant="destructive" className="mb-4">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Search failed: {searchError.message}
+                    {searchError.message}
                   </AlertDescription>
                 </Alert>
               )}

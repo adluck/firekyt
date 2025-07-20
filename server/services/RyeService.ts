@@ -122,61 +122,13 @@ export class RyeService {
     }
   }
 
-  // Search products by keyword
+  // Note: Rye API doesn't support direct keyword search
+  // This method returns a helpful error message
   async searchProducts(query: string, limit: number = 20): Promise<{ products: RyeProduct[]; error?: string }> {
-    try {
-      const searchQuery = gql`
-        query SearchProducts($input: ProductsInput!) {
-          products(input: $input) {
-            edges {
-              node {
-                id
-                title
-                vendor
-                url
-                isAvailable
-                images { url }
-                price { 
-                  displayValue 
-                  value 
-                  currency 
-                }
-                ... on AmazonProduct { 
-                  ASIN 
-                  reviews {
-                    rating
-                    count
-                  }
-                }
-                ... on ShopifyProduct { 
-                  productType 
-                }
-              }
-            }
-            pageInfo {
-              hasNextPage
-              hasPreviousPage
-            }
-          }
-        }
-      `;
-
-      const variables = {
-        input: {
-          query,
-          first: limit,
-          marketplace: 'AMAZON' // Default to Amazon for better product coverage
-        }
-      };
-
-      const data = await this.client.request(searchQuery, variables, this.getHeaders()) as any;
-      const products = data.products.edges.map((edge: any) => edge.node);
-      
-      return { products };
-    } catch (error: any) {
-      console.error('Rye searchProducts error:', error);
-      return { products: [], error: error.message };
-    }
+    return { 
+      products: [], 
+      error: 'Rye API does not support direct keyword search. Please use product URLs or specific product IDs instead.' 
+    };
   }
 
   // Get product by Amazon URL (combines request and fetch)

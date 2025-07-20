@@ -7127,7 +7127,7 @@ async function generateAILinkSuggestions(params: {
       const { query, limit = 20 } = req.body;
       
       if (!query) {
-        return res.status(400).json({ error: 'Search query is required' });
+        return res.status(400).json({ error: 'Product URL is required' });
       }
 
       const { ryeService } = await import('./services/RyeService');
@@ -7139,10 +7139,25 @@ async function generateAILinkSuggestions(params: {
         });
       }
 
-      const result = await ryeService.searchProducts(query, limit);
+      // Check if query is a URL or just keywords
+      const isUrl = query.includes('http') || query.includes('amazon.com') || query.includes('shopify');
+      
+      let result;
+      if (isUrl) {
+        // Use URL-based product lookup
+        result = await ryeService.getProductByAmazonURL(query);
+        if (result.product) {
+          result = { products: [result.product], error: result.error };
+        } else {
+          result = { products: [], error: result.error || 'Product not found' };
+        }
+      } else {
+        // Return error for keyword search
+        result = await ryeService.searchProducts(query, limit);
+      }
       
       if (result.error) {
-        return res.status(500).json({ error: result.error });
+        return res.status(400).json({ error: result.error });
       }
 
       res.json({
@@ -7150,7 +7165,8 @@ async function generateAILinkSuggestions(params: {
         query,
         products: result.products,
         totalResults: result.products.length,
-        source: 'rye_api'
+        source: 'rye_api',
+        lookupType: isUrl ? 'url' : 'keyword'
       });
 
     } catch (error: any) {
