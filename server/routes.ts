@@ -7127,50 +7127,31 @@ async function generateAILinkSuggestions(params: {
       const { query, limit = 20 } = req.body;
       
       if (!query) {
-        return res.status(400).json({ error: 'Product URL is required' });
+        return res.status(400).json({ error: 'Search query is required' });
       }
 
       const { ryeService } = await import('./services/RyeService');
       
-      if (!ryeService.isConfigured()) {
-        return res.status(500).json({ 
-          error: 'Rye service not configured', 
-          message: 'RYE_API_KEY environment variable is required' 
-        });
-      }
-
-      // Check if query is a URL or just keywords
-      const isUrl = query.includes('http') || query.includes('amazon.com') || query.includes('shopify');
-      
-      let result;
-      if (isUrl) {
-        // Use URL-based product lookup
-        result = await ryeService.getProductByAmazonURL(query);
-        if (result.product) {
-          result = { products: [result.product], error: result.error };
-        } else {
-          result = { products: [], error: result.error || 'Product not found' };
-        }
-      } else {
-        // Return error for keyword search
-        result = await ryeService.searchProducts(query, limit);
-      }
+      // Use the new unified search method that automatically detects URLs vs keywords
+      const result = await ryeService.searchProductsUnified(query, limit);
       
       if (result.error) {
         return res.status(400).json({ error: result.error });
       }
+
+      console.log(`🔍 Unified search for "${query}": ${result.products.length} products found`);
 
       res.json({
         success: true,
         query,
         products: result.products,
         totalResults: result.products.length,
-        source: 'rye_api',
-        lookupType: isUrl ? 'url' : 'keyword'
+        source: ryeService.isUrl(query) ? 'rye_api' : 'local_database',
+        lookupType: ryeService.isUrl(query) ? 'url' : 'keyword'
       });
 
     } catch (error: any) {
-      console.error('Rye search error:', error);
+      console.error('Product search error:', error);
       res.status(500).json({ 
         error: 'Failed to search products',
         message: error.message 
@@ -7189,12 +7170,8 @@ async function generateAILinkSuggestions(params: {
 
       const { ryeService } = await import('./services/RyeService');
       
-      if (!ryeService.isConfigured()) {
-        return res.status(500).json({ 
-          error: 'Rye service not configured', 
-          message: 'RYE_API_KEY environment variable is required' 
-        });
-      }
+      // Note: RYE_API_KEY is only needed for URL-based lookups
+      // Local database search works without API key
 
       const result = await ryeService.researchProduct(keyword);
       

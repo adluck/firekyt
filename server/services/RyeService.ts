@@ -1,4 +1,7 @@
 import { GraphQLClient, gql } from 'graphql-request';
+import { db } from '../db';
+import { ryeProducts } from '../../shared/schema';
+import { ilike, sql } from 'drizzle-orm';
 
 interface RyeProduct {
   id: string;
@@ -122,13 +125,47 @@ export class RyeService {
     }
   }
 
-  // Note: Rye API doesn't support direct keyword search
-  // This method returns a helpful error message
+  // Search products using local database
   async searchProducts(query: string, limit: number = 20): Promise<{ products: RyeProduct[]; error?: string }> {
-    return { 
-      products: [], 
-      error: 'Rye API does not support direct keyword search. Please use product URLs or specific product IDs instead.' 
-    };
+    try {
+      console.log(`🔍 Searching local database for: "${query}" (limit: ${limit})`);
+      
+      // Search in both title and category fields
+      const dbProducts = await db
+        .select()
+        .from(ryeProducts)
+        .where(
+          sql`(${ilike(ryeProducts.title, `%${query}%`)} OR ${ilike(ryeProducts.category, `%${query}%`)}) AND ${ryeProducts.isActive} = true`
+        )
+        .limit(limit);
+
+      console.log(`📦 Found ${dbProducts.length} products in local database`);
+
+      // Convert database format to RyeProduct format
+      const products: RyeProduct[] = dbProducts.map(product => ({
+        id: product.id,
+        title: product.title,
+        vendor: 'Local Database',
+        url: product.url,
+        isAvailable: product.isActive,
+        images: product.imageUrl ? [{ url: product.imageUrl }] : [],
+        price: {
+          displayValue: product.price ? `${product.currencyCode} ${product.price}` : 'N/A',
+          value: product.price || 0,
+          currency: product.currencyCode
+        },
+        description: product.description || '',
+        productType: product.category || undefined
+      }));
+
+      return { products };
+    } catch (error: any) {
+      console.error('Local database search error:', error);
+      return { 
+        products: [], 
+        error: `Database search failed: ${error.message}` 
+      };
+    }
   }
 
   // Get product by Amazon URL (combines request and fetch)
@@ -210,6 +247,33 @@ export class RyeService {
     } catch (error: any) {
       console.error('Rye researchProduct error:', error);
       return { products: [], error: error.message };
+    }
+  }
+
+  // Helper method to determine if input is a URL or keyword
+  isUrl(input: string): boolean {
+    try {
+      new URL(input);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Unified search method that handles both URLs and keywords
+  async searchProductsUnified(query: string, limit: number = 20): Promise<{ products: RyeProduct[]; error?: string }> {
+    if (this.isUrl(query)) {
+      // Handle URL - use Rye API
+      console.log(`🔗 Processing URL: ${query}`);
+      const result = await this.getProductByAmazonURL(query);
+      if (result.error || !result.product) {
+        return { products: [], error: result.error || 'Failed to fetch product from URL' };
+      }
+      return { products: [result.product] };
+    } else {
+      // Handle keyword - use local database
+      console.log(`🔍 Processing keyword: ${query}`);
+      return await this.searchProducts(query, limit);
     }
   }
 

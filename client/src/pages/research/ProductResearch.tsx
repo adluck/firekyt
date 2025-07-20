@@ -683,19 +683,19 @@ export default function ProductResearch() {
             </CardHeader>
             <CardContent>
               <Alert className="mb-4">
-                <AlertCircle className="h-4 w-4" />
+                <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription>
-                  <strong>Important:</strong> Rye API does not support keyword search. Instead, use specific product URLs from Amazon or Shopify stores to fetch individual product details.
+                  <strong>Enhanced Search:</strong> Search using keywords (like "gaming headset" or "wireless mouse") to find products from our local database, or enter specific Amazon/Shopify URLs for detailed product information.
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="productUrl">Product URL (Amazon/Shopify)</Label>
+                  <Label htmlFor="productUrl">Product Search (Keywords or URL)</Label>
                   <div className="flex gap-2">
                     <Input
                       id="productUrl"
-                      placeholder="https://www.amazon.com/product-name/dp/B123456789"
+                      placeholder="Enter keywords (e.g., 'gaming headset') or product URL"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyPress={(e) => {
