@@ -7400,6 +7400,164 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
+  // Rye Product Research Integration
+  app.post('/api/rye/search-products', authenticateToken, async (req, res) => {
+    try {
+      const { query, limit = 20 } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ error: 'Search query is required' });
+      }
+
+      const { ryeService } = await import('./services/RyeService');
+      
+      if (!ryeService.isConfigured()) {
+        return res.status(500).json({ 
+          error: 'Rye service not configured', 
+          message: 'RYE_API_KEY environment variable is required' 
+        });
+      }
+
+      const result = await ryeService.searchProducts(query, limit);
+      
+      if (result.error) {
+        return res.status(500).json({ error: result.error });
+      }
+
+      res.json({
+        success: true,
+        query,
+        products: result.products,
+        totalResults: result.products.length,
+        source: 'rye_api'
+      });
+
+    } catch (error: any) {
+      console.error('Rye search error:', error);
+      res.status(500).json({ 
+        error: 'Failed to search products',
+        message: error.message 
+      });
+    }
+  });
+
+  // Rye Product Research with Market Insights
+  app.post('/api/rye/research-product', authenticateToken, async (req, res) => {
+    try {
+      const { keyword } = req.body;
+      
+      if (!keyword) {
+        return res.status(400).json({ error: 'Keyword is required' });
+      }
+
+      const { ryeService } = await import('./services/RyeService');
+      
+      if (!ryeService.isConfigured()) {
+        return res.status(500).json({ 
+          error: 'Rye service not configured', 
+          message: 'RYE_API_KEY environment variable is required' 
+        });
+      }
+
+      const result = await ryeService.researchProduct(keyword);
+      
+      if (result.error) {
+        return res.status(500).json({ error: result.error });
+      }
+
+      res.json({
+        success: true,
+        keyword,
+        products: result.products,
+        marketInsights: result.marketInsights,
+        totalResults: result.products.length,
+        source: 'rye_api',
+        researchDate: new Date()
+      });
+
+    } catch (error: any) {
+      console.error('Rye research error:', error);
+      res.status(500).json({ 
+        error: 'Failed to research product',
+        message: error.message 
+      });
+    }
+  });
+
+  // Rye Product Details by Amazon URL
+  app.post('/api/rye/product-by-url', authenticateToken, async (req, res) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ error: 'Product URL is required' });
+      }
+
+      const { ryeService } = await import('./services/RyeService');
+      
+      if (!ryeService.isConfigured()) {
+        return res.status(500).json({ 
+          error: 'Rye service not configured', 
+          message: 'RYE_API_KEY environment variable is required' 
+        });
+      }
+
+      const result = await ryeService.getProductByAmazonURL(url);
+      
+      if (result.error) {
+        return res.status(500).json({ error: result.error });
+      }
+
+      if (!result.product) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+
+      res.json({
+        success: true,
+        product: result.product,
+        source: 'rye_api'
+      });
+
+    } catch (error: any) {
+      console.error('Rye product by URL error:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch product',
+        message: error.message 
+      });
+    }
+  });
+
+  // Test Rye API Connection
+  app.get('/api/rye/test-connection', authenticateToken, async (req, res) => {
+    try {
+      const { ryeService } = await import('./services/RyeService');
+      
+      if (!ryeService.isConfigured()) {
+        return res.status(500).json({ 
+          success: false,
+          error: 'Rye service not configured', 
+          message: 'RYE_API_KEY environment variable is required' 
+        });
+      }
+
+      const testResult = await ryeService.testConnection();
+      
+      res.json({
+        success: testResult.success,
+        configured: ryeService.isConfigured(),
+        error: testResult.error || null
+      });
+
+    } catch (error: any) {
+      console.error('Rye test connection error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to test connection',
+        message: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
