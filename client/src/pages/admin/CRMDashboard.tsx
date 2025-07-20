@@ -191,10 +191,12 @@ export default function CRMDashboard() {
 
   // Get user lists
   const { data: userListsData, isLoading: userListsLoading } = useQuery({
-    queryKey: ['/api/admin/crm/user-lists'],
+    queryKey: ['/api/admin/crm/user-lists', Date.now()], // Add timestamp to prevent caching
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/admin/crm/user-lists');
-      return response.json();
+      const data = await response.json();
+      console.log('🔍 User Lists API Response:', data);
+      return data;
     },
     staleTime: 0, // Force fresh data every time
     gcTime: 0  // Don't cache the data (TanStack Query v5 uses gcTime instead of cacheTime)
@@ -251,6 +253,12 @@ export default function CRMDashboard() {
   const users: User[] = usersData?.users || [];
   const templates = templatesData?.templates || [];
   const userLists = userListsData?.userLists || [];
+  console.log('🔍 Frontend User Lists Processing:', { 
+    userListsData, 
+    userLists,
+    firstList: userLists[0],
+    memberCount: userLists[0]?.memberCount 
+  });
 
 
 

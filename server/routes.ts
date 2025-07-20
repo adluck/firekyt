@@ -7188,7 +7188,15 @@ async function generateAILinkSuggestions(params: {
   // User Lists Management
   app.get('/api/admin/crm/user-lists', authenticateToken, requireAdminCRM, async (req, res) => {
     try {
+      // Add no-cache headers to prevent stale data
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      
       const userLists = await storage.getUserLists();
+      console.log('🔍 Backend User Lists Response:', JSON.stringify(userLists, null, 2));
       
       res.json({
         success: true,

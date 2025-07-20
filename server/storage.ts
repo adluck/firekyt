@@ -2476,7 +2476,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserLists(): Promise<any[]> {
-    return await db
+    // First get all user lists
+    const lists = await db
       .select({
         id: userLists.id,
         name: userLists.name,
@@ -2486,15 +2487,28 @@ export class DatabaseStorage implements IStorage {
         createdById: userLists.createdById,
         createdAt: userLists.createdAt,
         updatedAt: userLists.updatedAt,
-        memberCount: sql<number>`(
-          SELECT COUNT(*)::int 
-          FROM ${userListMembers} 
-          WHERE ${userListMembers.listId} = ${userLists.id}
-        )`
       })
       .from(userLists)
       .where(eq(userLists.isActive, true))
       .orderBy(desc(userLists.createdAt));
+
+    // Then manually add member count for each list
+    const listsWithMemberCount = await Promise.all(
+      lists.map(async (list) => {
+        const memberCount = await db
+          .select({ count: sql<number>`COUNT(*)::int` })
+          .from(userListMembers)
+          .where(eq(userListMembers.listId, list.id));
+        
+        return {
+          ...list,
+          memberCount: memberCount[0]?.count || 0
+        };
+      })
+    );
+
+    console.log('🔍 Storage getUserLists result:', JSON.stringify(listsWithMemberCount, null, 2));
+    return listsWithMemberCount;
   }
 
   async getUserList(id: number): Promise<UserList> {
