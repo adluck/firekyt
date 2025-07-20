@@ -190,16 +190,16 @@ export default function CRMDashboard() {
   });
 
   // Get user lists
-  const { data: userListsData, isLoading: userListsLoading } = useQuery({
-    queryKey: ['/api/admin/crm/user-lists', Date.now()], // Add timestamp to prevent caching
+  const { data: userListsData, isLoading: userListsLoading, error: userListsError } = useQuery({
+    queryKey: ['/api/admin/crm/user-lists'],
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/admin/crm/user-lists');
+      if (!response.ok) {
+        throw new Error('Failed to fetch user lists');
+      }
       const data = await response.json();
-      console.log('🔍 User Lists API Response:', data);
       return data;
-    },
-    staleTime: 0, // Force fresh data every time
-    gcTime: 0  // Don't cache the data (TanStack Query v5 uses gcTime instead of cacheTime)
+    }
   });
 
   // Initialize default templates mutation
