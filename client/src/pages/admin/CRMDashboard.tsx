@@ -9,10 +9,29 @@ import {
   DialogContent, 
   DialogDescription, 
   DialogHeader, 
-  DialogTitle 
+  DialogTitle,
+  DialogTrigger 
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -27,9 +46,20 @@ import {
   CheckCircle,
   XCircle,
   PlusCircle,
-  Settings
+  Settings,
+  Plus
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+
+// Campaign form schema
+const campaignFormSchema = z.object({
+  name: z.string().min(1, "Campaign name is required"),
+  subject: z.string().min(1, "Email subject is required"),
+  emailTemplate: z.string().min(1, "Email template is required"),
+  fromName: z.string().min(1, "From name is required"),
+  fromEmail: z.string().email("Valid email address is required"),
+  targetAudience: z.string().min(1, "Target audience is required"),
+});
 
 interface CRMStats {
   totalUsers: number;
@@ -94,6 +124,20 @@ export default function CRMDashboard() {
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [showTemplateSettingsDialog, setShowTemplateSettingsDialog] = useState(false);
+  const [showNewCampaignDialog, setShowNewCampaignDialog] = useState(false);
+
+  // Campaign form
+  const campaignForm = useForm<z.infer<typeof campaignFormSchema>>({
+    resolver: zodResolver(campaignFormSchema),
+    defaultValues: {
+      name: "",
+      subject: "",
+      emailTemplate: "",
+      fromName: "FireKyt Team",
+      fromEmail: "noreply@firekyt.com",
+      targetAudience: "",
+    },
+  });
 
   // Get CRM statistics
   const { data: statsResponse, isLoading: statsLoading } = useQuery({
@@ -155,6 +199,31 @@ export default function CRMDashboard() {
     }
   });
 
+  // Create campaign mutation
+  const createCampaignMutation = useMutation({
+    mutationFn: async (campaignData: z.infer<typeof campaignFormSchema>) => {
+      const response = await apiRequest('POST', '/api/admin/crm/campaigns', campaignData);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Campaign Created",
+        description: `Campaign "${data.campaign?.name}" has been created successfully.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/crm/campaigns'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/crm/stats'] });
+      setShowNewCampaignDialog(false);
+      campaignForm.reset();
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to Create Campaign",
+        description: "Could not create email campaign. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const campaigns: EmailCampaign[] = campaignsData?.campaigns || [];
   const users: User[] = usersData?.users || [];
   const templates = templatesData?.templates || [];
@@ -181,6 +250,11 @@ export default function CRMDashboard() {
   const handleTemplateSettings = (template: any) => {
     setSelectedTemplate(template);
     setShowTemplateSettingsDialog(true);
+  };
+
+  // Handle campaign creation
+  const onCreateCampaign = (data: z.infer<typeof campaignFormSchema>) => {
+    createCampaignMutation.mutate(data);
   };
 
   const getStatusBadge = (status: string) => {
@@ -426,9 +500,153 @@ export default function CRMDashboard() {
 
         <TabsContent value="campaigns" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Email Campaigns</CardTitle>
-              <CardDescription>Manage and monitor email marketing campaigns</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div>
+                <CardTitle>Email Campaigns</CardTitle>
+                <CardDescription>Manage and monitor email marketing campaigns</CardDescription>
+              </div>
+              <Dialog open={showNewCampaignDialog} onOpenChange={setShowNewCampaignDialog}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Campaign
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Create New Email Campaign</DialogTitle>
+                    <DialogDescription>
+                      Set up a new email marketing campaign with personalized content
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...campaignForm}>
+                    <form onSubmit={campaignForm.handleSubmit(onCreateCampaign)} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={campaignForm.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Campaign Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Weekly Newsletter" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={campaignForm.control}
+                          name="subject"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email Subject</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Welcome to our latest updates!" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={campaignForm.control}
+                          name="fromName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>From Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="FireKyt Team" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={campaignForm.control}
+                          name="fromEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>From Email</FormLabel>
+                              <FormControl>
+                                <Input placeholder="noreply@firekyt.com" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={campaignForm.control}
+                        name="emailTemplate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email Template</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select an email template" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {templates.map((template: any) => (
+                                  <SelectItem key={template.id} value={template.name}>
+                                    {template.name} - {template.category}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={campaignForm.control}
+                        name="targetAudience"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Target Audience</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select target audience" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="all">All Users</SelectItem>
+                                <SelectItem value="new_users">New Users</SelectItem>
+                                <SelectItem value="active_users">Active Users</SelectItem>
+                                <SelectItem value="premium_users">Premium Users</SelectItem>
+                                <SelectItem value="free_users">Free Users</SelectItem>
+                                <SelectItem value="beta_users">Beta Users</SelectItem>
+                                <SelectItem value="inactive_users">Inactive Users</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex justify-end space-x-2 pt-4">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => setShowNewCampaignDialog(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={createCampaignMutation.isPending}>
+                          {createCampaignMutation.isPending ? "Creating..." : "Create Campaign"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
