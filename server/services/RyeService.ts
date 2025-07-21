@@ -276,6 +276,84 @@ export class RyeService {
     }
   }
 
+  // Search RYE API using GraphQL for live product data
+  async searchRyeAPI(query: string, limit: number = 20): Promise<{ products: RyeProduct[]; error?: string }> {
+    if (!this.apiKey) {
+      return { products: [], error: 'RYE API key not configured' };
+    }
+
+    try {
+      console.log(`🌐 Searching RYE GraphQL API for: "${query}" (limit: ${limit})`);
+      
+      const graphqlQuery = gql`
+        query searchProducts($query: String!, $limit: Int!) {
+          products(
+            first: $limit
+            filter: {
+              query: $query
+            }
+          ) {
+            edges {
+              node {
+                id
+                title
+                vendor
+                url
+                isAvailable
+                images {
+                  url
+                }
+                price {
+                  displayValue
+                  value
+                  currency
+                }
+                description
+                productType
+                category
+              }
+            }
+          }
+        }
+      `;
+
+      const data = await this.client.request(graphqlQuery, { 
+        query: query, 
+        limit: limit 
+      }, this.getHeaders());
+
+      const products = data.products?.edges || [];
+      console.log(`📦 RYE GraphQL API returned ${products.length} products`);
+
+      // Convert GraphQL response to our format
+      const formattedProducts = products.map((edge: any) => {
+        const product = edge.node;
+        return {
+          id: product.id,
+          title: product.title,
+          vendor: product.vendor || 'RYE Network',
+          url: product.url,
+          isAvailable: product.isAvailable,
+          images: product.images || [],
+          price: {
+            displayValue: product.price?.displayValue || 'N/A',
+            value: parseFloat(product.price?.value?.toString() || '0'),
+            currency: product.price?.currency || 'USD'
+          },
+          description: product.description || '',
+          productType: product.productType || '',
+          category: product.category || product.productType || '',
+          imageUrl: product.images?.[0]?.url || null
+        };
+      });
+
+      return { products: formattedProducts };
+    } catch (error: any) {
+      console.error('❌ Error searching RYE GraphQL API:', error);
+      return { products: [], error: `RYE GraphQL API search failed: ${error.message}` };
+    }
+  }
+
   // Unified search method that handles both URLs and keywords
   async searchProductsUnified(query: string, limit: number = 20): Promise<{ products: RyeProduct[]; error?: string }> {
     if (this.isUrl(query)) {
@@ -287,9 +365,17 @@ export class RyeService {
       }
       return { products: [result.product] };
     } else {
-      // Handle keyword - use local database
+      // Handle keyword - first try local database, then fall back to RYE API
       console.log(`🔍 Processing keyword: ${query}`);
-      return await this.searchProducts(query, limit);
+      const localResult = await this.searchProducts(query, limit);
+      
+      if (localResult.products.length > 0) {
+        console.log(`✅ Found ${localResult.products.length} products in local database`);
+        return localResult;
+      } else {
+        console.log(`📡 Local database empty, trying RYE API...`);
+        return await this.searchRyeAPI(query, limit);
+      }
     }
   }
 
