@@ -158,21 +158,29 @@ export class RyeService {
       console.log(`📦 Found ${dbProducts.length} products in local database`);
 
       // Convert database format to RyeProduct format
-      const products: RyeProduct[] = dbProducts.map(product => ({
-        id: product.id,
-        title: product.title,
-        vendor: 'Local Database',
-        url: product.url,
-        isAvailable: product.isActive,
-        images: product.imageUrl ? [{ url: product.imageUrl }] : [],
-        price: {
-          displayValue: product.price ? `${product.currencyCode} ${product.price}` : 'N/A',
-          value: product.price || 0,
-          currency: product.currencyCode
-        },
-        description: product.description || '',
-        productType: product.category || undefined
-      }));
+      const products: RyeProduct[] = dbProducts.map(product => {
+        // Generate a placeholder image if no image URL is available
+        const placeholderImage = `https://via.placeholder.com/300x300/f97316/white?text=${encodeURIComponent(product.title?.substring(0, 20) || 'Product')}`;
+        const imageUrl = product.imageUrl || placeholderImage;
+        
+        return {
+          id: product.id,
+          title: product.title,
+          vendor: 'Local Database',
+          url: product.url,
+          isAvailable: product.isActive,
+          images: [{ url: imageUrl }], // Always provide at least one image
+          price: {
+            displayValue: product.price ? `${product.currencyCode} ${product.price}` : 'N/A',
+            value: product.price || 0,
+            currency: product.currencyCode
+          },
+          description: product.description || '',
+          productType: product.category || undefined,
+          category: product.category || '',
+          imageUrl: imageUrl // Add this for compatibility
+        };
+      });
 
       return { products };
     } catch (error: any) {
