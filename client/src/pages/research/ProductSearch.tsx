@@ -51,7 +51,7 @@ interface ProductSearchResult {
   };
 }
 
-// Rye.com API interfaces
+// Rye.com API interfaces with Enhanced Scoring
 interface RyeProduct {
   id: string;
   title: string;
@@ -67,6 +67,20 @@ interface RyeProduct {
   ASIN?: string;
   productType?: string;
   description?: string;
+  // Enhanced scoring fields
+  affiliate_score?: number;
+  difficulty_assessment?: string;
+  affiliate_potential?: string;
+  market_competitiveness?: string;
+  scoring_breakdown?: {
+    availability_score: number;
+    price_score: number;
+    review_score: number;
+    market_score: number;
+    affiliate_score: number;
+    data_score: number;
+    brand_score: number;
+  };
 }
 
 interface RyeSearchResult {
@@ -79,10 +93,20 @@ interface RyeSearchResult {
     averagePrice: number;
     priceRange: { min: number; max: number };
     topVendors: string[];
+    scoring_summary?: {
+      average_score: number;
+      high_potential_count: number;
+      market_competitiveness: string;
+    };
   };
   totalResults: number;
   source: string;
   researchDate?: string;
+  scoring?: {
+    average_score: number;
+    high_potential_count: number;
+    market_competitiveness: string;
+  };
 }
 
 export default function ProductSearch() {
@@ -175,11 +199,40 @@ export default function ProductSearch() {
           )}
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm line-clamp-2 mb-2">{product.title}</h3>
+            
+            {/* Enhanced Scoring Display */}
+            {product.affiliate_score !== undefined && (
+              <div className="mb-3 p-2 bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-950/20 dark:to-pink-950/20 rounded-md border border-orange-100 dark:border-orange-800">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-orange-800 dark:text-orange-200">Intelligent Score</span>
+                  <span className="text-sm font-bold text-orange-600 dark:text-orange-300">{product.affiliate_score}/100</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-2">
+                  <div 
+                    className="bg-gradient-to-r from-orange-500 to-pink-500 h-1.5 rounded-full" 
+                    style={{ width: `${product.affiliate_score}%` }}
+                  />
+                </div>
+                <div className="flex gap-2 text-xs">
+                  {product.difficulty_assessment && (
+                    <Badge variant="outline" className="text-xs border-orange-200 text-orange-700 dark:border-orange-800 dark:text-orange-300">
+                      {product.difficulty_assessment}
+                    </Badge>
+                  )}
+                  {product.affiliate_potential && (
+                    <Badge variant="outline" className="text-xs border-green-200 text-green-700 dark:border-green-800 dark:text-green-300">
+                      {product.affiliate_potential}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+            
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="secondary" className="text-xs">{product.vendor}</Badge>
               {product.ASIN && <Badge variant="outline" className="text-xs">Amazon</Badge>}
               {product.isAvailable ? (
-                <Badge variant="default" className="text-xs bg-green-100 text-green-800">Available</Badge>
+                <Badge variant="default" className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Available</Badge>
               ) : (
                 <Badge variant="destructive" className="text-xs">Out of Stock</Badge>
               )}
@@ -195,6 +248,39 @@ export default function ProductSearch() {
             </div>
           </div>
         </div>
+        
+        {/* Detailed Scoring Breakdown */}
+        {product.scoring_breakdown && (
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 font-medium">Score Breakdown</div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex justify-between">
+                <span>Availability:</span>
+                <span className="font-medium">{product.scoring_breakdown.availability_score}/15</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Price:</span>
+                <span className="font-medium">{product.scoring_breakdown.price_score}/20</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Reviews:</span>
+                <span className="font-medium">{product.scoring_breakdown.review_score}/20</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Market:</span>
+                <span className="font-medium">{product.scoring_breakdown.market_score}/15</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Affiliate:</span>
+                <span className="font-medium">{product.scoring_breakdown.affiliate_score}/15</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Data:</span>
+                <span className="font-medium">{product.scoring_breakdown.data_score}/10</span>
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -505,18 +591,53 @@ export default function ProductSearch() {
             </div>
           )}
 
-          {ryeResearchResults && ryeResearchResults.marketInsights && (
+          {ryeResearchResults && (
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Market Insights for "{ryeResearchResults.keyword}"
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center">
+              {/* Enhanced Scoring Summary */}
+              {ryeResearchResults.scoring && (
+                <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-950/20 dark:to-pink-950/20 dark:border-orange-800">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-orange-800 dark:text-orange-200">
+                      <Target className="h-5 w-5" />
+                      Enhanced Affiliate Scoring Analysis
+                    </CardTitle>
+                    <CardDescription className="text-orange-700 dark:text-orange-300">
+                      AI-powered analysis of affiliate marketing potential for "{ryeResearchResults.keyword}"
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">{ryeResearchResults.scoring.average_score}</div>
+                        <div className="text-sm text-orange-700 dark:text-orange-300">Average Score</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">{ryeResearchResults.scoring.high_potential_count}</div>
+                        <div className="text-sm text-green-700 dark:text-green-300">High Potential Products</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-semibold text-blue-600 dark:text-blue-400 capitalize">
+                          {ryeResearchResults.scoring.market_competitiveness || 'Medium'}
+                        </div>
+                        <div className="text-sm text-blue-700 dark:text-blue-300">Market Competition</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Traditional Market Insights */}
+              {ryeResearchResults.marketInsights && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Market Insights for "{ryeResearchResults.keyword}"
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center">
                       <div className="text-2xl font-bold text-blue-600">
                         {ryeResearchResults.marketInsights.totalProducts}
                       </div>
