@@ -2555,6 +2555,174 @@ asyncio.run(main())
     }
   });
 
+  // Get multiple products by IDs (batch operation)
+  app.post("/api/rye/products-by-ids", authenticateToken, async (req, res) => {
+    try {
+      const { product_ids } = req.body;
+      
+      if (!product_ids || !Array.isArray(product_ids)) {
+        return res.status(400).json({ error: 'product_ids array is required' });
+      }
+
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import get_products_by_ids_async
+        product_ids = ${JSON.stringify(product_ids)}
+        result = await get_products_by_ids_async(product_ids)
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"success": False, "error": str(e)}))
+
+asyncio.run(main())
+`]);
+
+      let output = '';
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.stderr.on('data', (data) => {
+        console.error('Rye batch products error:', data.toString());
+      });
+
+      python.on('close', (code) => {
+        try {
+          const lines = output.trim().split('\n');
+          const result = JSON.parse(lines[lines.length - 1]);
+          
+          if (result.success) {
+            console.log(`Rye batch retrieval: ${result.retrieved_count}/${result.requested_count} products retrieved`);
+          }
+          
+          res.json(result);
+        } catch (error) {
+          res.status(500).json({ 
+            success: false, 
+            error: 'Failed to parse response from Rye service',
+            raw_output: output.substring(0, 500)
+          });
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Rye batch products retrieval failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to retrieve products by IDs via Rye API: ' + error.message 
+      });
+    }
+  });
+
+  // Get products by domain
+  app.post("/api/rye/products-by-domain", authenticateToken, async (req, res) => {
+    try {
+      const { domain, limit = 20 } = req.body;
+      
+      if (!domain) {
+        return res.status(400).json({ error: 'Domain is required' });
+      }
+
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import get_products_by_domain_async
+        result = await get_products_by_domain_async("${domain.replace(/"/g, '\\"')}", ${limit})
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"success": False, "error": str(e)}))
+
+asyncio.run(main())
+`]);
+
+      let output = '';
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.stderr.on('data', (data) => {
+        console.error('Rye domain products error:', data.toString());
+      });
+
+      python.on('close', (code) => {
+        try {
+          const lines = output.trim().split('\n');
+          const result = JSON.parse(lines[lines.length - 1]);
+          
+          if (result.success) {
+            console.log(`Rye domain search: ${result.products?.length || 0} products found for domain "${domain}"`);
+            
+            // Store domain research if successful
+            try {
+              if (result.products && result.products.length > 0) {
+                const sessionData = {
+                  userId: req.user!.id,
+                  niche: domain,
+                  productCategory: `Domain: ${domain}`,
+                  totalProductsFound: result.total_count,
+                  productsStored: result.products.length,
+                  searchQuery: domain,
+                  dataSource: 'rye_domain_api'
+                };
+                
+                const session = await storage.createProductResearchSession(sessionData);
+                
+                // Store individual products from domain research
+                for (const product of result.products.slice(0, 20)) {
+                  await storage.storeResearchProduct({
+                    researchSessionId: session.id,
+                    title: product.title || 'Untitled Product',
+                    price: product.price?.value || 0,
+                    rating: product.reviews?.rating || 0,
+                    reviewCount: product.reviews?.count || 0,
+                    imageUrl: product.images?.[0]?.url || '',
+                    productUrl: product.url || '',
+                    vendor: product.vendor || domain,
+                    asin: product.ASIN || null,
+                    affiliateScore: 0, // Domain products don't have intelligent scoring
+                    category: product.category || domain,
+                    features: JSON.stringify(product.features || [])
+                  });
+                }
+                
+                result.session_id = session.id;
+              }
+            } catch (storageError) {
+              console.error('Failed to store domain research session:', storageError);
+            }
+          }
+          
+          res.json(result);
+        } catch (error) {
+          res.status(500).json({ 
+            success: false, 
+            error: 'Failed to parse response from Rye service',
+            raw_output: output.substring(0, 500)
+          });
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Rye domain products retrieval failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to retrieve products by domain via Rye API: ' + error.message 
+      });
+    }
+  });
+
   // ===== PUBLISHING & EXTERNAL BLOG ENDPOINTS =====
 
   // Generate test publishing token

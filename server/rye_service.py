@@ -259,6 +259,266 @@ class RyeGraphQLClient:
                 "error": str(e),
                 "product": None
             }
+
+    async def get_products_by_ids(self, product_ids: List[Dict[str, str]]) -> Dict[str, Any]:
+        """
+        Get multiple products by their IDs in a single request
+        
+        Args:
+            product_ids: List of dictionaries with 'id' and 'marketplace' keys
+                        Example: [{"id": "prod123", "marketplace": "AMAZON"}]
+        
+        Returns:
+            Dictionary containing products and metadata
+        """
+        try:
+            # Validate input
+            if not product_ids or len(product_ids) == 0:
+                return {
+                    "success": False,
+                    "error": "Product IDs list cannot be empty",
+                    "products": []
+                }
+            
+            # Limit to 25 products as per Rye API constraints
+            if len(product_ids) > 25:
+                logger.warning(f"Limiting request to 25 products (requested: {len(product_ids)})")
+                product_ids = product_ids[:25]
+            
+            # Validate each product ID entry
+            validated_ids = []
+            for item in product_ids:
+                if isinstance(item, dict) and "id" in item:
+                    validated_ids.append({
+                        "id": item["id"],
+                        "marketplace": item.get("marketplace", "AMAZON")
+                    })
+                else:
+                    logger.warning(f"Invalid product ID format: {item}")
+            
+            if not validated_ids:
+                return {
+                    "success": False,
+                    "error": "No valid product IDs found",
+                    "products": []
+                }
+            
+            query = gql("""
+                query ProductsByIds($input: ProductsByIdsInput!) {
+                    products: productsByIds(input: $input) {
+                        id
+                        title
+                        vendor
+                        url
+                        isAvailable
+                        images {
+                            url
+                            altText
+                        }
+                        price {
+                            displayValue
+                            value
+                            currency
+                        }
+                        description
+                        ... on AmazonProduct {
+                            ASIN
+                            reviews {
+                                rating
+                                count
+                            }
+                            features
+                            specifications {
+                                name
+                                value
+                            }
+                            category
+                            brand
+                        }
+                        ... on ShopifyProduct {
+                            productType
+                            tags
+                            options {
+                                name
+                                values
+                            }
+                            variants {
+                                id
+                                title
+                                price {
+                                    displayValue
+                                    value
+                                    currency
+                                }
+                                isAvailable
+                            }
+                        }
+                    }
+                }
+            """)
+            
+            variables = {
+                "input": {
+                    "ids": validated_ids
+                }
+            }
+            
+            async with self.client as session:
+                result = await session.execute(query, variable_values=variables)
+                
+                products = result.get("products", [])
+                
+                logger.info(f"Successfully retrieved {len(products)} products by IDs")
+                
+                return {
+                    "success": True,
+                    "products": products,
+                    "requested_count": len(validated_ids),
+                    "retrieved_count": len(products),
+                    "metadata": {
+                        "requested_ids": validated_ids,
+                        "batch_size": len(products)
+                    }
+                }
+                
+        except Exception as e:
+            logger.error(f"Get products by IDs failed: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "products": [],
+                "requested_count": len(product_ids) if product_ids else 0,
+                "retrieved_count": 0
+            }
+    
+    async def get_products_by_domain(self, domain: str, limit: int = 20) -> Dict[str, Any]:
+        """
+        Get products associated with a specific domain
+        
+        Args:
+            domain: Domain name (e.g., "amazon.com", "shopify-store.com")
+            limit: Maximum number of products to return
+        
+        Returns:
+            Dictionary containing products from the specified domain
+        """
+        try:
+            if not domain:
+                return {
+                    "success": False,
+                    "error": "Domain cannot be empty",
+                    "products": []
+                }
+            
+            query = gql("""
+                query ProductsByDomainV2($input: ProductsByDomainV2Input!) {
+                    products: productsByDomainV2(input: $input) {
+                        edges {
+                            node {
+                                id
+                                title
+                                vendor
+                                url
+                                isAvailable
+                                images {
+                                    url
+                                    altText
+                                }
+                                price {
+                                    displayValue
+                                    value
+                                    currency
+                                }
+                                description
+                                ... on AmazonProduct {
+                                    ASIN
+                                    reviews {
+                                        rating
+                                        count
+                                    }
+                                    features
+                                    specifications {
+                                        name
+                                        value
+                                    }
+                                    category
+                                    brand
+                                }
+                                ... on ShopifyProduct {
+                                    productType
+                                    tags
+                                    options {
+                                        name
+                                        values
+                                    }
+                                    variants {
+                                        id
+                                        title
+                                        price {
+                                            displayValue
+                                            value
+                                            currency
+                                        }
+                                        isAvailable
+                                    }
+                                }
+                            }
+                        }
+                        pageInfo {
+                            hasNextPage
+                            hasPreviousPage
+                            startCursor
+                            endCursor
+                        }
+                        totalCount
+                    }
+                }
+            """)
+            
+            variables = {
+                "input": {
+                    "domain": domain,
+                    "first": limit
+                }
+            }
+            
+            async with self.client as session:
+                result = await session.execute(query, variable_values=variables)
+                
+                products = []
+                page_info = {}
+                total_count = 0
+                
+                if result.get("products"):
+                    if result["products"].get("edges"):
+                        products = [edge["node"] for edge in result["products"]["edges"]]
+                    page_info = result["products"].get("pageInfo", {})
+                    total_count = result["products"].get("totalCount", 0)
+                
+                logger.info(f"Successfully retrieved {len(products)} products from domain: {domain}")
+                
+                return {
+                    "success": True,
+                    "domain": domain,
+                    "products": products,
+                    "total_count": total_count,
+                    "page_info": page_info,
+                    "metadata": {
+                        "domain": domain,
+                        "limit": limit,
+                        "retrieved_count": len(products)
+                    }
+                }
+                
+        except Exception as e:
+            logger.error(f"Get products by domain failed: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "domain": domain,
+                "products": [],
+                "total_count": 0
+            }
     
     async def request_amazon_product_by_url(self, amazon_url: str) -> Dict[str, Any]:
         """
@@ -488,3 +748,13 @@ async def request_amazon_product_async(url: str) -> Dict[str, Any]:
     """Async wrapper for requesting Amazon product"""
     service = get_rye_service()
     return await service.request_amazon_product_by_url(url)
+
+async def get_products_by_ids_async(product_ids: List[Dict[str, str]]) -> Dict[str, Any]:
+    """Async wrapper for getting multiple products by IDs"""
+    service = get_rye_service()
+    return await service.get_products_by_ids(product_ids)
+
+async def get_products_by_domain_async(domain: str, limit: int = 20) -> Dict[str, Any]:
+    """Async wrapper for getting products by domain"""
+    service = get_rye_service()
+    return await service.get_products_by_domain(domain, limit)
