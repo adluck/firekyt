@@ -7856,6 +7856,7 @@ async function generateAILinkSuggestions(params: {
         });
       }
 
+      const { ryeService } = await import('./services/RyeService');
       const result = await ryeService.searchProducts(keyword, 10);
       
       if (result.error) {
