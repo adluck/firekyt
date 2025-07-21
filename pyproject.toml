@@ -6,7 +6,9 @@ requires-python = ">=3.11"
 dependencies = [
     "aiohttp>=3.12.12",
     "anthropic>=0.54.0",
+    "asyncio>=3.4.3",
     "beautifulsoup4>=4.13.4",
+    "gql[aiohttp]>=3.5.3",
     "lxml>=5.4.0",
     "openai>=1.86.0",
     "python-amazon-paapi>=5.0.1",

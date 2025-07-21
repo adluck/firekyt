@@ -2212,6 +2212,349 @@ Format your response as a JSON object with the following structure:
     }
   });
 
+  // ===== RYE.COM GRAPHQL API ENDPOINTS =====
+  
+  // Test Rye API connection
+  app.get("/api/rye/test-connection", authenticateToken, async (req, res) => {
+    try {
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import os
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import get_rye_service
+        service = get_rye_service()
+        result = await service.test_connection()
+        print(result)
+    except Exception as e:
+        print({"success": False, "error": str(e)})
+
+asyncio.run(main())
+`]);
+
+      let output = '';
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.stderr.on('data', (data) => {
+        console.error('Rye connection test error:', data.toString());
+      });
+
+      python.on('close', (code) => {
+        try {
+          // Parse the last valid JSON from output
+          const lines = output.trim().split('\n');
+          const result = JSON.parse(lines[lines.length - 1]);
+          res.json(result);
+        } catch (error) {
+          res.status(500).json({ 
+            success: false, 
+            error: 'Failed to parse response from Rye service',
+            raw_output: output
+          });
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Rye connection test failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to test Rye API connection: ' + error.message 
+      });
+    }
+  });
+
+  // Search products using Rye GraphQL API
+  app.post("/api/rye/search-products", authenticateToken, async (req, res) => {
+    try {
+      const { query, limit = 20, marketplace = 'AMAZON' } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ error: 'Search query is required' });
+      }
+
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import search_products_async
+        result = await search_products_async("${query.replace(/"/g, '\\"')}", ${limit})
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"success": False, "error": str(e)}))
+
+asyncio.run(main())
+`]);
+
+      let output = '';
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.stderr.on('data', (data) => {
+        console.error('Rye search error:', data.toString());
+      });
+
+      python.on('close', (code) => {
+        try {
+          const lines = output.trim().split('\n');
+          const result = JSON.parse(lines[lines.length - 1]);
+          
+          // Log success for monitoring
+          if (result.success) {
+            console.log(`Rye search completed: ${result.products?.length || 0} products found for "${query}"`);
+          }
+          
+          res.json(result);
+        } catch (error) {
+          console.error('Failed to parse Rye search response:', output);
+          res.status(500).json({ 
+            success: false, 
+            error: 'Failed to parse response from Rye service',
+            raw_output: output.substring(0, 500)
+          });
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Rye product search failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to search products via Rye API: ' + error.message 
+      });
+    }
+  });
+
+  // Comprehensive product research with intelligent scoring
+  app.post("/api/rye/research-products", authenticateToken, async (req, res) => {
+    try {
+      const { query, niche } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ error: 'Research query is required' });
+      }
+
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import research_products_async
+        result = await research_products_async("${query.replace(/"/g, '\\"')}")
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"success": False, "error": str(e)}))
+
+asyncio.run(main())
+`]);
+
+      let output = '';
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.stderr.on('data', (data) => {
+        console.error('Rye research error:', data.toString());
+      });
+
+      python.on('close', (code) => {
+        try {
+          const lines = output.trim().split('\n');
+          const result = JSON.parse(lines[lines.length - 1]);
+          
+          if (result.success) {
+            console.log(`Rye research completed: ${result.total_products || 0} products analyzed for "${query}"`);
+            
+            // Store research session if successful
+            const sessionData = {
+              userId: req.user!.id,
+              niche: niche || query,
+              productCategory: query,
+              totalProductsFound: result.total_products,
+              productsStored: result.products?.length || 0,
+              searchQuery: query,
+              dataSource: 'rye_graphql_api'
+            };
+            
+            // Create research session and store products
+            try {
+              const session = await storage.createProductResearchSession(sessionData);
+              
+              // Store individual products from research
+              if (result.products && result.products.length > 0) {
+                for (const product of result.products.slice(0, 20)) { // Limit to 20 products
+                  await storage.storeResearchProduct({
+                    researchSessionId: session.id,
+                    title: product.title || 'Untitled Product',
+                    price: product.price?.value || 0,
+                    rating: product.reviews?.rating || 0,
+                    reviewCount: product.reviews?.count || 0,
+                    imageUrl: product.images?.[0]?.url || '',
+                    productUrl: product.url || '',
+                    vendor: product.vendor || 'Unknown',
+                    asin: product.ASIN || null,
+                    affiliateScore: product.intelligent_score || 0,
+                    category: product.category || query,
+                    features: JSON.stringify(product.features || [])
+                  });
+                }
+              }
+              
+              result.session_id = session.id;
+            } catch (storageError) {
+              console.error('Failed to store research session:', storageError);
+            }
+          }
+          
+          res.json(result);
+        } catch (error) {
+          console.error('Failed to parse Rye research response:', output);
+          res.status(500).json({ 
+            success: false, 
+            error: 'Failed to parse response from Rye service',
+            raw_output: output.substring(0, 500)
+          });
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Rye product research failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to research products via Rye API: ' + error.message 
+      });
+    }
+  });
+
+  // Get product by ID using Rye API
+  app.get("/api/rye/product/:id", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { marketplace = 'AMAZON' } = req.query;
+
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import get_product_by_id_async
+        result = await get_product_by_id_async("${id}", "${marketplace}")
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"success": False, "error": str(e)}))
+
+asyncio.run(main())
+`]);
+
+      let output = '';
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.stderr.on('data', (data) => {
+        console.error('Rye get product error:', data.toString());
+      });
+
+      python.on('close', (code) => {
+        try {
+          const lines = output.trim().split('\n');
+          const result = JSON.parse(lines[lines.length - 1]);
+          res.json(result);
+        } catch (error) {
+          res.status(500).json({ 
+            success: false, 
+            error: 'Failed to parse response from Rye service',
+            raw_output: output.substring(0, 500)
+          });
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Rye get product failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to get product via Rye API: ' + error.message 
+      });
+    }
+  });
+
+  // Request Amazon product by URL
+  app.post("/api/rye/request-amazon-product", authenticateToken, async (req, res) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ error: 'Amazon URL is required' });
+      }
+
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import request_amazon_product_async
+        result = await request_amazon_product_async("${url.replace(/"/g, '\\"')}")
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"success": False, "error": str(e)}))
+
+asyncio.run(main())
+`]);
+
+      let output = '';
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.stderr.on('data', (data) => {
+        console.error('Rye request Amazon product error:', data.toString());
+      });
+
+      python.on('close', (code) => {
+        try {
+          const lines = output.trim().split('\n');
+          const result = JSON.parse(lines[lines.length - 1]);
+          res.json(result);
+        } catch (error) {
+          res.status(500).json({ 
+            success: false, 
+            error: 'Failed to parse response from Rye service',
+            raw_output: output.substring(0, 500)
+          });
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Rye request Amazon product failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to request Amazon product via Rye API: ' + error.message 
+      });
+    }
+  });
+
   // ===== PUBLISHING & EXTERNAL BLOG ENDPOINTS =====
 
   // Generate test publishing token
