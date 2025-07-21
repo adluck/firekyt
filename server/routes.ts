@@ -7132,8 +7132,12 @@ async function generateAILinkSuggestions(params: {
 
       const { ryeService } = await import('./services/RyeService');
       
+      console.log(`🎯 API Search Request: "${query}" (limit: ${limit})`);
+      
       // Use the new unified search method that automatically detects URLs vs keywords
       const result = await ryeService.searchProductsUnified(query, limit);
+      
+      console.log(`📊 API Search Result: ${result.products?.length || 0} products found, error: ${result.error || 'none'}`);
       
       if (result.error) {
         return res.status(400).json({ error: result.error });
