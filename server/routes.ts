@@ -8008,6 +8008,88 @@ asyncio.run(main())
     }
   });
 
+  // Test endpoint for enhanced scoring (no auth required)
+  app.post('/api/test/enhanced-scoring', async (req, res) => {
+    try {
+      const { keyword = 'wireless earbuds' } = req.body;
+      
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import research_products_async
+        
+        keyword = "${keyword.replace(/"/g, '\\"')}"
+        
+        result = await research_products_async(
+            niche=keyword,
+            product_category="General",
+            max_results=2
+        )
+        
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({
+            "success": False, 
+            "error": str(e),
+            "products": []
+        }))
+
+asyncio.run(main())
+      `], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 25000
+      });
+
+      let output = '';
+      let errorOutput = '';
+      
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+      
+      python.stderr.on('data', (data) => {
+        errorOutput += data.toString();
+      });
+      
+      python.on('close', (code) => {
+        if (code === 0 && output.trim()) {
+          try {
+            const result = JSON.parse(output.trim());
+            res.json({
+              success: result.success !== false,
+              keyword,
+              products: result.products || [],
+              scoring: result.session_data?.scoring_summary || null,
+              testMode: true
+            });
+          } catch (parseError) {
+            res.status(500).json({ 
+              error: 'Parse error',
+              details: output.substring(0, 200)
+            });
+          }
+        } else {
+          res.status(500).json({ 
+            error: 'Python execution failed',
+            details: errorOutput || 'No output'
+          });
+        }
+      });
+
+    } catch (error: any) {
+      res.status(500).json({ 
+        error: 'Test failed',
+        message: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
