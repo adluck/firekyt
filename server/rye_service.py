@@ -1,5 +1,6 @@
 import os
 import asyncio
+import time
 from typing import Dict, List, Optional, Any
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
@@ -598,59 +599,278 @@ class RyeGraphQLClient:
         return market_analysis
     
     def _apply_intelligent_scoring(self, products: List[Dict], market_analysis: Dict) -> List[Dict]:
-        """Apply intelligent scoring algorithm to products"""
+        """Enhanced intelligent scoring algorithm using Rye.com real-time data"""
         scored_products = []
+        
+        # Extract market benchmarks from Rye data
         avg_price = market_analysis.get("price_analysis", {}).get("avg_price", 0)
-        avg_rating = market_analysis.get("review_analysis", {}).get("avg_rating", 0)
+        max_price = market_analysis.get("price_analysis", {}).get("max_price", 1000)
+        min_price = market_analysis.get("price_analysis", {}).get("min_price", 0)
+        avg_rating = market_analysis.get("review_analysis", {}).get("avg_rating", 3.0)
         
         for product in products:
+            # Enhanced scoring components with weighted importance
             score_components = {
-                "availability_score": 10 if product.get("isAvailable") else 0,
-                "price_competitiveness": 0,
-                "review_score": 0,
-                "data_completeness": 0
+                "availability_score": self._calculate_availability_score(product),
+                "price_competitiveness": self._calculate_price_score(product, avg_price, min_price, max_price),
+                "review_quality": self._calculate_review_score(product, avg_rating),
+                "market_position": self._calculate_market_position_score(product, market_analysis),
+                "affiliate_potential": self._calculate_affiliate_potential_score(product),
+                "data_richness": self._calculate_data_richness_score(product),
+                "brand_strength": self._calculate_brand_strength_score(product),
+                "conversion_indicators": self._calculate_conversion_indicators(product)
             }
             
-            # Price competitiveness (lower than average = better score)
-            product_price = product.get("price", {}).get("value", 0)
-            if product_price and avg_price:
-                if product_price <= avg_price:
-                    score_components["price_competitiveness"] = 10
-                else:
-                    score_components["price_competitiveness"] = max(0, 10 - ((product_price - avg_price) / avg_price) * 5)
+            # Weighted scoring algorithm optimized for affiliate marketing
+            weights = {
+                "availability_score": 0.20,      # 20% - Must be available to sell
+                "price_competitiveness": 0.18,   # 18% - Competitive pricing drives conversions
+                "affiliate_potential": 0.16,     # 16% - Commission and price range optimization
+                "review_quality": 0.14,          # 14% - Social proof drives sales
+                "conversion_indicators": 0.12,   # 12% - Features that indicate high conversion
+                "market_position": 0.10,         # 10% - Market positioning and competition
+                "brand_strength": 0.06,          # 6% - Brand recognition helps conversions
+                "data_richness": 0.04            # 4% - Complete product information
+            }
             
-            # Review score
-            product_rating = product.get("reviews", {}).get("rating", 0)
-            if product_rating:
-                score_components["review_score"] = (product_rating / 5.0) * 10
+            # Calculate weighted intelligent score (0-100 scale)
+            weighted_score = sum(
+                score_components[component] * weights[component] * 100
+                for component in score_components
+            )
             
-            # Data completeness
-            completeness_factors = [
-                bool(product.get("title")),
-                bool(product.get("description")),
-                bool(product.get("images")),
-                bool(product.get("price")),
-                bool(product.get("vendor"))
-            ]
-            score_components["data_completeness"] = (sum(completeness_factors) / len(completeness_factors)) * 10
+            # Apply marketplace-specific bonuses
+            marketplace_bonus = self._calculate_marketplace_bonus(product)
+            final_score = min(weighted_score + marketplace_bonus, 100)
             
-            # Calculate overall intelligent score
-            total_score = sum(score_components.values()) / len(score_components)
+            # Determine difficulty level for affiliate marketers
+            if final_score >= 80:
+                difficulty = "Easy"
+                potential = "High"
+            elif final_score >= 60:
+                difficulty = "Medium" 
+                potential = "Good"
+            else:
+                difficulty = "Hard"
+                potential = "Low"
             
-            # Add scoring data to product
+            # Enhanced product data with comprehensive scoring
             scored_product = {
                 **product,
-                "intelligent_score": round(total_score, 2),
-                "score_breakdown": score_components,
-                "affiliate_potential": "high" if total_score >= 8 else "medium" if total_score >= 6 else "low"
+                "intelligent_score": round(final_score, 1),
+                "difficulty": difficulty,
+                "affiliate_potential": potential,
+                "score_breakdown": {k: round(v * 100, 1) for k, v in score_components.items()},
+                "market_insights": {
+                    "price_vs_market": "competitive" if score_components["price_competitiveness"] > 0.7 else "average" if score_components["price_competitiveness"] > 0.4 else "expensive",
+                    "review_strength": "excellent" if score_components["review_quality"] > 0.8 else "good" if score_components["review_quality"] > 0.6 else "fair",
+                    "availability_status": "in_stock" if score_components["availability_score"] > 0.9 else "limited" if score_components["availability_score"] > 0.5 else "unavailable"
+                },
+                "rye_enhanced": True,  # Flag indicating Rye data integration
+                "last_updated": time.time()
             }
             
             scored_products.append(scored_product)
         
-        # Sort by intelligent score (highest first)
-        scored_products.sort(key=lambda x: x["intelligent_score"], reverse=True)
+        # Sort by intelligent score (highest first) with secondary sort by affiliate potential
+        scored_products.sort(key=lambda x: (x["intelligent_score"], x["score_breakdown"]["affiliate_potential"]), reverse=True)
         
         return scored_products
+    
+    def _calculate_availability_score(self, product: Dict) -> float:
+        """Calculate availability score based on Rye real-time data"""
+        is_available = product.get("isAvailable", False)
+        
+        # Shopify variants availability check
+        if product.get("variants"):
+            available_variants = sum(1 for variant in product["variants"] if variant.get("isAvailable", False))
+            total_variants = len(product["variants"])
+            variant_availability = available_variants / total_variants if total_variants > 0 else 0
+            return 0.8 * (1.0 if is_available else 0.0) + 0.2 * variant_availability
+        
+        return 1.0 if is_available else 0.0
+    
+    def _calculate_price_score(self, product: Dict, avg_price: float, min_price: float, max_price: float) -> float:
+        """Enhanced price competitiveness scoring"""
+        price_data = product.get("price", {})
+        
+        # Handle different price formats from Rye API
+        if isinstance(price_data, dict):
+            product_price = price_data.get("value")
+            if product_price is None:
+                display_value = price_data.get("displayValue", "")
+                if display_value:
+                    try:
+                        product_price = float(display_value.replace("$", "").replace(",", ""))
+                    except:
+                        product_price = None
+        else:
+            # Handle string price format (some Shopify variants)
+            try:
+                product_price = float(str(price_data).replace("$", "").replace(",", ""))
+            except:
+                product_price = None
+        
+        if not product_price or not avg_price:
+            return 0.5  # Neutral score if price unavailable
+        
+        # Optimal price ranges for affiliate marketing
+        if 25 <= product_price <= 150:      # Sweet spot for conversions
+            range_score = 1.0
+        elif 15 <= product_price <= 300:    # Good range
+            range_score = 0.8
+        elif product_price < 15:            # Too low for meaningful commissions
+            range_score = 0.3
+        else:                               # High-ticket items (lower conversion but higher commission)
+            range_score = 0.6
+        
+        # Price competitiveness vs market average
+        if product_price <= avg_price * 0.9:        # 10% below average = excellent
+            competitive_score = 1.0
+        elif product_price <= avg_price * 1.1:      # Within 10% of average = good
+            competitive_score = 0.8
+        elif product_price <= avg_price * 1.3:      # Up to 30% above average = fair
+            competitive_score = 0.5
+        else:                                       # More than 30% above average = poor
+            competitive_score = 0.2
+        
+        return (range_score * 0.6) + (competitive_score * 0.4)
+    
+    def _calculate_review_score(self, product: Dict, avg_rating: float) -> float:
+        """Enhanced review quality scoring using Amazon/Shopify data"""
+        # Amazon products
+        if product.get("ratingsTotal") and product.get("reviewsTotal"):
+            rating = float(product.get("ratingsTotal", 0))
+            review_count = int(product.get("reviewsTotal", 0))
+            
+            # Rating quality (0-1 scale)
+            rating_score = rating / 5.0 if rating > 0 else 0.6  # Default to neutral if no rating
+            
+            # Review volume score (more reviews = more social proof)
+            if review_count >= 1000:
+                volume_score = 1.0
+            elif review_count >= 100:
+                volume_score = 0.8
+            elif review_count >= 50:
+                volume_score = 0.6
+            elif review_count >= 10:
+                volume_score = 0.4
+            else:
+                volume_score = 0.2
+            
+            return (rating_score * 0.7) + (volume_score * 0.3)
+        
+        # Fallback for products without review data
+        return 0.5
+    
+    def _calculate_market_position_score(self, product: Dict, market_analysis: Dict) -> float:
+        """Calculate market positioning score"""
+        vendor = product.get("vendor", "")
+        category_info = product.get("categories", [])
+        
+        # Brand/vendor strength
+        well_known_brands = ["apple", "sony", "nike", "amazon", "microsoft", "google", "samsung", "lg"]
+        vendor_score = 0.8 if any(brand.lower() in vendor.lower() for brand in well_known_brands) else 0.5
+        
+        # Category competitiveness
+        total_vendors = market_analysis.get("vendor_analysis", {}).get("total_vendors", 1)
+        category_score = 1.0 if total_vendors <= 5 else 0.7 if total_vendors <= 10 else 0.4
+        
+        return (vendor_score * 0.6) + (category_score * 0.4)
+    
+    def _calculate_affiliate_potential_score(self, product: Dict) -> float:
+        """Calculate affiliate marketing potential based on product characteristics"""
+        price_data = product.get("price", {})
+        
+        # Extract price value
+        product_price = None
+        if isinstance(price_data, dict):
+            product_price = price_data.get("value")
+            if product_price is None:
+                display_value = price_data.get("displayValue", "")
+                try:
+                    product_price = float(display_value.replace("$", "").replace(",", ""))
+                except:
+                    product_price = 0
+        
+        if not product_price:
+            return 0.4
+        
+        # Commission potential (assuming typical rates)
+        if 50 <= product_price <= 200:      # Optimal for affiliate commissions
+            commission_score = 1.0
+        elif 25 <= product_price <= 500:    # Good commission potential
+            commission_score = 0.8
+        elif product_price >= 500:          # High-ticket (good commission but lower conversion)
+            commission_score = 0.7
+        else:                               # Low-ticket items
+            commission_score = 0.3
+        
+        # Feature bullets and specifications indicate detailed product information
+        features_score = 0.8 if product.get("featureBullets") or product.get("specifications") else 0.4
+        
+        return (commission_score * 0.7) + (features_score * 0.3)
+    
+    def _calculate_data_richness_score(self, product: Dict) -> float:
+        """Calculate data completeness and richness score"""
+        data_factors = [
+            bool(product.get("title")),
+            bool(product.get("description")),
+            bool(product.get("images") and len(product.get("images", [])) > 0),
+            bool(product.get("price")),
+            bool(product.get("vendor")),
+            bool(product.get("featureBullets")),
+            bool(product.get("specifications")),
+            bool(product.get("categories"))
+        ]
+        
+        return sum(data_factors) / len(data_factors)
+    
+    def _calculate_brand_strength_score(self, product: Dict) -> float:
+        """Calculate brand recognition and strength"""
+        vendor = product.get("vendor", "").lower()
+        title = product.get("title", "").lower()
+        
+        # Premium brands that typically convert well
+        premium_brands = ["apple", "sony", "nike", "adidas", "samsung", "lg", "microsoft", "google", "amazon"]
+        
+        brand_recognition = any(brand in vendor or brand in title for brand in premium_brands)
+        
+        return 0.9 if brand_recognition else 0.5
+    
+    def _calculate_conversion_indicators(self, product: Dict) -> float:
+        """Calculate indicators that suggest high conversion potential"""
+        indicators = []
+        
+        # High review count indicates popularity
+        review_count = product.get("reviewsTotal", 0)
+        indicators.append(1.0 if review_count >= 100 else 0.5)
+        
+        # High rating indicates quality
+        rating = product.get("ratingsTotal", 0)
+        indicators.append(1.0 if rating >= 4.0 else 0.5)
+        
+        # Multiple images suggest professional listing
+        image_count = len(product.get("images", []))
+        indicators.append(1.0 if image_count >= 3 else 0.5)
+        
+        # Feature bullets indicate detailed product information
+        features = product.get("featureBullets", [])
+        indicators.append(1.0 if features and len(features) >= 3 else 0.5)
+        
+        return sum(indicators) / len(indicators) if indicators else 0.5
+    
+    def _calculate_marketplace_bonus(self, product: Dict) -> float:
+        """Apply marketplace-specific bonuses"""
+        marketplace = product.get("marketplace", "")
+        
+        # Amazon products tend to have higher conversion rates
+        if marketplace == "AMAZON":
+            return 2.0  # 2-point bonus
+        elif marketplace == "SHOPIFY":
+            return 1.0  # 1-point bonus for direct-to-consumer brands
+        
+        return 0.0
 
 # Initialize global service instance
 rye_service = None
@@ -668,10 +888,42 @@ async def search_products_async(query: str, limit: int = 20) -> Dict[str, Any]:
     service = get_rye_service()
     return await service.search_products(query, limit)
 
-async def research_products_async(query: str) -> Dict[str, Any]:
-    """Async wrapper for comprehensive product research"""
+async def research_products_async(niche: str, product_category: str = None, max_results: int = 50) -> Dict[str, Any]:
+    """Enhanced async wrapper for comprehensive product research with intelligent scoring"""
     service = get_rye_service()
-    return await service.analyze_product_research(query)
+    
+    # Use niche as search query for product research
+    search_query = f"{niche} {product_category}" if product_category and product_category != 'General' else niche
+    
+    logger.info(f"Starting enhanced product research for: {search_query}")
+    
+    result = await service.analyze_product_research(search_query)
+    
+    if result.get("success"):
+        # Add enhanced metadata for affiliate marketers
+        result["research_metadata"].update({
+            "niche": niche,
+            "category": product_category,
+            "max_results": max_results,
+            "enhanced_scoring": True,
+            "rye_integration": "v2_enhanced"
+        })
+        
+        # Add summary insights based on enhanced scoring
+        products = result.get("products", [])
+        if products:
+            high_potential = len([p for p in products if p.get("affiliate_potential") == "High"])
+            avg_score = sum(p.get("intelligent_score", 0) for p in products) / len(products)
+            
+            result["research_insights"] = {
+                "total_analyzed": len(products),
+                "high_potential_count": high_potential,
+                "average_score": round(avg_score, 1),
+                "top_opportunity": products[0].get("title") if products else None,
+                "market_competitiveness": "high" if avg_score < 60 else "medium" if avg_score < 75 else "low"
+            }
+    
+    return result
 
 async def get_product_by_id_async(product_id: str) -> Dict[str, Any]:
     """Async wrapper for getting product by ID"""

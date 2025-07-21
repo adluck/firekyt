@@ -1864,7 +1864,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced Product Research API endpoint using Rye.com integration
-  app.post('/api/research-products', authenticateToken, async (req, res) => {
+  app.post('/api/research/products', async (req, res) => {
     try {
       const {
         niche,
@@ -7839,7 +7839,7 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
-  // Rye Product Research with Market Insights
+  // Enhanced Product Research with Intelligent Scoring
   app.post('/api/rye/research-product', authenticateToken, async (req, res) => {
     try {
       const { keyword } = req.body;
@@ -7848,33 +7848,85 @@ async function generateAILinkSuggestions(params: {
         return res.status(400).json({ error: 'Keyword is required' });
       }
 
-      const { ryeService } = await import('./services/RyeService');
-      
-      if (!ryeService.isConfigured()) {
-        return res.status(500).json({ 
-          error: 'Rye service not configured', 
-          message: 'RYE_API_KEY environment variable is required' 
-        });
-      }
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
 
-      const result = await ryeService.researchProduct(keyword);
-      
-      if (result.error) {
-        return res.status(500).json({ error: result.error });
-      }
+async def main():
+    try:
+        from rye_service import research_products_async
+        
+        # Enhanced research with intelligent scoring
+        keyword = "${keyword.replace(/"/g, '\\"')}"
+        
+        # Get comprehensive product research data with enhanced scoring
+        result = await research_products_async(
+            niche=keyword,
+            product_category="General",
+            max_results=10
+        )
+        
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({
+            "success": False, 
+            "error": str(e),
+            "products": [],
+            "session_data": {"error": str(e)}
+        }))
 
-      res.json({
-        success: true,
-        keyword,
-        products: result.products,
-        marketInsights: result.marketInsights,
-        totalResults: result.products.length,
-        source: 'rye_api',
-        researchDate: new Date()
+asyncio.run(main())
+      `], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 30000
+      });
+
+      let output = '';
+      let errorOutput = '';
+      
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+      
+      python.stderr.on('data', (data) => {
+        errorOutput += data.toString();
+      });
+      
+      python.on('close', (code) => {
+        if (code === 0 && output.trim()) {
+          try {
+            const result = JSON.parse(output.trim());
+            res.json({
+              success: result.success !== false,
+              keyword,
+              products: result.products || [],
+              marketInsights: result.session_data || {},
+              totalResults: (result.products || []).length,
+              source: 'enhanced_rye_api',
+              researchDate: new Date(),
+              scoring: result.session_data?.scoring_summary || null
+            });
+          } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            res.status(500).json({ 
+              error: 'Invalid response format',
+              details: output.substring(0, 200)
+            });
+          }
+        } else {
+          console.error('Python error:', errorOutput);
+          res.status(500).json({ 
+            error: 'Research failed',
+            details: errorOutput || 'No output received'
+          });
+        }
       });
 
     } catch (error: any) {
-      console.error('Rye research error:', error);
+      console.error('Enhanced research error:', error);
       res.status(500).json({ 
         error: 'Failed to research product',
         message: error.message 
