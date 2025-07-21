@@ -130,13 +130,29 @@ export class RyeService {
     try {
       console.log(`🔍 Searching local database for: "${query}" (limit: ${limit})`);
       
-      // Search in both title and category fields
+      // Split query into individual words for more flexible matching
+      const words = query.toLowerCase().split(' ').filter(word => word.length > 2);
+      console.log(`🔤 Search words: ${words.join(', ')}`);
+      
+      if (words.length === 0) {
+        return { products: [], error: 'Search query too short' };
+      }
+      
+      // Build dynamic search conditions for each word
+      let whereConditions = [];
+      for (const word of words) {
+        whereConditions.push(
+          sql`(${ilike(ryeProducts.title, `%${word}%`)} OR ${ilike(ryeProducts.category, `%${word}%`)})`
+        );
+      }
+      
+      // Combine all conditions with OR (match any word) and ensure active products
+      const finalCondition = sql`(${sql.join(whereConditions, sql` OR `)}) AND ${ryeProducts.isActive} = true`;
+      
       const dbProducts = await db
         .select()
         .from(ryeProducts)
-        .where(
-          sql`(${ilike(ryeProducts.title, `%${query}%`)} OR ${ilike(ryeProducts.category, `%${query}%`)}) AND ${ryeProducts.isActive} = true`
-        )
+        .where(finalCondition)
         .limit(limit);
 
       console.log(`📦 Found ${dbProducts.length} products in local database`);
