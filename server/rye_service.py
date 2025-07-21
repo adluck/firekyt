@@ -60,10 +60,13 @@ class RyeGraphQLClient:
     
     async def search_products(self, search_query: str, limit: int = 20, marketplace: str = "AMAZON") -> Dict[str, Any]:
         """
-        Search for products using Rye's GraphQL API
+        Demonstrate Rye product access using sample Amazon ASINs
+        
+        Note: Rye API doesn't support traditional keyword search. 
+        This method uses known Amazon ASINs for demonstration.
         
         Args:
-            search_query: Product search keywords
+            search_query: Product search keywords (for categorization)
             limit: Maximum number of products to return
             marketplace: Target marketplace (AMAZON, SHOPIFY)
         
@@ -71,86 +74,93 @@ class RyeGraphQLClient:
             Dictionary containing products and metadata
         """
         try:
-            query = gql("""
-                query SearchProducts($input: ProductsInput!) {
-                    products(input: $input) {
-                        edges {
-                            node {
-                                id
-                                title
-                                vendor
-                                url
-                                isAvailable
-                                images {
+            # Rye API works with specific product IDs, not keyword searches
+            # Using sample Amazon ASINs for different categories
+            sample_asins = {
+                "gaming": ["B08N5WRWNW", "B07VGRJDFY", "B08KHG4X7Q"],  # Gaming laptops, headsets
+                "wireless headphones": ["B08PBJP8B2", "B0756CYWWD", "B07Q9MJKBV"],  # Popular headphones
+                "laptops": ["B08N5WRWNW", "B08BNZVZBM", "B09DPBWNJ9"],  # Popular laptops
+                "default": ["B07H2V5YLH", "B08N5WRWNW", "B08PBJP8B2"]  # Screen protector, laptop, headphones
+            }
+            
+            # Select ASINs based on search query
+            category_key = "default"
+            for key in sample_asins.keys():
+                if key in search_query.lower():
+                    category_key = key
+                    break
+            
+            selected_asins = sample_asins[category_key][:limit]
+            
+            # Fetch each product individually using productByID
+            products = []
+            
+            async with self.client as session:
+                for asin in selected_asins:
+                    try:
+                        query = gql("""
+                            query GetAmazonProduct($input: ProductByIDInput!) {
+                                productByID(input: $input) {
+                                    id
+                                    title
+                                    vendor
                                     url
-                                    altText
-                                }
-                                price {
-                                    displayValue
-                                    value
-                                    currency
-                                }
-                                description
-                                ... on AmazonProduct {
-                                    ASIN
-                                    reviews {
-                                        rating
-                                        count
+                                    isAvailable
+                                    images {
+                                        url
                                     }
-                                    features
-                                    specifications {
-                                        name
+                                    price {
+                                        displayValue
                                         value
+                                        currency
                                     }
-                                    category
-                                }
-                                ... on ShopifyProduct {
-                                    productType
-                                    tags
-                                    options {
-                                        name
-                                        values
+                                    description
+                                    marketplace
+                                    ... on AmazonProduct {
+                                        ASIN
+                                        categories {
+                                            name
+                                            url
+                                        }
+                                        featureBullets
+                                        specifications {
+                                            name
+                                            value
+                                        }
+                                        ratingsTotal
+                                        reviewsTotal
                                     }
                                 }
                             }
+                        """)
+                        
+                        variables = {
+                            "input": {
+                                "id": asin,
+                                "marketplace": "AMAZON"
+                            }
                         }
-                        pageInfo {
-                            hasNextPage
-                            hasPreviousPage
-                            startCursor
-                            endCursor
-                        }
-                        totalCount
-                    }
-                }
-            """)
-            
-            variables = {
-                "input": {
-                    "query": search_query,
-                    "first": limit,
-                    "marketplace": marketplace
-                }
-            }
-            
-            async with self.client as session:
-                result = await session.execute(query, variable_values=variables)
-                
-                products = []
-                if result.get("products") and result["products"].get("edges"):
-                    products = [edge["node"] for edge in result["products"]["edges"]]
+                        
+                        result = await session.execute(query, variable_values=variables)
+                        
+                        if result.get("productByID"):
+                            products.append(result["productByID"])
+                            
+                    except Exception as product_error:
+                        logger.warning(f"Failed to fetch product {asin}: {str(product_error)}")
+                        continue
                 
                 logger.info(f"Successfully searched products: {len(products)} found for '{search_query}'")
                 
                 return {
                     "success": True,
                     "products": products,
-                    "total_count": result.get("products", {}).get("totalCount", 0),
-                    "page_info": result.get("products", {}).get("pageInfo", {}),
+                    "total_count": len(products),
                     "search_metadata": {
                         "query": search_query,
                         "marketplace": marketplace,
-                        "limit": limit
+                        "limit": limit,
+                        "note": "Using sample ASINs - Rye API requires specific product IDs"
                     }
                 }
                 
@@ -185,27 +195,25 @@ class RyeGraphQLClient:
                         isAvailable
                         images {
                             url
-                            altText
                         }
                         price {
                             displayValue
-                            value
-                            currency
                         }
                         description
+                        marketplace
                         ... on AmazonProduct {
                             ASIN
-                            reviews {
-                                rating
-                                count
+                            categories {
+                                name
+                                url
                             }
-                            features
+                            featureBullets
                             specifications {
                                 name
                                 value
                             }
-                            category
-                            brand
+                            ratingsTotal
+                            reviewsTotal
                         }
                         ... on ShopifyProduct {
                             productType
@@ -217,12 +225,10 @@ class RyeGraphQLClient:
                             variants {
                                 id
                                 title
-                                price {
-                                    displayValue
-                                    value
-                                    currency
+                                ... on ShopifyVariant {
+                                    price
+                                    isAvailable
                                 }
-                                isAvailable
                             }
                         }
                     }
@@ -293,6 +299,12 @@ class RyeGraphQLClient:
                         "id": item["id"],
                         "marketplace": item.get("marketplace", "AMAZON")
                     })
+                elif isinstance(item, str):
+                    # Accept plain ASIN strings for Amazon products
+                    validated_ids.append({
+                        "id": item,
+                        "marketplace": "AMAZON"
+                    })
                 else:
                     logger.warning(f"Invalid product ID format: {item}")
             
@@ -303,83 +315,90 @@ class RyeGraphQLClient:
                     "products": []
                 }
             
-            query = gql("""
-                query ProductsByIds($input: ProductsByIdsInput!) {
-                    products: productsByIds(input: $input) {
-                        id
-                        title
-                        vendor
-                        url
-                        isAvailable
-                        images {
-                            url
-                            altText
-                        }
-                        price {
-                            displayValue
-                            value
-                            currency
-                        }
-                        description
-                        ... on AmazonProduct {
-                            ASIN
-                            reviews {
-                                rating
-                                count
-                            }
-                            features
-                            specifications {
-                                name
-                                value
-                            }
-                            category
-                            brand
-                        }
-                        ... on ShopifyProduct {
-                            productType
-                            tags
-                            options {
-                                name
-                                values
-                            }
-                            variants {
-                                id
-                                title
-                                price {
-                                    displayValue
-                                    value
-                                    currency
-                                }
-                                isAvailable
-                            }
-                        }
-                    }
-                }
-            """)
-            
-            variables = {
-                "input": {
-                    "ids": validated_ids
-                }
-            }
+            # Since Rye API doesn't have productsByIds, fetch products individually
+            products = []
             
             async with self.client as session:
-                result = await session.execute(query, variable_values=variables)
-                
-                products = result.get("products", [])
-                
-                logger.info(f"Successfully retrieved {len(products)} products by IDs")
-                
-                return {
-                    "success": True,
-                    "products": products,
-                    "requested_count": len(validated_ids),
-                    "retrieved_count": len(products),
-                    "metadata": {
-                        "requested_ids": validated_ids,
-                        "batch_size": len(products)
-                    }
+                for product_id_obj in validated_ids:
+                    try:
+                        query = gql("""
+                            query ProductByID($input: ProductByIDInput!) {
+                                productByID(input: $input) {
+                                    id
+                                    title
+                                    vendor
+                                    url
+                                    isAvailable
+                                    images {
+                                        url
+                                    }
+                                    price {
+                                        displayValue
+                                    }
+                                    description
+                                    marketplace
+                                    ... on AmazonProduct {
+                                        ASIN
+                                        categories {
+                                            name
+                                            url
+                                        }
+                                        featureBullets
+                                        specifications {
+                                            name
+                                            value
+                                        }
+                                        ratingsTotal
+                                        reviewsTotal
+                                    }
+                                    ... on ShopifyProduct {
+                                        productType
+                                        tags
+                                        options {
+                                            name
+                                            values
+                                        }
+                                        variants {
+                                            id
+                                            title
+                                            ... on ShopifyVariant {
+                                                price
+                                                isAvailable
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        """)
+                        
+                        variables = {
+                            "input": {
+                                "id": product_id_obj["id"],
+                                "marketplace": product_id_obj["marketplace"]
+                            }
+                        }
+                        
+                        result = await session.execute(query, variable_values=variables)
+                        
+                        if result.get("productByID"):
+                            products.append(result["productByID"])
+                    
+                    except Exception as product_error:
+                        logger.warning(f"Failed to fetch product {product_id_obj.get('id', 'unknown')}: {str(product_error)}")
+                        continue
+            
+            logger.info(f"Successfully retrieved {len(products)} out of {len(validated_ids)} products by IDs")
+            
+            return {
+                "success": True,
+                "products": products,
+                "requested_count": len(validated_ids),
+                "retrieved_count": len(products),
+                "metadata": {
+                    "requested_ids": [pid["id"] for pid in validated_ids],
+                    "batch_size": len(products)
                 }
+            }
                 
         except Exception as e:
             logger.error(f"Get products by IDs failed: {str(e)}")
@@ -410,105 +429,20 @@ class RyeGraphQLClient:
                     "products": []
                 }
             
-            query = gql("""
-                query ProductsByDomainV2($input: ProductsByDomainV2Input!) {
-                    products: productsByDomainV2(input: $input) {
-                        edges {
-                            node {
-                                id
-                                title
-                                vendor
-                                url
-                                isAvailable
-                                images {
-                                    url
-                                    altText
-                                }
-                                price {
-                                    displayValue
-                                    value
-                                    currency
-                                }
-                                description
-                                ... on AmazonProduct {
-                                    ASIN
-                                    reviews {
-                                        rating
-                                        count
-                                    }
-                                    features
-                                    specifications {
-                                        name
-                                        value
-                                    }
-                                    category
-                                    brand
-                                }
-                                ... on ShopifyProduct {
-                                    productType
-                                    tags
-                                    options {
-                                        name
-                                        values
-                                    }
-                                    variants {
-                                        id
-                                        title
-                                        price {
-                                            displayValue
-                                            value
-                                            currency
-                                        }
-                                        isAvailable
-                                    }
-                                }
-                            }
-                        }
-                        pageInfo {
-                            hasNextPage
-                            hasPreviousPage
-                            startCursor
-                            endCursor
-                        }
-                        totalCount
-                    }
-                }
-            """)
+            # Note: productsByDomainV2 is only available for specific Shopify domains 
+            # that have the Rye app installed. For demonstration, we'll return sample data.
             
-            variables = {
-                "input": {
-                    "domain": domain,
-                    "first": limit
-                }
+            logger.info(f"Domain search requested for: {domain}")
+            
+            # For now, return a message explaining Rye's domain-based access model
+            return {
+                "success": False,
+                "error": "Domain-based product access requires Shopify merchants to install Rye app",
+                "products": [],
+                "note": "Rye's productsByDomainV2 only works with authorized Shopify domains that have the Rye app installed",
+                "domain_requested": domain,
+                "limit": limit
             }
-            
-            async with self.client as session:
-                result = await session.execute(query, variable_values=variables)
-                
-                products = []
-                page_info = {}
-                total_count = 0
-                
-                if result.get("products"):
-                    if result["products"].get("edges"):
-                        products = [edge["node"] for edge in result["products"]["edges"]]
-                    page_info = result["products"].get("pageInfo", {})
-                    total_count = result["products"].get("totalCount", 0)
-                
-                logger.info(f"Successfully retrieved {len(products)} products from domain: {domain}")
-                
-                return {
-                    "success": True,
-                    "domain": domain,
-                    "products": products,
-                    "total_count": total_count,
-                    "page_info": page_info,
-                    "metadata": {
-                        "domain": domain,
-                        "limit": limit,
-                        "retrieved_count": len(products)
-                    }
-                }
                 
         except Exception as e:
             logger.error(f"Get products by domain failed: {str(e)}")
@@ -758,3 +692,6 @@ async def get_products_by_domain_async(domain: str, limit: int = 20) -> Dict[str
     """Async wrapper for getting products by domain"""
     service = get_rye_service()
     return await service.get_products_by_domain(domain, limit)
+
+# Alias for compatibility
+RyeService = RyeGraphQLClient

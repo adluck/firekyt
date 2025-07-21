@@ -697,8 +697,15 @@ export const products = pgTable("products", {
   difficulty: integer("difficulty"), // SEO difficulty score
   
   // API source information
-  apiSource: varchar("api_source", { length: 50 }).notNull(), // 'amazon', 'cj', 'serp', etc.
+  apiSource: varchar("api_source", { length: 50 }).notNull(), // 'amazon', 'cj', 'serp', 'rye', etc.
+  marketplace: varchar("marketplace", { length: 50 }), // 'AMAZON', 'SHOPIFY', etc. for Rye products
   externalId: varchar("external_id", { length: 255 }),
+  ryeProductId: varchar("rye_product_id", { length: 255 }), // Rye-specific product ID
+  vendor: varchar("vendor", { length: 255 }), // Product vendor/seller from Rye
+  isAvailable: boolean("is_available").default(true), // Product availability status from Rye
+  features: jsonb("features"), // Product features array from Rye
+  specifications: jsonb("specifications"), // Product specifications from Rye
+  variants: jsonb("variants"), // Product variants for Shopify products from Rye
   lastUpdated: timestamp("last_updated").defaultNow(),
   
   // Metadata

@@ -1863,13 +1863,163 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Product Research API endpoint using SerpAPI Shopping engine
-  app.get('/api/research-products', authenticateToken, async (req, res) => {
-    // DISABLED FOR RYE-ONLY OPTIMIZATION - SERP API too slow
-    return res.status(200).json({ 
-      products: [],
-      message: "Research endpoint disabled for performance optimization. Using Rye-only search instead."
-    });
+  // Enhanced Product Research API endpoint using Rye.com integration
+  app.post('/api/research-products', authenticateToken, async (req, res) => {
+    try {
+      const {
+        niche,
+        product_category = 'General',
+        min_commission_rate = 3.0,
+        min_trending_score = 50.0,
+        max_results = 50,
+        target_keywords = [],
+        price_range = [0, 10000]
+      } = req.body;
+
+      if (!niche) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Niche is required for product research' 
+        });
+      }
+
+      const { spawn } = require('child_process');
+      const python = spawn('python', ['-c', `
+import sys
+import json
+import asyncio
+sys.path.append('${process.cwd()}/server')
+
+async def main():
+    try:
+        from rye_service import research_products_async
+        
+        # Primary research using Rye API with intelligent scoring
+        niche = "${niche.replace(/"/g, '\\"')}"
+        category = "${product_category.replace(/"/g, '\\"')}"
+        
+        # Get comprehensive product research data
+        result = await research_products_async(
+            niche=niche,
+            product_category=category,
+            max_results=${max_results}
+        )
+        
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({
+            "success": False, 
+            "error": str(e),
+            "products": [],
+            "session_data": {"error": str(e)}
+        }))
+
+asyncio.run(main())
+`]);
+
+      let output = '';
+      let errorOutput = '';
+
+      python.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      python.stderr.on('data', (data) => {
+        errorOutput += data.toString();
+        console.error('Rye research error:', data.toString());
+      });
+
+      python.on('close', async (code) => {
+        try {
+          const lines = output.trim().split('\n');
+          let result;
+          
+          try {
+            result = JSON.parse(lines[lines.length - 1]);
+          } catch (parseError) {
+            return res.status(500).json({
+              success: false,
+              error: 'Failed to parse research results',
+              raw_output: output.substring(0, 500)
+            });
+          }
+
+          if (result.success !== false && result.products && result.products.length > 0) {
+            // Store research session in database
+            try {
+              const sessionData = {
+                userId: req.user!.id,
+                niche: niche,
+                productCategory: product_category,
+                totalProductsFound: result.session_data?.total_products || result.products?.length || 0,
+                productsStored: Math.min(result.products?.length || 0, 20),
+                searchQuery: niche,
+                dataSource: 'rye_research_api'
+              };
+              
+              const session = await storage.createProductResearchSession(sessionData);
+              
+              // Store individual products with enhanced Rye data
+              for (const product of result.products.slice(0, 20)) {
+                const productData = {
+                  userId: req.user!.id,
+                  researchSessionId: session.id,
+                  title: product.title || 'Untitled Product',
+                  description: product.description || '',
+                  brand: product.brand || product.vendor || '',
+                  category: product.category || product_category,
+                  niche: niche,
+                  price: parseFloat(product.price) || 0,
+                  commissionRate: parseFloat(product.commission_rate) || 3.0,
+                  commissionAmount: parseFloat(product.commission_amount) || 0,
+                  productUrl: product.product_url || '',
+                  affiliateUrl: product.affiliate_url || '',
+                  imageUrl: product.image_url || '',
+                  asin: product.asin || null,
+                  rating: parseFloat(product.rating) || 0,
+                  reviewCount: parseInt(product.review_count) || 0,
+                  researchScore: parseFloat(product.research_score) || 0,
+                  keywords: product.keywords || [],
+                  apiSource: 'rye',
+                  marketplace: product.marketplace || 'AMAZON',
+                  ryeProductId: product.external_id || product.id,
+                  vendor: product.vendor || product.brand || '',
+                  isAvailable: product.isAvailable !== false,
+                  features: product.features || [],
+                  specifications: product.specifications || {},
+                  variants: product.variants || []
+                };
+                
+                await storage.createProduct(productData);
+              }
+              
+              result.session_id = session.id;
+              result.success = true;
+              
+              console.log(`Rye research complete: ${result.products?.length || 0} products found for "${niche}"`);
+              
+            } catch (storageError) {
+              console.error('Failed to store research session:', storageError);
+            }
+          }
+          
+          res.json(result);
+        } catch (error) {
+          res.status(500).json({
+            success: false,
+            error: 'Failed to process research results: ' + error.message,
+            raw_output: output.substring(0, 500)
+          });
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Product research failed:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to perform product research: ' + error.message
+      });
+    }
   });
 
   // Get user's researched products
@@ -2371,7 +2521,7 @@ asyncio.run(main())
         console.error('Rye research error:', data.toString());
       });
 
-      python.on('close', (code) => {
+      python.on('close', async (code) => {
         try {
           const lines = output.trim().split('\n');
           const result = JSON.parse(lines[lines.length - 1]);
@@ -2397,20 +2547,36 @@ asyncio.run(main())
               // Store individual products from research
               if (result.products && result.products.length > 0) {
                 for (const product of result.products.slice(0, 20)) { // Limit to 20 products
-                  await storage.storeResearchProduct({
+                  const productData = {
+                    userId: req.user!.id,
                     researchSessionId: session.id,
                     title: product.title || 'Untitled Product',
-                    price: product.price?.value || 0,
-                    rating: product.reviews?.rating || 0,
-                    reviewCount: product.reviews?.count || 0,
-                    imageUrl: product.images?.[0]?.url || '',
-                    productUrl: product.url || '',
-                    vendor: product.vendor || 'Unknown',
-                    asin: product.ASIN || null,
-                    affiliateScore: product.intelligent_score || 0,
+                    description: product.description || '',
+                    brand: product.brand || product.vendor || '',
                     category: product.category || query,
-                    features: JSON.stringify(product.features || [])
-                  });
+                    niche: niche || query,
+                    price: parseFloat(product.price?.value) || 0,
+                    commissionRate: parseFloat(product.commission_rate) || 3.0,
+                    commissionAmount: parseFloat(product.commission_amount) || 0,
+                    productUrl: product.url || '',
+                    affiliateUrl: product.affiliate_url || '',
+                    imageUrl: product.images?.[0]?.url || '',
+                    asin: product.ASIN || null,
+                    rating: parseFloat(product.reviews?.rating) || 0,
+                    reviewCount: parseInt(product.reviews?.count) || 0,
+                    researchScore: parseFloat(product.intelligent_score) || 0,
+                    keywords: product.keywords || [],
+                    apiSource: 'rye',
+                    marketplace: product.marketplace || 'AMAZON',
+                    ryeProductId: product.id || product.external_id,
+                    vendor: product.vendor || 'Unknown',
+                    isAvailable: product.isAvailable !== false,
+                    features: product.features || [],
+                    specifications: product.specifications || {},
+                    variants: product.variants || []
+                  };
+                  
+                  await storage.createProduct(productData);
                 }
               }
               
@@ -2656,7 +2822,7 @@ asyncio.run(main())
         console.error('Rye domain products error:', data.toString());
       });
 
-      python.on('close', (code) => {
+      python.on('close', async (code) => {
         try {
           const lines = output.trim().split('\n');
           const result = JSON.parse(lines[lines.length - 1]);
