@@ -1,7 +1,4 @@
 import { GraphQLClient, gql } from 'graphql-request';
-import { db } from '../db';
-import { ryeProducts } from '../../shared/schema';
-import { ilike, sql } from 'drizzle-orm';
 
 interface RyeProduct {
   id: string;
@@ -60,7 +57,7 @@ export class RyeService {
         input: { url }
       };
 
-      const data = await this.client.request(mutation, variables, this.getHeaders()) as any;
+      const data = await this.client.request(mutation, variables, this.getHeaders());
       return { productId: data.requestAmazonProductByURL.productId };
     } catch (error: any) {
       console.error('Rye requestProductByURL error:', error);
@@ -117,7 +114,7 @@ export class RyeService {
         }
       };
 
-      const data = await this.client.request(query, variables, this.getHeaders()) as any;
+      const data = await this.client.request(query, variables, this.getHeaders());
       return { product: data.product };
     } catch (error: any) {
       console.error('Rye getProductById error:', error);
@@ -125,70 +122,60 @@ export class RyeService {
     }
   }
 
-  // Search products using local database
+  // Search products by keyword
   async searchProducts(query: string, limit: number = 20): Promise<{ products: RyeProduct[]; error?: string }> {
     try {
-      console.log(`🔍 Searching local database for: "${query}" (limit: ${limit})`);
-      
-      // Split query into individual words for more flexible matching
-      const words = query.toLowerCase().split(' ').filter(word => word.length > 2);
-      console.log(`🔤 Search words: ${words.join(', ')}`);
-      
-      if (words.length === 0) {
-        return { products: [], error: 'Search query too short' };
-      }
-      
-      // Build dynamic search conditions for each word
-      let whereConditions = [];
-      for (const word of words) {
-        whereConditions.push(
-          sql`(${ilike(ryeProducts.title, `%${word}%`)} OR ${ilike(ryeProducts.category, `%${word}%`)})`
-        );
-      }
-      
-      // Combine all conditions with OR (match any word) and ensure active products
-      const finalCondition = sql`(${sql.join(whereConditions, sql` OR `)}) AND ${ryeProducts.isActive} = true`;
-      
-      const dbProducts = await db
-        .select()
-        .from(ryeProducts)
-        .where(finalCondition)
-        .limit(limit);
+      const searchQuery = gql`
+        query SearchProducts($input: ProductsInput!) {
+          products(input: $input) {
+            edges {
+              node {
+                id
+                title
+                vendor
+                url
+                isAvailable
+                images { url }
+                price { 
+                  displayValue 
+                  value 
+                  currency 
+                }
+                ... on AmazonProduct { 
+                  ASIN 
+                  reviews {
+                    rating
+                    count
+                  }
+                }
+                ... on ShopifyProduct { 
+                  productType 
+                }
+              }
+            }
+            pageInfo {
+              hasNextPage
+              hasPreviousPage
+            }
+          }
+        }
+      `;
 
-      console.log(`📦 Found ${dbProducts.length} products in local database`);
+      const variables = {
+        input: {
+          query,
+          first: limit,
+          marketplace: 'AMAZON' // Default to Amazon for better product coverage
+        }
+      };
 
-      // Convert database format to RyeProduct format
-      const products: RyeProduct[] = dbProducts.map(product => {
-        // Generate a placeholder image if no image URL is available
-        const placeholderImage = `https://via.placeholder.com/300x300/f97316/white?text=${encodeURIComponent(product.title?.substring(0, 20) || 'Product')}`;
-        const imageUrl = product.imageUrl || placeholderImage;
-        
-        return {
-          id: product.id,
-          title: product.title,
-          vendor: 'Local Database',
-          url: product.url,
-          isAvailable: product.isActive,
-          images: [{ url: imageUrl }], // Always provide at least one image
-          price: {
-            displayValue: product.price ? `${product.currencyCode} ${product.price}` : 'N/A',
-            value: product.price || 0,
-            currency: product.currencyCode
-          },
-          description: product.description || '',
-          productType: product.category || undefined,
-          category: product.category || '',
-          imageUrl: imageUrl // Add this for compatibility
-        };
-      });
-
+      const data = await this.client.request(searchQuery, variables, this.getHeaders());
+      const products = data.products.edges.map((edge: any) => edge.node);
+      
       return { products };
     } catch (error: any) {
-      console.error('Local database search error:', error);
-      return { 
-        products: [], 
-        error: `Database search failed: ${error.message}` 
-      };
+      console.error('Rye searchProducts error:', error);
+      return { products: [], error: error.message };
     }
   }
 
@@ -247,18 +234,14 @@ export class RyeService {
           min: Math.min(...prices),
           max: Math.max(...prices)
         },
-        topVendors: Array.from(new Set(products.map(p => p.vendor))).slice(0, 10)
+        topVendors: [...new Set(products.map(p => p.vendor))].slice(0, 10)
       } : undefined;
 
       // Add competitor analysis for each product
       const enhancedProducts = products.map(product => ({
         ...product,
         competitorAnalysis: {
-          priceRange: marketInsights?.priceRange ? { 
-            min: marketInsights.priceRange.min, 
-            max: marketInsights.priceRange.max, 
-            average: marketInsights.averagePrice 
-          } : { min: 0, max: 0, average: 0 },
+          priceRange: marketInsights?.priceRange || { min: 0, max: 0, average: 0 },
           topFeatures: [], // Could be enhanced with AI analysis
           reviewScores: [] // Could be populated from Amazon reviews
         }
@@ -271,46 +254,6 @@ export class RyeService {
     } catch (error: any) {
       console.error('Rye researchProduct error:', error);
       return { products: [], error: error.message };
-    }
-  }
-
-  // Helper method to determine if input is a URL or keyword
-  isUrl(input: string): boolean {
-    try {
-      new URL(input);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  // RYE API doesn't support direct search - it requires specific product URLs
-  // This method explains the limitation to users
-  async searchRyeAPI(query: string, limit: number = 20): Promise<{ products: RyeProduct[]; error?: string }> {
-    console.log(`🌐 Note: RYE API doesn't support keyword search for: "${query}"`);
-    console.log(`📝 RYE API only supports fetching specific products by URL using productByID`);
-    
-    return { 
-      products: [], 
-      error: 'RYE API only supports fetching specific products by URL, not keyword search. Please use a product URL instead.' 
-    };
-  }
-
-  // Unified search method that handles both URLs and keywords
-  async searchProductsUnified(query: string, limit: number = 20): Promise<{ products: RyeProduct[]; error?: string }> {
-    if (this.isUrl(query)) {
-      // Handle URL - use Rye API
-      console.log(`🔗 Processing URL: ${query}`);
-      const result = await this.getProductByAmazonURL(query);
-      if (result.error || !result.product) {
-        return { products: [], error: result.error || 'Failed to fetch product from URL' };
-      }
-      return { products: [result.product] };
-    } else {
-      // Handle keyword - use local database (RYE API doesn't support keyword search)
-      console.log(`🔍 Processing keyword: ${query}`);
-      console.log(`📋 Using local database with 8,098 products (RYE API only supports URL-based product fetching)`);
-      return await this.searchProducts(query, limit);
     }
   }
 

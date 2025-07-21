@@ -166,13 +166,13 @@ export default function ProductResearch() {
     enabled: activeTab === 'history'
   });
 
-  // Rye API Product Search
-  const { data: searchResults, isLoading: searchLoading, error: searchError } = useQuery({
-    queryKey: ['/api/rye/search-products', currentQuery],
+  // SerpAPI Product Search
+  const { data: searchResults, isLoading: searchLoading, error: searchError } = useQuery<ProductSearchResult>({
+    queryKey: ['/api/search-affiliate-products', currentQuery],
     queryFn: async () => {
-      const response = await apiRequest('POST', '/api/rye/search-products', { 
+      const response = await apiRequest('POST', '/api/search-affiliate-products', { 
         query: currentQuery,
-        limit: 20
+        category: 'general'
       });
       return response.json();
     },
@@ -236,21 +236,21 @@ export default function ProductResearch() {
   // Individual product save mutation
   const saveProductMutation = useMutation({
     mutationFn: async (product: any) => {
-      const productId = product.title + product.vendor; // Create unique ID using vendor instead of source
+      const productId = product.title + product.source; // Create unique ID
       setSavingProducts(prev => new Set(prev).add(productId));
       
       const response = await apiRequest('POST', '/api/products', {
         title: product.title,
-        description: product.description || product.title, // Use description if available, otherwise title
-        price: product.price?.value || 0,
-        productUrl: product.url || 'https://example.com/product',
-        imageUrl: product.images?.[0]?.url,
-        rating: product.reviews?.rating || 0,
-        reviewCount: product.reviews?.count || 0,
-        apiSource: 'rye_api',
-        brand: product.vendor, // Use vendor as brand
+        description: product.title, // Use title as description for now
+        price: parseFloat(product.price) || 0,
+        productUrl: product.link || 'https://example.com/product',
+        imageUrl: product.thumbnail,
+        rating: product.rating || 0,
+        reviewCount: product.reviews || 0,
+        apiSource: 'serpapi_shopping',
+        brand: product.source, // Use source as brand placeholder
         category: 'electronics',
-        niche: currentQuery || 'general'
+        niche: 'consumer_electronics'
       });
       return { result: response.json(), productId };
     },
@@ -267,7 +267,7 @@ export default function ProductResearch() {
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
     },
     onError: (error: any, product) => {
-      const productId = product.title + product.vendor;
+      const productId = product.title + product.source;
       setSavingProducts(prev => {
         const newSet = new Set(prev);
         newSet.delete(productId);
@@ -320,7 +320,7 @@ export default function ProductResearch() {
         averageScore: '0',
         status: 'completed',
         apiCallsMade: 1,
-        apiSources: ['rye_api'],
+        apiSources: ['serpapi'],
         researchDuration: 1000
       });
       
@@ -330,14 +330,14 @@ export default function ProductResearch() {
       if (results.products && results.products.length > 0) {
         const productsToSave = results.products.map((product: any) => ({
           title: product.title || 'Untitled Product',
-          description: product.description || product.title || 'No description',
-          price: product.price?.value || 0,
-          productUrl: product.url || '',
-          imageUrl: product.images?.[0]?.url || '',
-          rating: product.reviews?.rating || 0,
-          reviewCount: product.reviews?.count || 0,
-          apiSource: 'rye_api',
-          brand: product.vendor || 'Unknown',
+          description: product.title || 'No description',
+          price: parseFloat(product.price) || 0,
+          productUrl: product.link || '',
+          imageUrl: product.thumbnail || '',
+          rating: product.rating || 0,
+          reviewCount: product.reviews || 0,
+          apiSource: 'serpapi_shopping',
+          brand: product.source || 'Unknown',
           category: 'electronics',
           niche: query,
           researchSessionId: session.id
@@ -675,60 +675,84 @@ export default function ProductResearch() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Search className="w-5 h-5 mr-2" />
-                Rye API Product Access
+                Real-Time Product Search
               </CardTitle>
               <CardDescription>
-                Access individual products using specific URLs or Product IDs
+                Search for affiliate products using live market data from Google Shopping
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Alert className="mb-4">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription>
-                  <strong>Enhanced Search:</strong> Search using keywords (like "gaming headset" or "wireless mouse") to find products from our local database, or enter specific Amazon/Shopify URLs for detailed product information.
-                </AlertDescription>
-              </Alert>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="productUrl">Product Search (Keywords or URL)</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="productUrl"
-                      placeholder="Enter keywords (e.g., 'gaming headset') or product URL"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          setCurrentQuery(searchQuery);
-                        }
-                      }}
-                    />
-                    <Button 
-                      onClick={() => setCurrentQuery(searchQuery)}
-                      disabled={!searchQuery || searchLoading}
-                    >
-                      {searchLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Search className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
+              <div className="flex gap-2 mb-4">
+                <Input
+                  placeholder="Search for products (e.g., wireless headphones, fitness trackers)"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      setCurrentQuery(searchQuery);
+                    }
+                  }}
+                />
+                <Button 
+                  onClick={() => setCurrentQuery(searchQuery)}
+                  disabled={!searchQuery || searchLoading}
+                >
+                  {searchLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Search className="w-4 h-4" />
+                  )}
+                </Button>
               </div>
 
               {searchError && (
                 <Alert variant="destructive" className="mb-4">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    {searchError.message}
+                    Search failed: {searchError.message}
                   </AlertDescription>
                 </Alert>
               )}
 
               {searchResults && (
                 <div className="space-y-6">
+                  {/* Price Analysis Summary */}
+                  {searchResults.priceAnalysis && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Price Analysis</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-4 gap-4 text-center">
+                          <div>
+                            <div className="text-2xl font-bold text-green-600">
+                              ${searchResults.priceAnalysis.min.toFixed(2)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Min Price</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-blue-600">
+                              ${searchResults.priceAnalysis.average.toFixed(2)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Avg Price</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-red-600">
+                              ${searchResults.priceAnalysis.max.toFixed(2)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Max Price</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-purple-600">
+                              {searchResults.priceAnalysis.count}
+                            </div>
+                            <div className="text-sm text-muted-foreground">Products</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {/* Products Grid */}
                   {searchResults.products && searchResults.products.length > 0 && (
                     <Card>
@@ -744,9 +768,9 @@ export default function ProductResearch() {
                             <Card key={index} className="hover:shadow-md transition-shadow">
                               <CardContent className="p-4">
                                 <div className="flex flex-col h-full">
-                                  {product.images?.[0]?.url && (
+                                  {product.thumbnail && (
                                     <img 
-                                      src={product.images[0].url} 
+                                      src={product.thumbnail} 
                                       alt={product.title}
                                       className="w-full h-32 object-cover rounded-md mb-2"
                                     />
@@ -756,21 +780,21 @@ export default function ProductResearch() {
                                   </h3>
                                   <div className="flex items-center justify-between mb-2">
                                     <span className="text-lg font-bold text-green-600">
-                                      {product.price?.displayValue || 'N/A'}
+                                      ${product.price}
                                     </span>
-                                    {product.reviews?.rating > 0 && (
+                                    {product.rating > 0 && (
                                       <div className="flex items-center">
                                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                        <span className="text-sm ml-1">{product.reviews.rating}</span>
+                                        <span className="text-sm ml-1">{product.rating}</span>
                                       </div>
                                     )}
                                   </div>
                                   <div className="text-xs text-muted-foreground mb-2">
-                                    {product.vendor} • {product.reviews?.count || 0} reviews
+                                    {product.source} • {product.reviews} reviews
                                   </div>
-                                  {product.isAvailable !== undefined && (
-                                    <div className={`text-xs mb-2 ${product.isAvailable ? 'text-green-600' : 'text-red-600'}`}>
-                                      {product.isAvailable ? 'In Stock' : 'Out of Stock'}
+                                  {product.delivery && (
+                                    <div className="text-xs text-blue-600 mb-2">
+                                      {product.delivery}
                                     </div>
                                   )}
                                   <div className="mt-auto pt-2 space-y-2">
@@ -780,7 +804,7 @@ export default function ProductResearch() {
                                       className="w-full"
                                       onClick={() => {
                                         console.log('Product data:', product);
-                                        const url = product?.url;
+                                        const url = product?.link;
                                         console.log('Using URL:', url);
                                         if (url && url.trim()) {
                                           const fullUrl = url.startsWith('http') ? url : `https://${url}`;
@@ -790,7 +814,7 @@ export default function ProductResearch() {
                                           console.log('No valid URL found for product');
                                         }
                                       }}
-                                      disabled={!product?.url}
+                                      disabled={!product?.link}
                                     >
                                       <ExternalLink className="w-3 h-3 mr-1" />
                                       View Product
@@ -799,9 +823,9 @@ export default function ProductResearch() {
                                       size="sm" 
                                       className="w-full"
                                       onClick={() => saveProductMutation.mutate(product)}
-                                      disabled={savingProducts.has(product.title + product.vendor)}
+                                      disabled={savingProducts.has(product.title + product.source)}
                                     >
-                                      {savingProducts.has(product.title + product.vendor) ? (
+                                      {savingProducts.has(product.title + product.source) ? (
                                         <>
                                           <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                                           Saving...
@@ -823,7 +847,43 @@ export default function ProductResearch() {
                     </Card>
                   )}
 
-
+                  {/* Affiliate Opportunities */}
+                  {searchResults.affiliateOpportunities && searchResults.affiliateOpportunities.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <DollarSign className="w-5 h-5 mr-2" />
+                          Affiliate Opportunities
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {searchResults.affiliateOpportunities.map((opportunity: any, index: number) => (
+                            <div key={index} className="border rounded-lg p-3 hover:bg-muted/50">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-sm mb-1">{opportunity.title}</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">
+                                    {opportunity.snippet}
+                                  </p>
+                                  <Badge variant="secondary" className="text-xs">
+                                    Position #{opportunity.position}
+                                  </Badge>
+                                </div>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => window.open(opportunity.link, '_blank')}
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               )}
 

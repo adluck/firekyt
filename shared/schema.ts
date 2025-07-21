@@ -945,31 +945,6 @@ export const insertPlagiarismResultSchema = createInsertSchema(plagiarismResults
 export type PlagiarismResult = typeof plagiarismResults.$inferSelect;
 export type InsertPlagiarismResult = z.infer<typeof insertPlagiarismResultSchema>;
 
-// Rye Products Database - Local product catalog for search
-export const ryeProducts = pgTable("rye_products", {
-  id: text("id").primaryKey(), // Using Rye product ID as primary key
-  title: text("title").notNull(),
-  url: text("url").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }),
-  currencyCode: text("currency_code").notNull().default("USD"),
-  category: text("category"),
-  marketplace: text("marketplace").notNull().default("shopify"),
-  description: text("description"), // For additional details from API
-  imageUrl: text("image_url"), // For product images
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
-// Rye Products schemas
-export const insertRyeProductSchema = createInsertSchema(ryeProducts).omit({
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type RyeProduct = typeof ryeProducts.$inferSelect;
-export type InsertRyeProduct = z.infer<typeof insertRyeProductSchema>;
-
 // Subscription tier limits
 export const SUBSCRIPTION_LIMITS = {
   free: {

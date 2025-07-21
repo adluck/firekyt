@@ -7132,30 +7132,29 @@ async function generateAILinkSuggestions(params: {
 
       const { ryeService } = await import('./services/RyeService');
       
-      console.log(`🎯 API Search Request: "${query}" (limit: ${limit})`);
-      
-      // Use the new unified search method that automatically detects URLs vs keywords
-      const result = await ryeService.searchProductsUnified(query, limit);
-      
-      console.log(`📊 API Search Result: ${result.products?.length || 0} products found, error: ${result.error || 'none'}`);
-      
-      if (result.error) {
-        return res.status(400).json({ error: result.error });
+      if (!ryeService.isConfigured()) {
+        return res.status(500).json({ 
+          error: 'Rye service not configured', 
+          message: 'RYE_API_KEY environment variable is required' 
+        });
       }
 
-      console.log(`🔍 Unified search for "${query}": ${result.products.length} products found`);
+      const result = await ryeService.searchProducts(query, limit);
+      
+      if (result.error) {
+        return res.status(500).json({ error: result.error });
+      }
 
       res.json({
         success: true,
         query,
         products: result.products,
         totalResults: result.products.length,
-        source: ryeService.isUrl(query) ? 'rye_api' : 'local_database',
-        lookupType: ryeService.isUrl(query) ? 'url' : 'keyword'
+        source: 'rye_api'
       });
 
     } catch (error: any) {
-      console.error('Product search error:', error);
+      console.error('Rye search error:', error);
       res.status(500).json({ 
         error: 'Failed to search products',
         message: error.message 
@@ -7174,8 +7173,12 @@ async function generateAILinkSuggestions(params: {
 
       const { ryeService } = await import('./services/RyeService');
       
-      // Note: RYE_API_KEY is only needed for URL-based lookups
-      // Local database search works without API key
+      if (!ryeService.isConfigured()) {
+        return res.status(500).json({ 
+          error: 'Rye service not configured', 
+          message: 'RYE_API_KEY environment variable is required' 
+        });
+      }
 
       const result = await ryeService.researchProduct(keyword);
       

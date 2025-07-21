@@ -130,8 +130,6 @@ This is a comprehensive affiliate marketing SaaS platform built with React, Type
 
 ## Recent Changes
 
-✓ **FIXED: RYE API Integration Discovery** - Discovered RYE API doesn't support keyword search, only specific product URL fetching via productByID. Updated search system to rely on local database (8,098 products) for keywords and use RYE for specific URLs only
-✓ **ENHANCED: Local Database Search** - Fixed individual word matching instead of exact phrases, added placeholder images for products without images
 ✓ **COMPLETED: Publish Button Integration for AI Content Generator** - Successfully added publish buttons to both generated content and saved content areas with Send icon and proper navigation to publishing page
 ✓ Fixed Recent Activity section by adding missing userActivity table definition to schema
 ✓ Resolved authentication issues in API endpoints for proper JSON responses
