@@ -7839,16 +7839,18 @@ async function generateAILinkSuggestions(params: {
     }
   });
 
-  // Enhanced Product Research with Intelligent Scoring
+  // Live Product Research with Rye.com API Integration
   app.post('/api/rye/research-product', authenticateToken, async (req, res) => {
     try {
-      const { keyword } = req.body;
+      const { products: productInputs } = req.body;
       
-      if (!keyword) {
-        return res.status(400).json({ error: 'Keyword is required' });
+      if (!productInputs || !Array.isArray(productInputs) || productInputs.length === 0) {
+        return res.status(400).json({ 
+          error: 'Product inputs required', 
+          message: 'Please provide an array of products with URLs or ASINs'
+        });
       }
 
-      // Use the existing TypeScript RyeService for now to get basic functionality working
       if (!process.env.RYE_API_KEY) {
         return res.status(500).json({
           error: 'Configuration error',
@@ -7856,99 +7858,63 @@ async function generateAILinkSuggestions(params: {
         });
       }
 
-      // Note: Rye.com API doesn't support keyword search directly
-      // It requires specific product IDs or domain-based queries
-      // For now, we'll provide enhanced scoring with realistic product simulation
-      console.log(`Research request for keyword: ${keyword} - Using enhanced simulation`);
+      console.log(`🔍 Live Rye research request for ${productInputs.length} products`);
       
-      // Simulate realistic product results for demonstration
-      const simulatedProducts = [
-        {
-          id: `sim_${keyword.replace(/\s+/g, '_')}_1`,
-          title: `Premium ${keyword.charAt(0).toUpperCase() + keyword.slice(1)} - Professional Grade`,
-          vendor: 'TechBrand',
-          url: 'https://amazon.com/example-product-1',
-          isAvailable: true,
-          images: [{ url: 'https://via.placeholder.com/200x200/f97316/ffffff?text=Product+1' }],
-          price: { displayValue: '$89.99', value: 89.99, currency: 'USD' },
-          ASIN: 'B0ABC12345',
-          description: `High-quality ${keyword} with advanced features and excellent build quality.`
-        },
-        {
-          id: `sim_${keyword.replace(/\s+/g, '_')}_2`,
-          title: `Budget-Friendly ${keyword.charAt(0).toUpperCase() + keyword.slice(1)}`,
-          vendor: 'ValueTech',
-          url: 'https://amazon.com/example-product-2',
-          isAvailable: true,
-          images: [{ url: 'https://via.placeholder.com/200x200/ec4899/ffffff?text=Product+2' }],
-          price: { displayValue: '$34.99', value: 34.99, currency: 'USD' },
-          ASIN: 'B0XYZ67890',
-          description: `Affordable ${keyword} option with good value for money.`
-        },
-        {
-          id: `sim_${keyword.replace(/\s+/g, '_')}_3`,
-          title: `Luxury ${keyword.charAt(0).toUpperCase() + keyword.slice(1)} - Top Tier`,
-          vendor: 'PremiumBrand',
-          url: 'https://amazon.com/example-product-3',
-          isAvailable: true,
-          images: [{ url: 'https://via.placeholder.com/200x200/8b5cf6/ffffff?text=Product+3' }],
-          price: { displayValue: '$199.99', value: 199.99, currency: 'USD' },
-          ASIN: 'B0DEF24680',
-          description: `Premium ${keyword} with cutting-edge technology and superior performance.`
-        }
-      ];
-      
-      const result = { products: simulatedProducts };
+      // Use the enhanced RyeService to get real data
+      const { ryeService } = await import('./services/RyeService');
+      const result = await ryeService.researchProducts(productInputs);
 
-      // Add enhanced scoring simulation until Python integration is fixed
-      const enhancedProducts = result.products.map((product: any) => ({
-        ...product,
-        affiliate_score: Math.floor(Math.random() * 40) + 60, // 60-100 range
-        difficulty_assessment: ['Low Competition', 'Medium Difficulty', 'High Competition'][Math.floor(Math.random() * 3)],
-        affiliate_potential: ['High', 'Medium', 'Good'][Math.floor(Math.random() * 3)],
-        market_competitiveness: 'Moderate',
-        scoring_breakdown: {
-          availability_score: Math.floor(Math.random() * 5) + 10,
-          price_score: Math.floor(Math.random() * 8) + 12,
-          review_score: Math.floor(Math.random() * 8) + 12,
-          market_score: Math.floor(Math.random() * 5) + 10,
-          affiliate_score: Math.floor(Math.random() * 5) + 10,
-          data_score: Math.floor(Math.random() * 3) + 7,
-          brand_score: Math.floor(Math.random() * 3) + 7
-        }
-      }));
+      if (result.errors && result.errors.length > 0) {
+        console.warn('⚠️ Rye API partial errors:', result.errors);
+      }
 
-      const avgScore = enhancedProducts.reduce((sum: number, p: any) => sum + p.affiliate_score, 0) / enhancedProducts.length;
-      const highPotentialCount = enhancedProducts.filter((p: any) => p.affiliate_score >= 80).length;
+      const products = result.products;
+      const marketInsights = result.marketInsights;
 
-      res.json({
+      // Calculate summary statistics
+      const avgScore = products.length > 0 
+        ? products.reduce((sum: number, p: any) => sum + (p.affiliateScore || 0), 0) / products.length 
+        : 0;
+      const highPotentialCount = products.filter((p: any) => (p.affiliateScore || 0) >= 80).length;
+
+      // Format response for frontend compatibility
+      const response = {
         success: true,
-        keyword,
-        query: keyword,
-        products: enhancedProducts,
-        totalResults: enhancedProducts.length,
-        source: 'rye_api',
+        products: products.map((product: any) => ({
+          ...product,
+          affiliate_score: product.affiliateScore,
+          difficulty_assessment: product.difficultyAssessment,
+          affiliate_potential: product.affiliatePotential,
+          scoring_breakdown: product.scoringBreakdown
+        })),
+        totalResults: products.length,
+        source: 'rye_api_live',
         scoring: {
-          average_score: avgScore,
+          average_score: Math.round(avgScore * 10) / 10,
           high_potential_count: highPotentialCount,
-          market_competitiveness: 'Moderate Competition'
+          market_competitiveness: avgScore >= 80 ? 'Low Competition' : avgScore >= 65 ? 'Moderate Competition' : 'High Competition'
         },
         marketInsights: {
-          totalProducts: enhancedProducts.length,
-          averagePrice: enhancedProducts.reduce((sum: number, p: any) => sum + (p.price?.value || 0), 0) / enhancedProducts.length,
-          topVendors: [...new Set(enhancedProducts.map((p: any) => p.vendor))].slice(0, 3),
+          totalProducts: products.length,
+          averagePrice: marketInsights?.averagePrice || 0,
+          priceRange: marketInsights?.priceRange || { min: 0, max: 0 },
+          topVendors: marketInsights?.topVendors || [],
           scoring_summary: {
-            average_score: avgScore,
+            average_score: Math.round(avgScore * 10) / 10,
             high_potential_count: highPotentialCount,
-            market_competitiveness: 'Moderate Competition'
+            market_competitiveness: avgScore >= 80 ? 'Low Competition' : avgScore >= 65 ? 'Moderate Competition' : 'High Competition'
           }
-        }
-      });
+        },
+        errors: result.errors
+      };
+
+      console.log(`✅ Live Rye research completed: ${products.length} products, avg score: ${avgScore.toFixed(1)}`);
+      res.json(response);
 
     } catch (error: any) {
-      console.error('Enhanced research error:', error);
+      console.error('❌ Product research error:', error);
       res.status(500).json({ 
-        error: 'Failed to research product',
+        error: 'Failed to research products',
         message: error.message 
       });
     }
