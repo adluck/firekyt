@@ -135,7 +135,9 @@ export class RyeService {
                 vendor
                 url
                 isAvailable
-                images { url }
+                images { 
+                  url 
+                }
                 price { 
                   displayValue 
                   value 
@@ -143,19 +145,11 @@ export class RyeService {
                 }
                 ... on AmazonProduct { 
                   ASIN 
-                  reviews {
-                    rating
-                    count
-                  }
                 }
                 ... on ShopifyProduct { 
                   productType 
                 }
               }
-            }
-            pageInfo {
-              hasNextPage
-              hasPreviousPage
             }
           }
         }
@@ -165,12 +159,27 @@ export class RyeService {
         input: {
           query,
           first: limit,
-          marketplace: 'AMAZON' // Default to Amazon for better product coverage
+          marketplace: 'AMAZON'
         }
       };
 
-      const data = await this.client.request(searchQuery, variables, this.getHeaders());
-      const products = data.products.edges.map((edge: any) => edge.node);
+      const data: any = await this.client.request(searchQuery, variables, this.getHeaders());
+      const products = data.products.edges.map((edge: any) => ({
+        id: edge.node.id,
+        title: edge.node.title,
+        vendor: edge.node.vendor,
+        url: edge.node.url,
+        isAvailable: edge.node.isAvailable,
+        images: edge.node.images || [],
+        price: {
+          displayValue: edge.node.price?.displayValue || '$0.00',
+          value: edge.node.price?.value || 0,
+          currency: edge.node.price?.currency || 'USD'
+        },
+        ASIN: edge.node.ASIN || undefined,
+        productType: edge.node.productType || undefined,
+        description: edge.node.description || undefined
+      }));
       
       return { products };
     } catch (error: any) {
