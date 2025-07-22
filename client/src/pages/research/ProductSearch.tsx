@@ -4,11 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Search, Star, DollarSign, ExternalLink, TrendingUp, Target, Package, ShoppingCart, BarChart3, AlertCircle } from "lucide-react";
+import { Search, Star, DollarSign, ExternalLink, TrendingUp, Target, Package, ShoppingCart, BarChart3, AlertCircle, Filter, CheckCircle, XCircle, Clock, Store, Tag } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 // Enhanced Scoring Interfaces
@@ -69,7 +70,7 @@ interface RyeSearchResult {
   };
 }
 
-// Enhanced Product Card Component
+// Enhanced Product Card Component with Rye.com Integration
 function EnhancedProductCard({ product }: { product: RyeProduct }) {
   const affiliateScore = product.affiliate_score || 0;
   const scoringBreakdown = product.scoring_breakdown;
@@ -87,12 +88,21 @@ function EnhancedProductCard({ product }: { product: RyeProduct }) {
     return "from-red-500 to-red-600";
   };
 
+  // Determine marketplace from product data
+  const getMarketplace = () => {
+    if (product.ASIN) return { name: 'Amazon', color: 'bg-orange-100 text-orange-800', icon: '🛒' };
+    if (product.productType) return { name: 'Shopify', color: 'bg-green-100 text-green-800', icon: '🏪' };
+    return { name: 'Unknown', color: 'bg-gray-100 text-gray-800', icon: '📦' };
+  };
+
+  const marketplace = getMarketplace();
+
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow border-l-4 border-l-primary/20">
       <CardHeader className="pb-3">
         <div className="flex items-start gap-4">
           {product.images?.[0]?.url && (
-            <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+            <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0 border">
               <img
                 src={product.images[0].url}
                 alt={product.title}
@@ -104,14 +114,48 @@ function EnhancedProductCard({ product }: { product: RyeProduct }) {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-base line-clamp-2">{product.title}</CardTitle>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="secondary" className="text-xs">
+            <div className="flex items-start justify-between mb-2">
+              <CardTitle className="text-base line-clamp-2 flex-1">{product.title}</CardTitle>
+              <div className="flex items-center gap-1 ml-2">
+                {product.isAvailable ? (
+                  <Badge variant="default" className="bg-green-100 text-green-800 text-xs">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Available
+                  </Badge>
+                ) : (
+                  <Badge variant="destructive" className="text-xs">
+                    <XCircle className="w-3 h-3 mr-1" />
+                    Unavailable
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className={marketplace.color} variant="secondary">
+                <Store className="w-3 h-3 mr-1" />
+                {marketplace.name}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                <Tag className="w-3 h-3 mr-1" />
                 {product.vendor}
               </Badge>
-              <span className="text-lg font-semibold text-primary">
-                {product.price.displayValue}
-              </span>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl font-bold text-primary">
+                  {product.price.displayValue}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {product.price.currency}
+                </span>
+              </div>
+              {product.ASIN && (
+                <Badge variant="outline" className="text-xs font-mono">
+                  ASIN: {product.ASIN}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
@@ -243,6 +287,9 @@ function MarketResearchSummary({ searchResult }: { searchResult: RyeSearchResult
 export default function ProductSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentQuery, setCurrentQuery] = useState("");
+  const [marketplaceFilter, setMarketplaceFilter] = useState("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("relevance");
 
   // Rye.com Enhanced Research API
   const { 
@@ -259,6 +306,30 @@ export default function ProductSearch() {
     },
     enabled: !!currentQuery,
   });
+
+  // Filter and sort products based on user selections
+  const filteredProducts = ryeResearchResults?.products ? 
+    ryeResearchResults.products
+      .filter(product => {
+        if (marketplaceFilter === "amazon" && !product.ASIN) return false;
+        if (marketplaceFilter === "shopify" && !product.productType) return false;
+        if (availabilityFilter === "available" && !product.isAvailable) return false;
+        if (availabilityFilter === "unavailable" && product.isAvailable) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "price-low":
+            return a.price.value - b.price.value;
+          case "price-high":
+            return b.price.value - a.price.value;
+          case "score":
+            return (b.affiliate_score || 0) - (a.affiliate_score || 0);
+          default:
+            return 0;
+        }
+      })
+    : [];
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -351,37 +422,127 @@ export default function ProductSearch() {
           {/* Market Research Summary */}
           <MarketResearchSummary searchResult={ryeResearchResults} />
 
-          {/* Products Grid */}
-          {ryeResearchResults.products && ryeResearchResults.products.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">
-                  Enhanced Research Results ({ryeResearchResults.products.length})
-                </h3>
-                <Badge variant="outline">
-                  {ryeResearchResults.source} API
-                </Badge>
-              </div>
-              
-              <div className="grid gap-4">
-                {ryeResearchResults.products.map((product) => (
-                  <EnhancedProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Enhanced Filters and Controls */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                Filter & Sort Results
+              </CardTitle>
+              <CardDescription>
+                Refine your search results by marketplace, availability, and sorting preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Marketplace:</label>
+                  <Select value={marketplaceFilter} onValueChange={setMarketplaceFilter}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Platforms</SelectItem>
+                      <SelectItem value="amazon">
+                        <span className="flex items-center gap-2">
+                          🛒 Amazon
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="shopify">
+                        <span className="flex items-center gap-2">
+                          🏪 Shopify
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          {ryeResearchResults.products && ryeResearchResults.products.length === 0 && (
-            <Card>
-              <CardContent className="text-center py-12">
-                <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No products found</h3>
-                <p className="text-muted-foreground">
-                  Try searching for a different product category or keyword
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Availability:</label>
+                  <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Products</SelectItem>
+                      <SelectItem value="available">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle className="w-3 h-3 text-green-600" />
+                          Available
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="unavailable">
+                        <span className="flex items-center gap-2">
+                          <XCircle className="w-3 h-3 text-red-600" />
+                          Unavailable
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Sort by:</label>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="relevance">Relevance</SelectItem>
+                      <SelectItem value="score">Affiliate Score</SelectItem>
+                      <SelectItem value="price-low">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2 ml-auto">
+                  <Badge variant="secondary" className="text-sm">
+                    {filteredProducts.length} products found
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Real-time Data Status */}
+          <Alert className="border-green-200 bg-green-50 dark:bg-green-950 dark:border-green-800">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800 dark:text-green-200">
+              <strong>Live Data Source:</strong> Product information, pricing, and availability updated from real-time marketplace APIs.
+              {ryeResearchResults.source && ` Source: ${ryeResearchResults.source}`}
+            </AlertDescription>
+          </Alert>
+
+          {/* Enhanced Products Grid */}
+          <div className="space-y-4">
+            {filteredProducts.length > 0 ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">
+                    Product Results ({filteredProducts.length})
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="w-4 h-4" />
+                    Last updated: {new Date().toLocaleTimeString()}
+                  </div>
+                </div>
+                <div className="grid gap-4">
+                  {filteredProducts.map((product) => (
+                    <EnhancedProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg mb-2">No products match your filters</p>
+                <p className="text-sm">
+                  Try adjusting your marketplace, availability, or sorting preferences
                 </p>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
