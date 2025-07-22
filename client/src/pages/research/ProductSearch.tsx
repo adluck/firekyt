@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Search, Star, DollarSign, ExternalLink, TrendingUp, Target, Package, ShoppingCart, BarChart3, AlertCircle, Filter, CheckCircle, XCircle, Clock, Store, Tag, Plus, Trash2, Link } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -299,6 +300,8 @@ export default function ProductSearch() {
   const [marketplaceFilter, setMarketplaceFilter] = useState("all");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("relevance");
+  const [currentQuery, setCurrentQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Live Rye.com Research API with mutation
   const researchMutation = useMutation({
@@ -502,10 +505,10 @@ export default function ProductSearch() {
         </Alert>
       )}
 
-      {ryeResearchResults && (
+      {researchMutation.data && (
         <div className="space-y-6">
           {/* Market Research Summary */}
-          <MarketResearchSummary searchResult={ryeResearchResults} />
+          <MarketResearchSummary searchResult={researchMutation.data} />
 
           {/* Enhanced Filters and Controls */}
           <Card>
@@ -595,7 +598,7 @@ export default function ProductSearch() {
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800 dark:text-green-200">
               <strong>Live Data Source:</strong> Product information, pricing, and availability updated from real-time marketplace APIs.
-              {ryeResearchResults.source && ` Source: ${ryeResearchResults.source}`}
+              {researchMutation.data?.source && ` Source: ${researchMutation.data.source}`}
             </AlertDescription>
           </Alert>
 
@@ -631,27 +634,32 @@ export default function ProductSearch() {
         </div>
       )}
 
-      {!currentQuery && (
+      {!researchMutation.data && (
         <Card>
           <CardContent className="text-center py-12">
             <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">Start Your Product Research</h3>
             <p className="text-muted-foreground mb-4">
-              Enter a product keyword above to discover affiliate opportunities with enhanced AI scoring
+              Enter Amazon URLs or ASINs above to discover affiliate opportunities with enhanced AI scoring
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {["wireless headphones", "gaming keyboards", "fitness trackers", "smart home devices"].map((suggestion) => (
+              {[
+                "https://amazon.com/dp/B08N5WRWNW", 
+                "https://amazon.com/dp/B07Q6VN8WG", 
+                "https://amazon.com/dp/B0863TXGM3"
+              ].map((suggestion, index) => (
                 <Button
                   key={suggestion}
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setSearchQuery(suggestion);
-                    setCurrentQuery(suggestion);
+                    const newInputs = [...productInputs];
+                    newInputs[0] = { ...newInputs[0], url: suggestion };
+                    setProductInputs(newInputs);
                   }}
                   className="text-xs"
                 >
-                  {suggestion}
+                  Example Product {index + 1}
                 </Button>
               ))}
             </div>
