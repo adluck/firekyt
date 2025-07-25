@@ -4401,6 +4401,16 @@ asyncio.run(main())
       console.log(`AI Suggest Debug: Found ${userLinks.length} user links for matching`);
       console.log(`AI Suggest Debug: Keywords: ${JSON.stringify(keywords)}, Context: "${context}"`);
       
+      // Check if user has any intelligent links
+      if (userLinks.length === 0) {
+        return res.json({
+          success: true,
+          suggestions: [],
+          message: "No intelligent links found. Create some intelligent links first to get AI suggestions.",
+          needsLinks: true
+        });
+      }
+      
       // AI-powered link suggestion logic
       const suggestions = await generateAILinkSuggestions({
         contentId: parseInt(contentId),
@@ -4411,6 +4421,20 @@ asyncio.run(main())
       });
       
       console.log(`AI Suggest Debug: Generated ${suggestions.length} suggestions`);
+      
+      // Provide helpful feedback if no suggestions generated
+      if (suggestions.length === 0) {
+        return res.json({
+          success: true,
+          suggestions: [],
+          message: "No relevant links found for your content. Try adding keywords that match your intelligent links or create more specific links.",
+          debugInfo: {
+            totalLinks: userLinks.length,
+            keywordsProvided: keywords.length,
+            contentLength: context.length
+          }
+        });
+      }
 
       // Store suggestions in database
       const createdSuggestions = [];
@@ -4658,8 +4682,8 @@ async function generateAILinkSuggestions(params: {
       }
     }
     
-    // Only suggest links with reasonable confidence
-    if (confidence >= 25) {
+    // Only suggest links with reasonable confidence  
+    if (confidence >= 15) { // Lowered threshold for better suggestions
       suggestions.push({
         linkId: link.id,
         anchorText: link.title,
