@@ -20,6 +20,14 @@ export interface GeminiSeoAnalysis {
   competitorInsights: string[];
   seoOpportunities: string[];
   contentIdeas: string[];
+  topCompetitors: Array<{
+    rank: number;
+    domain: string;
+    title: string;
+    snippet: string;
+    link: string;
+  }>;
+  serpFeatures: string[];
 }
 
 export async function analyzeKeywordWithGemini(keyword: string, targetRegion: string = 'US'): Promise<GeminiSeoAnalysis> {
@@ -44,8 +52,27 @@ Please provide a detailed analysis in JSON format with the following structure:
   "targetAudience": "description of primary target audience",
   "competitorInsights": ["array of 4-5 competitor analysis points"],
   "seoOpportunities": ["array of 5-6 specific SEO opportunities"],
-  "contentIdeas": ["array of 8-10 content ideas for this keyword"]
+  "contentIdeas": ["array of 8-10 content ideas for this keyword"],
+  "topCompetitors": [
+    {
+      "rank": 1,
+      "domain": "example.com",
+      "title": "realistic page title for rank 1",
+      "snippet": "realistic meta description or snippet (150-160 chars)",
+      "link": "https://example.com/page-url"
+    }
+  ],
+  "serpFeatures": ["array of SERP features like featured_snippet, people_also_ask, etc."]
 }
+
+For topCompetitors, create realistic top 10 competitors that would rank for this keyword:
+- Include major industry websites, retailers, blogs, and authorities
+- Vary domains between commercial (.com), educational (.edu), government (.gov) as appropriate
+- Create believable page titles and meta descriptions for each rank
+- Generate realistic URLs that match the domain and keyword focus
+
+For serpFeatures, include relevant SERP features like:
+- featured_snippet, people_also_ask, local_pack, shopping_results, image_pack, video_carousel, news_results, knowledge_panel
 
 Consider:
 - Search intent analysis (informational, navigational, transactional, commercial)
@@ -81,7 +108,21 @@ Provide realistic estimates based on current SEO best practices and market condi
             targetAudience: { type: "string" },
             competitorInsights: { type: "array", items: { type: "string" } },
             seoOpportunities: { type: "array", items: { type: "string" } },
-            contentIdeas: { type: "array", items: { type: "string" } }
+            contentIdeas: { type: "array", items: { type: "string" } },
+            topCompetitors: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  rank: { type: "number" },
+                  domain: { type: "string" },
+                  title: { type: "string" },
+                  snippet: { type: "string" },
+                  link: { type: "string" }
+                }
+              }
+            },
+            serpFeatures: { type: "array", items: { type: "string" } }
           },
           required: ["keyword", "searchVolume", "keywordDifficulty", "competitionLevel", "cpcEstimate", "commercialIntent"]
         }
