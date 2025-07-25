@@ -86,19 +86,7 @@ const navigation = [
       { name: 'My Campaigns', href: '/my-ads', icon: Folder }
     ]
   },
-  { 
-    name: 'Research', 
-    href: '/research', 
-    icon: Search,
-    dataTour: 'research-nav',
-    submenu: [
-      { name: 'Niche Insights', href: '/research/niche', icon: Brain },
-      { name: 'Product Research', href: '/research', icon: Search },
-      { name: 'SEO Analysis', href: '/research/seo', icon: SearchCheck },
-      { name: 'Saved Analyses', href: '/research/seo-storage', icon: Database },
-      { name: 'Keyword Analytics', href: '/research/keywords', icon: Key }
-    ]
-  },
+
   { 
     name: 'Link Management', 
     href: '/links', 
@@ -134,6 +122,19 @@ const adminNavigation = [
   { name: 'CRM Dashboard', href: '/admin/crm', icon: Database },
   { name: 'Feedback Dashboard', href: '/admin/feedback', icon: MessageSquareMore },
   { name: 'Test Email', href: '/admin/test-email', icon: Mail },
+  { 
+    name: 'Research', 
+    href: '/research', 
+    icon: Search,
+    dataTour: 'research-nav',
+    submenu: [
+      { name: 'Niche Insights', href: '/research/niche', icon: Brain },
+      { name: 'Product Research', href: '/research', icon: Search },
+      { name: 'SEO Analysis', href: '/research/seo', icon: SearchCheck },
+      { name: 'Saved Analyses', href: '/research/seo-storage', icon: Database },
+      { name: 'Keyword Analytics', href: '/research/keywords', icon: Key }
+    ]
+  },
 ];
 
 export function Sidebar({ 
@@ -285,7 +286,7 @@ export function Sidebar({
                                     isSubActive && "bg-accent text-accent-foreground"
                                   )}
                                   onClick={() => {
-                                    setIsMobileOpen(false);
+                                    onMobileClose?.();
                                     setExpandedMenus([]);
                                   }}
                                 >
@@ -342,7 +343,7 @@ export function Sidebar({
                                 "nav-link text-sm ml-0",
                                 isSubActive && "active"
                               )}
-                              onClick={() => onMobileClose()}
+                              onClick={() => onMobileClose?.()}
                             >
                               <subItem.icon className="h-4 w-4" />
                               {subItem.name}
@@ -363,7 +364,7 @@ export function Sidebar({
                       isCollapsed ? "justify-center px-0" : "",
                       isActive && "active"
                     )}
-                    onClick={() => onMobileClose()}
+                    onClick={() => onMobileClose?.()}
                     title={isCollapsed ? item.name : undefined}
                     data-tour={item.dataTour}
                   >
@@ -383,7 +384,121 @@ export function Sidebar({
                   </div>
                 )}
                 {adminNavigation.map((item) => {
-                  const isActive = location === item.href;
+                  const isActive = location === item.href || 
+                    (item.href !== '/admin/crm' && location.startsWith(item.href));
+                  
+                  if (item.submenu) {
+                    const isExpanded = expandedMenus.includes(item.name) && !isCollapsed;
+                    const hasActiveSubmenu = item.submenu.some(subItem => location === subItem.href);
+                    
+                    if (isCollapsed) {
+                      // Collapsed state - show dropdown menu on hover/click
+                      return (
+                        <div key={item.name} className="relative group">
+                          <button 
+                            className={cn(
+                              "nav-link w-full justify-center px-0",
+                              (isActive || hasActiveSubmenu) && "active"
+                            )}
+                            onClick={() => toggleMenu(item.name)}
+                            title={item.name}
+                            data-tour={item.dataTour}
+                          >
+                            <item.icon className="h-5 w-5" />
+                          </button>
+                          
+                          {/* Dropdown menu for collapsed state */}
+                          <div className={cn(
+                            "absolute left-full top-0 ml-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50",
+                            expandedMenus.includes(item.name) ? "block" : "hidden"
+                          )}>
+                            <div className="py-2">
+                              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                {item.name}
+                              </div>
+                              {item.submenu.map((subItem) => {
+                                const isSubActive = location === subItem.href;
+                                return (
+                                  <WouterLink 
+                                    key={subItem.name} 
+                                    href={subItem.href}
+                                    className="no-underline"
+                                  >
+                                    <div 
+                                      className={cn(
+                                        "flex items-center gap-3 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer",
+                                        isSubActive && "bg-accent text-accent-foreground"
+                                      )}
+                                      onClick={() => {
+                                        onMobileClose?.();
+                                        setExpandedMenus([]);
+                                      }}
+                                    >
+                                      <subItem.icon className="h-4 w-4" />
+                                      {subItem.name}
+                                    </div>
+                                  </WouterLink>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    // Expanded state - original behavior
+                    return (
+                      <div key={item.name}>
+                        <button 
+                          className={cn(
+                            "nav-link w-full justify-between",
+                            (isActive || hasActiveSubmenu) && "active"
+                          )}
+                          onClick={() => toggleMenu(item.name)}
+                          data-tour={item.dataTour}
+                        >
+                          <div className="flex items-center gap-3">
+                            <item.icon className="h-5 w-5" />
+                            <span>{item.name}</span>
+                          </div>
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </button>
+                        <div 
+                          className={cn(
+                            "ml-8 overflow-hidden transition-all duration-200",
+                            isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                          )}
+                          style={{display: 'flex', flexDirection: 'column', gap: '4px'}}
+                        >
+                          {item.submenu.map((subItem) => {
+                            const isSubActive = location === subItem.href;
+                            return (
+                              <WouterLink 
+                                key={subItem.name} 
+                                href={subItem.href}
+                                className="no-underline"
+                              >
+                                <div 
+                                  className={cn(
+                                    "nav-link text-sm ml-0",
+                                    isSubActive && "active"
+                                  )}
+                                  onClick={() => onMobileClose?.()}
+                                >
+                                  <subItem.icon className="h-4 w-4" />
+                                  {subItem.name}
+                                </div>
+                              </WouterLink>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
                   
                   return (
                     <WouterLink key={item.name} href={item.href}>
@@ -393,7 +508,7 @@ export function Sidebar({
                           isCollapsed ? "justify-center px-0" : "",
                           isActive && "active"
                         )}
-                        onClick={() => onMobileClose()}
+                        onClick={() => onMobileClose?.()}
                         title={isCollapsed ? item.name : undefined}
                       >
                         <item.icon className="h-5 w-5" />
