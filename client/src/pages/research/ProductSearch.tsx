@@ -13,27 +13,27 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Search, Star, DollarSign, ExternalLink, TrendingUp, Target, Package, ShoppingCart, BarChart3, AlertCircle, Filter, CheckCircle, XCircle, Clock, Store, Tag, Plus, Trash2, Link } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
-// Enhanced Scoring Interfaces
-interface RyeProduct {
+// SERP API Product Research Interfaces
+interface ProductData {
   id: string;
   title: string;
-  vendor: string;
+  brand?: string;
   url: string;
-  isAvailable: boolean;
-  images: Array<{ url: string }>;
-  price: {
-    displayValue: string;
+  price?: {
     value: number;
     currency: string;
+    displayValue: string;
   };
-  ASIN?: string;
-  productType?: string;
+  image_url?: string;
   description?: string;
-  // Enhanced scoring fields
+  source?: string;
+  // Enhanced AI scoring fields
   affiliate_score?: number;
   difficulty_assessment?: string;
   affiliate_potential?: string;
   market_competitiveness?: string;
+  trending_score?: number;
+  commission_rate?: number;
   scoring_breakdown?: {
     availability_score: number;
     price_score: number;
@@ -45,11 +45,17 @@ interface RyeProduct {
   };
 }
 
-interface RyeSearchResult {
+interface SearchResult {
   success: boolean;
   query?: string;
   keyword?: string;
-  products: RyeProduct[];
+  products: ProductData[];
+  session_data?: {
+    research_duration_ms: number;
+    api_calls: number;
+    api_sources: string[];
+    total_products_found: number;
+  };
   marketInsights?: {
     totalProducts: number;
     averagePrice: number;
@@ -71,8 +77,8 @@ interface RyeSearchResult {
   };
 }
 
-// Enhanced Product Card Component with Rye.com Integration
-function EnhancedProductCard({ product }: { product: RyeProduct }) {
+// Enhanced Product Card Component with SERP API Integration
+function EnhancedProductCard({ product }: { product: ProductData }) {
   const affiliateScore = product.affiliate_score || 0;
   const scoringBreakdown = product.scoring_breakdown;
   
@@ -91,9 +97,10 @@ function EnhancedProductCard({ product }: { product: RyeProduct }) {
 
   // Determine marketplace from product data
   const getMarketplace = () => {
-    if (product.ASIN) return { name: 'Amazon', color: 'bg-orange-100 text-orange-800', icon: '🛒' };
-    if (product.productType) return { name: 'Shopify', color: 'bg-green-100 text-green-800', icon: '🏪' };
-    return { name: 'Unknown', color: 'bg-gray-100 text-gray-800', icon: '📦' };
+    if (product.source?.includes('amazon')) return { name: 'Amazon', color: 'bg-orange-100 text-orange-800', icon: '🛒' };
+    if (product.source?.includes('walmart')) return { name: 'Walmart', color: 'bg-blue-100 text-blue-800', icon: '🏪' };
+    if (product.source?.includes('ebay')) return { name: 'eBay', color: 'bg-yellow-100 text-yellow-800', icon: '🛍️' };
+    return { name: product.source || 'Online Store', color: 'bg-gray-100 text-gray-800', icon: '📦' };
   };
 
   const marketplace = getMarketplace();
@@ -102,10 +109,10 @@ function EnhancedProductCard({ product }: { product: RyeProduct }) {
     <Card className="hover:shadow-md transition-shadow border-l-4 border-l-primary/20">
       <CardHeader className="pb-3">
         <div className="flex items-start gap-4">
-          {product.images?.[0]?.url && (
+          {product.image_url && (
             <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0 border">
               <img
-                src={product.images[0].url}
+                src={product.image_url}
                 alt={product.title}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -118,7 +125,7 @@ function EnhancedProductCard({ product }: { product: RyeProduct }) {
             <div className="flex items-start justify-between mb-2">
               <CardTitle className="text-base line-clamp-2 flex-1">{product.title}</CardTitle>
               <div className="flex items-center gap-1 ml-2">
-                {product.isAvailable ? (
+                {product.price ? (
                   <Badge variant="default" className="bg-green-100 text-green-800 text-xs">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Available
@@ -126,7 +133,7 @@ function EnhancedProductCard({ product }: { product: RyeProduct }) {
                 ) : (
                   <Badge variant="destructive" className="text-xs">
                     <XCircle className="w-3 h-3 mr-1" />
-                    Unavailable
+                    Price Unavailable
                   </Badge>
                 )}
               </div>
@@ -137,16 +144,18 @@ function EnhancedProductCard({ product }: { product: RyeProduct }) {
                 <Store className="w-3 h-3 mr-1" />
                 {marketplace.name}
               </Badge>
-              <Badge variant="outline" className="text-xs">
-                <Tag className="w-3 h-3 mr-1" />
-                {product.vendor}
-              </Badge>
+              {product.brand && (
+                <Badge variant="outline" className="text-xs">
+                  <Tag className="w-3 h-3 mr-1" />
+                  {product.brand}
+                </Badge>
+              )}
             </div>
             
             <div className="flex items-center justify-between">
               <div className="flex items-baseline gap-2">
                 <span className="text-xl font-bold text-primary">
-                  {product.price.displayValue}
+                  {product.price?.displayValue || product.price?.value ? `$${product.price.value}` : 'Price not available'}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {product.price.currency}
@@ -241,7 +250,7 @@ function EnhancedProductCard({ product }: { product: RyeProduct }) {
 }
 
 // Market Research Summary Component
-function MarketResearchSummary({ searchResult }: { searchResult: RyeSearchResult }) {
+function MarketResearchSummary({ searchResult }: { searchResult: SearchResult }) {
   const scoring = searchResult.scoring || searchResult.marketInsights?.scoring_summary;
   
   if (!scoring) return null;
@@ -285,92 +294,59 @@ function MarketResearchSummary({ searchResult }: { searchResult: RyeSearchResult
   );
 }
 
-// Product input interface
-interface ProductInput {
-  id: string;
-  url: string;
-  asin?: string;
-  title?: string;
-}
+
 
 export default function ProductSearch() {
-  const [productInputs, setProductInputs] = useState<ProductInput[]>([
-    { id: '1', url: '', asin: '', title: '' }
-  ]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentQuery, setCurrentQuery] = useState("");
   const [marketplaceFilter, setMarketplaceFilter] = useState("all");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("relevance");
-  const [currentQuery, setCurrentQuery] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
 
-  // Live Rye.com Research API with mutation
+  // SERP API Research with mutation
   const researchMutation = useMutation({
-    mutationFn: async (inputs: ProductInput[]) => {
-      const validInputs = inputs.filter(input => input.url.trim() || input.asin?.trim());
-      if (validInputs.length === 0) {
-        throw new Error('Please provide at least one Amazon URL or ASIN');
+    mutationFn: async (query: string) => {
+      if (!query.trim()) {
+        throw new Error('Please enter a search keyword or product name');
       }
 
-      const products = validInputs.map(input => ({
-        url: input.url.trim() || (input.asin ? `https://amazon.com/dp/${input.asin.trim()}` : ''),
-        asin: input.asin?.trim() || extractASINFromURL(input.url.trim()),
-        title: input.title?.trim()
-      }));
-
-      const response = await apiRequest('POST', '/api/rye/research-product', { 
-        products 
+      const response = await apiRequest('POST', '/api/research-products', { 
+        niche: query.trim(),
+        max_results: 20,
+        min_commission_rate: 3.0,
+        min_trending_score: 50.0
       });
       return await response.json();
     }
   });
 
-  // Extract ASIN from Amazon URL
-  const extractASINFromURL = (url: string): string => {
-    if (!url) return '';
-    const asinMatch = url.match(/\/([A-Z0-9]{10})(?:[/?]|$)/);
-    return asinMatch ? asinMatch[1] : '';
+  const handleSearch = () => {
+    setCurrentQuery(searchQuery);
+    researchMutation.mutate(searchQuery);
   };
 
-  // Add new product input
-  const addProductInput = () => {
-    setProductInputs([...productInputs, { 
-      id: Date.now().toString(), 
-      url: '', 
-      asin: '', 
-      title: '' 
-    }]);
-  };
-
-  // Remove product input
-  const removeProductInput = (id: string) => {
-    if (productInputs.length > 1) {
-      setProductInputs(productInputs.filter(input => input.id !== id));
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
-  };
-
-  // Update product input
-  const updateProductInput = (id: string, field: keyof ProductInput, value: string) => {
-    setProductInputs(productInputs.map(input => 
-      input.id === id ? { ...input, [field]: value } : input
-    ));
   };
 
   // Filter and sort products based on user selections
   const filteredProducts = researchMutation.data?.products ? 
     researchMutation.data.products
       .filter(product => {
-        if (marketplaceFilter === "amazon" && !product.ASIN) return false;
-        if (marketplaceFilter === "shopify" && !product.productType) return false;
-        if (availabilityFilter === "available" && !product.isAvailable) return false;
-        if (availabilityFilter === "unavailable" && product.isAvailable) return false;
+        if (marketplaceFilter === "amazon" && !product.source?.includes('amazon')) return false;
+        if (marketplaceFilter === "walmart" && !product.source?.includes('walmart')) return false;
+        if (availabilityFilter === "available" && !product.price) return false;
+        if (availabilityFilter === "unavailable" && product.price) return false;
         return true;
       })
       .sort((a, b) => {
         switch (sortBy) {
           case "price-low":
-            return a.price.value - b.price.value;
+            return (a.price?.value || 0) - (b.price?.value || 0);
           case "price-high":
-            return b.price.value - a.price.value;
+            return (b.price?.value || 0) - (a.price?.value || 0);
           case "score":
             return (b.affiliate_score || 0) - (a.affiliate_score || 0);
           default:
@@ -379,88 +355,36 @@ export default function ProductSearch() {
       })
     : [];
 
-  const handleResearch = () => {
-    researchMutation.mutate(productInputs);
-  };
-
   return (
     <div className="space-y-6">
-      {/* Product Input Interface */}
+      {/* Keyword Search Interface */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Link className="w-5 h-5" />
-            Live Product Research
+            <Search className="w-5 h-5" />
+            Product Research with SERP API
           </CardTitle>
           <CardDescription>
-            Research specific Amazon products using URLs or ASINs with real-time Rye.com data
+            Search for affiliate products using keywords with intelligent AI scoring and market analysis
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {productInputs.map((input, index) => (
-            <div key={input.id} className="space-y-3 p-4 border rounded-lg">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium text-sm">Product {index + 1}</h4>
-                {productInputs.length > 1 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeProductInput(input.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Amazon URL</label>
-                  <Input
-                    placeholder="https://amazon.com/dp/B123456789"
-                    value={input.url}
-                    onChange={(e) => updateProductInput(input.id, 'url', e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">ASIN (Alternative)</label>
-                  <Input
-                    placeholder="B123456789"
-                    value={input.asin || ''}
-                    onChange={(e) => updateProductInput(input.id, 'asin', e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Product Title (Optional)</label>
-                <Input
-                  placeholder="Product name for reference..."
-                  value={input.title || ''}
-                  onChange={(e) => updateProductInput(input.id, 'title', e.target.value)}
-                />
-              </div>
-            </div>
-          ))}
-          
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={addProductInput}
-              className="flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Product
-            </Button>
-            
+            <Input
+              placeholder="Enter product keywords (e.g., wireless headphones, gaming keyboards)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="flex-1"
+            />
             <Button 
-              onClick={handleResearch} 
-              disabled={researchMutation.isPending}
-              className="px-6"
+              onClick={handleSearch} 
+              disabled={researchMutation.isPending || !searchQuery.trim()}
+              className="whitespace-nowrap"
             >
               {researchMutation.isPending ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
                   Researching...
                 </>
               ) : (
@@ -634,32 +558,28 @@ export default function ProductSearch() {
         </div>
       )}
 
-      {!researchMutation.data && (
+      {!currentQuery && (
         <Card>
           <CardContent className="text-center py-12">
             <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">Start Your Product Research</h3>
             <p className="text-muted-foreground mb-4">
-              Enter Amazon URLs or ASINs above to discover affiliate opportunities with enhanced AI scoring
+              Enter product keywords above to discover affiliate opportunities with enhanced AI scoring
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {[
-                "https://amazon.com/dp/B08N5WRWNW", 
-                "https://amazon.com/dp/B07Q6VN8WG", 
-                "https://amazon.com/dp/B0863TXGM3"
-              ].map((suggestion, index) => (
+              {["wireless headphones", "gaming keyboards", "fitness trackers", "smart home devices"].map((suggestion) => (
                 <Button
                   key={suggestion}
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    const newInputs = [...productInputs];
-                    newInputs[0] = { ...newInputs[0], url: suggestion };
-                    setProductInputs(newInputs);
+                    setSearchQuery(suggestion);
+                    setCurrentQuery(suggestion);
+                    researchMutation.mutate(suggestion);
                   }}
                   className="text-xs"
                 >
-                  Example Product {index + 1}
+                  {suggestion}
                 </Button>
               ))}
             </div>

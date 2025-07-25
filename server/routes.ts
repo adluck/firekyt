@@ -1892,17 +1892,21 @@ sys.path.append('${process.cwd()}/server')
 
 async def main():
     try:
-        from rye_service import research_products_async
+        from product_research_engine import research_products_async
         
-        # Primary research using Rye API with intelligent scoring
+        # Primary research using SERP API with intelligent scoring
         niche = "${niche.replace(/"/g, '\\"')}"
         category = "${product_category.replace(/"/g, '\\"')}"
         
-        # Get comprehensive product research data
+        # Get comprehensive product research data using SERP API
         result = await research_products_async(
             niche=niche,
             product_category=category,
-            max_results=${max_results}
+            min_commission_rate=${min_commission_rate || 3.0},
+            min_trending_score=${min_trending_score || 50.0},
+            max_results=${max_results},
+            target_keywords=${JSON.stringify(target_keywords || [])},
+            price_range=[${price_range[0] || 0}, ${price_range[1] || 10000}]
         )
         
         print(json.dumps(result))
@@ -1926,7 +1930,7 @@ asyncio.run(main())
 
       python.stderr.on('data', (data) => {
         errorOutput += data.toString();
-        console.error('Rye research error:', data.toString());
+        console.error('SERP API research error:', data.toString());
       });
 
       python.on('close', async (code) => {
@@ -1954,12 +1958,12 @@ asyncio.run(main())
                 totalProductsFound: result.session_data?.total_products || result.products?.length || 0,
                 productsStored: Math.min(result.products?.length || 0, 20),
                 searchQuery: niche,
-                dataSource: 'rye_research_api'
+                dataSource: 'serp_api_research'
               };
               
               const session = await storage.createProductResearchSession(sessionData);
               
-              // Store individual products with enhanced Rye data
+              // Store individual products with SERP API data
               for (const product of result.products.slice(0, 20)) {
                 const productData = {
                   userId: req.user!.id,
@@ -1969,20 +1973,19 @@ asyncio.run(main())
                   brand: product.brand || product.vendor || '',
                   category: product.category || product_category,
                   niche: niche,
-                  price: parseFloat(product.price) || 0,
+                  price: parseFloat(product.price?.value || product.price) || 0,
                   commissionRate: parseFloat(product.commission_rate) || 3.0,
                   commissionAmount: parseFloat(product.commission_amount) || 0,
-                  productUrl: product.product_url || '',
+                  productUrl: product.product_url || product.link || '',
                   affiliateUrl: product.affiliate_url || '',
-                  imageUrl: product.image_url || '',
-                  asin: product.asin || null,
+                  imageUrl: product.image_url || product.thumbnail || '',
+                  asin: product.asin || product.ASIN || null,
                   rating: parseFloat(product.rating) || 0,
-                  reviewCount: parseInt(product.review_count) || 0,
-                  researchScore: parseFloat(product.research_score) || 0,
+                  reviewCount: parseInt(product.review_count || product.reviews) || 0,
+                  researchScore: parseFloat(product.research_score || product.affiliate_score) || 0,
                   keywords: product.keywords || [],
-                  apiSource: 'rye',
-                  marketplace: product.marketplace || 'AMAZON',
-                  ryeProductId: product.external_id || product.id,
+                  apiSource: 'serp_api',
+                  marketplace: product.marketplace || product.source || 'GOOGLE_SHOPPING',
                   vendor: product.vendor || product.brand || '',
                   isAvailable: product.isAvailable !== false,
                   features: product.features || [],
@@ -1996,7 +1999,7 @@ asyncio.run(main())
               result.session_id = session.id;
               result.success = true;
               
-              console.log(`Rye research complete: ${result.products?.length || 0} products found for "${niche}"`);
+              console.log(`SERP API research complete: ${result.products?.length || 0} products found for "${niche}"`);
               
             } catch (storageError) {
               console.error('Failed to store research session:', storageError);
