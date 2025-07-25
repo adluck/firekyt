@@ -4392,6 +4392,15 @@ asyncio.run(main())
     try {
       const { contentId, siteId, keywords, context } = req.body;
       
+      console.log(`🚀 NEW AI SUGGEST REQUEST:`, {
+        contentId,
+        siteId,
+        keywords,
+        contextLength: context?.length || 0,
+        userId: req.user!.id,
+        timestamp: new Date().toISOString()
+      });
+      
       if (!contentId) {
         return res.status(400).json({ message: "Content ID is required" });
       }
@@ -4399,7 +4408,7 @@ asyncio.run(main())
       // Get user's intelligent links for matching
       const userLinks = await storage.getUserIntelligentLinks(req.user!.id, siteId);
       console.log(`AI Suggest Debug: Found ${userLinks.length} user links for matching`);
-      console.log(`AI Suggest Debug: Keywords: ${JSON.stringify(keywords)}, Context: "${context}"`);
+      console.log(`AI Suggest Debug: Keywords: ${JSON.stringify(keywords)}, Context: "${context?.substring(0, 100)}..."`);
       
       // Check if user has any intelligent links
       if (userLinks.length === 0) {
@@ -4430,8 +4439,8 @@ asyncio.run(main())
           message: "No relevant links found for your content. Try adding keywords that match your intelligent links or create more specific links.",
           debugInfo: {
             totalLinks: userLinks.length,
-            keywordsProvided: keywords.length,
-            contentLength: context.length
+            keywordsProvided: keywords?.length || 0,
+            contentLength: context?.length || 0
           }
         });
       }
