@@ -4621,6 +4621,12 @@ async function generateAILinkSuggestions(params: {
 }): Promise<any[]> {
   const { userLinks, keywords, context } = params;
   
+  console.log(`🎯 AI Analysis Starting:`, {
+    linksCount: userLinks.length,
+    keywordsProvided: keywords,
+    contentLength: context.length
+  });
+  
   // AI-powered matching algorithm
   const suggestions = [];
   
@@ -4631,59 +4637,88 @@ async function generateAILinkSuggestions(params: {
     let reasoning = '';
     let contextMatch = {};
     
-    // Keyword matching
-    const linkKeywords = link.keywords || [];
-    const targetKeywords = link.targetKeywords || [];
-    const allLinkKeywords = [...linkKeywords, ...targetKeywords];
+    console.log(`🔍 Analyzing link: "${link.title}"`);
+    console.log(`📝 Link keywords:`, link.keywords);
+    console.log(`🎯 Target keywords:`, link.targetKeywords);
     
-    const keywordMatches = keywords.filter(keyword => 
+    // Enhanced keyword matching with exact and partial matches
+    const linkKeywords = (link.keywords || []).map(k => k.toLowerCase());
+    const targetKeywords = (link.targetKeywords || []).map(k => k.toLowerCase());
+    const allLinkKeywords = [...linkKeywords, ...targetKeywords];
+    const inputKeywords = keywords.map(k => k.toLowerCase());
+    
+    // Exact keyword matches (higher weight)
+    const exactMatches = inputKeywords.filter(keyword => 
+      allLinkKeywords.includes(keyword)
+    );
+    
+    // Partial keyword matches (lower weight)
+    const partialMatches = inputKeywords.filter(keyword => 
+      !exactMatches.includes(keyword) && 
       allLinkKeywords.some(linkKeyword => 
-        linkKeyword.toLowerCase().includes(keyword.toLowerCase()) ||
-        keyword.toLowerCase().includes(linkKeyword.toLowerCase())
+        linkKeyword.includes(keyword) || keyword.includes(linkKeyword)
       )
     );
     
-    if (keywordMatches.length > 0) {
-      confidence += (keywordMatches.length / keywords.length) * 40;
-      contextMatch.keywordMatches = keywordMatches;
-      reasoning += `Matches ${keywordMatches.length} keywords: ${keywordMatches.join(', ')}. `;
+    if (exactMatches.length > 0) {
+      confidence += exactMatches.length * 25; // High confidence for exact matches
+      contextMatch.exactKeywordMatches = exactMatches;
+      reasoning += `Exact keyword matches (${exactMatches.length}): ${exactMatches.join(', ')}. `;
+      console.log(`✅ Exact matches found:`, exactMatches);
     }
     
-    // Context matching
-    if (context && link.description) {
-      const contextWords = context.toLowerCase().split(/\s+/);
-      const descriptionWords = link.description.toLowerCase().split(/\s+/);
-      const commonWords = contextWords.filter(word => 
-        word.length > 3 && descriptionWords.includes(word)
-      );
-
-      if (commonWords.length > 0) {
-        confidence += Math.min(commonWords.length * 5, 25);
-        contextMatch.contextWords = commonWords;
-        reasoning += `Context relevance: ${commonWords.length} matching terms. `;
+    if (partialMatches.length > 0) {
+      confidence += partialMatches.length * 10; // Lower confidence for partial matches
+      contextMatch.partialKeywordMatches = partialMatches;
+      reasoning += `Partial keyword matches (${partialMatches.length}): ${partialMatches.join(', ')}. `;
+      console.log(`🔸 Partial matches found:`, partialMatches);
+    }
+    
+    // Enhanced content analysis with title and description matching
+    if (context && context.length > 10) {
+      const contextLower = context.toLowerCase();
+      const titleLower = (link.title || '').toLowerCase();
+      const descriptionLower = (link.description || '').toLowerCase();
+      
+      // Check if link title appears in content
+      const titleWords = titleLower.split(/\s+/).filter(w => w.length > 3);
+      const titleInContent = titleWords.filter(word => contextLower.includes(word));
+      if (titleInContent.length > 0) {
+        confidence += titleInContent.length * 8;
+        contextMatch.titleInContent = titleInContent;
+        reasoning += `Title relevance: ${titleInContent.length} terms found. `;
+        console.log(`📄 Title words in content:`, titleInContent);
+      }
+      
+      // Check for thematic relevance
+      const contentWords = contextLower.split(/\s+/).filter(w => w.length > 4);
+      const descriptionWords = descriptionLower.split(/\s+/).filter(w => w.length > 4);
+      const thematicMatches = contentWords.filter(word => descriptionWords.includes(word));
+      
+      if (thematicMatches.length > 0) {
+        confidence += Math.min(thematicMatches.length * 3, 15);
+        contextMatch.thematicWords = thematicMatches;
+        reasoning += `Thematic relevance: ${thematicMatches.length} terms. `;
+        console.log(`🎨 Thematic matches:`, thematicMatches);
       }
     }
     
-    // Priority boost
-    confidence += (link.priority / 100) * 15;
+    // Only add minimal boosts for other factors
+    confidence += (link.priority / 100) * 5; // Reduced priority boost
     
-    // Category relevance
-    if (link.categoryId) {
-      confidence += 10;
-      reasoning += 'Categorized link. ';
-    }
+    // Require meaningful content relevance for suggestions
+    const hasKeywordMatch = exactMatches.length > 0 || partialMatches.length > 0;
+    const hasContentRelevance = contextMatch.thematicWords?.length > 0 || contextMatch.titleInContent?.length > 0;
     
-    // Performance boost for high-performing links
-    if (link.affiliateData?.commissionRate) {
-      const commissionRate = parseFloat(link.affiliateData.commissionRate);
-      if (commissionRate > 5) {
-        confidence += 10;
-        reasoning += `High commission rate (${commissionRate}%). `;
-      }
-    }
+    console.log(`📊 Link "${link.title}" analysis:`, {
+      confidence: confidence.toFixed(1),
+      hasKeywordMatch,
+      hasContentRelevance,
+      reasoning: reasoning.trim()
+    });
     
-    // Only suggest links with reasonable confidence  
-    if (confidence >= 15) { // Lowered threshold for better suggestions
+    // Only suggest links with actual relevance (much higher threshold)
+    if (confidence >= 35 && (hasKeywordMatch || hasContentRelevance)) {
       suggestions.push({
         linkId: link.id,
         anchorText: link.title,
@@ -4694,8 +4729,13 @@ async function generateAILinkSuggestions(params: {
         originalUrl: link.originalUrl,
         shortenedUrl: link.shortenedUrl
       });
+      console.log(`✅ Link "${link.title}" ADDED to suggestions with ${confidence.toFixed(1)}% confidence`);
+    } else {
+      console.log(`❌ Link "${link.title}" REJECTED - confidence: ${confidence.toFixed(1)}%, hasKeywordMatch: ${hasKeywordMatch}, hasContentRelevance: ${hasContentRelevance}`);
     }
   }
+  
+  console.log(`🎯 Final AI Analysis Results: ${suggestions.length} suggestions generated`);
   
   // Sort by confidence and return top suggestions
   return suggestions
