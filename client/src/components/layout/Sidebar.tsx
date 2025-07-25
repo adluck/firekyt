@@ -61,73 +61,79 @@ interface SidebarProps {
   onMobileClose?: () => void;
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, dataTour: 'dashboard-nav' },
-  { name: 'Sites', href: '/sites', icon: Globe, dataTour: 'sites-nav' },
-  { 
-    name: 'Content', 
-    href: '/content', 
-    icon: FileText,
-    dataTour: 'content-nav',
-    submenu: [
-      { name: 'AI Generator', href: '/content', icon: FileText },
-      { name: 'Rich Editor', href: '/content/editor', icon: FileText },
-      { name: 'Content Manager', href: '/content/manage', icon: FileText },
-      { name: 'Content Insights', href: '/analytics', icon: Telescope }
-    ]
-  },
-  { 
-    name: 'Ad Copy', 
-    href: '/ad-copy-generator', 
-    icon: Sparkles,
-    dataTour: 'ad-copy-nav',
-    submenu: [
-      { name: 'Generate Ad Copy', href: '/ad-copy-generator', icon: Sparkles },
-      { name: 'My Campaigns', href: '/my-ads', icon: Folder }
-    ]
-  },
-  { 
-    name: 'Research', 
-    href: '/research', 
-    icon: Search,
-    dataTour: 'research-nav',
-    submenu: [
-      { name: 'Niche Insights', href: '/research/niche', icon: Brain },
-      { name: 'Product Research', href: '/research', icon: Search },
-      { name: 'SEO Analysis', href: '/research/seo', icon: SearchCheck },
-      { name: 'Saved Analyses', href: '/research/seo-storage', icon: Database },
-      { name: 'Keyword Analytics', href: '/research/keywords', icon: Key }
-    ]
-  },
-  { 
-    name: 'Link Management', 
-    href: '/links', 
-    icon: Link2,
-    dataTour: 'link-management-nav',
-    submenu: [
-      { name: 'Link Dashboard', href: '/links', icon: Link2 },
-      { name: 'Link Intelligence', href: '/links/intelligent', icon: Lightbulb },
-      { name: 'AI Link Inserter', href: '/links/inserter', icon: Brain },
-      { name: 'Auto-Link Rules', href: '/auto-link-rules', icon: Zap },
-      { name: 'Partner Networks', href: '/partner-networks', icon: Network }
-    ]
-  },
-  { 
-    name: 'Ad Widgets', 
-    href: '/ads-widgets', 
-    icon: Monitor,
-    dataTour: 'widgets-nav',
-    submenu: [
-      { name: 'Create Widget', href: '/ads-widgets/create', icon: Plus },
-      { name: 'Manage Widgets', href: '/ads-widgets', icon: Monitor },
-      { name: 'Ad Sizes Demo', href: '/ads-widgets/sizes', icon: Ruler }
-    ]
-  },
-  { name: 'Publishing', href: '/publishing', icon: Send, dataTour: 'publishing-nav' },
-  // { name: 'Billing', href: '/billing', icon: CreditCard }, // Temporarily hidden
-  { name: 'Documentation', href: '/docs', icon: BookOpen, dataTour: 'documentation-nav' },
-  { name: 'Settings', href: '/settings', icon: Settings, dataTour: 'settings-nav' },
-];
+// Function to filter navigation based on user role
+const getNavigationItems = (isAdmin: boolean) => {
+  const baseNavigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, dataTour: 'dashboard-nav' },
+    { name: 'Sites', href: '/sites', icon: Globe, dataTour: 'sites-nav' },
+    { 
+      name: 'Content', 
+      href: '/content', 
+      icon: FileText,
+      dataTour: 'content-nav',
+      submenu: [
+        { name: 'AI Generator', href: '/content', icon: FileText },
+        { name: 'Rich Editor', href: '/content/editor', icon: FileText },
+        { name: 'Content Manager', href: '/content/manage', icon: FileText },
+        { name: 'Content Insights', href: '/analytics', icon: Telescope }
+      ]
+    },
+    { 
+      name: 'Ad Copy', 
+      href: '/ad-copy-generator', 
+      icon: Sparkles,
+      dataTour: 'ad-copy-nav',
+      submenu: [
+        { name: 'Generate Ad Copy', href: '/ad-copy-generator', icon: Sparkles },
+        { name: 'My Campaigns', href: '/my-ads', icon: Folder }
+      ]
+    },
+    { 
+      name: 'Research', 
+      href: '/research', 
+      icon: Search,
+      dataTour: 'research-nav',
+      submenu: [
+        { name: 'Niche Insights', href: '/research/niche', icon: Brain },
+        // Product Research is admin-only
+        ...(isAdmin ? [{ name: 'Product Research', href: '/research', icon: Search }] : []),
+        { name: 'SEO Analysis', href: '/research/seo', icon: SearchCheck },
+        { name: 'Saved Analyses', href: '/research/seo-storage', icon: Database },
+        { name: 'Keyword Analytics', href: '/research/keywords', icon: Key }
+      ]
+    },
+    { 
+      name: 'Link Management', 
+      href: '/links', 
+      icon: Link2,
+      dataTour: 'link-management-nav',
+      submenu: [
+        { name: 'Link Dashboard', href: '/links', icon: Link2 },
+        { name: 'Link Intelligence', href: '/links/intelligent', icon: Lightbulb },
+        { name: 'AI Link Inserter', href: '/links/inserter', icon: Brain },
+        { name: 'Auto-Link Rules', href: '/auto-link-rules', icon: Zap },
+        { name: 'Partner Networks', href: '/partner-networks', icon: Network }
+      ]
+    },
+    { 
+      name: 'Ad Widgets', 
+      href: '/ads-widgets', 
+      icon: Monitor,
+      dataTour: 'widgets-nav',
+      submenu: [
+        { name: 'Create Widget', href: '/ads-widgets/create', icon: Plus },
+        { name: 'Manage Widgets', href: '/ads-widgets', icon: Monitor },
+        { name: 'Ad Sizes Demo', href: '/ads-widgets/sizes', icon: Ruler }
+      ]
+    },
+    { name: 'Publishing', href: '/publishing', icon: Send, dataTour: 'publishing-nav' },
+    // { name: 'Billing', href: '/billing', icon: CreditCard }, // Temporarily hidden
+    { name: 'Documentation', href: '/docs', icon: BookOpen, dataTour: 'documentation-nav' },
+    { name: 'Settings', href: '/settings', icon: Settings, dataTour: 'settings-nav' },
+  ];
+  
+  return baseNavigation;
+};
 
 // Admin-only navigation items
 const adminNavigation = [
@@ -150,6 +156,10 @@ export function Sidebar({
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  
+  // Get navigation items based on user role
+  const isAdmin = user?.role === 'admin';
+  const navigation = getNavigationItems(isAdmin);
 
   const handleLogout = async () => {
     await logout();
@@ -285,7 +295,7 @@ export function Sidebar({
                                     isSubActive && "bg-accent text-accent-foreground"
                                   )}
                                   onClick={() => {
-                                    setIsMobileOpen(false);
+                                    onMobileClose?.();
                                     setExpandedMenus([]);
                                   }}
                                 >
@@ -342,7 +352,7 @@ export function Sidebar({
                                 "nav-link text-sm ml-0",
                                 isSubActive && "active"
                               )}
-                              onClick={() => onMobileClose()}
+                              onClick={() => onMobileClose?.()}
                             >
                               <subItem.icon className="h-4 w-4" />
                               {subItem.name}
@@ -363,7 +373,7 @@ export function Sidebar({
                       isCollapsed ? "justify-center px-0" : "",
                       isActive && "active"
                     )}
-                    onClick={() => onMobileClose()}
+                    onClick={() => onMobileClose?.()}
                     title={isCollapsed ? item.name : undefined}
                     data-tour={item.dataTour}
                   >
@@ -393,7 +403,7 @@ export function Sidebar({
                           isCollapsed ? "justify-center px-0" : "",
                           isActive && "active"
                         )}
-                        onClick={() => onMobileClose()}
+                        onClick={() => onMobileClose?.()}
                         title={isCollapsed ? item.name : undefined}
                       >
                         <item.icon className="h-5 w-5" />
