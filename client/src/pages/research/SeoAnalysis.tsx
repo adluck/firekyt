@@ -77,6 +77,10 @@ export default function SeoAnalysis() {
   const analysisMutation = useMutation({
     mutationFn: async (data: { keyword: string; target_region: string }) => {
       const response = await apiRequest('POST', '/api/analyze-seo', data);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.userMessage || errorData.details || errorData.error || 'Analysis failed');
+      }
       return response.json() as Promise<AnalysisResponse>;
     },
     onSuccess: (data) => {

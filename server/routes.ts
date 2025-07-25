@@ -1755,6 +1755,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const serpData = await serpResponse.json();
 
       if (serpData.error) {
+        // Handle specific SERP API errors with user-friendly messages
+        if (serpData.error.includes('run out of searches') || serpData.error.includes('quota')) {
+          return res.status(429).json({ 
+            error: 'API quota exceeded', 
+            details: 'The keyword analysis service has reached its daily limit. Please try again tomorrow or contact support for increased limits.',
+            userMessage: 'Daily search limit reached. Please try again tomorrow.'
+          });
+        }
         throw new Error(`SerpAPI error: ${serpData.error}`);
       }
 
