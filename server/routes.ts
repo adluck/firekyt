@@ -1726,7 +1726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // SEO Analysis endpoint
+  // SEO Analysis endpoint with Gemini AI fallback
   app.post('/api/analyze-seo', authenticateToken, async (req, res) => {
     try {
       const { keyword, target_region = 'US', include_competitors = true, include_suggestions = true } = req.body;
@@ -1736,12 +1736,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Keyword is required' });
       }
 
+      // Check if we should use Gemini AI directly (if SERP API is not available or quota exceeded)
+      const useGeminiDirectly = !process.env.SERP_API_KEY;
+      
+      if (useGeminiDirectly) {
+        // Use Gemini AI for keyword analysis
+        const { analyzeKeywordWithGemini } = await import('./gemini-seo-analysis');
+        const geminiAnalysis = await analyzeKeywordWithGemini(keyword, target_region);
+        
+        // Convert Gemini analysis to our standard format
+        const analysisData = {
+          userId,
+          keyword: geminiAnalysis.keyword,
+          targetRegion: target_region,
+          searchVolume: geminiAnalysis.searchVolume,
+          keywordDifficulty: geminiAnalysis.keywordDifficulty,
+          competitionLevel: geminiAnalysis.competitionLevel,
+          cpcEstimate: geminiAnalysis.cpcEstimate,
+          topCompetitors: [], // Gemini doesn't provide real competitors
+          suggestedTitles: geminiAnalysis.suggestedTitles,
+          suggestedDescriptions: geminiAnalysis.suggestedDescriptions,
+          suggestedHeaders: geminiAnalysis.suggestedHeaders,
+          relatedKeywords: geminiAnalysis.relatedKeywords,
+          serpFeatures: ['AI Analysis'],
+          trendsData: { seasonality: geminiAnalysis.seasonality },
+          apiSource: 'gemini_ai',
+          analysisDate: new Date()
+        };
+
+        // Save analysis to database
+        const analysis = await storage.createSeoAnalysis(analysisData);
+        
+        return res.json({
+          success: true,
+          analysis: {
+            ...analysis,
+            contentStrategy: geminiAnalysis.contentStrategy,
+            targetAudience: geminiAnalysis.targetAudience,
+            competitorInsights: geminiAnalysis.competitorInsights,
+            seoOpportunities: geminiAnalysis.seoOpportunities,
+            contentIdeas: geminiAnalysis.contentIdeas,
+            commercialIntent: geminiAnalysis.commercialIntent
+          },
+          message: 'SEO analysis completed with AI insights'
+        });
+      }
+
       const serpApiKey = process.env.SERP_API_KEY;
       if (!serpApiKey) {
         return res.status(500).json({ error: 'SerpAPI key not configured' });
       }
 
-      // Fetch real SERP data
+      // Try SERP API first, fallback to Gemini if quota exceeded
       const serpParams = new URLSearchParams({
         engine: 'google',
         q: keyword,
@@ -1755,12 +1801,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const serpData = await serpResponse.json();
 
       if (serpData.error) {
-        // Handle specific SERP API errors with user-friendly messages
+        // Handle specific SERP API errors - fallback to Gemini AI
         if (serpData.error.includes('run out of searches') || serpData.error.includes('quota')) {
-          return res.status(429).json({ 
-            error: 'API quota exceeded', 
-            details: 'The keyword analysis service has reached its daily limit. Please try again tomorrow or contact support for increased limits.',
-            userMessage: 'Daily search limit reached. Please try again tomorrow.'
+          console.log('SERP API quota exceeded, falling back to Gemini AI');
+          
+          const { analyzeKeywordWithGemini } = await import('./gemini-seo-analysis');
+          const geminiAnalysis = await analyzeKeywordWithGemini(keyword, target_region);
+          
+          const analysisData = {
+            userId,
+            keyword: geminiAnalysis.keyword,
+            targetRegion: target_region,
+            searchVolume: geminiAnalysis.searchVolume,
+            keywordDifficulty: geminiAnalysis.keywordDifficulty,
+            competitionLevel: geminiAnalysis.competitionLevel,
+            cpcEstimate: geminiAnalysis.cpcEstimate,
+            topCompetitors: [],
+            suggestedTitles: geminiAnalysis.suggestedTitles,
+            suggestedDescriptions: geminiAnalysis.suggestedDescriptions,
+            suggestedHeaders: geminiAnalysis.suggestedHeaders,
+            relatedKeywords: geminiAnalysis.relatedKeywords,
+            serpFeatures: ['AI Analysis (SERP quota exceeded)'],
+            trendsData: { seasonality: geminiAnalysis.seasonality },
+            apiSource: 'gemini_ai_fallback',
+            analysisDate: new Date()
+          };
+
+          const analysis = await storage.createSeoAnalysis(analysisData);
+          
+          return res.json({
+            success: true,
+            analysis: {
+              ...analysis,
+              contentStrategy: geminiAnalysis.contentStrategy,
+              targetAudience: geminiAnalysis.targetAudience,
+              competitorInsights: geminiAnalysis.competitorInsights,
+              seoOpportunities: geminiAnalysis.seoOpportunities,
+              contentIdeas: geminiAnalysis.contentIdeas,
+              commercialIntent: geminiAnalysis.commercialIntent
+            },
+            message: 'SEO analysis completed with AI insights (SERP quota exceeded, using AI analysis)'
           });
         }
         throw new Error(`SerpAPI error: ${serpData.error}`);

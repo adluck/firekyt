@@ -54,6 +54,13 @@ interface SeoAnalysis {
   trendsData: any;
   apiSource: string;
   analysisDate: string;
+  // Enhanced Gemini AI fields
+  contentStrategy?: string;
+  targetAudience?: string;
+  competitorInsights?: string[];
+  seoOpportunities?: string[];
+  contentIdeas?: string[];
+  commercialIntent?: string;
 }
 
 interface AnalysisResponse {
@@ -255,12 +262,48 @@ export default function SeoAnalysis() {
             </Card>
           </div>
 
+          {/* AI-Enhanced Analysis */}
+          {(analysisResult.contentStrategy || analysisResult.targetAudience) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {analysisResult.contentStrategy && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Lightbulb className="w-5 h-5 mr-2" />
+                      AI Content Strategy
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="prose dark:prose-invert max-w-none text-sm">
+                      <p>{analysisResult.contentStrategy}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              {analysisResult.targetAudience && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Users className="w-5 h-5 mr-2" />
+                      Target Audience
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{analysisResult.targetAudience}</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
           {/* Detailed Analysis */}
           <Tabs defaultValue="competitors" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="competitors">Top Competitors</TabsTrigger>
               <TabsTrigger value="suggestions">Content Ideas</TabsTrigger>
               <TabsTrigger value="keywords">Related Keywords</TabsTrigger>
+              <TabsTrigger value="opportunities">AI Insights</TabsTrigger>
               <TabsTrigger value="serp">SERP Features</TabsTrigger>
             </TabsList>
 
