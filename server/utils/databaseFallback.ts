@@ -76,4 +76,32 @@ export class DatabaseFallbackManager {
       ]
     };
   }
+
+  // Emergency content data
+  static getDemoContent() {
+    return [
+      {
+        id: 1,
+        title: "Best Gaming Headsets 2024",
+        content: "Emergency fallback content - database service temporarily unavailable",
+        status: "published",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  // Emergency sites data
+  static getDemoSites() {
+    return [
+      {
+        id: 1,
+        name: "Demo Site",
+        url: "https://example.com",
+        platform: "wordpress",
+        status: "active",
+        isActive: true
+      }
+    ];
+  }
 }

