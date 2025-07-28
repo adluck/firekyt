@@ -34,6 +34,8 @@ import { plagiarismService } from "./services/PlagiarismService";
 import { ContentService } from "./ContentService";
 import { IntegrationService } from "./IntegrationService";
 import { connectionValidationService } from "./ConnectionValidationService";
+import { DatabaseFallbackManager } from "./utils/databaseFallback";
+import linkIntelligenceRouter from "./routes/linkIntelligence";
 import { 
   rateLimiter, 
   apiRateLimit, 
@@ -151,6 +153,8 @@ const checkSubscriptionLimit = (limitType: string) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register database-free routes first
+  app.use(linkIntelligenceRouter);
   // Initialize services
   const contentService = new ContentService();
   // Health check
