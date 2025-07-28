@@ -9,7 +9,6 @@ import { Zap, AlertCircle } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
-import { EmergencyStatusBanner } from "@/components/EmergencyStatusBanner";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -44,10 +43,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <EmergencyStatusBanner />
-      <div className="flex-1 flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <img 
@@ -117,8 +114,7 @@ export default function Login() {
             </Link>
           </div>
         </CardContent>
-        </Card>
-      </div>
+      </Card>
     </div>
   );
 }

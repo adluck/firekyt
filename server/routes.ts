@@ -6420,48 +6420,7 @@ async function generateAILinkSuggestions(params: {
     res.sendFile(path.join(process.cwd(), 'test-widget-direct.html'));
   });
 
-  // System status endpoint for emergency notifications
-  app.get('/api/system/status', (req, res) => {
-    try {
-      // Check current system status - service fully restored
-      const currentStatus = {
-        status: 'operational',
-        message: 'All systems operational. Database connectivity has been fully restored.',
-        services: {
-          authentication: {
-            status: 'operational',
-            description: 'Full authentication service restored'
-          },
-          smartLinkAssistant: {
-            status: 'operational',
-            description: 'Fully functional'
-          },
-          database: {
-            status: 'operational',
-            description: 'Database connectivity restored'
-          },
-          contentGeneration: {
-            status: 'operational',
-            description: 'AI features working normally'
-          },
-          analytics: {
-            status: 'operational',
-            description: 'Real-time analytics fully operational'
-          }
-        },
-        lastIncident: {
-          date: '2025-07-28',
-          issue: 'Temporary database provider (Neon) endpoint disable',
-          resolution: 'Resolved by database provider',
-          duration: '~2 hours'
-        }
-      };
 
-      res.json(currentStatus);
-    } catch (error: any) {
-      res.status(500).json({ error: 'Failed to check system status' });
-    }
-  });
 
   // ===== AD COPY GENERATION API ROUTES =====
 
