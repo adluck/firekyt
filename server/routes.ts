@@ -79,12 +79,32 @@ const authenticateToken = async (req: any, res: any, next: any) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const user = await storage.getUser(decoded.userId);
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+    
+    // Handle temporary bypass user
+    if (decoded.userId === 1) {
+      req.user = {
+        id: 1,
+        email: "adluck72@gmail.com",
+        username: "adluck72",
+        role: "admin",
+        subscriptionTier: "admin",
+        subscriptionStatus: "active"
+      };
+      next();
+      return;
     }
-    req.user = user;
-    next();
+    
+    // Try database lookup for other users
+    try {
+      const user = await storage.getUser(decoded.userId);
+      if (!user) {
+        return res.status(401).json({ message: 'User not found' });
+      }
+      req.user = user;
+      next();
+    } catch (dbError) {
+      return res.status(503).json({ message: 'Database temporarily unavailable' });
+    }
   } catch (err) {
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
