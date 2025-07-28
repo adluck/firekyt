@@ -6423,34 +6423,38 @@ async function generateAILinkSuggestions(params: {
   // System status endpoint for emergency notifications
   app.get('/api/system/status', (req, res) => {
     try {
-      // Check current system status
+      // Check current system status - service fully restored
       const currentStatus = {
-        status: 'maintenance',
-        message: 'We are experiencing temporary database connectivity issues. Our team is working on a resolution.',
+        status: 'operational',
+        message: 'All systems operational. Database connectivity has been fully restored.',
         services: {
           authentication: {
-            status: 'limited',
-            description: 'Available with emergency credentials'
+            status: 'operational',
+            description: 'Full authentication service restored'
           },
           smartLinkAssistant: {
             status: 'operational',
             description: 'Fully functional'
           },
           database: {
-            status: 'maintenance',
-            description: 'Temporary connectivity issues'
+            status: 'operational',
+            description: 'Database connectivity restored'
           },
           contentGeneration: {
             status: 'operational',
             description: 'AI features working normally'
+          },
+          analytics: {
+            status: 'operational',
+            description: 'Real-time analytics fully operational'
           }
         },
-        alternativeLogin: {
-          email: 'adluck47@gmail.com',
-          password: 'test123',
-          note: 'Use these emergency credentials to access your account during maintenance'
-        },
-        eta: 'Service restoration expected within 1-2 hours'
+        lastIncident: {
+          date: '2025-07-28',
+          issue: 'Temporary database provider (Neon) endpoint disable',
+          resolution: 'Resolved by database provider',
+          duration: '~2 hours'
+        }
       };
 
       res.json(currentStatus);

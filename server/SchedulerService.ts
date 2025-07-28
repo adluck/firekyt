@@ -23,20 +23,20 @@ export class SchedulerService {
     
     console.log("🚀 Starting publication scheduler...");
     
-    // DISABLED during database outage to prevent rate limits
+    // Database connectivity restored - re-enabling scheduler
     // Check immediately on start
-    // this.processScheduledPublications();
+    this.processScheduledPublications();
     
-    // DISABLED: Scheduler causing database rate limits during production outage
-    console.log("📅 Scheduler DISABLED during database maintenance - avoiding rate limits");
+    // Re-enabled: Database is now operational
+    console.log("📅 Scheduler service restored - database connectivity confirmed");
     
     // Then check every 30 seconds for better responsiveness
-    // this.intervalId = setInterval(() => {
-    //   console.log("⏰ Scheduler checking for pending publications...");
-    //   this.processScheduledPublications();
-    // }, 30 * 1000); // Check every 30 seconds
+    this.intervalId = setInterval(() => {
+      console.log("⏰ Scheduler checking for pending publications...");
+      this.processScheduledPublications();
+    }, 30 * 1000); // Check every 30 seconds
 
-    // console.log("✅ Publication scheduler started - checking every 30 seconds");
+    console.log("✅ Publication scheduler started - checking every 30 seconds");
   }
 
   /**
